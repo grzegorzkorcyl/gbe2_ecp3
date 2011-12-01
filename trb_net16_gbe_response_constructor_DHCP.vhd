@@ -143,7 +143,7 @@ g_MY_IP <= saved_true_ip when main_current_state = ESTABLISHED else (others => '
 SAVE_SERVER_ADDR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		if (RESET = '1') or (main_current_state = BOOTING) then
 			saved_server_mac <= (others => '0');
 			saved_server_ip <= (others => '0');
 		elsif (main_current_state = WAITING_FOR_OFFER) and (receive_current_state = SAVE_VALUES and save_ctr = 1) then
@@ -175,8 +175,6 @@ begin
 		when BOOTING =>
 			state2 <= x"1";
 			if (DHCP_START_IN = '1') then
-			--if (wait_ctr = x"3baa_ca00") then  -- wait for 10 sec
-			--if (wait_ctr = x"0000_0010") then  -- for sim only
 				main_next_state <= SENDING_DISCOVER;
 			else
 				main_next_state <= BOOTING;
@@ -194,6 +192,8 @@ begin
 			state2 <= x"3"; 
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= SENDING_REQUEST;
+			elsif (wait_ctr = x"ffff_ffff") then
+				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_OFFER;
 			end if;
@@ -210,6 +210,8 @@ begin
 			state2 <= x"5";
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= ESTABLISHED;
+			elsif (wait_ctr = x"ffff_ffff") then
+				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_ACK;
 			end if;
@@ -229,9 +231,9 @@ end process MAIN_MACHINE;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = ESTABLISHED) then
+		if (RESET = '1') or (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST) then
 			wait_ctr <= (others => '0');
-		elsif (main_current_state = BOOTING) then
+		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER) then
 			wait_ctr <= wait_ctr + x"1";
 		end if;
 	end if;
@@ -245,7 +247,7 @@ DHCP_DONE_OUT <= '1' when main_current_state = ESTABLISHED else '0';
 RECEIVE_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		if (RESET = '1') or (main_current_state = BOOTING) then
 			receive_current_state <= IDLE;
 		else
 			receive_current_state <= receive_next_state;
@@ -261,7 +263,7 @@ begin
 			state3 <= x"1";
 			if (PS_ACTIVATE_IN = '1' and PS_WR_EN_IN = '1') then
 				if (main_current_state = WAITING_FOR_OFFER or main_current_state = WAITING_FOR_ACK) then  -- ready to receive dhcp frame
-					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) then  -- check if i'm the addressee (discards broadcasts also)
+					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC or (PS_DEST_MAC_ADDRESS_IN = x"ffffffffffff") then  -- check if i'm the addressee (discards broadcasts also)
 						receive_next_state <= SAVE_VALUES;
 					else
 						receive_next_state <= DISCARD;  -- discard if the frame is not for me
@@ -320,7 +322,7 @@ end process SAVE_CTR_PROC;
 SAVE_VALUES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		if (RESET = '1') or (main_current_state = BOOTING) then
 			saved_transaction_id <= (others => '0');
 			saved_proposed_ip    <= (others => '0');
 			saved_dhcp_type      <= (others => '0');
@@ -421,7 +423,7 @@ end process SAVE_VALUES_PROC;
 CONSTRUCT_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		if (RESET = '1') or (main_current_state = BOOTING) then
 			construct_current_state <= IDLE;
 		else
 			construct_current_state <= construct_next_state;

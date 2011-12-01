@@ -172,7 +172,8 @@ port (
 	PCS_AN_COMPLETE_IN	: in	std_logic;
 
 -- signals to/from hub
-
+	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
+	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
 	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);

@@ -71,6 +71,7 @@ port (
 	PCS_AN_COMPLETE_IN	: in	std_logic;
 
 -- signals to/from hub
+	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -94,10 +95,6 @@ architecture trb_net16_gbe_main_control of trb_net16_gbe_main_control is
 
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_main_control : architecture is "GBE_MAIN_group";
-
-signal saved_frame_req                      : std_logic;
-signal saved_frame_req_q                    : std_logic;
-signal saved_frame_req_t                    : std_logic;
 
 signal tsm_ready                            : std_logic;
 signal tsm_reconf                           : std_logic;

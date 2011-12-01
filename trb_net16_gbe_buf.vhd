@@ -640,7 +640,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
 
   -- signals to/from hub
-
+	  MC_UNIQUE_ID_IN	=> (others => '0'),
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
