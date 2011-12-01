@@ -1604,11 +1604,12 @@ CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
 STAGE_STAT_REGS_OUT      <= stage_stat_regs;
 
 ANALYZER_DEBUG_OUT       <= analyzer_debug;
-analyzer_debug(0) <= serdes_clk_125;
-analyzer_debug(1) <= not pcs_stat_debug(22);
-analyzer_debug(2) <= SFP_PRSNT_N_IN;
-analyzer_debug(3) <= SFP_LOS_IN;
-analyzer_debug(63 downto 4) <= (others => '0');
+--analyzer_debug(0) <= serdes_clk_125;
+--analyzer_debug(1) <= not pcs_stat_debug(22);
+--analyzer_debug(2) <= SFP_PRSNT_N_IN;
+--analyzer_debug(3) <= SFP_LOS_IN;
+--analyzer_debug(63 downto 4) <= (others => '0');
+analyzer_debug(3 downto 0) <= dbg_mc(15 downto 12); 
 
 
 end architecture;
