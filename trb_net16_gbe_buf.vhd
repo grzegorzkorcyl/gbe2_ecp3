@@ -12,7 +12,7 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 --use work.version.all;
-
+ble ble
 entity trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
@@ -104,7 +104,7 @@ architecture trb_net16_gbe_buf of trb_net16_gbe_buf is
 --attribute HGROUP of trb_net16_gbe_buf : architecture is "GBE_BUF_group";
 
 
-component tsmac3
+component tsmac34
 port(
 	--------------- clock and reset port declarations ------------------
 	hclk					: in	std_logic;
@@ -1243,7 +1243,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	--------------------------------------------------------------------------------------------
 	
 	-- MAC part
-	MAC: tsmac3
+	MAC: tsmac34
 	port map(
 	----------------- clock and reset port declarations ------------------
 		hclk				=> CLK,
@@ -1253,9 +1253,9 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
-		rxd				=> pcs_rxd, --x"00",
-		rx_dv 				=> pcs_rx_en, --'0',
-		rx_er				=> pcs_rx_er, --'0',
+		rxd				=> pcs_txd, --pcs_rxd, --x"00",
+		rx_dv 				=> pcs_tx_en, --pcs_rx_en, --'0',
+		rx_er				=> pcs_tx_er, --pcs_rx_er, --'0',
 		col				=> mac_col,
 		crs				=> mac_crs,
 	-------------------- Input signals to the CPU I/F -------------------
@@ -1323,7 +1323,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			RESET				=> RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
-			CLK_125_RX_OUT			=> open, --serdes_rx_clk,
+			CLK_125_RX_OUT			=> open,
 			CLK_125_IN			=> CLK_125_IN,
 			FT_TX_CLK_EN_OUT		=> mac_tx_clk_en,
 			FT_RX_CLK_EN_OUT		=> mac_rx_clk_en,
@@ -1351,10 +1351,10 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			MR_AN_LP_ABILITY_OUT		=> pcs_an_lp_ability,
 			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
 			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
-			MR_RESET_IN			=> MR_RESET_IN,
-			MR_MODE_IN			=> MR_MODE_IN,
+			MR_RESET_IN			=> RESET,
+			MR_MODE_IN			=> '0', --MR_MODE_IN,
 			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
-			MR_RESTART_AN_IN		=> MR_RESTART_IN,
+			MR_RESTART_AN_IN		=> '0', --MR_RESTART_IN,
 			-- Status and control port
 			STAT_OP				=> open,
 			CTRL_OP				=> x"0000",
@@ -1373,7 +1373,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			RESET				=> RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
-			CLK_125_RX_OUT			=> open, --serdes_rx_clk,
+			CLK_125_RX_OUT			=> serdes_rx_clk,
 			CLK_125_IN			=> '0',  -- not used
 			FT_TX_CLK_EN_OUT		=> mac_tx_clk_en,
 			FT_RX_CLK_EN_OUT		=> mac_rx_clk_en,
@@ -1604,5 +1604,11 @@ CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
 STAGE_STAT_REGS_OUT      <= stage_stat_regs;
 
 ANALYZER_DEBUG_OUT       <= analyzer_debug;
+analyzer_debug(0) <= serdes_clk_125;
+analyzer_debug(1) <= not pcs_stat_debug(22);
+analyzer_debug(2) <= SFP_PRSNT_N_IN;
+analyzer_debug(3) <= SFP_LOS_IN;
+analyzer_debug(63 downto 4) <= (others => '0');
+
 
 end architecture;
