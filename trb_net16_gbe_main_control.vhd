@@ -145,10 +145,11 @@ signal frame_waiting_ctr            : std_logic_vector(15 downto 0);
 signal ps_busy_q                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
-type redirect_states is (IDLE, CHECK_BUSY, LOAD, BUSY, FINISH, CLEANUP);
+type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
 
 signal frame_type                   : std_logic_vector(15 downto 0);
+signal disable_redirect, ps_wr_en_q : std_logic;
 
 begin
 
@@ -158,7 +159,7 @@ port map(
 	RESET			=> RESET,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
-	PS_WR_EN_IN		=> ps_wr_en,
+	PS_WR_EN_IN		=> ps_wr_en_q, --ps_wr_en,
 	PS_PROTO_SELECT_IN	=> proto_select,
 	PS_BUSY_OUT		=> ps_busy,
 	PS_FRAME_SIZE_IN	=> RC_FRAME_SIZE_IN,
@@ -198,10 +199,29 @@ port map(
 
 TC_FRAME_TYPE_OUT <= frame_type when flow_current_state = TRANSMIT_CTRL else x"0008";
 
-proto_select <= RC_FRAME_PROTO_IN;
---proto_select <= (others => '0') when (redirect_current_state = IDLE and RC_FRAME_WAITING_IN = '0')
---		else RC_FRAME_PROTO_IN;
+-- gk 07.11.11
+-- do not select any response constructors when dropping a frame
+proto_select <= RC_FRAME_PROTO_IN when disable_redirect = '0' else (others => '0');
 
+-- gk 07.11.11
+DISABLE_REDIRECT_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			disable_redirect <= '0';
+		elsif (redirect_current_state = CHECK_TYPE) then
+			if (link_current_state /= ACTIVE and link_current_state /= GET_ADDRESS) then
+				disable_redirect <= '1';
+			elsif (link_current_state = GET_ADDRESS and RC_FRAME_PROTO_IN /= "10") then
+				disable_redirect <= '1';
+			else
+				disable_redirect <= '0';
+			end if;
+		end if;
+	end if;
+end process DISABLE_REDIRECT_PROC;
+
+-- warning
 SYNC_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -226,17 +246,29 @@ begin
 	
 		when IDLE =>
 			redirect_state <= x"1";
-			if (RC_FRAME_WAITING_IN = '1') and (link_current_state = ACTIVE or link_current_state = GET_ADDRESS) then
-			--	if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
-			--		redirect_next_state <= LOAD;
-			--	else
-			--		redirect_next_state <= BUSY;
-			--	end if;
-				redirect_next_state <= CHECK_BUSY;
+			if (RC_FRAME_WAITING_IN = '1') then
+				redirect_next_state <= CHECK_TYPE;
 			else
 				redirect_next_state <= IDLE;
 			end if;
+		-- gk 16.11.11
+		when CHECK_TYPE =>
+			if (link_current_state = ACTIVE) then
+				redirect_next_state <= CHECK_BUSY;
+			elsif (link_current_state = GET_ADDRESS and RC_FRAME_PROTO_IN = "10") then
+				redirect_next_state <= CHECK_BUSY;
+			else
+				redirect_next_state <= DROP;
+			end if;			
 			
+		-- gk 07.11.11
+		when DROP =>
+			redirect_state <= x"7";
+			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
+				redirect_next_state <= FINISH;
+			else
+				redirect_next_state <= DROP;
+			end if;
 		when CHECK_BUSY =>
 			redirect_state <= x"6";
 			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
@@ -247,7 +279,6 @@ begin
 		
 		when LOAD =>
 			redirect_state <= x"2";
-			--if (RC_DATA_IN(8) = '1') and (ps_wr_en = '1') then
 			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
 				redirect_next_state <= FINISH;
 			else
@@ -273,21 +304,8 @@ begin
 	end case;
 end process REDIRECT_MACHINE;
 
-rc_rd_en <= '1' when redirect_current_state = LOAD else '0';
+rc_rd_en <= '1' when redirect_current_state = LOAD or redirect_current_state = DROP else '0';
 RC_RD_EN_OUT <= rc_rd_en;
-
---RC_RD_EN_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			rc_rd_en <= '0';
---		elsif (redirect_current_state = LOAD) then
---			rc_rd_en <= '1';
---		else
---			rc_rd_en <= '0';
---		end if;
---	end if;
---end process;
 
 LOADING_DONE_PROC : process(CLK)
 begin
@@ -301,12 +319,12 @@ begin
 		end if;
 	end if;
 end process LOADING_DONE_PROC;
---RC_LOADING_DONE_OUT <= '1' when (RC_DATA_IN(8) = '1') and (ps_wr_en = '1') else '0';
 
 PS_WR_EN_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		ps_wr_en <= rc_rd_en;
+		ps_wr_en   <= rc_rd_en;
+		ps_wr_en_q <= ps_wr_en;
 	end if;
 end process PS_WR_EN_PROC;
 
@@ -315,7 +333,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (redirect_current_state = IDLE) then
 			loaded_bytes_ctr <= (others => '0');
-		elsif (redirect_current_state = LOAD) and (rc_rd_en = '1') then
+		elsif (redirect_current_state = LOAD or redirect_current_state = DROP) and (rc_rd_en = '1') then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
 		end if;
 	end if;
@@ -393,9 +411,6 @@ TC_TRANSMIT_DATA_OUT <= '1' when (flow_current_state = TRANSMIT_DATA) else '0';
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
 
 
-
---RC_LOADING_DONE_OUT  <= '1' when (flow_current_state = TRANSMIT_CTRL) and (TC_TRANSMIT_DONE_IN = '1') else '0';
-
 --***********************
 --	LINK STATE CONTROL
 
@@ -418,7 +433,7 @@ begin
 		when ACTIVE =>
 			link_state <= x"1";
 			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE; --ENABLE_MAC;
+				link_next_state <= INACTIVE;
 			else
 				link_next_state <= ACTIVE;
 			end if;
@@ -427,7 +442,6 @@ begin
 			link_state <= x"2";
 			if (PCS_AN_COMPLETE_IN = '1') then
 				link_next_state <= TIMEOUT;
-				--link_next_state <= GET_ADDRESS;  -- for simulation only
 			else
 				link_next_state <= INACTIVE;
 			end if;
@@ -472,7 +486,6 @@ begin
 				link_next_state <= INACTIVE;
 			else
 				if (wait_ctr = x"3baa_ca00") then
-				--if (wait_ctr = x"0000_0010") then  -- for simulation
 					link_next_state <= GET_ADDRESS;
 				else
 					link_next_state <= WAIT_FOR_BOOT;
