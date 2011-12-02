@@ -276,6 +276,7 @@ port map (
 	PCS_AN_COMPLETE_IN	=> '1',
 
 -- signals to/from hub
+	MC_UNIQUE_ID_IN		=> (others => '0'),
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		=> open,

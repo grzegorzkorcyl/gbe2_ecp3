@@ -1253,9 +1253,9 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
-		rxd				=> pcs_txd, --pcs_rxd, --x"00",
-		rx_dv 				=> pcs_tx_en, --pcs_rx_en, --'0',
-		rx_er				=> pcs_tx_er, --pcs_rx_er, --'0',
+		rxd				=> pcs_rxd, --x"00",
+		rx_dv 				=> pcs_rx_en, --'0',
+		rx_er				=> pcs_rx_er, --'0',
 		col				=> mac_col,
 		crs				=> mac_crs,
 	-------------------- Input signals to the CPU I/F -------------------
