@@ -104,6 +104,7 @@ signal gsc_reply_read           : std_logic;
 signal tx_data_ctr              : std_logic_vector(15 downto 0);
 signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
 
+signal packet_num               : std_logic_vector(2 downto 0);
 
 	
 begin
@@ -127,10 +128,10 @@ rx_fifo_rd              <= '1' when GSC_INIT_READ_IN = '1' or (dissect_current_s
 
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
-GSC_INIT_PACKET_NUM_OUT <= (others => '0');
+GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT  <= '1' when dissect_current_state = WAIT_FOR_HUB or (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
 
-tgransmit_fifo : fifo_1024x16x8
+transmit_fifo : fifo_1024x16x8
   PORT map(
     Reset             => RESET,
 	RPReset           => RESET,
@@ -190,6 +191,18 @@ TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"61a8";
 TC_IP_PROTOCOL_OUT <= X"11";
+
+
+PACKET_NUM_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			packet_num <= "111";
+		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+			packet_num <= packet_num + x"1";
+		end if;
+	end if;
+end process PACKET_NUM_PROC;
 
 
 DISSECT_MACHINE_PROC : process(CLK)
