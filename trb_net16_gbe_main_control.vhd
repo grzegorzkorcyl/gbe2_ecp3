@@ -72,6 +72,16 @@ port (
 
 -- signals to/from hub
 	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
+	
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -190,6 +200,17 @@ port map(
 	
 	DHCP_START_IN		=> dhcp_start,
 	DHCP_DONE_OUT		=> dhcp_done,
+	
+	GSC_CLK_IN               => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+
 	
 	DEBUG_OUT		=> open
 );
@@ -418,9 +439,8 @@ begin
 			if (g_SIMULATE = 0) then
 				link_current_state <= INACTIVE;
 			else
-				link_current_state <= GET_ADDRESS;
+				link_current_state <= ACTIVE;
 			end if;
-			--link_current_state <= ACTIVE; -- for simulation only
 		else
 			link_current_state <= link_next_state;
 		end if;

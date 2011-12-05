@@ -84,6 +84,18 @@ port(
 	SFP_PRSNT_N_IN				: in	std_logic; -- SFP Present ('0' = SFP in place, '1' = no SFP mounted)
 	SFP_LOS_IN					: in	std_logic; -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
+	
+	-- interface between main_controller and hub logic
+	MC_UNIQUE_ID_IN          : in std_logic_vector(127 downto 0);		
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
 
 	-- for simulation of receiving part only
 	MAC_RX_EOF_IN		: in	std_logic;
@@ -590,7 +602,7 @@ fc_ttl            <= x"ff";
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
-	  CLK			=> serdes_clk_125, --CLK,
+	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
 
@@ -640,7 +652,16 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
 
   -- signals to/from hub
-	  MC_UNIQUE_ID_IN	=> (others => '0'),
+	  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
+	GSC_CLK_IN               => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -661,7 +682,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control
 port map(
-	CLK			=> serdes_clk_125, --CLK,
+	CLK			=> CLK,
 	RESET			=> RESET,
 
 -- signals to/from packet constructor
@@ -735,7 +756,7 @@ setup_imp_gen : if (DO_SIMULATION = 0) generate
 -- gk 22.04.10 new entity to set values via slow control
 SETUP : gbe_setup
 port map(
-	CLK                       => serdes_clk_125, --CLK,
+	CLK                       => CLK,
 	RESET                     => RESET,
 
 	-- gk 26.04.10
@@ -1036,7 +1057,7 @@ PACKET_CONSTRUCTOR : trb_net16_gbe_packet_constr
 port map( 
 	-- ports for user logic
 	RESET				=> RESET,
-	CLK				=> serdes_clk_125,  --CLK,
+	CLK				=> CLK,
 	MULT_EVT_ENABLE_IN		=> use_multievents,  -- gk 06.10.10
 	PC_WR_EN_IN			=> pc_wr_en,
 	PC_DATA_IN			=> pc_data,
@@ -1074,7 +1095,7 @@ FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
 	RESET				=> RESET,
-	CLK				=> serdes_clk_125, --CLK,
+	CLK				=> CLK,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	--
 	WR_EN_IN			=> fc_wr_en,
@@ -1119,7 +1140,7 @@ port map(
 
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
-	CLK			=> serdes_clk_125, --CLK,
+	CLK			=> CLK,
 	RESET			=> RESET,
 
 -- signals to/from frame_receiver
@@ -1165,7 +1186,7 @@ dbg_q(15 downto 9) <= (others  => '0');
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
-	CLK				=> serdes_clk_125, --CLK,
+	CLK				=> CLK,
 	RESET				=> RESET,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	TX_MAC_CLK			=> serdes_clk_125,
@@ -1195,7 +1216,7 @@ port map(
 
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
-	  CLK			=> serdes_clk_125, --CLK,
+	  CLK			=> CLK,
 	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
@@ -1246,7 +1267,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	MAC: tsmac34
 	port map(
 	----------------- clock and reset port declarations ------------------
-		hclk				=> serdes_clk_125, --CLK,
+		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
 		rxmac_clk			=> serdes_clk_125,
 		reset_n				=> GSR_N,

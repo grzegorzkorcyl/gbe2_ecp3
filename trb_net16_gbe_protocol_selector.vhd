@@ -61,6 +61,16 @@ port (
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
+	
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
 
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
@@ -87,10 +97,16 @@ signal tc_src_ip                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 down
 signal tc_src_udp               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal tc_ip_proto              : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0); 
 
+signal stat_data                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal stat_addr                : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0);
+signal stat_rdy                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+signal stat_ack                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 begin
 
 -- protocol Nr. 1 ARP
 ARP : trb_net16_gbe_response_constructor_ARP
+generic map( STAT_ADDRESS_BASE => 6
+)
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,
@@ -125,6 +141,10 @@ port map (
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
+	STAT_DATA_OUT => stat_data(1 * 32 - 1 downto 0 * 32),
+	STAT_ADDR_OUT => stat_addr(1 * 8 - 1 downto 0 * 8),
+	STAT_DATA_RDY_OUT => stat_rdy(0),
+	STAT_DATA_ACK_IN  => stat_ack(0),
 	RECEIVED_FRAMES_OUT	=> RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
 	SENT_FRAMES_OUT		=> SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
@@ -133,6 +153,8 @@ port map (
 
 -- protocol No. 2 DHCP
 DHCP : trb_net16_gbe_response_constructor_DHCP
+generic map( STAT_ADDRESS_BASE => 0
+)
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,
@@ -167,6 +189,10 @@ port map (
 	 
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
+	STAT_DATA_OUT => stat_data(2 * 32 - 1 downto 1 * 32),
+	STAT_ADDR_OUT => stat_addr(2 * 8 - 1 downto 1 * 8),
+	STAT_DATA_RDY_OUT => stat_rdy(1),
+	STAT_DATA_ACK_IN  => stat_ack(1),
 	RECEIVED_FRAMES_OUT	=> RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 	SENT_FRAMES_OUT		=> SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 -- END OF INTERFACE
@@ -179,6 +205,8 @@ port map (
 
 -- protocol No. 3 Ping
 Ping : trb_net16_gbe_response_constructor_Ping
+generic map( STAT_ADDRESS_BASE => 3
+)
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,
@@ -213,13 +241,19 @@ port map (
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
+	STAT_DATA_OUT => stat_data(3 * 32 - 1 downto 2 * 32),
+	STAT_ADDR_OUT => stat_addr(3 * 8 - 1 downto 2 * 8),
+	STAT_DATA_RDY_OUT => stat_rdy(2),
+	STAT_DATA_ACK_IN  => stat_ack(2),
 	RECEIVED_FRAMES_OUT	=> RECEIVED_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
 	SENT_FRAMES_OUT		=> SENT_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(3 * 32 - 1 downto 2 * 32)
 -- END OF INTERFACE
 );
 
-Test1a : trb_net16_gbe_response_constructor_Test1
+SCTRL : trb_net16_gbe_response_constructor_SCTRL
+generic map( STAT_ADDRESS_BASE => 5
+)
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,
@@ -254,13 +288,31 @@ port map (
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
+	STAT_DATA_OUT => stat_data(4 * 32 - 1 downto 3 * 32),
+	STAT_ADDR_OUT => stat_addr(4 * 8 - 1 downto 3 * 8),
+	STAT_DATA_RDY_OUT => stat_rdy(3),
+	STAT_DATA_ACK_IN  => stat_ack(3),
 	RECEIVED_FRAMES_OUT	=> RECEIVED_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
 	SENT_FRAMES_OUT		=> SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
+	-- END OF INTERFACE
+	
+	GSC_CLK_IN               => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+	
+	
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
--- END OF INTERFACE
 );
 
-Test1b : trb_net16_gbe_response_constructor_Test1
+Stat : trb_net16_gbe_response_constructor_Stat
+generic map( STAT_ADDRESS_BASE => 10
+)
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,
@@ -295,9 +347,19 @@ port map (
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
+	STAT_DATA_OUT => stat_data(5 * 32 - 1 downto 4 * 32),
+	STAT_ADDR_OUT => stat_addr(5 * 8 - 1 downto 4 * 8),
+	STAT_DATA_RDY_OUT => stat_rdy(4),
+	STAT_DATA_ACK_IN  => stat_ack(4),
+	
 	RECEIVED_FRAMES_OUT	=> RECEIVED_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
 	SENT_FRAMES_OUT		=> SENT_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
-	DEBUG_OUT		=> PROTOS_DEBUG_OUT(5 * 32 - 1 downto 4 * 32)
+	DEBUG_OUT		=> PROTOS_DEBUG_OUT(5 * 32 - 1 downto 4 * 32),
+	
+	STAT_DATA_IN => stat_data,
+	STAT_ADDR_IN => stat_addr,
+	STAT_DATA_RDY_IN => stat_rdy,
+	STAT_DATA_ACK_OUT  => stat_ack
 );
 
 --***************

@@ -88,6 +88,16 @@ port (
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
+		
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
 	
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
@@ -173,6 +183,16 @@ port (
 
 -- signals to/from hub
 	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
+	
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
 	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -745,6 +765,36 @@ port(
 	Reset   : in    std_logic;
 	RPReset : in    std_logic;
 	Q       : out   std_logic_vector(71 downto 0);
+	Empty   : out   std_logic;
+	Full    : out   std_logic
+);
+end component;
+
+component fifo_1024x16x8 is
+port( 
+	Data    : in    std_logic_vector(17 downto 0);
+	WrClock : in    std_logic;
+	RdClock : in    std_logic;
+	WrEn    : in    std_logic;
+	RdEn    : in    std_logic;
+	Reset   : in    std_logic;
+	RPReset : in    std_logic;
+	Q       : out   std_logic_vector(8 downto 0);
+	Empty   : out   std_logic;
+	Full    : out   std_logic
+);
+end component;
+
+component fifo_2048x8x16 is
+port( 
+	Data    : in    std_logic_vector(8 downto 0);
+	WrClock : in    std_logic;
+	RdClock : in    std_logic;
+	WrEn    : in    std_logic;
+	RdEn    : in    std_logic;
+	Reset   : in    std_logic;
+	RPReset : in    std_logic;
+	Q       : out   std_logic_vector(17 downto 0);
 	Empty   : out   std_logic;
 	Full    : out   std_logic
 );
