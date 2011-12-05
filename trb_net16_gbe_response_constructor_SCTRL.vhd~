@@ -199,7 +199,7 @@ begin
 		if (RESET = '1') then
 			packet_num <= "111";
 		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-			packet_num <= packet_num + "1";
+			packet_num <= packet_num + x"1";
 		end if;
 	end if;
 end process PACKET_NUM_PROC;

@@ -127,7 +127,7 @@ mem : statts_mem
     RdClockEn => '1'
   );
 
-mem_wr_en <= or_all(selected);
+mem_wr_enn <= or_all(selected);
 STAT_DATA_ACK_OUT <= selected;
 
 SELECTOR_PROC : process(CLK)
