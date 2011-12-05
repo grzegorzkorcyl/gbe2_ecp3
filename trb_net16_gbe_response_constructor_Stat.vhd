@@ -86,19 +86,6 @@ end trb_net16_gbe_response_constructor_Stat;
 
 architecture Behavioral of trb_net16_gbe_response_constructor_Stat is
 
-COMPONENT stats_mem
-  PORT (
-    clka : IN STD_LOGIC;
-    wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-    addra : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    clkb : IN STD_LOGIC;
-    rstb : IN STD_LOGIC;
-    addrb : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-    doutb : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-  );
-END COMPONENT;
-
 attribute syn_encoding	: string;
 
 type construct_states is (IDLE, WAIT_FOR_LOAD, LOAD_DATA, TERMINATION, CLEANUP);
@@ -126,16 +113,18 @@ begin
 pause <= 10 when g_SIMULATE = 1 else 28;
 
 
-mem : stats_mem
+mem : statts_mem
   PORT map(
-    clka   => CLK,
-    rstb   => RESET,
-    wea    => mem_wr_en,
-    addra  => mem_wr_addr,
-    dina   => mem_din,
-	 clkb   => CLK,
-	 addrb  => mem_rd_addr,
-    doutb  => mem_dout
+    WrClock   => CLK,
+    Reset   => RESET,
+    WrClockEn    => '1',
+    WE => mem_wr_en,
+    WrAddress => mem_wr_addr,
+    Data   => mem_din,
+    RdClock   => CLK,
+    RdAddress  => mem_rd_addr,
+    Q  => mem_dout,
+    RdClockEn => '1'
   );
 
 mem_wr_en(0) <= or_all(selected);

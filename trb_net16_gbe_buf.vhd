@@ -86,7 +86,7 @@ port(
 	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
 	
 	-- interface between main_controller and hub logic
-	MC_UNIQUE_ID_IN          : in std_logic_vector(127 downto 0);		
+	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0);		
 	GSC_CLK_IN               : in std_logic;
 	GSC_INIT_DATAREADY_OUT   : out std_logic;
 	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
