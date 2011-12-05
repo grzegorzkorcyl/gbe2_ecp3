@@ -590,7 +590,7 @@ fc_ttl            <= x"ff";
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
-	  CLK			=> CLK,
+	  CLK			=> serdes_clk_125, --CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
 
@@ -661,7 +661,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control
 port map(
-	CLK			=> CLK,
+	CLK			=> serdes_clk_125, --CLK,
 	RESET			=> RESET,
 
 -- signals to/from packet constructor
@@ -735,7 +735,7 @@ setup_imp_gen : if (DO_SIMULATION = 0) generate
 -- gk 22.04.10 new entity to set values via slow control
 SETUP : gbe_setup
 port map(
-	CLK                       => CLK,
+	CLK                       => serdes_clk_125, --CLK,
 	RESET                     => RESET,
 
 	-- gk 26.04.10
@@ -1036,7 +1036,7 @@ PACKET_CONSTRUCTOR : trb_net16_gbe_packet_constr
 port map( 
 	-- ports for user logic
 	RESET				=> RESET,
-	CLK				=> CLK,
+	CLK				=> serdes_clk_125,  --CLK,
 	MULT_EVT_ENABLE_IN		=> use_multievents,  -- gk 06.10.10
 	PC_WR_EN_IN			=> pc_wr_en,
 	PC_DATA_IN			=> pc_data,
@@ -1074,7 +1074,7 @@ FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
 	RESET				=> RESET,
-	CLK				=> CLK,
+	CLK				=> serdes_clk_125, --CLK,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	--
 	WR_EN_IN			=> fc_wr_en,
@@ -1119,7 +1119,7 @@ port map(
 
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
-	CLK			=> CLK,
+	CLK			=> serdes_clk_125, --CLK,
 	RESET			=> RESET,
 
 -- signals to/from frame_receiver
@@ -1165,7 +1165,7 @@ dbg_q(15 downto 9) <= (others  => '0');
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
-	CLK				=> CLK,
+	CLK				=> serdes_clk_125, --CLK,
 	RESET				=> RESET,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	TX_MAC_CLK			=> serdes_clk_125,
@@ -1195,7 +1195,7 @@ port map(
 
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
-	  CLK			=> CLK,
+	  CLK			=> serdes_clk_125, --CLK,
 	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
@@ -1246,7 +1246,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	MAC: tsmac34
 	port map(
 	----------------- clock and reset port declarations ------------------
-		hclk				=> CLK,
+		hclk				=> serdes_clk_125, --CLK,
 		txmac_clk			=> serdes_clk_125,
 		rxmac_clk			=> serdes_clk_125,
 		reset_n				=> GSR_N,
