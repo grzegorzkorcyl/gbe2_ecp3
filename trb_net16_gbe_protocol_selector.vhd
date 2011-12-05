@@ -178,7 +178,7 @@ port map (
  );
 
 -- protocol No. 3 Ping
-NOTPing : trb_net16_gbe_response_constructor_Test1
+Ping : trb_net16_gbe_response_constructor_Ping
 port map (
 	CLK			=> CLK,
 	RESET			=> RESET,

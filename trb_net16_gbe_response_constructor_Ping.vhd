@@ -77,11 +77,18 @@ signal sent_frames              : std_logic_vector(15 downto 0);
 signal saved_data               : std_logic_vector(447 downto 0);
 signal saved_headers            : std_logic_vector(63 downto 0);
 
-signal data_ctr                 : integer range 1 to 66;
-signal data_length              : integer range 1 to 66;
+signal data_ctr                 : integer range 1 to 1500;
+signal data_length              : integer range 1 to 1500;
 signal tc_data                  : std_logic_vector(8 downto 0);
 
 signal checksum                 : std_logic_vector(15 downto 0);
+
+signal checksum_l, checksum_r   : std_logic_vector(19 downto 0);
+signal checksum_ll, checksum_rr : std_logic_vector(15 downto 0);
+signal checksum_lll, checksum_rrr : std_logic_vector(15 downto 0);
+
+signal fifo_wr_en, fifo_rd_en   : std_logic;
+signal fifo_q                   : std_logic_vector(7 downto 0);
 
 begin
 
@@ -166,7 +173,7 @@ end process DATA_LENGTH_PROC;
 SAVE_VALUES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		if (RESET = '1') or (dissect_current_state = IDLE) then
 			saved_headers <= (others => '0');
 			saved_data    <= (others => '0');
 		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
@@ -174,31 +181,61 @@ begin
 		elsif (dissect_current_state = READ_FRAME) then
 			if (data_ctr < 9) then  -- headers
 				saved_headers(data_ctr * 8 - 1 downto (data_ctr - 1) * 8) <= PS_DATA_IN(7 downto 0);
-			else
-				saved_data((data_ctr - 8) * 8 - 1 downto (data_ctr - 9) * 8) <= PS_DATA_IN(7 downto 0);
 			end if;
 		elsif (dissect_current_state = LOAD_FRAME) then
 			saved_headers(7 downto 0)   <= x"00";
-			saved_headers(23 downto 16) <= checksum(15 downto 8);
-			saved_headers(31 downto 24) <= checksum(7 downto 0);
+			saved_headers(23 downto 16) <= checksum(7 downto 0);
+			saved_headers(31 downto 24) <= checksum(15 downto 8);
 		end if;
 	end if;
 end process SAVE_VALUES_PROC;
 
+fifo : fifo_2048x8
+  PORT map(
+    Reset   => RESET,
+	RPReset => RESET,
+    WrClock => CLK,
+	RdClock => CLK,
+    Data    => PS_DATA_IN(7 downto 0),
+    WrEn    => fifo_wr_en,
+    RdEn    => fifo_rd_en,
+    Q       => fifo_q,
+    Full    => open,
+    Empty   => open
+  );
+  
+fifo_wr_en <= '1' when (dissect_current_state = READ_FRAME and data_ctr > 8) else '0';
+fifo_rd_en <= '1' when (dissect_current_state = LOAD_FRAME and data_ctr > 8) else '0';
+
 CS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			checksum(15 downto 0)  <= (others => '0');
+		if (RESET = '1') or (dissect_current_state = IDLE) then
+			checksum_l(19 downto 0)    <= (others => '0');
+			checksum_r(19 downto 0)    <= (others => '0');
+			checksum_ll(15 downto 0)   <= (others => '0');
+			checksum_rr(15 downto 0)   <= (others => '0');
+			checksum_lll(15 downto 0)  <= (others => '0');
+			checksum_rrr(15 downto 0)  <= (others => '0');
 		elsif (dissect_current_state = READ_FRAME and data_ctr > 4) then
 			if (std_logic_vector(to_unsigned(data_ctr, 1)) = "0") then
-				checksum(7 downto 0) <= checksum(7 downto 0) + PS_DATA_IN(7 downto 0);
+				--checksum(7 downto 0) <= checksum(7 downto 0) + PS_DATA_IN(7 downto 0);
+				checksum_l <= checksum_l + PS_DATA_IN(7 downto 0);
 			else
-				checksum(15 downto 8) <= checksum(15 downto 8) + PS_DATA_IN(7 downto 0);
+				--checksum(15 downto 8) <= checksum(15 downto 8) + PS_DATA_IN(7 downto 0);
+				checksum_r <= checksum_r + PS_DATA_IN(7 downto 0);
 			end if;
+		elsif (dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0') then
+				checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
+				checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
+		elsif (dissect_current_state = LOAD_FRAME and data_ctr = 2) then
+				checksum_lll <= x"0000" + checksum_ll(7 downto 0) + checksum_rr(15 downto 8);
+				checksum_rrr <= x"0000" + checksum_rr(7 downto 0) + checksum_ll(15 downto 8);
 		end if;
 	end if;
 end process CS_PROC;
+checksum(7 downto 0)  <= not (checksum_rrr(7 downto 0) + checksum_lll(15 downto 8));
+checksum(15 downto 8) <= not (checksum_lll(7 downto 0) + checksum_rrr(15 downto 8));
 
 TC_DATA_PROC : process(dissect_current_state, data_ctr, saved_headers, saved_data, data_length)
 begin
@@ -211,7 +248,7 @@ begin
 			end loop;
 		else  -- data
 			for i in 0 to 7 loop
-				tc_data(i) <= saved_data((data_ctr - 10) * 8 + i);
+				tc_data(i) <= fifo_q(i); --saved_data((data_ctr - 10) * 8 + i);
 			end loop;
 		
 			-- mark the last byte
@@ -240,8 +277,6 @@ PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or diss
 TC_FRAME_SIZE_OUT <= std_logic_vector(to_unsigned(data_length, 16));
 
 TC_FRAME_TYPE_OUT <= x"0008";
---TC_DEST_MAC_OUT   <= x"9a680f201300";
---TC_DEST_IP_OUT    <= x"00000000";
 TC_DEST_UDP_OUT   <= x"0000";  -- not used
 TC_SRC_MAC_OUT    <= g_MY_MAC;
 TC_SRC_IP_OUT     <= g_MY_IP;

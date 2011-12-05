@@ -690,6 +690,21 @@ port(
 );
 end component;
 
+component fifo_2048x8 is
+port( 
+	Data    : in    std_logic_vector(7 downto 0);
+	WrClock : in    std_logic;
+	RdClock : in    std_logic;
+	WrEn    : in    std_logic;
+	RdEn    : in    std_logic;
+	Reset   : in    std_logic;
+	RPReset : in    std_logic;
+	Q       : out   std_logic_vector(7 downto 0);
+	Empty   : out   std_logic;
+	Full    : out   std_logic
+);
+end component;
+
 component fifo_4096x32 is
 port( 
 	Data    : in    std_logic_vector(31 downto 0);
