@@ -800,4 +800,18 @@ port(
 );
 end component;
 
+component statts_mem is
+    port (
+        WrAddress: in  std_logic_vector(7 downto 0); 
+        RdAddress: in  std_logic_vector(9 downto 0); 
+        Data: in  std_logic_vector(31 downto 0); 
+        WE: in  std_logic; 
+        RdClock: in  std_logic; 
+        RdClockEn: in  std_logic; 
+        Reset: in  std_logic; 
+        WrClock: in  std_logic; 
+        WrClockEn: in  std_logic; 
+        Q: out  std_logic_vector(7 downto 0));
+end component;
+
 end package;
