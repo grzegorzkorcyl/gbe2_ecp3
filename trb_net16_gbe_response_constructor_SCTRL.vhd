@@ -81,7 +81,7 @@ type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RE
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
-type stats_states is (IDLE, LOAD_RECEIVED, CLEANUP);
+type stats_states is (IDLE, LOAD_RECEIVED, LOAD_STATE, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
 attribute syn_encoding of stats_current_state : signal is "safe,gray";
 
@@ -331,11 +331,18 @@ begin
 		
 		when LOAD_RECEIVED =>
 			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= CLEANUP;
+				stats_next_state <= LOAD_STATE;
 			else
 				stats_next_state <= LOAD_RECEIVED;
 			end if;
 			
+		when LOAD_STATE =>
+			if (STAT_DATA_ACK_IN = '1') then
+				stats_next_state <= CLEANUP;
+			else
+				stats_next_state <= LOAD_STATE;
+			end if;	
+		
 		when CLEANUP =>
 			stats_next_state <= IDLE;
 	
@@ -351,7 +358,11 @@ begin
 		when LOAD_RECEIVED =>
 			stat_data_temp <= x"0502" & rec_frames;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
-
+			
+		when LOAD_STATE =>
+			stat_data_temp <= x"050a000" & state;
+			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+			
 		when others =>
 			stat_data_temp <= (others => '0');
 			STAT_ADDR_OUT  <= (others => '0');
