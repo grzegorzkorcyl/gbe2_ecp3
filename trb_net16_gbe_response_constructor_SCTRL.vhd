@@ -81,7 +81,7 @@ type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RE
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
-type stats_states is (IDLE, LOAD_RECEIVED, LOAD_STATE, CLEANUP);
+type stats_states is (IDLE, LOAD_RECEIVED, LOAD_INIT, LOAD_REPLY, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
 attribute syn_encoding of stats_current_state : signal is "safe,gray";
 
@@ -105,6 +105,8 @@ signal tx_data_ctr              : std_logic_vector(15 downto 0);
 signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
 
 signal packet_num               : std_logic_vector(2 downto 0);
+
+signal init_ctr, reply_ctr      : std_logic_vector(15 downto 0);
 
 	
 begin
@@ -305,6 +307,28 @@ begin
 	end if;
 end process REC_FRAMES_PROC;
 
+INIT_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			init_ctr <= (others => '0');
+		elsif (GSC_INIT_READ_IN = '1' and (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0')) then
+			init_ctr <= init_ctr + x"1";
+		end if;
+	end if;
+end process INIT_CTR_PROC;
+
+REPLY_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			reply_ctr <= (others => '0');
+		elsif (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
+			reply_ctr <= reply_ctr + x"1";
+		end if;
+	end if;
+end process REPLY_CTR_PROC;
+
 
 STATS_MACHINE_PROC : process(CLK)
 begin
@@ -331,17 +355,24 @@ begin
 		
 		when LOAD_RECEIVED =>
 			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_STATE;
+				stats_next_state <= LOAD_INIT;
 			else
 				stats_next_state <= LOAD_RECEIVED;
 			end if;
 			
-		when LOAD_STATE =>
+		when LOAD_INIT =>
+			if (STAT_DATA_ACK_IN = '1') then
+				stats_next_state <= LOAD_REPLY;
+			else
+				stats_next_state <= LOAD_INIT;
+			end if;
+			
+		when LOAD_REPLY =>
 			if (STAT_DATA_ACK_IN = '1') then
 				stats_next_state <= CLEANUP;
 			else
-				stats_next_state <= LOAD_STATE;
-			end if;	
+				stats_next_state <= LOAD_REPLY;
+			end if;		
 		
 		when CLEANUP =>
 			stats_next_state <= IDLE;
@@ -359,9 +390,13 @@ begin
 			stat_data_temp <= x"0502" & rec_frames;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
 			
-		when LOAD_STATE =>
-			stat_data_temp <= x"050a000" & state;
+		when LOAD_INIT =>
+			stat_data_temp <= x"050a" & init_ctr;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+		
+		when LOAD_REPLY =>
+			stat_data_temp <= x"050b" & reply_ctr;
+			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
 			
 		when others =>
 			stat_data_temp <= (others => '0');
