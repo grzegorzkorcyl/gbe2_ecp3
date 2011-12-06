@@ -124,12 +124,12 @@ receive_fifo : fifo_2048x8x16
   );
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
-rx_fifo_rd              <= '1' when GSC_INIT_READ_IN = '1' or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0'; -- preload first data word
+rx_fifo_rd              <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0'; -- preload first data word
 
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
-GSC_INIT_DATAREADY_OUT  <= '1' when dissect_current_state = WAIT_FOR_HUB or (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
+GSC_INIT_DATAREADY_OUT  <= '1' when (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
 
 transmit_fifo : fifo_1024x16x8
   PORT map(
@@ -153,7 +153,7 @@ tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state 
 TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0) when dissect_current_state = LOAD_FRAME else (others => '0');
 TC_DATA_OUT(8)          <= '1' when tx_loaded_ctr = tx_data_ctr and dissect_current_state = LOAD_FRAME else '0';
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
-gsc_reply_read          <= '1' when dissect_current_state = SAVE_RESPONSE else '0';
+gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
 TX_DATA_CTR_PROC : process(CLK)
 begin
