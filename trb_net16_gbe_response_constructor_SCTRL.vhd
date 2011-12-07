@@ -344,6 +344,7 @@ begin
 end process DBG_TIMEOUT_PROC;
 
 
+
 STATS_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
