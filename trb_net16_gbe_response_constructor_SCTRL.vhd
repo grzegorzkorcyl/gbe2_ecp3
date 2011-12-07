@@ -421,7 +421,7 @@ begin
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
 			
 		when LOAD_STATE =>
-			stat_data_temp <= x"050c0" & state;
+			stat_data_temp <= x"050c000" & state;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 3, 8));
 			
 		when others =>
