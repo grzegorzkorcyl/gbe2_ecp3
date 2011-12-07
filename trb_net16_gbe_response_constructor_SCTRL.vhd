@@ -129,12 +129,12 @@ receive_fifo : fifo_2048x8x16
   );
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
-rx_fifo_rd              <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0'; -- preload first data word
+rx_fifo_rd              <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0';
 
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
-GSC_INIT_DATAREADY_OUT  <= '1' when (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
+GSC_INIT_DATAREADY_OUT  <= '1' when rx_fifo_rd = '1' and (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
 
 transmit_fifo : fifo_1024x16x8
   PORT map(
@@ -361,7 +361,7 @@ begin
 	case (stats_current_state) is
 	
 		when IDLE =>
-			if (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dbg_temout(24) = '1')) then
+			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dbg_timeout(24) = '1')) then
 				stats_next_state <= LOAD_RECEIVED;
 			else
 				stats_next_state <= IDLE;
