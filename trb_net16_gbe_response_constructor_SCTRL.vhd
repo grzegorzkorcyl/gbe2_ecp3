@@ -100,6 +100,7 @@ signal tx_eod, rx_eod           : std_logic;
 signal tx_fifo_q                : std_logic_vector(8 downto 0);
 signal tx_fifo_wr, tx_fifo_rd   : std_logic;
 signal gsc_reply_read           : std_logic;
+signal gsc_init_dataready       : std_logic;
 
 signal tx_data_ctr              : std_logic_vector(15 downto 0);
 signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
@@ -129,12 +130,13 @@ receive_fifo : fifo_2048x8x16
   );
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
-rx_fifo_rd              <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0';
+rx_fifo_rd              <= '1' when (gsc_init_dataready = '1') or (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') else '0';  -- preload first word
 
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
-GSC_INIT_DATAREADY_OUT  <= '1' when rx_fifo_rd = '1' and (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
+gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0') else '0';
+GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 
 transmit_fifo : fifo_1024x16x8
   PORT map(
@@ -155,6 +157,7 @@ transmit_fifo : fifo_1024x16x8
 
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
 tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME else '0';
+
 TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0) when dissect_current_state = LOAD_FRAME else (others => '0');
 TC_DATA_OUT(8)          <= '1' when tx_loaded_ctr = tx_data_ctr and dissect_current_state = LOAD_FRAME else '0';
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
@@ -421,7 +424,7 @@ begin
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
 			
 		when LOAD_STATE =>
-			stat_data_temp <= x"050c000" & state;
+			stat_data_temp <= x"050c00" & "000" & GSC_INIT_READ_IN & state;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 3, 8));
 			
 		when others =>
