@@ -107,6 +107,9 @@ signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
 signal packet_num               : std_logic_vector(2 downto 0);
 
 signal init_ctr, reply_ctr      : std_logic_vector(15 downto 0);
+signal rx_empty, tx_empty       : std_logic;
+
+signal dbg_timeout              : std_logic_vector(27 downto 0);
 
 	
 begin
@@ -122,7 +125,7 @@ receive_fifo : fifo_2048x8x16
     RdEn             => rx_fifo_rd,
     Q                => rx_fifo_q,
     Full             => open,
-    Empty            => open
+    Empty            => rx_empty
   );
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
@@ -147,7 +150,7 @@ transmit_fifo : fifo_1024x16x8
     RdEn              => tx_fifo_rd,
     Q                 => tx_fifo_q,
     Full              => open,
-    Empty             => open
+    Empty             => tx_empty
   );
 
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
@@ -218,7 +221,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr)
+DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q)
 begin
 	case dissect_current_state is
 	
@@ -329,6 +332,17 @@ begin
 	end if;
 end process REPLY_CTR_PROC;
 
+DBG_TIMEOUT_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			dbg_timeout <= (others => '0');
+		else
+			dbg_timeout <= dbg_timeout + x"1";
+		end if;
+	end if;
+end process DBG_TIMEOUT_PROC;
+
 
 STATS_MACHINE_PROC : process(CLK)
 begin
@@ -347,7 +361,7 @@ begin
 	case (stats_current_state) is
 	
 		when IDLE =>
-			if (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+			if (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dbg_temout(24) = '1')) then
 				stats_next_state <= LOAD_RECEIVED;
 			else
 				stats_next_state <= IDLE;
