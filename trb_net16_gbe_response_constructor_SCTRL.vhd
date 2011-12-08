@@ -111,6 +111,7 @@ signal init_ctr, reply_ctr      : std_logic_vector(15 downto 0);
 signal rx_empty, tx_empty       : std_logic;
 
 signal dbg_timeout              : std_logic_vector(27 downto 0);
+signal rx_full, tx_full         : std_logic;
 
 	
 begin
@@ -125,7 +126,7 @@ receive_fifo : fifo_2048x8x16
     WrEn             => rx_fifo_wr,
     RdEn             => rx_fifo_rd,
     Q                => rx_fifo_q,
-    Full             => open,
+    Full             => rx_full,
     Empty            => rx_empty
   );
 
@@ -148,14 +149,14 @@ transmit_fifo : fifo_1024x16x8
 	RPReset           => RESET,
     WrClock           => CLK,
 	RdClock           => CLK,
-    Data(7 downto 0)  => GSC_REPLY_DATA_IN(7 downto 0),
+    Data(7 downto 0)  => GSC_REPLY_DATA_IN(15 downto 8),
     Data(8)           => '0',
-    Data(16 downto 9) => GSC_REPLY_DATA_IN(15 downto 8),
+    Data(16 downto 9) => GSC_REPLY_DATA_IN(7 downto 0),
     Data(17)          => '0',
     WrEn              => tx_fifo_wr,
     RdEn              => tx_fifo_rd,
     Q                 => tx_fifo_q,
-    Full              => open,
+    Full              => tx_full,
     Empty             => tx_empty
   );
 
@@ -430,7 +431,7 @@ begin
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
 			
 		when LOAD_STATE =>
-			stat_data_temp <= x"050c00" & GSC_REPLY_DATAREADY_IN & gsc_reply_read & gsc_init_dataready & GSC_INIT_READ_IN & state;
+			stat_data_temp <= x"050c0" & rx_full & rx_empty & tx_full & tx_empty & GSC_REPLY_DATAREADY_IN & gsc_reply_read & gsc_init_dataready & GSC_INIT_READ_IN & state;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 3, 8));
 			
 		when others =>

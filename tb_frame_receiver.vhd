@@ -470,7 +470,7 @@ begin
 	
 	--for i in 0 to 1000 loop
 	
-	wait for 700 ns;
+	wait for 200 ns;
 		
 		
 		
@@ -637,22 +637,18 @@ begin
 	wait until rising_edge(CLK);
 	gsc_init_read <= '1';
 
-wait for 450 ns;
-wait until rising_edge(CLK);
-	gsc_init_read <= '0';
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	gsc_init_read <= '1';
 	wait until falling_edge(gsc_init_dataready);
 	wait until rising_edge(CLK);
 	gsc_init_read <= '0';
 	
-	wait for 100 ns;
+	--wait for 100 ns;
+	--wait until rising_edge(gsc_reply_read);
+	wait until rising_edge(CLK);
+	wait until rising_edge(CLK);
+	wait until rising_edge(CLK);
 	wait until rising_edge(CLK);
 	gsc_reply_data <= x"0101";
 	gsc_reply_dataready <= '1';
-	wait until rising_edge(gsc_reply_read);
 	wait until rising_edge(CLK);
 	gsc_reply_data <= x"0202";
 	wait until rising_edge(CLK);
