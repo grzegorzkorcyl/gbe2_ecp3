@@ -194,10 +194,10 @@ TC_FRAME_SIZE_OUT  <= tx_data_ctr;
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
-TC_DEST_UDP_OUT    <= x"61a8";
+TC_DEST_UDP_OUT    <= x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
-TC_SRC_UDP_OUT     <= x"61a8";
+TC_SRC_UDP_OUT     <= x"a861";
 TC_IP_PROTOCOL_OUT <= X"11";
 
 
@@ -424,7 +424,7 @@ begin
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
 			
 		when LOAD_STATE =>
-			stat_data_temp <= x"050c00" & "00" & gsc_init_dataready & GSC_INIT_READ_IN & state;
+			stat_data_temp <= x"050c00" & GSC_REPLY_DATAREADY_IN & gsc_reply_read & gsc_init_dataready & GSC_INIT_READ_IN & state;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 3, 8));
 			
 		when others =>
