@@ -633,7 +633,7 @@ begin
 	MAC_RX_EOF_IN <= '0';
 	
 	
-	--wait until rising_edge(gsc_init_dataready);
+	wait until rising_edge(gsc_init_dataready);
 	wait until rising_edge(CLK);
 	gsc_init_read <= '1';
 
@@ -644,9 +644,9 @@ wait until rising_edge(CLK);
 	wait until rising_edge(CLK);
 	wait until rising_edge(CLK);
 	gsc_init_read <= '1';
-	--wait until falling_edge(gsc_init_dataready);
-	--wait until rising_edge(CLK);
-	--gsc_init_read <= '0';
+	wait until falling_edge(gsc_init_dataready);
+	wait until rising_edge(CLK);
+	gsc_init_read <= '0';
 	
 	wait for 100 ns;
 	wait until rising_edge(CLK);

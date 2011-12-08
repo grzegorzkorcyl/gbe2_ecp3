@@ -209,8 +209,10 @@ PACKET_NUM_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
-			packet_num <= "110";
-		elsif (rx_fifo_rd = '1') then
+			packet_num <= "100";
+		elsif (GSC_INIT_READ_IN = '1' and gsc_init_dataready = '1' and packet_num = "100") then
+			packet_num <= "000";
+		elsif (rx_fifo_rd = '1' and packet_num /= "100") then
 			packet_num <= packet_num + "1";
 		end if;
 	end if;
