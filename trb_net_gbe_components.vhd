@@ -98,6 +98,7 @@ port (
 	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
 	
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
@@ -193,6 +194,7 @@ port (
 	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
 	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);

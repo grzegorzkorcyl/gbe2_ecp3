@@ -96,6 +96,7 @@ port(
 	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
 
 	-- for simulation of receiving part only
 	MAC_RX_EOF_IN		: in	std_logic;
@@ -663,6 +664,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
 	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => GSC_BUSY_IN,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,

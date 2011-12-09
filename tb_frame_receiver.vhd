@@ -107,6 +107,7 @@ signal pc_ip_size, pc_udp_size : std_logic_vector(15 downto 0);
 signal gsc_init_read, gsc_init_dataready : std_logic;
 signal gsc_reply_read, gsc_reply_dataready : std_logic;
 signal gsc_reply_data : std_logic_vector(15 downto 0);
+signal gsc_busy : std_logic;
 
 begin
 
@@ -290,6 +291,7 @@ port map (
 	GSC_REPLY_DATA_IN        => gsc_reply_data,
 	GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
 	GSC_REPLY_READ_OUT       => gsc_reply_read,
+	GSC_BUSY_IN              => gsc_busy,
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		=> open,
@@ -463,6 +465,9 @@ begin
 	additional_rand_pause   <= '0';
 	pc_sos                  <= '0';
 	gsc_init_read           <= '0';
+	gsc_busy                <= '0';
+	gsc_reply_data          <= (others => '0');
+	gsc_reply_dataready     <= '0';
 	
 	wait for 10 ns;
 	RESET <= '0';

@@ -66,6 +66,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
 		GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 		GSC_REPLY_READ_OUT       : out std_logic;
+		GSC_BUSY_IN              : in std_logic;
 	-- end of protocol specific ports
 	
 	-- debug
@@ -231,7 +232,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q)
+DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN)
 begin
 	case dissect_current_state is
 	
@@ -277,7 +278,7 @@ begin
 			
 		when SAVE_RESPONSE =>
 			state <= x"6";
-			if (GSC_REPLY_DATAREADY_IN = '0') then
+			if (GSC_BUSY_IN = '0') then
 				dissect_next_state <= WAIT_FOR_LOAD;
 			else
 				dissect_next_state <= SAVE_RESPONSE;

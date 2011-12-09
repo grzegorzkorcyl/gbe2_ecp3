@@ -398,6 +398,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
 		GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 		GSC_REPLY_READ_OUT       : out std_logic;
+		GSC_BUSY_IN              : in std_logic;
 	-- end of protocol specific ports
 	
 	-- debug
