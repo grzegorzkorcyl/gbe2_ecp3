@@ -277,7 +277,7 @@ begin
 			
 		when SAVE_RESPONSE =>
 			state <= x"6";
-			if (GSC_REPLY_DATAREADY_IN = '0') then
+			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_REPLY_PACKET_NUM_IN(1 downto 0) = "11") then
 				dissect_next_state <= WAIT_FOR_LOAD;
 			else
 				dissect_next_state <= SAVE_RESPONSE;
