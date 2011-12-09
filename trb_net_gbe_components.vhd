@@ -10,6 +10,104 @@ use work.trb_net_gbe_protocols.all;
 package trb_net_gbe_components is
 
 
+
+component trb_net16_gbe_buf is
+generic( 
+	DO_SIMULATION		: integer range 0 to 1 := 1;
+	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
+);
+port(
+	CLK							: in	std_logic;
+	TEST_CLK					: in	std_logic; -- only for simulation!
+	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
+	RESET						: in	std_logic;
+	GSR_N						: in	std_logic;
+	-- Debug
+	STAGE_STAT_REGS_OUT			: out	std_logic_vector(31 downto 0);
+	STAGE_CTRL_REGS_IN			: in	std_logic_vector(31 downto 0);
+	-- configuration interface
+	IP_CFG_START_IN				: in 	std_logic;
+	IP_CFG_BANK_SEL_IN			: in	std_logic_vector(3 downto 0);
+	IP_CFG_DONE_OUT				: out	std_logic;
+	IP_CFG_MEM_ADDR_OUT			: out	std_logic_vector(7 downto 0);
+	IP_CFG_MEM_DATA_IN			: in	std_logic_vector(31 downto 0);
+	IP_CFG_MEM_CLK_OUT			: out	std_logic;
+	MR_RESET_IN					: in	std_logic;
+	MR_MODE_IN					: in	std_logic;
+	MR_RESTART_IN				: in	std_logic;
+	-- gk 29.03.10
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	-- gk 22.04.10
+	-- registers setup interface
+	BUS_ADDR_IN               : in std_logic_vector(7 downto 0);
+	BUS_DATA_IN               : in std_logic_vector(31 downto 0);
+	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);  -- gk 26.04.10
+	BUS_WRITE_EN_IN           : in std_logic;  -- gk 26.04.10
+	BUS_READ_EN_IN            : in std_logic;  -- gk 26.04.10
+	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
+	-- gk 23.04.10
+	LED_PACKET_SENT_OUT          : out std_logic;
+	LED_AN_DONE_N_OUT            : out std_logic;
+	-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	--SFP Connection
+	SFP_RXD_P_IN				: in	std_logic;
+	SFP_RXD_N_IN				: in	std_logic;
+	SFP_TXD_P_OUT				: out	std_logic;
+	SFP_TXD_N_OUT				: out	std_logic;
+	SFP_REFCLK_P_IN				: in	std_logic;
+	SFP_REFCLK_N_IN				: in	std_logic;
+	SFP_PRSNT_N_IN				: in	std_logic; -- SFP Present ('0' = SFP in place, '1' = no SFP mounted)
+	SFP_LOS_IN					: in	std_logic; -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
+	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
+	
+	-- interface between main_controller and hub logic
+	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0);		
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
+
+	-- for simulation of receiving part only
+	MAC_RX_EOF_IN		: in	std_logic;
+	MAC_RXD_IN		: in	std_logic_vector(7 downto 0);
+	MAC_RX_EN_IN		: in	std_logic;
+
+
+	-- debug ports
+	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
+);
+end component;
+
+
 component trb_net16_gbe_protocol_prioritizer is
 port (
 	CLK			: in	std_logic;
