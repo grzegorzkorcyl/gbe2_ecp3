@@ -278,7 +278,7 @@ begin
 			
 		when SAVE_RESPONSE =>
 			state <= x"6";
-			if (GSC_BUSY_IN = '0') then
+			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
 				dissect_next_state <= WAIT_FOR_LOAD;
 			else
 				dissect_next_state <= SAVE_RESPONSE;
