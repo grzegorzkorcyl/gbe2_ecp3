@@ -326,7 +326,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			init_ctr <= (others => '0');
-		elsif (GSC_INIT_READ_IN = '1' and (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0')) then
+		elsif tx_fifo_wr = '1' then --(GSC_INIT_READ_IN = '1' and (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0')) then
 			init_ctr <= init_ctr + x"1";
 		end if;
 	end if;
@@ -337,7 +337,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			reply_ctr <= (others => '0');
-		elsif (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
+		elsif tx_fifo_rd = '1' then --(GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
 			reply_ctr <= reply_ctr + x"1";
 		end if;
 	end if;
