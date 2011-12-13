@@ -375,8 +375,8 @@ port map (
 --***************
 -- DO NOT TOUCH,  response selection logic
 
-stat_data(c_MAX_PROTOCOLS * 32 - 1 downto (c_MAX_PROTOCOLS - 1) * 32) <= STAT_DATA_IN;
-stat_addr(c_MAX_PROTOCOLS * 8 - 1 downto (c_MAX_PROTOCOLS - 1) * 8)   <= STAT_ADDR_IN;
+stat_data((c_MAX_PROTOCOLS + 1) * 32 - 1 downto c_MAX_PROTOCOLS * 32) <= STAT_DATA_IN;
+stat_addr((c_MAX_PROTOCOLS + 1) * 8 - 1 downto c_MAX_PROTOCOLS * 8)   <= STAT_ADDR_IN;
 stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
 STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
