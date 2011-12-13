@@ -74,10 +74,10 @@ port (
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
-	STAT_DATA_IN : in std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	STAT_ADDR_IN : in std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0);
-	STAT_DATA_RDY_IN  : in std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-	STAT_DATA_ACK_OUT : out std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+	STAT_DATA_IN : in std_logic_vector((c_MAX_PROTOCOLS + 1) * 32 - 1 downto 0);
+	STAT_ADDR_IN : in std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
+	STAT_DATA_RDY_IN  : in std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+	STAT_DATA_ACK_OUT : out std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 
 -- debug
 	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
@@ -103,7 +103,7 @@ signal mem_din  : std_logic_vector(31 downto 0);
 signal mem_dout, mem_wr_addr : std_logic_vector(7 downto 0);
 signal mem_rd_addr : std_logic_vector(9 downto 0);
 signal mem_wr_en : std_logic;
-signal selected : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+signal selected : std_logic_vector(c_MAX_PROTOCOLS downto 0);
 
 signal pause    : integer range 0 to 28;
 
@@ -143,13 +143,13 @@ begin
 			found := false;
 		else
 			if (or_all(STAT_DATA_RDY_IN) = '1') then
-				for i in 0 to c_MAX_PROTOCOLS - 1 loop
+				for i in 0 to c_MAX_PROTOCOLS loop
 					if (STAT_DATA_RDY_IN(i) = '1') then
 						mem_wr_addr <= STAT_ADDR_IN((i + 1) * 8 - 1 downto i * 8);
 						mem_din     <= STAT_DATA_IN((i + 1) * 32 - 1 downto i * 32);
 						selected(i)           <= '1';
 						found := true;
-					elsif (i = c_MAX_PROTOCOLS - 1) and (STAT_DATA_RDY_IN(i) = '0') and (found = false) then
+					elsif (i = c_MAX_PROTOCOLS) and (STAT_DATA_RDY_IN(i) = '0') and (found = false) then
 						found := false;
 					end if;
 				end loop;

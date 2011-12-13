@@ -7,10 +7,121 @@ USE ieee.math_real.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
+use work.trb_net_std.all;
+use work.trb_net_components.all;
+use work.trb_net16_hub_func.all;
+
 entity testbench is
 end testbench;
 
 architecture behavior of testbench is
+
+component trb_net16_hub_streaming_port_sctrl is
+  generic(
+  --hub control
+    INIT_ADDRESS            : std_logic_vector(15 downto 0) := x"F004";
+    INIT_UNIQUE_ID          : std_logic_vector(63 downto 0) := (others => '0');
+    COMPILE_TIME            : std_logic_vector(31 downto 0) := x"00000000";
+    COMPILE_VERSION         : std_logic_vector(15 downto 0) := x"0001";
+    HARDWARE_VERSION        : std_logic_vector(31 downto 0) := x"12345678";
+    INIT_ENDPOINT_ID        : std_logic_vector(15 downto 0) := x"0001";
+    BROADCAST_BITMASK       : std_logic_vector(7 downto 0)  := x"7E";
+    CLOCK_FREQUENCY         : integer range 1 to 200 := 100;
+    USE_ONEWIRE             : integer range 0 to 2 := c_YES;
+    BROADCAST_SPECIAL_ADDR  : std_logic_vector(7 downto 0) := x"FF";
+  --media interfaces
+    MII_NUMBER              : integer range 2 to c_MAX_MII_PER_HUB := 12;
+    MII_IS_UPLINK           : hub_mii_config_t := (others => c_YES);
+    MII_IS_DOWNLINK         : hub_mii_config_t := (others => c_YES);
+    MII_IS_UPLINK_ONLY      : hub_mii_config_t := (others => c_NO)
+    );
+
+  port(
+    CLK                          : in std_logic;
+    RESET                        : in std_logic;
+    CLK_EN                       : in std_logic;
+
+  --Media Interface
+    MED_DATAREADY_OUT            : out std_logic_vector (MII_NUMBER-1 downto 0);
+    MED_DATA_OUT                 : out std_logic_vector (MII_NUMBER*c_DATA_WIDTH-1 downto 0);
+    MED_PACKET_NUM_OUT           : out std_logic_vector (MII_NUMBER*c_NUM_WIDTH-1 downto 0);
+    MED_READ_IN                  : in  std_logic_vector (MII_NUMBER-1 downto 0);
+    MED_DATAREADY_IN             : in  std_logic_vector (MII_NUMBER-1 downto 0);
+    MED_DATA_IN                  : in  std_logic_vector (MII_NUMBER*c_DATA_WIDTH-1 downto 0);
+    MED_PACKET_NUM_IN            : in  std_logic_vector (MII_NUMBER*c_NUM_WIDTH-1 downto 0);
+    MED_READ_OUT                 : out std_logic_vector (MII_NUMBER-1 downto 0);
+    MED_STAT_OP                  : in  std_logic_vector (MII_NUMBER*16-1 downto 0);
+    MED_CTRL_OP                  : out std_logic_vector (MII_NUMBER*16-1 downto 0);
+
+    --Event information coming from CTS
+    CTS_NUMBER_OUT               : out std_logic_vector (15 downto 0);
+    CTS_CODE_OUT                 : out std_logic_vector (7  downto 0);
+    CTS_INFORMATION_OUT          : out std_logic_vector (7  downto 0);
+    CTS_READOUT_TYPE_OUT         : out std_logic_vector (3  downto 0);
+    CTS_START_READOUT_OUT        : out std_logic;
+
+    --Information sent to CTS
+    --status data, equipped with DHDR
+    CTS_DATA_IN                  : in  std_logic_vector (31 downto 0);
+    CTS_DATAREADY_IN             : in  std_logic;
+    CTS_READOUT_FINISHED_IN      : in  std_logic;      --no more data, end transfer, send TRM
+    CTS_READ_OUT                 : out std_logic;
+    CTS_LENGTH_IN                : in  std_logic_vector (15 downto 0);
+    CTS_STATUS_BITS_IN           : in  std_logic_vector (31 downto 0);
+
+    -- Data from Frontends
+    FEE_DATA_OUT                 : out std_logic_vector (15 downto 0);
+    FEE_DATAREADY_OUT            : out std_logic;
+    FEE_READ_IN                  : in  std_logic;  --must be high when idle, otherwise you will never get a dataready
+    FEE_STATUS_BITS_OUT          : out std_logic_vector (31 downto 0);
+    FEE_BUSY_OUT                 : out std_logic;
+
+    MY_ADDRESS_IN                : in  std_logic_vector (15 downto 0);
+
+    COMMON_STAT_REGS             : out std_logic_vector (std_COMSTATREG*32-1 downto 0);  --Status of common STAT regs
+    COMMON_CTRL_REGS             : out std_logic_vector (std_COMCTRLREG*32-1 downto 0);  --Status of common STAT regs
+    ONEWIRE                      : inout std_logic;
+    ONEWIRE_MONITOR_IN           : in  std_logic;
+    ONEWIRE_MONITOR_OUT          : out std_logic;
+    MY_ADDRESS_OUT               : out std_logic_vector(15 downto 0);
+    UNIQUE_ID_OUT                : out std_logic_vector (63 downto 0);
+
+    --REGIO INTERFACE
+    REGIO_ADDR_OUT               : out std_logic_vector(16-1 downto 0);
+    REGIO_READ_ENABLE_OUT        : out std_logic;
+    REGIO_WRITE_ENABLE_OUT       : out std_logic;
+    REGIO_DATA_OUT               : out std_logic_vector(32-1 downto 0);
+    REGIO_DATA_IN                : in  std_logic_vector(32-1 downto 0) := (others => '0');
+    REGIO_DATAREADY_IN           : in  std_logic := '0';
+    REGIO_NO_MORE_DATA_IN        : in  std_logic := '0';
+    REGIO_WRITE_ACK_IN           : in  std_logic := '0';
+    REGIO_UNKNOWN_ADDR_IN        : in  std_logic := '0';
+    REGIO_TIMEOUT_OUT            : out std_logic;
+
+
+    --Gbe Sctrl Input
+    GSC_INIT_DATAREADY_IN        : in  std_logic;
+    GSC_INIT_DATA_IN             : in  std_logic_vector(15 downto 0);
+    GSC_INIT_PACKET_NUM_IN       : in  std_logic_vector(2 downto 0);
+    GSC_INIT_READ_OUT            : out std_logic;
+    GSC_REPLY_DATAREADY_OUT      : out std_logic;
+    GSC_REPLY_DATA_OUT           : out std_logic_vector(15 downto 0);
+    GSC_REPLY_PACKET_NUM_OUT     : out std_logic_vector(2 downto 0);
+    GSC_REPLY_READ_IN            : in  std_logic;
+    GSC_BUSY_OUT                 : out std_logic;
+
+  --status and control ports
+    HUB_STAT_CHANNEL             : out std_logic_vector (2**(c_MUX_WIDTH-1)*16-1 downto 0);
+    HUB_STAT_GEN                 : out std_logic_vector (31 downto 0);
+    MPLEX_CTRL                   : in  std_logic_vector (MII_NUMBER*32-1 downto 0);
+    MPLEX_STAT                   : out std_logic_vector (MII_NUMBER*32-1 downto 0);
+    STAT_REGS                    : out std_logic_vector (8*32-1 downto 0);  --Status of custom STAT regs
+    STAT_CTRL_REGS               : out std_logic_vector (8*32-1 downto 0);  --Status of custom CTRL regs
+    --Debugging registers
+    STAT_DEBUG                   : out std_logic_vector (31 downto 0);      --free status regs for debugging
+    CTRL_DEBUG                   : in  std_logic_vector (31 downto 0)      --free control regs for debugging
+    );
+end component;
 
 signal CLK			: std_logic;
 signal RESET			: std_logic;
@@ -106,10 +217,105 @@ signal pc_data : std_logic_vector(7 downto 0);
 signal pc_ip_size, pc_udp_size : std_logic_vector(15 downto 0);
 signal gsc_init_read, gsc_init_dataready : std_logic;
 signal gsc_reply_read, gsc_reply_dataready : std_logic;
-signal gsc_reply_data : std_logic_vector(15 downto 0);
+signal gsc_reply_data, gsc_init_data : std_logic_vector(15 downto 0);
 signal gsc_busy : std_logic;
+signal gsc_init_packet_num, gsc_reply_packet_num : std_logic_vector(2 downto 0);
 
 begin
+
+HUB_STR : trb_net16_hub_streaming_port_sctrl 
+  generic map(
+  --media interfaces
+    MII_NUMBER             => 5,
+ MII_IS_UPLINK        => (0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0),
+ MII_IS_DOWNLINK      => (1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0),
+ MII_IS_UPLINK_ONLY   => (0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
+    )
+  port map(
+    CLK                          => CLK,
+    RESET                        => RESET,
+    CLK_EN                       => '1',
+
+  --Media Interface
+    MED_DATAREADY_OUT            => open,
+    MED_DATA_OUT                 => open,
+    MED_PACKET_NUM_OUT           => open,
+    MED_READ_IN                  => (others => '0'),
+    MED_DATAREADY_IN             => (others => '0'),
+    MED_DATA_IN                  => (others => '0'),
+    MED_PACKET_NUM_IN            => (others => '0'),
+    MED_READ_OUT                 => open,
+    MED_STAT_OP                  => x"0007_0007_0007_0007_0007",
+    MED_CTRL_OP                  => open,
+
+    --Event information coming from CTS
+    CTS_NUMBER_OUT               => open,
+    CTS_CODE_OUT                 => open,
+    CTS_INFORMATION_OUT          => open,
+    CTS_READOUT_TYPE_OUT         => open,
+    CTS_START_READOUT_OUT        => open,
+
+    --Information sent to CTS
+    --status data, equipped with DHDR
+    CTS_DATA_IN                  => (others => '0'),
+    CTS_DATAREADY_IN             => '0',
+    CTS_READOUT_FINISHED_IN      => '0',
+    CTS_READ_OUT                 => open,
+    CTS_LENGTH_IN                => (others => '0'),
+    CTS_STATUS_BITS_IN           => (others => '0'),
+
+    -- Data from Frontends
+    FEE_DATA_OUT                 => open,
+    FEE_DATAREADY_OUT            => open,
+    FEE_READ_IN                  => '0',
+    FEE_STATUS_BITS_OUT          => open,
+    FEE_BUSY_OUT                 => open,
+
+    MY_ADDRESS_IN                => (others => '0'),
+
+    COMMON_STAT_REGS             => open,
+    COMMON_CTRL_REGS             => open,
+    ONEWIRE                      => open,
+    ONEWIRE_MONITOR_IN           => '0',
+    ONEWIRE_MONITOR_OUT          => open,
+    MY_ADDRESS_OUT               => open,
+    UNIQUE_ID_OUT                => open,
+
+    --REGIO INTERFACE
+    REGIO_ADDR_OUT               => open,
+    REGIO_READ_ENABLE_OUT        => open,
+    REGIO_WRITE_ENABLE_OUT       => open,
+    REGIO_DATA_OUT               => open,
+    REGIO_DATA_IN                => (others => '0'),
+    REGIO_DATAREADY_IN           => '0',
+    REGIO_NO_MORE_DATA_IN        => '0',
+    REGIO_WRITE_ACK_IN           => '0',
+    REGIO_UNKNOWN_ADDR_IN        => '0',
+    REGIO_TIMEOUT_OUT            => open,
+
+
+    --Gbe Sctrl Input
+    GSC_INIT_DATAREADY_IN        => gsc_init_dataready,
+    GSC_INIT_DATA_IN             => gsc_init_data,
+    GSC_INIT_PACKET_NUM_IN       => gsc_init_packet_num,
+    GSC_INIT_READ_OUT            => gsc_init_read,
+    GSC_REPLY_DATAREADY_OUT      => gsc_reply_dataready,
+    GSC_REPLY_DATA_OUT           => gsc_reply_data,
+    GSC_REPLY_PACKET_NUM_OUT     => gsc_reply_packet_num,
+    GSC_REPLY_READ_IN            => gsc_reply_read,
+    GSC_BUSY_OUT                 => gsc_busy,
+
+  --status and control ports
+    HUB_STAT_CHANNEL             => open,
+    HUB_STAT_GEN                 => open,
+    MPLEX_CTRL                   => (others => '0'),
+    MPLEX_STAT                   => open,
+    STAT_REGS                    => open,
+    STAT_CTRL_REGS               => open,
+    --Debugging registers
+    STAT_DEBUG                   => open,
+    CTRL_DEBUG                   => (others => '0')
+    );
 
 packet_constr : trb_net16_gbe_packet_constr
 port map(
@@ -284,12 +490,12 @@ port map (
 	
 	GSC_CLK_IN               => CLK,
 	GSC_INIT_DATAREADY_OUT   => gsc_init_dataready,
-	GSC_INIT_DATA_OUT        => open,
-	GSC_INIT_PACKET_NUM_OUT  => open,
+	GSC_INIT_DATA_OUT        => gsc_init_data,
+	GSC_INIT_PACKET_NUM_OUT  => gsc_init_packet_num,
 	GSC_INIT_READ_IN         => gsc_init_read,
 	GSC_REPLY_DATAREADY_IN   => gsc_reply_dataready,
 	GSC_REPLY_DATA_IN        => gsc_reply_data,
-	GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
+	GSC_REPLY_PACKET_NUM_IN  => gsc_reply_packet_num,
 	GSC_REPLY_READ_OUT       => gsc_reply_read,
 	GSC_BUSY_IN              => gsc_busy,
 
@@ -464,11 +670,11 @@ begin
 	fr_allowed_udp          <= x"0000_000f";
 	additional_rand_pause   <= '0';
 	pc_sos                  <= '0';
-	gsc_init_read           <= '0';
-	gsc_busy                <= '0';
-	gsc_reply_data          <= (others => '0');
-	gsc_reply_dataready     <= '0';
-	
+--	gsc_init_read           <= '0';
+--	gsc_busy                <= '0';
+--	gsc_reply_data          <= (others => '0');
+--	gsc_reply_dataready     <= '0';
+--	
 	wait for 10 ns;
 	RESET <= '0';
 	wait for 50 ns;
@@ -600,9 +806,9 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"a0";
+	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"c0";
+	MAC_RXD_IN		<= x"50";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"af";
 	wait until rising_edge(RX_MAC_CLK);
@@ -638,38 +844,38 @@ begin
 	MAC_RX_EOF_IN <= '0';
 	
 	
-	wait until rising_edge(gsc_init_dataready);
-	wait until rising_edge(CLK);
-	gsc_init_read <= '1';
-
-	wait until falling_edge(gsc_init_dataready);
-	wait until rising_edge(CLK);
-	gsc_init_read <= '0';
-	
-	--wait for 100 ns;
-	--wait until rising_edge(gsc_reply_read);
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0101";
-	gsc_reply_dataready <= '1';
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0202";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0303";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0404";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0505";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0606";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0707";
-	wait until rising_edge(CLK);
-	gsc_reply_data <= x"0808";
-	wait until rising_edge(CLK);
-	gsc_reply_dataready <= '0';
+--	wait until rising_edge(gsc_init_dataready);
+--	wait until rising_edge(CLK);
+--	gsc_init_read <= '1';
+--
+--	wait until falling_edge(gsc_init_dataready);
+--	wait until rising_edge(CLK);
+--	gsc_init_read <= '0';
+--	
+--	--wait for 100 ns;
+--	--wait until rising_edge(gsc_reply_read);
+--	wait until rising_edge(CLK);
+--	wait until rising_edge(CLK);
+--	wait until rising_edge(CLK);
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0101";
+--	gsc_reply_dataready <= '1';
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0202";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0303";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0404";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0505";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0606";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0707";
+--	wait until rising_edge(CLK);
+--	gsc_reply_data <= x"0808";
+--	wait until rising_edge(CLK);
+--	gsc_reply_dataready <= '0';
 	
 		
 	-- STOP HERE	

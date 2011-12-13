@@ -198,6 +198,12 @@ port (
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
 	
+	-- input for statistics from outside	
+	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
+	STAT_ADDR_IN             : in std_logic_vector(7 downto 0);
+	STAT_DATA_RDY_IN         : in std_logic;
+	STAT_DATA_ACK_OUT        : out std_logic;
+	
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
@@ -281,7 +287,7 @@ port (
 	PCS_AN_COMPLETE_IN	: in	std_logic;
 
 -- signals to/from hub
-	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
+	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
 	
 	GSC_CLK_IN               : in std_logic;
 	GSC_INIT_DATAREADY_OUT   : out std_logic;
@@ -302,6 +308,8 @@ port (
 	TSM_HREAD_N_OUT		: out	std_logic;
 	TSM_HREADY_N_IN		: in	std_logic;
 	TSM_HDATA_EN_N_IN	: in	std_logic;
+	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
+	TSM_RX_STAT_EN_IN   : in	std_logic;
 
 	
 	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);

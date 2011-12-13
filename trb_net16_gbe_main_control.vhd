@@ -71,7 +71,7 @@ port (
 	PCS_AN_COMPLETE_IN	: in	std_logic;
 
 -- signals to/from hub
-	MC_UNIQUE_ID_IN		: in	std_logic_vector(127 downto 0);
+	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
 	
 	GSC_CLK_IN               : in std_logic;
 	GSC_INIT_DATAREADY_OUT   : out std_logic;
@@ -92,6 +92,8 @@ port (
 	TSM_HREAD_N_OUT		: out	std_logic;
 	TSM_HREADY_N_IN		: in	std_logic;
 	TSM_HDATA_EN_N_IN	: in	std_logic;
+	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
+	TSM_RX_STAT_EN_IN   : in	std_logic;
 
 	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
@@ -159,6 +161,13 @@ signal redirect_current_state, redirect_next_state : redirect_states;
 signal frame_type                   : std_logic_vector(15 downto 0);
 signal disable_redirect, ps_wr_en_q : std_logic;
 
+type stats_states is (IDLE, LOAD_VECTOR, CLEANUP);
+signal stats_current_state, stats_next_state : stats_states;
+
+signal stat_rdy, stat_ack           : std_logic;
+signal rx_stat_en_q                 : std_logic;
+signal rx_stat_vec_q                : std_logic_vector(31 downto 0);
+
 begin
 
 protocol_selector : trb_net16_gbe_protocol_selector
@@ -212,6 +221,12 @@ port map(
 	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
+	
+	-- input for statistics from outside
+	STAT_DATA_IN       => TSM_RX_STAT_VEC_IN,
+	STAT_ADDR_IN       => x"0c",
+	STAT_DATA_RDY_IN   => stat_rdy,
+	STAT_DATA_ACK_OUT  => stat_ack,
 
 	
 	DEBUG_OUT		=> open
@@ -623,6 +638,75 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 
 -- END OF TRI SPEED MAC CONTROLLER
 --***************
+
+
+-- *****
+--	STATISTICS
+-- *****
+
+STAT_VEC_SYNC : signal_sync
+generic map (
+	WIDTH => 32,
+	DEPTH => 2
+)
+port map (
+	RESET => RESET,
+	CLK0  => CLK,
+	CLK1  => CLK,
+	D_IN  => TSM_RX_STAT_VEC_IN,
+	D_OUT => rx_stat_vec_q
+);
+
+
+STAT_VEC_EN_SYNC : pulse_sync
+port map(
+	CLK_A_IN    => CLK_125,
+	RESET_A_IN  => RESET,
+	PULSE_A_IN  => TSM_RX_STAT_EN_IN,
+	CLK_B_IN    => CLK,
+	RESET_B_IN  => RESET,
+	PULSE_B_OUT => rx_stat_en_q
+);
+
+
+STATS_MACHINE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			stats_current_state <= IDLE;
+		else
+			stats_current_state <= stats_next_state;
+		end if;
+	end if;
+end process STATS_MACHINE_PROC;
+
+STATS_MACHINE : process(stats_current_state, rx_stat_en_q)
+begin
+
+	case (stats_current_state) is
+	
+		when IDLE =>
+			if (rx_stat_en_q = '1') then
+				stats_next_state <= LOAD_VECTOR;
+			else
+				stats_next_state <= IDLE;
+			end if;
+		
+		when LOAD_VECTOR =>
+			if (stat_ack = '1') then
+				stats_next_state <= CLEANUP;
+			else
+				stats_next_state <= LOAD_VECTOR;
+			end if;
+		
+		when CLEANUP =>
+			stats_next_state <= IDLE;
+	
+	end case;
+
+end process STATS_MACHINE;
+
+stat_rdy <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
 
 
 -- **** debug

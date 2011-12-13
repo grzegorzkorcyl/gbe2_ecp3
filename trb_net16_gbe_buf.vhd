@@ -653,8 +653,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
 
   -- signals to/from hub
-	  MC_UNIQUE_ID_IN(63 downto 0)	=> MC_UNIQUE_ID_IN,
-	  MC_UNIQUE_ID_IN(127 downto 64) => (others => '0'),
+	  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
 	GSC_CLK_IN               => GSC_CLK_IN,
 	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
 	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
@@ -674,6 +673,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TSM_HREAD_N_OUT	=> mac_hread,
 	  TSM_HREADY_N_IN	=> mac_hready,
 	  TSM_HDATA_EN_N_IN	=> mac_hdata_en,
+	  TSM_RX_STAT_VEC_IN  => mac_rx_stat_vec,
+	  TSM_RX_STAT_EN_IN   => mac_rx_stat_en,
 	  
 	  SELECT_REC_FRAMES_OUT		=> dbg_select_rec,
 	  SELECT_SENT_FRAMES_OUT	=> dbg_select_sent,

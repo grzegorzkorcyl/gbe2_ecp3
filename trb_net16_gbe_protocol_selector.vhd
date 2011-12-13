@@ -73,6 +73,12 @@ port (
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
 
+	-- input for statistics from outside	
+	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
+	STAT_ADDR_IN             : in std_logic_vector(7 downto 0);
+	STAT_DATA_RDY_IN         : in std_logic;
+	STAT_DATA_ACK_OUT        : out std_logic;
+
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end trb_net16_gbe_protocol_selector;
@@ -98,10 +104,12 @@ signal tc_src_ip                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 down
 signal tc_src_udp               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal tc_ip_proto              : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0); 
 
-signal stat_data                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-signal stat_addr                : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0);
-signal stat_rdy                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-signal stat_ack                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+-- plus 1 is for the outside
+signal stat_data                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 32 - 1 downto 0);
+signal stat_addr                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
+signal stat_rdy                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+signal stat_ack                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+
 begin
 
 -- protocol Nr. 1 ARP
@@ -366,6 +374,13 @@ port map (
 
 --***************
 -- DO NOT TOUCH,  response selection logic
+
+stat_data(c_MAX_PROTOCOLS * 32 - 1 downto (c_MAX_PROTOCOLS - 1) * 32) <= STAT_DATA_IN;
+stat_addr(c_MAX_PROTOCOLS * 8 - 1 downto (c_MAX_PROTOCOLS - 1) * 8)   <= STAT_ADDR_IN;
+stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
+STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
+
+
 PS_BUSY_OUT <= busy;
 
 SELECTOR_PROC : process(CLK)

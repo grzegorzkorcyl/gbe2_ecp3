@@ -450,10 +450,10 @@ port (
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
-	STAT_DATA_IN : in std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	STAT_ADDR_IN : in std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0);
-	STAT_DATA_RDY_IN  : in std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-	STAT_DATA_ACK_OUT : out std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+	STAT_DATA_IN : in std_logic_vector((c_MAX_PROTOCOLS + 1) * 32 - 1 downto 0);
+	STAT_ADDR_IN : in std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
+	STAT_DATA_RDY_IN  : in std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+	STAT_DATA_ACK_OUT : out std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 
 -- debug
 	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
