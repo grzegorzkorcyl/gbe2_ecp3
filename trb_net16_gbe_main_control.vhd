@@ -742,7 +742,7 @@ begin
 	end if;
 end process STATS_CTR_PROC; 
 
-stat_data <= arr(stats_ctr);
+--stat_data <= arr(stats_ctr);
 
 stat_addr <= x"0c" + std_logic_vector(to_unsigned(stats_ctr, 8)); 
 
