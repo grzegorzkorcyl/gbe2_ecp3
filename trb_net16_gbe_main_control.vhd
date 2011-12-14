@@ -168,6 +168,14 @@ signal stat_rdy, stat_ack           : std_logic;
 signal rx_stat_en_q                 : std_logic;
 signal rx_stat_vec_q                : std_logic_vector(31 downto 0);
 
+signal ctr                          : std_logic_vector(31 downto 0);
+type array_of_ctrs is array(3 downto 0) of std_logic_vector(31 downto 0);
+signal arr : array_of_ctrs;
+signal stats_ctr                    : integer range 0 to 15;
+signal stat_data                    : std_logic_vector(31 downto 0);
+signal stat_addr                    : std_logic_vector(7 downto 0);
+
+
 begin
 
 protocol_selector : trb_net16_gbe_protocol_selector
@@ -223,8 +231,8 @@ port map(
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 	
 	-- input for statistics from outside
-	STAT_DATA_IN       => TSM_RX_STAT_VEC_IN,
-	STAT_ADDR_IN       => x"0c",
+	STAT_DATA_IN       => stat_data,
+	STAT_ADDR_IN       => stat_addr,
 	STAT_DATA_RDY_IN   => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack,
 
@@ -644,6 +652,23 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --	STATISTICS
 -- *****
 
+
+CTRS_GEN : for n in 0 to 15 generate
+
+	CTR_PROC : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (RESET = '1') then
+				arr(n) <= (others => '0');
+			elsif (rx_stat_en_q = '1' and rx_stat_vec_q(16 + n) = '1') then
+				arr(n) <= arr(n) + x"1";
+			end if;	
+		end if;
+	end process CTR_PROC;
+
+end generate CTRS_GEN;
+
+
 STAT_VEC_SYNC : signal_sync
 generic map (
 	WIDTH => 32,
@@ -680,7 +705,7 @@ begin
 	end if;
 end process STATS_MACHINE_PROC;
 
-STATS_MACHINE : process(stats_current_state, rx_stat_en_q)
+STATS_MACHINE : process(stats_current_state, rx_stat_en_q, stats_ctr)
 begin
 
 	case (stats_current_state) is
@@ -693,7 +718,8 @@ begin
 			end if;
 		
 		when LOAD_VECTOR =>
-			if (stat_ack = '1') then
+			--if (stat_ack = '1') then
+			if (stats_ctr = 15) then
 				stats_next_state <= CLEANUP;
 			else
 				stats_next_state <= LOAD_VECTOR;
@@ -705,6 +731,21 @@ begin
 	end case;
 
 end process STATS_MACHINE;
+
+STATS_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (stats_current_state = IDLE) then
+			stats_ctr <= 0;
+		elsif (stats_current_state = LOAD_VECTOR and stat_ack ='1') then
+			stats_ctr <= stats_ctr + 1;
+		end if;
+	end if;
+end process STATS_CTR_PROC; 
+
+stat_data <= arr(stats_ctr);
+
+stat_addr <= x"0c" + std_logic_vector(to_unsigned(stats_ctr, 8)); 
 
 stat_rdy <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
 
