@@ -169,7 +169,7 @@ signal rx_stat_en_q                 : std_logic;
 signal rx_stat_vec_q                : std_logic_vector(31 downto 0);
 
 signal ctr                          : std_logic_vector(31 downto 0);
-type array_of_ctrs is array(3 downto 0) of std_logic_vector(31 downto 0);
+type array_of_ctrs is array(15 downto 0) of std_logic_vector(31 downto 0);
 signal arr : array_of_ctrs;
 signal stats_ctr                    : integer range 0 to 15;
 signal stat_data                    : std_logic_vector(31 downto 0);
