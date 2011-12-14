@@ -287,11 +287,11 @@ TC_FRAME_SIZE_OUT <= x"0100";
 TC_FRAME_TYPE_OUT <= x"0008";  -- frame type: ip 
 
 TC_DEST_MAC_OUT <= x"ffffffffffff";
-TC_DEST_IP_OUT  <= x"ffffffff";
-TC_DEST_UDP_OUT <= x"50c3";
+TC_DEST_IP_OUT  <= x"ff00a8c0";
+TC_DEST_UDP_OUT <= x"51c3";
 TC_SRC_MAC_OUT  <= g_MY_MAC;
 TC_SRC_IP_OUT   <= g_MY_IP;
-TC_SRC_UDP_OUT  <= x"50c3";
+TC_SRC_UDP_OUT  <= x"51c3";
 TC_IP_PROTOCOL_OUT <= x"11"; -- udp
 
 end Behavioral;
