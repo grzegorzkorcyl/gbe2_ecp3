@@ -748,6 +748,11 @@ stat_addr <= x"0c" + std_logic_vector(to_unsigned(stats_ctr, 8));
 
 stat_rdy <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
 
+stat_data(7 downto 0)   <= arr(stats_ctr)(31 downto 24);
+stat_data(15 downto 8)  <= arr(stats_ctr)(23 downto 16);
+stat_data(23 downto 16) <= arr(stats_ctr)(15 downto 8);
+stat_data(31 downto 24) <= arr(stats_ctr)(7 downto 0);
+
 
 -- **** debug
 FRAME_WAITING_CTR_PROC : process(CLK)
