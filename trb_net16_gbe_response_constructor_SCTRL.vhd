@@ -82,7 +82,7 @@ type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RE
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
-type stats_states is (IDLE, LOAD_RECEIVED, LOAD_INIT, LOAD_REPLY, LOAD_STATE, CLEANUP);
+type stats_states is (IDLE, LOAD_RECEIVED, LOAD_REPLY, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
 attribute syn_encoding of stats_current_state : signal is "safe,gray";
 
@@ -111,7 +111,6 @@ signal packet_num               : std_logic_vector(2 downto 0);
 signal init_ctr, reply_ctr      : std_logic_vector(15 downto 0);
 signal rx_empty, tx_empty       : std_logic;
 
-signal dbg_timeout              : std_logic_vector(27 downto 0);
 signal rx_full, tx_full         : std_logic;
 
 	
@@ -321,39 +320,16 @@ begin
 	end if;
 end process REC_FRAMES_PROC;
 
-INIT_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			init_ctr <= (others => '0');
-		elsif tx_fifo_wr = '1' then --(GSC_INIT_READ_IN = '1' and (dissect_current_state = LOAD_TO_HUB and rx_fifo_q(17) = '0')) then
-			init_ctr <= init_ctr + x"1";
-		end if;
-	end if;
-end process INIT_CTR_PROC;
-
 REPLY_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			reply_ctr <= (others => '0');
-		elsif tx_fifo_rd = '1' then --(GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
+		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
 			reply_ctr <= reply_ctr + x"1";
 		end if;
 	end if;
 end process REPLY_CTR_PROC;
-
-DBG_TIMEOUT_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dbg_timeout <= (others => '0');
-		else
-			dbg_timeout <= dbg_timeout + x"1";
-		end if;
-	end if;
-end process DBG_TIMEOUT_PROC;
-
 
 
 STATS_MACHINE_PROC : process(CLK)
@@ -367,13 +343,13 @@ begin
 	end if;
 end process STATS_MACHINE_PROC;
 
-STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state)
+STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state, tx_loaded_ctr, tx_data_ctr)
 begin
 
 	case (stats_current_state) is
 	
 		when IDLE =>
-			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dbg_timeout(24) = '1')) then
+			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr)) then
 				stats_next_state <= LOAD_RECEIVED;
 			else
 				stats_next_state <= IDLE;
@@ -381,31 +357,17 @@ begin
 		
 		when LOAD_RECEIVED =>
 			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_INIT;
+				stats_next_state <= LOAD_REPLY;
 			else
 				stats_next_state <= LOAD_RECEIVED;
 			end if;
 			
-		when LOAD_INIT =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_REPLY;
-			else
-				stats_next_state <= LOAD_INIT;
-			end if;
-			
 		when LOAD_REPLY =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_STATE;
-			else
-				stats_next_state <= LOAD_REPLY;
-			end if;		
-			
-		when LOAD_STATE =>
 			if (STAT_DATA_ACK_IN = '1') then
 				stats_next_state <= CLEANUP;
 			else
-				stats_next_state <= LOAD_STATE;
-			end if;
+				stats_next_state <= LOAD_REPLY;
+			end if;		
 		
 		when CLEANUP =>
 			stats_next_state <= IDLE;
@@ -422,18 +384,10 @@ begin
 		when LOAD_RECEIVED =>
 			stat_data_temp <= x"0502" & rec_frames;
 			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
-			
-		when LOAD_INIT =>
-			stat_data_temp <= x"050a" & init_ctr;
-			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
 		
 		when LOAD_REPLY =>
-			stat_data_temp <= x"050b" & reply_ctr;
-			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 2, 8));
-			
-		when LOAD_STATE =>
-			stat_data_temp <= x"050c0" & rx_full & rx_empty & tx_full & tx_empty & GSC_REPLY_DATAREADY_IN & gsc_reply_read & gsc_init_dataready & GSC_INIT_READ_IN & state;
-			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 3, 8));
+			stat_data_temp <= x"0503" & reply_ctr;
+			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
 			
 		when others =>
 			stat_data_temp <= (others => '0');

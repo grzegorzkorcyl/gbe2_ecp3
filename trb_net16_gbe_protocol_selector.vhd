@@ -261,7 +261,7 @@ port map (
 );
 
 SCTRL : trb_net16_gbe_response_constructor_SCTRL
-generic map( STAT_ADDRESS_BASE => 5
+generic map( STAT_ADDRESS_BASE => 8
 )
 port map (
 	CLK			=> CLK,
