@@ -583,6 +583,11 @@ signal dbg_ft                        : std_logic_vector(63 downto 0);
 signal fr_ip_proto                   : std_logic_vector(7 downto 0);
 signal mc_ip_proto                   : std_logic_vector(7 downto 0);
 
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_er : signal is true;
+attribute syn_preserve of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_er : signal is true;
+
 begin
 
 --my_mac <= x"efbeefbe0000";  -- temporary
