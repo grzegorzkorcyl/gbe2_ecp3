@@ -475,6 +475,9 @@ signal mr_lp_adv_ability, mr_adv_ability : std_logic_vector(15 downto 0);
   --attribute syn_preserve of sd_tx_clk : signal is true;
   attribute syn_keep of sd_rx_clk : signal is true;
   attribute syn_preserve of sd_rx_clk : signal is true;
+  
+  attribute syn_keep of sd_tx_correct_disp_q, sd_tx_kcntl_q, sd_tx_data_q, sd_rx_data_q, sd_rx_cv_error_q, sd_rx_disp_error_q, sd_rx_kcntl_q : signal is true;
+  attribute syn_preserve of sd_tx_correct_disp_q, sd_tx_kcntl_q, sd_tx_data_q, sd_rx_data_q, sd_rx_cv_error_q, sd_rx_disp_error_q, sd_rx_kcntl_q : signal is true;
 
 begin
 
@@ -637,27 +640,27 @@ clk_ext : if (USE_125MHZ_EXTCLK = 1) generate
 			);
 end generate clk_ext;
 
-SD_RX_DATA_PROC: process( sd_rx_clk )
-begin
-	if( rising_edge(sd_rx_clk) ) then
-		sd_rx_debug(15 downto 12) <= (others => '0');
-		sd_rx_debug(11)          <= sd_rx_disp_error;
-		sd_rx_debug(10)          <= sd_rx_even;
-		sd_rx_debug(9)           <= sd_rx_cv_error;
-		sd_rx_debug(8)           <= sd_rx_kcntl;
-		sd_rx_debug(7 downto 0)  <= sd_rx_data;
-	end if;
-end process SD_RX_DATA_PROC;
-
-SD_TX_DATA_PROC: process( CLK_125_IN) --sd_tx_clk )
-begin
-	if( rising_edge(CLK_125_IN)) then --sd_tx_clk) ) then
-		sd_tx_debug(15 downto 10) <= (others => '0');
-		sd_tx_debug(9)            <= sd_tx_correct_disp;
-		sd_tx_debug(8)            <= sd_tx_kcntl;
-		sd_tx_debug(7 downto 0)   <= sd_tx_data;
-	end if;
-end process SD_TX_DATA_PROC;
+--SD_RX_DATA_PROC: process( sd_rx_clk )
+--begin
+--	if( rising_edge(sd_rx_clk) ) then
+--		sd_rx_debug(15 downto 12) <= (others => '0');
+--		sd_rx_debug(11)          <= sd_rx_disp_error;
+--		sd_rx_debug(10)          <= sd_rx_even;
+--		sd_rx_debug(9)           <= sd_rx_cv_error;
+--		sd_rx_debug(8)           <= sd_rx_kcntl;
+--		sd_rx_debug(7 downto 0)  <= sd_rx_data;
+--	end if;
+--end process SD_RX_DATA_PROC;
+--
+--SD_TX_DATA_PROC: process( CLK_125_IN) --sd_tx_clk )
+--begin
+--	if( rising_edge(CLK_125_IN)) then --sd_tx_clk) ) then
+--		sd_tx_debug(15 downto 10) <= (others => '0');
+--		sd_tx_debug(9)            <= sd_tx_correct_disp;
+--		sd_tx_debug(8)            <= sd_tx_kcntl;
+--		sd_tx_debug(7 downto 0)   <= sd_tx_data;
+--	end if;
+--end process SD_TX_DATA_PROC;
 
 buf_stat_debug(63 downto 40) <= (others => '0');
 buf_stat_debug(39 downto 36) <= reset_debug(3 downto 0);
