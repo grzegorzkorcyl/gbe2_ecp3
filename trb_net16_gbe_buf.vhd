@@ -1282,7 +1282,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	----------------- clock and reset port declarations ------------------
 		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
-		rxmac_clk			=> serdes_rx_clk, --serdes_clk_125,
+		rxmac_clk			=> serdes_clk_125,
 		reset_n				=> GSR_N,
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
