@@ -423,6 +423,15 @@ signal sd_rx_disp_error		: std_logic;
 signal sd_rx_cv_error		: std_logic;
 signal sd_rx_clk			: std_logic;
 
+signal sd_tx_data_q			: std_logic_vector(7 downto 0);
+signal sd_tx_kcntl_q			: std_logic;
+signal sd_tx_correct_disp_q	: std_logic;
+
+signal sd_rx_data_q			: std_logic_vector(7 downto 0);
+signal sd_rx_kcntl_q			: std_logic;
+signal sd_rx_disp_error_q		: std_logic;
+signal sd_rx_cv_error_q		: std_logic;
+
 signal pcs_mr_an_complete	: std_logic;
 signal pcs_mr_ability		: std_logic_vector(15 downto 0);
 signal pcs_mr_page_rx		: std_logic;
@@ -551,10 +560,10 @@ clk_int : if (USE_125MHZ_EXTCLK = 0) generate
 	 tx_full_clk_ch0      => open, --sd_tx_clk,
 	    tx_half_clk_ch0      => open,
 	       fpga_rxrefclk_ch0    => CLK_125_IN,
-	    txdata_ch0           => sd_tx_data,
-	    tx_k_ch0             => sd_tx_kcntl,
+	    txdata_ch0           => sd_tx_data_q,
+	    tx_k_ch0             => sd_tx_kcntl_q,
 	    xmit_ch0             => '0',
-	    tx_disp_correct_ch0  => sd_tx_correct_disp,
+	    tx_disp_correct_ch0  => sd_tx_correct_disp_q,
 	    rxdata_ch0           => sd_rx_data, 
 	    rx_k_ch0             => sd_rx_kcntl,
 	    rx_disp_err_ch0      => sd_rx_disp_error,
@@ -689,11 +698,11 @@ SGMII_GBE_PCS : sgmii33 port map (
 	tx_kcntl               => sd_tx_kcntl,
 	tx_disparity_cntl      => sd_tx_correct_disp,
 	serdes_recovered_clk   => sd_rx_clk,
-	rx_data                => sd_rx_data,
+	rx_data                => sd_rx_data_q,
 	rx_even                => '0',
-	rx_kcntl               => sd_rx_kcntl,
-	rx_disp_err            => sd_rx_disp_error,
-	rx_cv_err              => sd_rx_cv_error,
+	rx_kcntl               => sd_rx_kcntl_q,
+	rx_disp_err            => sd_rx_disp_error_q,
+	rx_cv_err              => sd_rx_cv_error_q,
 	rx_err_decode_mode     => '0',
 	mr_an_complete         => an_complete,
 	mr_page_rx             => mr_page_rx,
@@ -703,6 +712,27 @@ SGMII_GBE_PCS : sgmii33 port map (
 	mr_restart_an          => mr_restart_an,
 	mr_adv_ability         => mr_adv_ability --x"0020"
    );
+   
+   SYNC_TX_PROC : process(CLK_125_IN)
+   begin
+   	if rising_edge(CLK_125_IN) then
+   		sd_tx_data_q <= sd_tx_data;
+   		sd_tx_kcntl_q <= sd_tx_kcntl;
+   		sd_tx_correct_disp_q <= sd_tx_correct_disp;
+   	end if;
+   end process SYNC_TX_PROC;
+   
+   SYNC_RX_PROC : process(sd_rx_clk)
+   begin
+   	if rising_edge(sd_rx_clk) then
+   		sd_rx_data_q <= sd_rx_data;
+   		sd_rx_kcntl_q <= sd_rx_kcntl;
+   		sd_rx_disp_error_q <= sd_rx_disp_error;
+   		sd_rx_cv_error_q <= sd_rx_cv_error;
+   	end if;
+   end process SYNC_RX_PROC;
+   
+   
 
 -- 
 -- SGMII_GBE_PCS : sgmii_gbe_pcs34
