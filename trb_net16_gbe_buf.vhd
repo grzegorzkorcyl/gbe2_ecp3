@@ -1233,7 +1233,7 @@ port map(
 	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
-	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
+	  RX_MAC_CLK		=> serdes_clk_125,
 
   -- input signals from TS_MAC
 	  MAC_RX_EOF_IN		=> mac_rx_eof,
@@ -1282,7 +1282,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	----------------- clock and reset port declarations ------------------
 		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
-		rxmac_clk			=> serdes_rx_clk, --serdes_clk_125,
+		rxmac_clk			=> serdes_clk_125,
 		reset_n				=> GSR_N,
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
@@ -1334,9 +1334,9 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		rx_error			=> mac_rx_er --open
 	);
 	
-	SYNC_GMII_RX_PROC : process(serdes_rx_clk)
+	SYNC_GMII_RX_PROC : process(serdes_clk_125)
 	begin
-		if rising_edge(serdes_rx_clk) then
+		if rising_edge(serdes_clk_125) then
 			pcs_rxd_q   <= pcs_rxd;
 			pcs_rx_en_q <= pcs_rx_en;
 			pcs_rx_er_q <= pcs_rx_er;
