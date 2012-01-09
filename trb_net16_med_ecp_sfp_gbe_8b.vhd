@@ -801,9 +801,9 @@ rst_n <= not RESET;
 --SYNC_RX_PROC : process(sd_rx_clk)
 --begin
 --  if rising_edge(sd_rx_clk) then
---    FT_RXD_OUT   <= pcs_rx_d;
---    FT_RX_EN_OUT <= pcs_rx_dv;
---    FT_RX_ER_OUT <= pcs_rx_er;
+    FT_RXD_OUT   <= pcs_rx_d;
+    FT_RX_EN_OUT <= pcs_rx_dv;
+    FT_RX_ER_OUT <= pcs_rx_er;
 --  end if;
 --end process SYNC_RX_PROC;
 
