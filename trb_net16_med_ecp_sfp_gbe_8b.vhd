@@ -798,14 +798,14 @@ buf_stat_debug(11 downto 0)  <= sd_rx_debug(11 downto 0);
 
 rst_n <= not RESET;
 
-SYNC_RX_PROC : process(sd_rx_clk)
-begin
-  if rising_edge(sd_rx_clk) then
-    FT_RXD_OUT   <= pcs_rx_d;
-    FT_RX_EN_OUT <= pcs_rx_dv;
-    FT_RX_ER_OUT <= pcs_rx_er;
-  end if;
-end process SYNC_RX_PROC;
+--SYNC_RX_PROC : process(sd_rx_clk)
+--begin
+--  if rising_edge(sd_rx_clk) then
+--    FT_RXD_OUT   <= pcs_rx_d;
+--    FT_RX_EN_OUT <= pcs_rx_dv;
+--    FT_RX_ER_OUT <= pcs_rx_er;
+--  end if;
+--end process SYNC_RX_PROC;
 
 u0_reset_controller_pcs : reset_controller_pcs port map(
 	rst_n           => rst_n,
