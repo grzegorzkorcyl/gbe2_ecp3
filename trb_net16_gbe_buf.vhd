@@ -591,6 +591,8 @@ attribute syn_preserve of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs
 signal pcs_txd_q, pcs_rxd_q : std_logic_vector(7 downto 0);
 signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q, mac_col_q, mac_crs_q : std_logic;
 
+signal pcs_txd_qq, pcs_rxd_qq : std_logic_vector(7 downto 0);
+signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq, mac_col_qq, mac_crs_qq : std_logic;
 
 begin
 
@@ -1287,9 +1289,9 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
-		rxd				=> pcs_rxd_q, --x"00",
-		rx_dv 				=> pcs_rx_en_q, --'0',
-		rx_er				=> pcs_rx_er_q, --'0',
+		rxd				=> pcs_rxd_qq, --x"00",
+		rx_dv 				=> pcs_rx_en_qq, --'0',
+		rx_er				=> pcs_rx_er_qq, --'0',
 		col				=> mac_col,
 		crs				=> mac_crs,
 	-------------------- Input signals to the CPU I/F -------------------
@@ -1340,6 +1342,10 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			pcs_rxd_q   <= pcs_rxd;
 			pcs_rx_en_q <= pcs_rx_en;
 			pcs_rx_er_q <= pcs_rx_er;
+			
+			pcs_rxd_qq   <= pcs_rxd_q;
+			pcs_rx_en_qq <= pcs_rx_en_q;
+			pcs_rx_er_qq <= pcs_rx_er_q;
 			--mac_col_q   <= mac_col;
 			--mac_crs_q   <= mac_crs;
 		end if;
@@ -1350,7 +1356,11 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		if rising_edge(serdes_clk_125) then
 			pcs_txd_q   <= pcs_txd;
 			pcs_tx_en_q <= pcs_tx_en;
-			pcs_tx_er_q <= pcs_tx_er; 
+			pcs_tx_er_q <= pcs_tx_er;
+			
+			pcs_txd_qq   <= pcs_txd_q;
+			pcs_tx_en_qq <= pcs_tx_en_q;
+			pcs_tx_er_qq <= pcs_tx_er_q; 
 		end if;
 	end process SYNC_GMII_TX_PROC;
 
@@ -1384,9 +1394,9 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			--connection to frame transmitter (tsmac)
 			FT_COL_OUT			=> mac_col,
 			FT_CRS_OUT			=> mac_crs,
-			FT_TXD_IN			=> pcs_txd_q,
-			FT_TX_EN_IN			=> pcs_tx_en_q,
-			FT_TX_ER_IN			=> pcs_tx_er_q,
+			FT_TXD_IN			=> pcs_txd_qq,
+			FT_TX_EN_IN			=> pcs_tx_en_qq,
+			FT_TX_ER_IN			=> pcs_tx_er_qq,
 			FT_RXD_OUT			=> pcs_rxd,
 			FT_RX_EN_OUT			=> pcs_rx_en,
 			FT_RX_ER_OUT			=> pcs_rx_er,
