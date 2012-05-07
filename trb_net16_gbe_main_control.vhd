@@ -174,8 +174,17 @@ signal stats_ctr                    : integer range 0 to 15;
 signal stat_data                    : std_logic_vector(31 downto 0);
 signal stat_addr                    : std_logic_vector(7 downto 0);
 
+signal unique_id                    : std_logic_vector(63 downto 0);
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of unique_id : signal is true;
+attribute syn_preserve of unique_id : signal is true;
+
 
 begin
+
+unique_id <= MC_UNIQUE_ID_IN;
 
 protocol_selector : trb_net16_gbe_protocol_selector
 port map(
@@ -601,7 +610,7 @@ MC_LINK_OK_OUT <= link_ok;
 --*************
 -- GENERATE MAC_ADDRESS
 --TODO: take the unique id from regio and generate a mac address
-g_MY_MAC <= x"efbeefbe0000";
+g_MY_MAC <= unique_id(15 downto 0) & x"efbe0000";
 --
 --*************
 
