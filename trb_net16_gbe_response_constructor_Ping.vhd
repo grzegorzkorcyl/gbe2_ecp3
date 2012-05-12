@@ -345,7 +345,7 @@ begin
 	end if;
 end process STATS_MACHINE_PROC;
 
-STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, STAT_DATA_ACK_IN, PS_DATA_IN,dissect_current_state, dissect_current_state)
+STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, STAT_DATA_ACK_IN, PS_DATA_IN, dissect_current_state)
 begin
 
 	case (stats_current_state) is

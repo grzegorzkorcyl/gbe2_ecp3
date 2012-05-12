@@ -507,6 +507,8 @@ port map (
 	TSM_HREAD_N_OUT		=> open,
 	TSM_HREADY_N_IN		=> '0',
 	TSM_HDATA_EN_N_IN	=> '1',
+	TSM_RX_STAT_VEC_IN  => (others => '0'),
+	TSM_RX_STAT_EN_IN   => '0',
 
 	DEBUG_OUT		=> open
 );
@@ -689,17 +691,17 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RX_EN_IN <= '1';
 -- dest mac
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"be";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ef";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"be";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ef";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
 -- src mac
 	MAC_RXD_IN		<= x"00";

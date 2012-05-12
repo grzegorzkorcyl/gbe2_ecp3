@@ -78,7 +78,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, LOAD_ACK, WAIT_FOR_LOAD_ACK, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -163,8 +163,28 @@ transmit_fifo : fifo_1024x16x8
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
 tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME else '0';
 
-TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0) when dissect_current_state = LOAD_FRAME else (others => '0');
-TC_DATA_OUT(8)          <= '1' when tx_loaded_ctr = tx_data_ctr and dissect_current_state = LOAD_FRAME else '0';
+TC_DATA_PROC : process(dissect_current_state, tx_loaded_ctr, tx_data_ctr)
+begin
+	if (dissect_current_state = LOAD_FRAME) then
+		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		if (tx_loaded_ctr = tx_data_ctr) then
+			TC_DATA_OUT(8) <= '1';
+		else
+			TC_DATA_OUT(8) <= '0';
+		end if;
+	elsif (dissect_current_state = LOAD_ACK) then
+		TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
+		if (tx_loaded_ctr = x"0010" - x"1") then
+			TC_DATA_OUT(8) <= '1';
+		else
+			TC_DATA_OUT(8) <= '0';
+		end if;
+	else
+		TC_DATA_OUT <= (others => '0');
+	end if;
+end process TC_DATA_PROC;
+--TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0) when dissect_current_state = LOAD_FRAME else (others => '0');
+--TC_DATA_OUT(8)          <= '1' when (tx_loaded_ctr = tx_data_ctr and dissect_current_state = LOAD_FRAME) else '0';
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
 gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
@@ -182,9 +202,11 @@ end process TX_DATA_CTR_PROC;
 TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
+		if (RESET = '1' or dissect_current_state = IDLE or dissect_current_state = WAIT_FOR_HUB) then
 			tx_loaded_ctr <= (others => '0');
 		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+			tx_loaded_ctr <= tx_loaded_ctr + x"1";
+		elsif (dissect_current_state = LOAD_ACK and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
 	end if;
@@ -192,14 +214,14 @@ end process TX_LOADED_CTR_PROC;
 
 PS_BUSY_OUT <= '0' when (dissect_current_state = IDLE) else '1';
 
-PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP) else '0';
+PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP or dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK) else '0';
 
-TC_FRAME_SIZE_OUT  <= tx_data_ctr;
+TC_FRAME_SIZE_OUT  <= tx_data_ctr when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME) else x"0010";
 
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
-TC_DEST_UDP_OUT    <= PS_SRC_UDP_PORT_IN; --x"a861";
+TC_DEST_UDP_OUT    <= x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
@@ -246,9 +268,25 @@ begin
 		when READ_FRAME =>
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				dissect_next_state <= WAIT_FOR_HUB;
+				dissect_next_state <= WAIT_FOR_LOAD_ACK; --WAIT_FOR_HUB;
 			else
 				dissect_next_state <= READ_FRAME;
+			end if;
+			
+		when WAIT_FOR_LOAD_ACK =>
+			state <= x"a";
+			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+				dissect_next_state <= LOAD_ACK;
+			else
+				dissect_next_state <= WAIT_FOR_LOAD_ACK;
+			end if;
+			
+		when LOAD_ACK =>
+			state <= x"b";
+			if (tx_loaded_ctr = x"0010" - x"1") then
+				dissect_next_state <= WAIT_FOR_HUB;
+			else
+				dissect_next_state <= LOAD_ACK;
 			end if;
 			
 		when WAIT_FOR_HUB =>
