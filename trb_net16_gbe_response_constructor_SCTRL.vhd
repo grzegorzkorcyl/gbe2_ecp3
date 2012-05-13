@@ -283,7 +283,7 @@ begin
 			
 		when LOAD_ACK =>
 			state <= x"b";
-			if (tx_loaded_ctr = x"0010" - x"1") then
+			if (tx_loaded_ctr = x"0010") then
 				dissect_next_state <= WAIT_FOR_HUB;
 			else
 				dissect_next_state <= LOAD_ACK;
