@@ -154,7 +154,7 @@ gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state
 								(dissect_current_state = WAIT_FOR_HUB) else '0';
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 
-transmit_fifo : fifo_1024x16x8
+transmit_fifo : fifo_65536x18x9  --fifo_1024x16x8
   PORT map(
     Reset             => RESET,
 	RPReset           => RESET,
