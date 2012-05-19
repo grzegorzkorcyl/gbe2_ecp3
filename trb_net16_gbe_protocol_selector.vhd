@@ -347,7 +347,7 @@ port map (
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
 );
 
-stat_gen : if g_SIMULATE = 0 generate
+--stat_gen : if g_SIMULATE = 0 generate
 Stat : trb_net16_gbe_response_constructor_Stat
 generic map( STAT_ADDRESS_BASE => 10
 )
@@ -403,7 +403,7 @@ port map (
 	STAT_DATA_RDY_IN => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack
 );
-end generate;
+--end generate;
 
 --***************
 -- DO NOT TOUCH,  response selection logic
