@@ -46,7 +46,10 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+		
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -258,6 +261,10 @@ TC_SRC_MAC_OUT    <= g_MY_MAC;
 TC_SRC_IP_OUT     <= x"00000000";  -- doesnt matter
 TC_SRC_UDP_OUT    <= x"0000";  -- doesnt matter
 TC_IP_PROTOCOL_OUT <= x"00"; -- doesnt matter
+TC_IP_SIZE_OUT    <= (others => '0');  -- doesn't matter
+TC_UDP_SIZE_OUT   <= (others => '0'); -- doesn't matter
+TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
+
 
 -- **** statistice
 REC_FRAMES_PROC : process(CLK)

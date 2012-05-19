@@ -44,6 +44,9 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 		TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 		TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+		TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+		TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+		TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 		
 		TC_BUSY_IN		: in	std_logic;
 
@@ -67,6 +70,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 		GSC_REPLY_READ_OUT       : out std_logic;
 		GSC_BUSY_IN              : in std_logic;
+		MAKE_RESET_OUT           : out std_logic;
 	-- end of protocol specific ports
 	
 	-- debug
@@ -78,7 +82,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, LOAD_ACK, WAIT_FOR_LOAD_ACK, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, DIVIDE, WAIT_FOR_LOAD, CLEANUP, WAIT_FOR_LOAD_ACK, LOAD_ACK);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -105,6 +109,7 @@ signal gsc_init_dataready       : std_logic;
 
 signal tx_data_ctr              : std_logic_vector(15 downto 0);
 signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
+signal tx_frame_loaded          : std_logic_vector(15 downto 0);
 
 signal packet_num               : std_logic_vector(2 downto 0);
 
@@ -113,8 +118,14 @@ signal rx_empty, tx_empty       : std_logic;
 
 signal rx_full, tx_full         : std_logic;
 
+signal size_left                : std_logic_vector(15 downto 0);
+
+signal make_reset               : std_logic;
+
 	
 begin
+
+make_reset <= '0';
 
 receive_fifo : fifo_2048x8x16
   PORT map(
@@ -167,7 +178,7 @@ TC_DATA_PROC : process(dissect_current_state, tx_loaded_ctr, tx_data_ctr)
 begin
 	if (dissect_current_state = LOAD_FRAME) then
 		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
-		if (tx_loaded_ctr = tx_data_ctr) then
+		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
@@ -184,10 +195,11 @@ begin
 	end if;
 end process TC_DATA_PROC;
 --TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0) when dissect_current_state = LOAD_FRAME else (others => '0');
---TC_DATA_OUT(8)          <= '1' when (tx_loaded_ctr = tx_data_ctr and dissect_current_state = LOAD_FRAME) else '0';
+--TC_DATA_OUT(8)          <= '1' when ((tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") and dissect_current_state = LOAD_FRAME) else '0';
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
 gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
+-- counter of data received from TRBNet hub
 TX_DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -199,6 +211,7 @@ begin
 	end if;
 end process TX_DATA_CTR_PROC;
 
+-- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -214,9 +227,15 @@ end process TX_LOADED_CTR_PROC;
 
 PS_BUSY_OUT <= '0' when (dissect_current_state = IDLE) else '1';
 
-PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP or dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK) else '0';
+PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or 
+									dissect_current_state = CLEANUP or dissect_current_state = WAIT_FOR_LOAD_ACK or
+									dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE)
+						else '0';
+--PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or 
+--									dissect_current_state = CLEANUP or dissect_current_state = DIVIDE)
+--						else '0';
 
-TC_FRAME_SIZE_OUT  <= tx_data_ctr when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME) else x"0010";
+--TC_FRAME_SIZE_OUT  <= tx_data_ctr;
 
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
@@ -225,7 +244,68 @@ TC_DEST_UDP_OUT    <= x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
-TC_IP_PROTOCOL_OUT <= X"11";
+TC_IP_PROTOCOL_OUT <= x"11";
+
+FRAME_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			TC_FRAME_SIZE_OUT <= (others => '0');
+		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
+			if  (size_left >= g_MAX_FRAME_SIZE) then
+				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
+			else
+				TC_FRAME_SIZE_OUT <= size_left;
+			end if;
+		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
+			TC_FRAME_SIZE_OUT <= x"0010";
+		end if;
+	end if;
+end process FRAME_SIZE_PROC;
+
+IP_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET= '1') then
+			TC_IP_SIZE_OUT <= (others => '0');
+		elsif ((dissect_current_state = DIVIDE and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
+			if (size_left >= g_MAX_FRAME_SIZE) then
+				TC_IP_SIZE_OUT <= g_MAX_FRAME_SIZE;
+			else
+				TC_IP_SIZE_OUT <= size_left(15 downto 0);
+			end if;
+		end if;
+	end if;
+end process IP_SIZE_PROC;
+TC_UDP_SIZE_OUT     <= tx_data_ctr;
+
+
+TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
+MORE_FRAGMENTS_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
+			TC_FLAGS_OFFSET_OUT(13) <= '0';
+		elsif ((dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
+			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
+				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
+			else
+				TC_FLAGS_OFFSET_OUT(13) <= '1';  -- more fragments
+			end if;
+		end if;
+	end if;
+end process MORE_FRAGMENTS_PROC;
+
+OFFSET_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
+			TC_FLAGS_OFFSET_OUT(12 downto 0) <= (others => '0');
+		elsif (dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3);
+		end if;
+	end if;
+end process OFFSET_PROC;
 
 
 PACKET_NUM_PROC : process(CLK)
@@ -246,14 +326,18 @@ DISSECT_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
-			dissect_current_state <= IDLE;
+			if (g_SIMULATE = 0) then
+				dissect_current_state <= IDLE;
+			else
+				dissect_current_state <= WAIT_FOR_RESPONSE;
+			end if;
 		else
 			dissect_current_state <= dissect_next_state;
 		end if;
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN)
+DISSECT_MACHINE : process(dissect_current_state, make_reset, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	
@@ -268,7 +352,11 @@ begin
 		when READ_FRAME =>
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				dissect_next_state <= WAIT_FOR_LOAD_ACK; --WAIT_FOR_HUB;
+				if (make_reset = '1') then  -- send ack only if reset command came
+					dissect_next_state <= WAIT_FOR_LOAD_ACK;
+				else
+					dissect_next_state <= WAIT_FOR_HUB;
+				end if;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
@@ -333,8 +421,18 @@ begin
 			state <= x"8";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
+			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+				dissect_next_state <= DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
+			end if;
+
+		when DIVIDE =>
+			state <= x"c";
+			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+				dissect_next_state <= LOAD_FRAME;
+			else
+				dissect_next_state <= DIVIDE;
 			end if;
 		
 		when CLEANUP =>
@@ -343,6 +441,39 @@ begin
 	
 	end case;
 end process DISSECT_MACHINE;
+
+-- counter of bytes of currently constructed frame
+FRAME_LOADED_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or dissect_current_state = DIVIDE or dissect_current_state = IDLE) then
+			tx_frame_loaded <= (others => '0');
+		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+			tx_frame_loaded <= tx_frame_loaded + x"1";
+		end if;
+	end if;
+end process FRAME_LOADED_PROC;
+
+-- counter down to 0 of bytes that have to be transmitted for a given packet
+SIZE_LEFT_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or dissect_current_state = SAVE_RESPONSE) then
+			size_left <= (others => '0');
+		elsif (dissect_current_state = WAIT_FOR_LOAD) then
+			size_left <= tx_data_ctr;
+		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+			size_left <= size_left - x"1";
+		end if;
+	end if;
+end process SIZE_LEFT_PROC;
+
+
+
+
+
+
+
 
 
 

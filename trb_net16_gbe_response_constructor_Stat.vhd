@@ -63,6 +63,10 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	
+	TC_IP_SIZE_OUT      : out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT     : out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT : out	std_logic_vector(15 downto 0);
+	
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -293,6 +297,10 @@ TC_SRC_MAC_OUT  <= g_MY_MAC;
 TC_SRC_IP_OUT   <= g_MY_IP;
 TC_SRC_UDP_OUT  <= x"51c3";
 TC_IP_PROTOCOL_OUT <= x"11"; -- udp
+
+TC_IP_SIZE_OUT    <= x"0100";
+TC_UDP_SIZE_OUT   <= x"0100";
+TC_FLAGS_OFFSET_OUT <= (others => '0');
 
 end Behavioral;
 

@@ -95,6 +95,8 @@ port(
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 
 	-- for simulation of receiving part only
 	MAC_RX_EOF_IN		: in	std_logic;
@@ -176,6 +178,10 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	
 	TC_BUSY_IN		: in	std_logic;
 	
 	-- counters from response constructors
@@ -197,6 +203,8 @@ port (
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 	
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
@@ -273,7 +281,11 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 
-	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);	
 	
 	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
@@ -299,6 +311,8 @@ port (
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -362,6 +376,10 @@ port (
 	MC_SRC_UDP_IN		: in	std_logic_vector(15 downto 0);
 	
 	MC_IP_PROTOCOL_IN	: in	std_logic_vector(7 downto 0);
+	
+	MC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
+	MC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
+	MC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
 	
 	MC_BUSY_OUT		: out	std_logic;
 	MC_TRANSMIT_DONE_OUT	: out	std_logic;

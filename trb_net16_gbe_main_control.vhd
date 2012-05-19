@@ -57,6 +57,10 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	
 	TC_BUSY_IN		: in	std_logic;
@@ -83,6 +87,8 @@ port (
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -218,6 +224,10 @@ port map(
 	TC_SRC_IP_OUT		=> TC_SRC_IP_OUT,
 	TC_SRC_UDP_OUT		=> TC_SRC_UDP_OUT,
 	
+	TC_IP_SIZE_OUT		=> TC_IP_SIZE_OUT,
+	TC_UDP_SIZE_OUT		=> TC_UDP_SIZE_OUT,
+	TC_FLAGS_OFFSET_OUT	=> TC_FLAGS_OFFSET_OUT,
+	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
 	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,
@@ -237,6 +247,8 @@ port map(
 	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
+		
+	MAKE_RESET_OUT           => MAKE_RESET_OUT,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,

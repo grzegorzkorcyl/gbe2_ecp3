@@ -97,6 +97,8 @@ port(
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 
 	-- for simulation of receiving part only
 	MAC_RX_EOF_IN		: in	std_logic;
@@ -594,6 +596,8 @@ signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q, mac_col_q, mac_crs_q 
 signal pcs_txd_qq, pcs_rxd_qq : std_logic_vector(7 downto 0);
 signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq, mac_col_qq, mac_crs_qq : std_logic;
 
+signal mc_ip_size, mc_udp_size, mc_flags : std_logic_vector(15 downto 0);
+
 begin
 
 --my_mac <= x"efbeefbe0000";  -- temporary
@@ -652,6 +656,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_SRC_IP_OUT		=> mc_src_ip,
 	  TC_SRC_UDP_OUT	=> mc_src_udp,
 	  
+	  TC_IP_SIZE_OUT		=> mc_ip_size,
+	  TC_UDP_SIZE_OUT		=> mc_udp_size,
+	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
+	  
 	  TC_BUSY_IN		=> mc_busy,
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
 
@@ -675,6 +683,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
+
+	MAKE_RESET_OUT           => MAKE_RESET_OUT,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -736,6 +746,10 @@ port map(
 	MC_SRC_MAC_IN		=> mc_src_mac,
 	MC_SRC_IP_IN		=> mc_src_ip,
 	MC_SRC_UDP_IN		=> mc_src_udp,
+	
+	MC_IP_SIZE_IN		=> mc_ip_size,
+	MC_UDP_SIZE_IN		=> mc_udp_size,
+	MC_FLAGS_OFFSET_IN	=> mc_flags,
 		
 	MC_BUSY_OUT		=> mc_busy,
 	MC_TRANSMIT_DONE_OUT    => mc_transmit_done,

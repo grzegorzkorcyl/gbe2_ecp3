@@ -14,6 +14,9 @@ signal g_MY_IP                : std_logic_vector(31 downto 0);
 -- g_MY_MAC is being set by Main Controller
 signal g_MY_MAC               : std_logic_vector(47 downto 0);
 
+-- size of ethernet frame use for fragmentation of outgoing packets
+signal g_MAX_FRAME_SIZE       : std_logic_vector(15 downto 0) := x"0578";
+
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
 constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
@@ -105,6 +108,9 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -235,6 +241,9 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -285,7 +294,9 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -376,7 +387,9 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 		TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 		TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-		
+		TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+		TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+		TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 		TC_BUSY_IN		: in	std_logic;
 		
 		STAT_DATA_OUT : out std_logic_vector(31 downto 0);
@@ -399,6 +412,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 		GSC_REPLY_READ_OUT       : out std_logic;
 		GSC_BUSY_IN              : in std_logic;
+		MAKE_RESET_OUT           : out std_logic;
 	-- end of protocol specific ports
 	
 	-- debug
@@ -438,7 +452,9 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);

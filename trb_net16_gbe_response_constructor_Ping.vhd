@@ -47,8 +47,12 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	
 	TC_BUSY_IN		: in	std_logic;
+	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
@@ -294,6 +298,9 @@ TC_SRC_MAC_OUT    <= g_MY_MAC;
 TC_SRC_IP_OUT     <= g_MY_IP;
 TC_SRC_UDP_OUT    <= x"0000";  -- not used
 TC_IP_PROTOCOL_OUT <= X"01"; -- ICMP
+TC_IP_SIZE_OUT    <= (others => '0');  -- doesn't matter
+TC_UDP_SIZE_OUT   <= (others => '0'); -- doesn't matter
+TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 
 ADDR_PROC : process(CLK)
 begin

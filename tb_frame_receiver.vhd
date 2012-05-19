@@ -220,6 +220,7 @@ signal gsc_reply_read, gsc_reply_dataready : std_logic;
 signal gsc_reply_data, gsc_init_data : std_logic_vector(15 downto 0);
 signal gsc_busy : std_logic;
 signal gsc_init_packet_num, gsc_reply_packet_num : std_logic_vector(2 downto 0);
+signal mc_flags, mc_ip_size, mc_udp_size : std_logic_vector(15 downto 0);
 
 begin
 
@@ -474,6 +475,10 @@ port map (
 	TC_SRC_IP_OUT		=> mc_src_ip,
 	TC_SRC_UDP_OUT		=> mc_src_udp,
 	
+	TC_IP_SIZE_OUT		=> mc_ip_size,
+	TC_UDP_SIZE_OUT		=> mc_udp_size,
+	TC_FLAGS_OFFSET_OUT	=> mc_flags,
+
 	TC_BUSY_IN		=> MC_BUSY_IN,
 	TC_TRANSMIT_DONE_IN	=> MC_TRANSMIT_DONE_IN,
 
@@ -554,6 +559,10 @@ port map(
 	MC_SRC_MAC_IN		=> mc_src_mac,
 	MC_SRC_IP_IN		=> mc_src_ip,
 	MC_SRC_UDP_IN		=> mc_src_udp,
+	
+	MC_IP_SIZE_IN		=> mc_ip_size,
+	MC_UDP_SIZE_IN		=> mc_udp_size,
+	MC_FLAGS_OFFSET_IN	=> mc_flags,
 	
 	MC_BUSY_OUT		=> MC_BUSY_IN,
 	MC_TRANSMIT_DONE_OUT	=> MC_TRANSMIT_DONE_IN,

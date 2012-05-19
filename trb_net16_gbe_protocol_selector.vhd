@@ -51,6 +51,10 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	
 	TC_BUSY_IN		: in	std_logic;
 	
 	-- counters from response constructors
@@ -72,6 +76,8 @@ port (
 	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
 
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
@@ -109,6 +115,9 @@ signal stat_data                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 32 - 
 signal stat_addr                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
 signal stat_rdy                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 signal stat_ack                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+signal tc_ip_size               : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
+signal tc_udp_size              : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
+signal tc_flags_size            : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
 
 begin
 
@@ -147,6 +156,10 @@ port map (
 	TC_SRC_MAC_OUT		=> tc_src_mac(1 * 48 - 1 downto 0 * 48),
 	TC_SRC_IP_OUT		=> tc_src_ip(1 * 32 - 1 downto 0 * 32),
 	TC_SRC_UDP_OUT		=> tc_src_udp(1 * 16 - 1 downto 0 * 16),
+	
+	TC_IP_SIZE_OUT		=> tc_ip_size(1 * 16 - 1 downto 0 * 16),
+	TC_UDP_SIZE_OUT		=> tc_udp_size(1 * 16 - 1 downto 0 * 16),
+	TC_FLAGS_OFFSET_OUT	=> tc_flags_size(1 * 16 - 1 downto 0 * 16),
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
@@ -195,6 +208,10 @@ port map (
 	TC_SRC_MAC_OUT		=> tc_src_mac(2 * 48 - 1 downto 1 * 48),
 	TC_SRC_IP_OUT		=> tc_src_ip(2 * 32 - 1 downto 1 * 32),
 	TC_SRC_UDP_OUT		=> tc_src_udp(2 * 16 - 1 downto 1 * 16),
+	
+	TC_IP_SIZE_OUT		=> tc_ip_size(2 * 16 - 1 downto 1 * 16),
+	TC_UDP_SIZE_OUT		=> tc_udp_size(2 * 16 - 1 downto 1 * 16),
+	TC_FLAGS_OFFSET_OUT	=> tc_flags_size(2 * 16 - 1 downto 1 * 16),
 	 
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
@@ -248,6 +265,10 @@ port map (
 	TC_SRC_IP_OUT		=> tc_src_ip(3 * 32 - 1 downto 2 * 32),
 	TC_SRC_UDP_OUT		=> tc_src_udp(3 * 16 - 1 downto 2 * 16),
 	
+	TC_IP_SIZE_OUT		=> tc_ip_size(3 * 16 - 1 downto 2 * 16),
+	TC_UDP_SIZE_OUT		=> tc_udp_size(3 * 16 - 1 downto 2 * 16),
+	TC_FLAGS_OFFSET_OUT	=> tc_flags_size(3 * 16 - 1 downto 2 * 16),
+	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
 	STAT_DATA_OUT => stat_data(3 * 32 - 1 downto 2 * 32),
@@ -295,6 +316,10 @@ port map (
 	TC_SRC_IP_OUT		=> tc_src_ip(4 * 32 - 1 downto 3 * 32),
 	TC_SRC_UDP_OUT		=> tc_src_udp(4 * 16 - 1 downto 3 * 16),
 	
+	TC_IP_SIZE_OUT		=> tc_ip_size(4 * 16 - 1 downto 3 * 16),
+	TC_UDP_SIZE_OUT		=> tc_udp_size(4 * 16 - 1 downto 3 * 16),
+	TC_FLAGS_OFFSET_OUT	=> tc_flags_size(4 * 16 - 1 downto 3 * 16),
+	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
 	STAT_DATA_OUT => stat_data(4 * 32 - 1 downto 3 * 32),
@@ -316,10 +341,13 @@ port map (
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 	
+	MAKE_RESET_OUT           => MAKE_RESET_OUT,
+	
 	
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
 );
 
+stat_gen : if g_SIMULATE = 0 generate
 Stat : trb_net16_gbe_response_constructor_Stat
 generic map( STAT_ADDRESS_BASE => 10
 )
@@ -355,6 +383,10 @@ port map (
 	TC_SRC_IP_OUT		=> tc_src_ip(5 * 32 - 1 downto 4 * 32),
 	TC_SRC_UDP_OUT		=> tc_src_udp(5 * 16 - 1 downto 4 * 16),
 	
+	TC_IP_SIZE_OUT		=> tc_ip_size(5 * 16 - 1 downto 4 * 16),
+	TC_UDP_SIZE_OUT		=> tc_udp_size(5 * 16 - 1 downto 4 * 16),
+	TC_FLAGS_OFFSET_OUT	=> tc_flags_size(5 * 16 - 1 downto 4 * 16),
+	
 	TC_BUSY_IN		=> TC_BUSY_IN,
 	
 	STAT_DATA_OUT => stat_data(5 * 32 - 1 downto 4 * 32),
@@ -371,6 +403,7 @@ port map (
 	STAT_DATA_RDY_IN => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack
 );
+end generate;
 
 --***************
 -- DO NOT TOUCH,  response selection logic
@@ -401,6 +434,9 @@ begin
 			TC_SRC_IP_OUT         <= (others => '0');
 			TC_SRC_UDP_OUT        <= (others => '0');
 			TC_IP_PROTOCOL_OUT    <= (others => '0');
+			TC_IP_SIZE_OUT        <= (others => '0');
+			TC_UDP_SIZE_OUT       <= (others => '0');
+			TC_FLAGS_OFFSET_OUT   <= (others => '0');
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');
 			found := false;
@@ -418,6 +454,9 @@ begin
 						TC_SRC_IP_OUT         <= tc_src_ip((i + 1) * 32 - 1 downto i * 32);
 						TC_SRC_UDP_OUT        <= tc_src_udp((i + 1) * 16 - 1 downto i * 16);
 						TC_IP_PROTOCOL_OUT    <= tc_ip_proto((i + 1) * 8 - 1 downto i * 8);
+						TC_IP_SIZE_OUT        <= tc_ip_size((i + 1) * 16 - 1 downto i * 16);
+						TC_UDP_SIZE_OUT       <= tc_udp_size((i + 1) * 16 - 1 downto i * 16);
+						TC_FLAGS_OFFSET_OUT   <= tc_flags_size((i + 1) * 16 - 1 downto i * 16);
 						PS_RESPONSE_READY_OUT <= '1';
 						selected(i)           <= '1';
 						found := true;
@@ -437,6 +476,9 @@ begin
 				TC_SRC_IP_OUT         <= (others => '0');
 				TC_SRC_UDP_OUT        <= (others => '0');
 				TC_IP_PROTOCOL_OUT    <= (others => '0');
+				TC_IP_SIZE_OUT        <= (others => '0');
+				TC_UDP_SIZE_OUT       <= (others => '0');
+				TC_FLAGS_OFFSET_OUT   <= (others => '0');
 				PS_RESPONSE_READY_OUT <= '0';
 				found := false;
 			end if;

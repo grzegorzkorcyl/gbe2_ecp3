@@ -55,6 +55,10 @@ port (
 	
 	MC_IP_PROTOCOL_IN	: in	std_logic_vector(7 downto 0);
 	
+	MC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
+	MC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
+	MC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
+	
 	MC_BUSY_OUT		: out	std_logic;
 	MC_TRANSMIT_DONE_OUT	: out	std_logic;
 
@@ -223,10 +227,15 @@ begin
 	  FC_EOD_OUT        <= '0';
 	end if;
 
+	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
+		FC_IP_SIZE_OUT <= MC_IP_SIZE_IN;
+		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
+	else
+		FC_IP_SIZE_OUT <= MC_FRAME_SIZE_IN;
+		FC_UDP_SIZE_OUT <= MC_FRAME_SIZE_IN;
+	end if;
 	
-	FC_IP_SIZE_OUT      <= MC_FRAME_SIZE_IN;
-	FC_UDP_SIZE_OUT     <= MC_FRAME_SIZE_IN;
-	FC_FLAGS_OFFSET_OUT <= (others => '0'); -- fixed to one-frame packets
+	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN; --(others => '0'); -- fixed to one-frame packets
 
 	if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
 	  MC_RD_EN_OUT  <= '1';
@@ -312,9 +321,9 @@ begin
     when LOAD_DATA =>
       state2 <= x"3";
       if (sent_bytes_ctr = MC_FRAME_SIZE_IN - x"1") then
-	ctrl_construct_next_state <= CLOSE;
+			ctrl_construct_next_state <= CLOSE;
       else
-	ctrl_construct_next_state <= LOAD_DATA; 
+			ctrl_construct_next_state <= LOAD_DATA; 
       end if;
 
     when CLOSE =>
