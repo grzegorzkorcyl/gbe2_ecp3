@@ -622,11 +622,11 @@ PS_RESPONSE_READY_OUT <= '0' when (construct_current_state = IDLE) else '1';
 
 -- fixed sizes for discover and request messages
 TC_FRAME_SIZE_OUT <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
+TC_IP_SIZE_OUT <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
+TC_UDP_SIZE_OUT <= (others => '0'); -- doesn't matter
 
 TC_FRAME_TYPE_OUT <= x"0008";  -- frame type: ip
 
-TC_IP_SIZE_OUT    <= (others => '0'); -- doesn't matter
-TC_UDP_SIZE_OUT   <= (others => '0'); -- doesn't matter
 TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter 
 
 -- **** statistics
