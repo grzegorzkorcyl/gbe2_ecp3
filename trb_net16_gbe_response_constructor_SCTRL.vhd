@@ -120,12 +120,13 @@ signal rx_full, tx_full         : std_logic;
 
 signal size_left                : std_logic_vector(15 downto 0);
 
+signal reset_detected           : std_logic;
 signal make_reset               : std_logic;
 
 	
 begin
 
-make_reset <= '0';
+MAKE_RESET_OUT <= make_reset;
 
 receive_fifo : fifo_2048x8x16
   PORT map(
@@ -329,7 +330,7 @@ begin
 			if (g_SIMULATE = 0) then
 				dissect_current_state <= IDLE;
 			else
-				dissect_current_state <= WAIT_FOR_RESPONSE;
+				dissect_current_state <= IDLE;
 			end if;
 		else
 			dissect_current_state <= dissect_next_state;
@@ -337,7 +338,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, make_reset, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	
@@ -352,7 +353,7 @@ begin
 		when READ_FRAME =>
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				if (make_reset = '1') then  -- send ack only if reset command came
+				if (reset_detected = '1') then  -- send ack only if reset command came
 					dissect_next_state <= WAIT_FOR_LOAD_ACK;
 				else
 					dissect_next_state <= WAIT_FOR_HUB;
@@ -372,7 +373,7 @@ begin
 		when LOAD_ACK =>
 			state <= x"b";
 			if (tx_loaded_ctr = x"0010") then
-				dissect_next_state <= WAIT_FOR_HUB;
+				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD_ACK;
 			end if;
@@ -467,6 +468,30 @@ begin
 		end if;
 	end if;
 end process SIZE_LEFT_PROC;
+
+RESET_DETECTED_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or dissect_current_state = CLEANUP) then
+			reset_detected <= '0';
+		elsif (PS_DATA_IN(7 downto 0) = x"80" and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
+			reset_detected <= '1';
+		end if;
+	end if;
+end process RESET_DETECTED_PROC;
+
+MAKE_RESET_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			make_reset <= '0';
+		elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
+			make_reset <= '1';
+		else
+			make_reset <= '0';
+		end if;
+	end if;
+end process MAKE_RESET_PROC;
 
 
 

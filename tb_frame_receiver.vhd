@@ -789,7 +789,7 @@ begin
 	MAC_RXD_IN		<= x"bb";
 -- sctrl data
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN <= x"00"; --MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"31";
 	wait until rising_edge(RX_MAC_CLK);
