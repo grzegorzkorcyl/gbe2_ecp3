@@ -137,7 +137,7 @@ begin
 			
 		when DECIDE =>
 			state <= x"3";
-			if (saved_target_ip = g_MY_IP) then
+			if (saved_target_ip = g_MY_IP or g_SIMULATE = 1) then
 				dissect_next_state <= WAIT_FOR_LOAD;
 			-- in case the request is not for me, drop it
 			else

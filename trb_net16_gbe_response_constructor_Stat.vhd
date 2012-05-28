@@ -197,7 +197,11 @@ begin
 		if (RESET = '1') then
 			construct_current_state <= IDLE;
 		else
-			construct_current_state <= construct_next_state;
+			if (g_SIMULATE = 1) then
+				construct_current_state <= IDLE;
+			else
+				construct_current_state <= construct_next_state;
+			end if;
 		end if;
 	end if;
 end process CONSTRUCT_MACHINE_PROC;
