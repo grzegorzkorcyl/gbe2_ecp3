@@ -181,7 +181,7 @@ begin
 	
 		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 		
-		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE) then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
@@ -427,7 +427,7 @@ begin
 			state <= x"8";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
-			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
 				dissect_next_state <= DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
