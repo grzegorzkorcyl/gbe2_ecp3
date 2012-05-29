@@ -120,8 +120,8 @@ signal rx_full, tx_full         : std_logic;
 
 signal size_left                : std_logic_vector(15 downto 0);
 
-signal reset_detected           : std_logic;
-signal make_reset               : std_logic;
+signal reset_detected           : std_logic := '0';
+signal make_reset               : std_logic := '0';
 
 	
 begin
@@ -155,7 +155,7 @@ gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state
 								(dissect_current_state = WAIT_FOR_HUB) else '0';
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 
-transmit_fifo : fifo_65536x18x9  --fifo_1024x16x8
+transmit_fifo : fifo_65536x18x9
   PORT map(
     Reset             => RESET,
 	RPReset           => RESET,
@@ -335,7 +335,7 @@ begin
 			if (g_SIMULATE = 0) then
 				dissect_current_state <= IDLE;
 			else
-				dissect_current_state <= WAIT_FOR_RESPONSE; --IDLE;
+				dissect_current_state <= WAIT_FOR_RESPONSE;
 			end if;
 		else
 			dissect_current_state <= dissect_next_state;
@@ -428,7 +428,7 @@ begin
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= DIVIDE;
+				dissect_next_state <= CLEANUP; --DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
