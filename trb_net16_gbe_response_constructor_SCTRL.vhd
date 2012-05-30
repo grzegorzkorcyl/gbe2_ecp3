@@ -82,7 +82,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, DIVIDE, WAIT_FOR_LOAD, CLEANUP, WAIT_FOR_LOAD_ACK, LOAD_ACK);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP, WAIT_FOR_LOAD_ACK, LOAD_ACK);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -274,7 +274,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET= '1' or dissect_current_state = IDLE) then
 			TC_IP_SIZE_OUT <= (others => '0');
-		elsif ((dissect_current_state = DIVIDE and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
+		elsif ((dissect_current_state = DIVIDE and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = WAIT_FOR_TC)) then
 			if (size_left >= g_MAX_FRAME_SIZE) then
 				TC_IP_SIZE_OUT <= g_MAX_FRAME_SIZE;
 			else
@@ -428,9 +428,17 @@ begin
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= DIVIDE;
+				dissect_next_state <= WAIT_FOR_TC; --DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
+			end if;
+			
+		when WAIT_FOR_TC =>
+			state <= x"d";
+			if (TC_BUSY_IN = '0') then
+				dissect_next_state <= DIVIDE;
+			else
+				dissect_next_state <= WAIT_FOR_TC;
 			end if;
 
 		when DIVIDE =>
