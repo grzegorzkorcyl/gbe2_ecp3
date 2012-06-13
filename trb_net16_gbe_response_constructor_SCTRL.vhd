@@ -258,32 +258,37 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
 			TC_FRAME_SIZE_OUT <= (others => '0');
+			TC_IP_SIZE_OUT    <= (others => '0');
 		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
 			if  (size_left >= g_MAX_FRAME_SIZE) then
 				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
+				TC_IP_SIZE_OUT    <= g_MAX_FRAME_SIZE;
 			else
-				TC_FRAME_SIZE_OUT <= size_left;
+				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
+				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
 			end if;
 		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
 			TC_FRAME_SIZE_OUT <= x"0010";
+			TC_IP_SIZE_OUT    <= x"0010";
 		end if;
 	end if;
 end process FRAME_SIZE_PROC;
 
-IP_SIZE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET= '1' or dissect_current_state = IDLE) then
-			TC_IP_SIZE_OUT <= (others => '0');
-		elsif ((dissect_current_state = DIVIDE and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = WAIT_FOR_TC)) then
-			if (size_left >= g_MAX_FRAME_SIZE) then
-				TC_IP_SIZE_OUT <= g_MAX_FRAME_SIZE;
-			else
-				TC_IP_SIZE_OUT <= size_left(15 downto 0);
-			end if;
-		end if;
-	end if;
-end process IP_SIZE_PROC;
+--IP_SIZE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET= '1' or dissect_current_state = IDLE) then
+--			TC_IP_SIZE_OUT <= (others => '0');
+--		elsif ((dissect_current_state = DIVIDE and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = WAIT_FOR_TC)) then
+--			if (size_left >= g_MAX_FRAME_SIZE) then
+--				TC_IP_SIZE_OUT <= g_MAX_FRAME_SIZE;
+--			else
+--				TC_IP_SIZE_OUT <= size_left(15 downto 0);
+--			end if;
+--		end if;
+--	end if;
+--end process IP_SIZE_PROC;
+
 TC_UDP_SIZE_OUT     <= tx_data_ctr;
 
 

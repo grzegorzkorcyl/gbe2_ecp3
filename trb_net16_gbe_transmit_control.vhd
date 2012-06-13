@@ -221,7 +221,7 @@ begin
 	end if;
 
 	--if (ctrl_construct_current_state = CLOSE) then
-	if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_FRAME_SIZE_IN - x"2") then
+	if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_FRAME_SIZE_IN - x"1") then
 	  FC_EOD_OUT        <= '1';
 	else
 	  FC_EOD_OUT        <= '0';
