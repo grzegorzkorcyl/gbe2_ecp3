@@ -360,9 +360,9 @@ begin
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
 				--if (reset_detected = '1') then  -- send ack only if reset command came
-				--	dissect_next_state <= WAIT_FOR_LOAD_ACK;
+					dissect_next_state <= WAIT_FOR_LOAD_ACK;
 				--else
-					dissect_next_state <= WAIT_FOR_HUB;
+				--	dissect_next_state <= WAIT_FOR_HUB;
 				--end if;
 			else
 				dissect_next_state <= READ_FRAME;
