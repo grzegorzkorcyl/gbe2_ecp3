@@ -379,7 +379,7 @@ begin
 		when LOAD_ACK =>
 			state <= x"b";
 			if (tx_loaded_ctr = x"0010") then
-				dissect_next_state <= CLEANUP;
+				dissect_next_state <= WAIT_FOR_HUB; --CLEANUP;
 			else
 				dissect_next_state <= LOAD_ACK;
 			end if;
@@ -395,7 +395,11 @@ begin
 		when LOAD_TO_HUB =>
 			state <= x"4";
 			if (rx_fifo_q(17) = '1') then
-				dissect_next_state <= WAIT_FOR_RESPONSE;
+				if (reset_detected = '1') then
+					dissect_next_state <= CLEANUP;
+				else
+					dissect_next_state <= WAIT_FOR_RESPONSE;
+				end if;
 			else
 				dissect_next_state <= LOAD_TO_HUB;
 			end if;	
@@ -429,18 +433,18 @@ begin
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= WAIT_FOR_TC; --DIVIDE;
+				dissect_next_state <= DIVIDE; --WAIT_FOR_TC; --DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
 			
-		when WAIT_FOR_TC =>
-			state <= x"d";
-			if (TC_BUSY_IN = '0') then
-				dissect_next_state <= DIVIDE;
-			else
-				dissect_next_state <= WAIT_FOR_TC;
-			end if;
+--		when WAIT_FOR_TC =>
+--			state <= x"d";
+--			if (TC_BUSY_IN = '0') then
+--				dissect_next_state <= DIVIDE;
+--			else
+--				dissect_next_state <= WAIT_FOR_TC;
+--			end if;
 
 		when DIVIDE =>
 			state <= x"c";
@@ -452,6 +456,10 @@ begin
 		
 		when CLEANUP =>
 			state <= x"9";
+			dissect_next_state <= IDLE;
+			
+		when others =>
+			state <= x"1"; 
 			dissect_next_state <= IDLE;
 	
 	end case;
