@@ -359,11 +359,11 @@ begin
 		when READ_FRAME =>
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				--if (reset_detected = '1') then  -- send ack only if reset command came
+				if (reset_detected = '1') then  -- send ack only if reset command came
 					dissect_next_state <= WAIT_FOR_LOAD_ACK;
-				--else
-				--	dissect_next_state <= WAIT_FOR_HUB;
-				--end if;
+				else
+					dissect_next_state <= WAIT_FOR_HUB;
+				end if;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
@@ -411,7 +411,7 @@ begin
 		when SAVE_RESPONSE =>
 			state <= x"6";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
-				dissect_next_state <= WAIT_FOR_LOAD;
+				dissect_next_state <= WAIT_FOR_LOAD_ACK; --WAIT_FOR_LOAD;
 			else
 				dissect_next_state <= SAVE_RESPONSE;
 			end if;			
