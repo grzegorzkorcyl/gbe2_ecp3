@@ -113,8 +113,17 @@ signal sent_packets_ctr                         : std_logic_vector(15 downto 0);
 
 signal state                                    : std_logic_vector(3 downto 0);
 signal state2                                   : std_logic_vector(3 downto 0);
+signal temp_frame_size                          : std_logic_vector(15 downto 0);
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of temp_frame_size : signal is true;
+attribute syn_preserve of temp_frame_size : signal is true;
+
 
 begin
+
+temp_frame_size <= MC_FRAME_SIZE_IN;
 
 DEBUG_OUT(3 downto 0) <= state;
 DEBUG_OUT(7 downto 4) <= state2;
