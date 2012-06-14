@@ -238,52 +238,16 @@ begin
 	  FC_EOD_OUT        <= '0';
 	end if;
 
---	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
---		FC_IP_SIZE_OUT <= temp_ip_size; --MC_IP_SIZE_IN;
---		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
---		
---		if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_IP_SIZE_IN - x"1") then
---		  FC_EOD_OUT        <= '1';
---		else
---		  FC_EOD_OUT        <= '0';
---		end if;
---		
---		if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
---		  MC_RD_EN_OUT  <= '1';
---		  delayed_wr_en <= '0'; --'1';
---		elsif (ctrl_construct_current_state = LOAD_DATA) and (sent_bytes_ctr < MC_IP_SIZE_IN - x"2") then -- (sent_bytes_ctr /= MC_FRAME_SIZE_IN) then
---		  MC_RD_EN_OUT  <= '1';
---		  delayed_wr_en <= '1';
---		else
---		  MC_RD_EN_OUT  <= '0';
---		  delayed_wr_en <= '0';
---		end if;
---		
---	else
---		FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
---		FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
---		
---		if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_FRAME_SIZE_IN - x"1") then
---		  FC_EOD_OUT        <= '1';
---		else
---		  FC_EOD_OUT        <= '0';
---		end if;
---		
---		if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
---		  MC_RD_EN_OUT  <= '1';
---		  delayed_wr_en <= '0'; --'1';
---		elsif (ctrl_construct_current_state = LOAD_DATA) and (sent_bytes_ctr < MC_FRAME_SIZE_IN - x"2") then -- (sent_bytes_ctr /= MC_FRAME_SIZE_IN) then
---		  MC_RD_EN_OUT  <= '1';
---		  delayed_wr_en <= '1';
---		else
---		  MC_RD_EN_OUT  <= '0';
---		  delayed_wr_en <= '0';
---		end if;
---		
---	end if;
+	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
+		FC_IP_SIZE_OUT  <= MC_IP_SIZE_IN;
+		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;		
+	else
+		FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+		FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+	end if;
 	
-	FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
-	FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+--	FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+--	FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
 	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN; --(others => '0'); -- fixed to one-frame packets
 
 	if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
