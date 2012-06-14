@@ -126,8 +126,8 @@ signal make_reset               : std_logic := '0';
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of tx_data_ctr : signal is true;
-attribute syn_preserve of tx_data_ctr : signal is true;
+attribute syn_keep of tx_data_ctr, tx_loaded_ctr : signal is true;
+attribute syn_preserve of tx_data_ctr, tx_loaded_ctr : signal is true;
 
 
 	
@@ -307,7 +307,7 @@ begin
 		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(13) <= '0';
 		elsif ((dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
-			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
+			if ((tx_data_ctr - tx_loaded_ctr) < x"0576") then --g_MAX_FRAME_SIZE) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
 			else
 				TC_FLAGS_OFFSET_OUT(13) <= '1';  -- more fragments
@@ -372,30 +372,30 @@ begin
 		when READ_FRAME =>
 			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				if (reset_detected = '1') then  -- send ack only if reset command came
-					dissect_next_state <= WAIT_FOR_LOAD_ACK;
-				else
+				--if (reset_detected = '1') then  -- send ack only if reset command came
+				--	dissect_next_state <= WAIT_FOR_LOAD_ACK;
+				--else
 					dissect_next_state <= WAIT_FOR_HUB;
-				end if;
+				--end if;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
 			
-		when WAIT_FOR_LOAD_ACK =>
-			state <= x"a";
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
-				dissect_next_state <= LOAD_ACK;
-			else
-				dissect_next_state <= WAIT_FOR_LOAD_ACK;
-			end if;
-			
-		when LOAD_ACK =>
-			state <= x"b";
-			if (tx_loaded_ctr = x"0010") then
-				dissect_next_state <= WAIT_FOR_HUB; --CLEANUP;
-			else
-				dissect_next_state <= LOAD_ACK;
-			end if;
+--		when WAIT_FOR_LOAD_ACK =>
+--			state <= x"a";
+--			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+--				dissect_next_state <= LOAD_ACK;
+--			else
+--				dissect_next_state <= WAIT_FOR_LOAD_ACK;
+--			end if;
+--			
+--		when LOAD_ACK =>
+--			state <= x"b";
+--			if (tx_loaded_ctr = x"0010") then
+--				dissect_next_state <= WAIT_FOR_HUB; --CLEANUP;
+--			else
+--				dissect_next_state <= LOAD_ACK;
+--			end if;
 			
 		when WAIT_FOR_HUB =>
 			state <= x"3";
