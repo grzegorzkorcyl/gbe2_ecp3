@@ -240,8 +240,8 @@ begin
 		FC_IP_SIZE_OUT <= MC_IP_SIZE_IN;
 		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
 	else
-		FC_IP_SIZE_OUT <= MC_FRAME_SIZE_IN;
-		FC_UDP_SIZE_OUT <= MC_FRAME_SIZE_IN;
+		FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+		FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
 	end if;
 	
 	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN; --(others => '0'); -- fixed to one-frame packets
