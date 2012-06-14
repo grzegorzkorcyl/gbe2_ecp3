@@ -307,7 +307,7 @@ begin
 		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(13) <= '0';
 		elsif ((dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
-			if ((tx_data_ctr - tx_loaded_ctr) < x"0576") then --g_MAX_FRAME_SIZE) then
+			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
 			else
 				TC_FLAGS_OFFSET_OUT(13) <= '1';  -- more fragments
