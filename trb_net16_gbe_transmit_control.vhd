@@ -114,16 +114,18 @@ signal sent_packets_ctr                         : std_logic_vector(15 downto 0);
 signal state                                    : std_logic_vector(3 downto 0);
 signal state2                                   : std_logic_vector(3 downto 0);
 signal temp_frame_size                          : std_logic_vector(15 downto 0);
+signal temp_ip_size                             : std_logic_vector(15 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of temp_frame_size : signal is true;
-attribute syn_preserve of temp_frame_size : signal is true;
+attribute syn_keep of temp_frame_size, temp_ip_size : signal is true;
+attribute syn_preserve of temp_frame_size, temp_ip_size : signal is true;
 
 
 begin
 
 temp_frame_size <= MC_FRAME_SIZE_IN;
+temp_ip_size    <= MC_IP_SIZE_IN;
 
 DEBUG_OUT(3 downto 0) <= state;
 DEBUG_OUT(7 downto 4) <= state2;
@@ -237,7 +239,7 @@ begin
 --	end if;
 
 	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
-		FC_IP_SIZE_OUT <= MC_IP_SIZE_IN;
+		FC_IP_SIZE_OUT <= temp_ip_size; --MC_IP_SIZE_IN;
 		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
 		
 		if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_IP_SIZE_IN - x"1") then
