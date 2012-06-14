@@ -322,7 +322,7 @@ begin
 		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= (others => '0');
 		elsif (dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
-			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3) + x"8";
+			TC_FLAGS_OFFSET_OUT(12 downto 0) <= x"8" + tx_loaded_ctr(15 downto 3);
 		end if;
 	end if;
 end process OFFSET_PROC;
