@@ -319,7 +319,7 @@ end process MORE_FRAGMENTS_PROC;
 OFFSET_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) or (dissect_current_state = LOAD_DATA) then
+		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= x"008";
 		elsif (dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3) + x"1";
