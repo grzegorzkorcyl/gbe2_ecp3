@@ -123,6 +123,13 @@ signal size_left                : std_logic_vector(15 downto 0);
 signal reset_detected           : std_logic := '0';
 signal make_reset               : std_logic := '0';
 
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of tx_data_ctr : signal is true;
+attribute syn_preserve of tx_data_ctr : signal is true;
+
+
 	
 begin
 
@@ -253,26 +260,27 @@ TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 
-FRAME_SIZE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
-			TC_FRAME_SIZE_OUT <= (others => '0');
-			TC_IP_SIZE_OUT    <= (others => '0');
-		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
-			if  (size_left >= g_MAX_FRAME_SIZE) then
-				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
-				TC_IP_SIZE_OUT    <= g_MAX_FRAME_SIZE;
-			else
-				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
-				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
-			end if;
-		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
-			TC_FRAME_SIZE_OUT <= x"0010";
-			TC_IP_SIZE_OUT    <= x"0010";
-		end if;
-	end if;
-end process FRAME_SIZE_PROC;
+--FRAME_SIZE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or dissect_current_state = IDLE) then
+--			TC_FRAME_SIZE_OUT <= (others => '0');
+--			TC_IP_SIZE_OUT    <= (others => '0');
+--		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
+--			if  (size_left >= g_MAX_FRAME_SIZE) then
+--				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
+--				TC_IP_SIZE_OUT    <= g_MAX_FRAME_SIZE;
+--			else
+--				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
+--				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
+--			end if;
+--		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
+--			TC_FRAME_SIZE_OUT <= x"0010";
+--			TC_IP_SIZE_OUT    <= x"0010";
+--		end if;
+--	end if;
+--end process FRAME_SIZE_PROC;
+TC_FRAME_SIZE_OUT  <= tx_data_ctr when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME) else x"0010";
 
 --IP_SIZE_PROC : process(CLK)
 --begin
@@ -437,8 +445,8 @@ begin
 			state <= x"8";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
-			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= DIVIDE; --WAIT_FOR_TC; --DIVIDE;
+			--elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
+			--	dissect_next_state <= DIVIDE; --WAIT_FOR_TC; --DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
