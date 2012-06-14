@@ -15,7 +15,7 @@ signal g_MY_IP                : std_logic_vector(31 downto 0);
 signal g_MY_MAC               : std_logic_vector(47 downto 0);
 
 -- size of ethernet frame use for fragmentation of outgoing packets
-signal g_MAX_FRAME_SIZE       : std_logic_vector(15 downto 0) := x"0578";
+signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0578";
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
 constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5;
