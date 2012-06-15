@@ -623,7 +623,7 @@ MC_LINK_OK_OUT <= link_ok;
 -- GENERATE MAC_ADDRESS
 g_MY_MAC <= unique_id(15 downto 0) & x"efbe0000";
 
-g_MAX_FRAME_SIZE <= x"0032";
+g_MAX_FRAME_SIZE <= x"0040";
 --
 --*************
 
