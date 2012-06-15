@@ -297,7 +297,7 @@ end process FRAME_SIZE_PROC;
 --	end if;
 --end process IP_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr;
+TC_UDP_SIZE_OUT     <= tx_data_ctr - x"2";
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
