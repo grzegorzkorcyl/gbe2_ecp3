@@ -189,7 +189,7 @@ begin
 		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 		
 		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE + x"1") then
-		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+		if (tx_loaded_ctr = tx_data_ctr - x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
@@ -443,7 +443,7 @@ begin
 		
 		when LOAD_FRAME =>
 			state <= x"8";
-			if (tx_loaded_ctr = tx_data_ctr) then
+			if (tx_loaded_ctr = tx_data_ctr - x"1") then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
 				dissect_next_state <= DIVIDE; --WAIT_FOR_TC; --DIVIDE;
@@ -556,7 +556,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			reply_ctr <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
+		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr - x"1") then
 			reply_ctr <= reply_ctr + x"1";
 		end if;
 	end if;
@@ -580,7 +580,7 @@ begin
 	case (stats_current_state) is
 	
 		when IDLE =>
-			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr)) then
+			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr - x"1")) then
 				stats_next_state <= LOAD_RECEIVED;
 			else
 				stats_next_state <= IDLE;
