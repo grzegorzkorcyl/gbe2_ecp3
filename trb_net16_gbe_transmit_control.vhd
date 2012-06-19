@@ -8,6 +8,8 @@ use work.trb_net_std.all;
 use work.trb_net_components.all;
 use work.trb_net16_hub_func.all;
 
+use work.trb_net_gbe_protocols.all;
+
 --********
 -- multiplexes the output stream between data and slow control frames
 -- creates slow control frames
