@@ -240,7 +240,11 @@ begin
 
 	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
 		FC_IP_SIZE_OUT  <= MC_IP_SIZE_IN;
-		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;		
+		if (MC_UDP_SIZE_IN > g_MAX_FRAME_SIZE) then
+			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN - x"1";
+		else
+			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
+		end if;		
 	else
 		FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
 		FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
