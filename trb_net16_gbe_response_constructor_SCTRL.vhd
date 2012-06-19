@@ -129,7 +129,7 @@ attribute syn_keep : boolean;
 attribute syn_keep of tx_data_ctr, tx_loaded_ctr : signal is true;
 attribute syn_preserve of tx_data_ctr, tx_loaded_ctr : signal is true;
 
-
+signal temp_ctr                : std_logic_vector(7 downto 0);
 	
 begin
 
@@ -182,12 +182,23 @@ transmit_fifo : fifo_65536x18x9
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
 tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
 
+--temp_ctr_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if RESET = '1' then
+--			temp_ctr <= (others => '0');
+--		elsif tx_fifo_rd = '1' then
+--			temp_ctr <= temp_ctr + x"1";
+--		end if;
+--	end if;	
+--end process temp_ctr_proc;
+
 TC_DATA_PROC : process(dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	if (dissect_current_state = LOAD_FRAME) then
 	
-		--TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
-		TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
+		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		--TC_DATA_OUT(7 downto 0) <= temp_ctr;
 		
 		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE + x"1") then
 		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
