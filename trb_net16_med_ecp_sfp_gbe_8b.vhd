@@ -68,38 +68,40 @@ architecture trb_net16_med_ecp_sfp_gbe_8b of trb_net16_med_ecp_sfp_gbe_8b is
 attribute syn_sharing : string;
 attribute syn_sharing of trb_net16_med_ecp_sfp_gbe_8b : architecture is "off";
 
-component serdes_gbe_0ch is
-   GENERIC (USER_CONFIG_FILE    :  String := "serdes_gbe_0ch.txt");
+--component serdes_gbe_0ch is
+component serdes_ch4 is
+   --GENERIC (USER_CONFIG_FILE    :  String := "serdes_gbe_0ch.txt");
+GENERIC (USER_CONFIG_FILE    :  String := "serdes_ch4.txt");
  port (
 ------------------
 -- CH0 --
-    hdinp_ch0, hdinn_ch0    :   in std_logic;
-    hdoutp_ch0, hdoutn_ch0   :   out std_logic;
-    rxiclk_ch0    :   in std_logic;
-    txiclk_ch0    :   in std_logic;
-    rx_full_clk_ch0   :   out std_logic;
-    rx_half_clk_ch0   :   out std_logic;
-    tx_full_clk_ch0   :   out std_logic;
-    tx_half_clk_ch0   :   out std_logic;
-    fpga_rxrefclk_ch0    :   in std_logic;
-    txdata_ch0    :   in std_logic_vector (7 downto 0);
-    tx_k_ch0    :   in std_logic;
-    xmit_ch0    :   in std_logic;
-    tx_disp_correct_ch0    :   in std_logic;
-    rxdata_ch0   :   out std_logic_vector (7 downto 0);
-    rx_k_ch0   :   out std_logic;
-    rx_disp_err_ch0   :   out std_logic;
-    rx_cv_err_ch0   :   out std_logic;
-    rx_serdes_rst_ch0_c    :   in std_logic;
-    sb_felb_ch0_c    :   in std_logic;
-    sb_felb_rst_ch0_c    :   in std_logic;
-    tx_pcs_rst_ch0_c    :   in std_logic;
-    tx_pwrup_ch0_c    :   in std_logic;
-    rx_pcs_rst_ch0_c    :   in std_logic;
-    rx_pwrup_ch0_c    :   in std_logic;
-    rx_los_low_ch0_s   :   out std_logic;
-    lsm_status_ch0_s   :   out std_logic;
-    rx_cdr_lol_ch0_s   :   out std_logic;
+    hdinp_ch3, hdinn_ch3    :   in std_logic;
+    hdoutp_ch3, hdoutn_ch3   :   out std_logic;
+    rxiclk_ch3    :   in std_logic;
+    txiclk_ch3    :   in std_logic;
+    rx_full_clk_ch3   :   out std_logic;
+    rx_half_clk_ch3   :   out std_logic;
+    tx_full_clk_ch3   :   out std_logic;
+    tx_half_clk_ch3   :   out std_logic;
+    fpga_rxrefclk_ch3    :   in std_logic;
+    txdata_ch3    :   in std_logic_vector (7 downto 0);
+    tx_k_ch3    :   in std_logic;
+    xmit_ch3    :   in std_logic;
+    tx_disp_correct_ch3    :   in std_logic;
+    rxdata_ch3   :   out std_logic_vector (7 downto 0);
+    rx_k_ch3   :   out std_logic;
+    rx_disp_err_ch3   :   out std_logic;
+    rx_cv_err_ch3   :   out std_logic;
+    rx_serdes_rst_ch3_c    :   in std_logic;
+    sb_felb_ch3_c    :   in std_logic;
+    sb_felb_rst_ch3_c    :   in std_logic;
+    tx_pcs_rst_ch3_c    :   in std_logic;
+    tx_pwrup_ch3_c    :   in std_logic;
+    rx_pcs_rst_ch3_c    :   in std_logic;
+    rx_pwrup_ch3_c    :   in std_logic;
+    rx_los_low_ch3_s   :   out std_logic;
+    lsm_status_ch3_s   :   out std_logic;
+    rx_cdr_lol_ch3_s   :   out std_logic;
 -- CH1 --
 -- CH2 --
 -- CH3 --
@@ -548,39 +550,40 @@ clk_int : if (USE_125MHZ_EXTCLK = 0) generate
 -- 		ffs_plol                 => sd_link_error(2)
 -- 	);
 
-	SERDES_GBE : serdes_gbe_0ch
+	--SERDES_GBE : serdes_gbe_0ch
+      SERDES_GBE : serdes_ch4
 	port map(
 	------------------
 	-- CH0 --
-	    hdinp_ch0    => SD_RXD_P_IN,
-	    hdinn_ch0    => SD_RXD_N_IN,
-	    hdoutp_ch0   => SD_TXD_P_OUT,
-	    hdoutn_ch0   => SD_TXD_N_OUT,
-	      rxiclk_ch0   => sd_rx_clk,
-	      txiclk_ch0   => CLK_125_IN, --sd_tx_clk,
-	 rx_full_clk_ch0      => sd_rx_clk,
-	    rx_half_clk_ch0      => open,
-	 tx_full_clk_ch0      => open, --sd_tx_clk,
-	    tx_half_clk_ch0      => open,
-	       fpga_rxrefclk_ch0    => CLK_125_IN,
-	    txdata_ch0           => sd_tx_data_q,
-	    tx_k_ch0             => sd_tx_kcntl_q,
-	    xmit_ch0             => xmit, --'0',
-	    tx_disp_correct_ch0  => sd_tx_correct_disp_q,
-	    rxdata_ch0           => sd_rx_data, 
-	    rx_k_ch0             => sd_rx_kcntl,
-	    rx_disp_err_ch0      => sd_rx_disp_error,
-	    rx_cv_err_ch0        => sd_rx_cv_error,
-	    rx_serdes_rst_ch0_c  => rx_serdes_rst,
-	    sb_felb_ch0_c        => '0',
-	    sb_felb_rst_ch0_c    => '0',
-	    tx_pcs_rst_ch0_c     => tx_pcs_rst,
-	    tx_pwrup_ch0_c       => '1',
-	    rx_pcs_rst_ch0_c     => rx_pcs_rst,
-	    rx_pwrup_ch0_c       => '1',
-	    rx_los_low_ch0_s     => los,
-	    lsm_status_ch0_s     => signal_detected,
-	    rx_cdr_lol_ch0_s     => rx_cdr_lol,
+	    hdinp_ch3    => SD_RXD_P_IN,
+	    hdinn_ch3    => SD_RXD_N_IN,
+	    hdoutp_ch3   => SD_TXD_P_OUT,
+	    hdoutn_ch3   => SD_TXD_N_OUT,
+	      rxiclk_ch3   => sd_rx_clk,
+	      txiclk_ch3   => CLK_125_IN, --sd_tx_clk,
+	 rx_full_clk_ch3      => sd_rx_clk,
+	    rx_half_clk_ch3      => open,
+	 tx_full_clk_ch3      => open, --sd_tx_clk,
+	    tx_half_clk_ch3      => open,
+	       fpga_rxrefclk_ch3    => CLK_125_IN,
+	    txdata_ch3           => sd_tx_data_q,
+	    tx_k_ch3             => sd_tx_kcntl_q,
+	    xmit_ch3             => xmit, --'0',
+	    tx_disp_correct_ch3  => sd_tx_correct_disp_q,
+	    rxdata_ch3           => sd_rx_data, 
+	    rx_k_ch3             => sd_rx_kcntl,
+	    rx_disp_err_ch3      => sd_rx_disp_error,
+	    rx_cv_err_ch3        => sd_rx_cv_error,
+	    rx_serdes_rst_ch3_c  => rx_serdes_rst,
+	    sb_felb_ch3_c        => '0',
+	    sb_felb_rst_ch3_c    => '0',
+	    tx_pcs_rst_ch3_c     => tx_pcs_rst,
+	    tx_pwrup_ch3_c       => '1',
+	    rx_pcs_rst_ch3_c     => rx_pcs_rst,
+	    rx_pwrup_ch3_c       => '1',
+	    rx_los_low_ch3_s     => los,
+	    lsm_status_ch3_s     => signal_detected,
+	    rx_cdr_lol_ch3_s     => rx_cdr_lol,
 	-- CH1 --
 	-- CH2 --
 	-- CH3 --
@@ -596,7 +599,8 @@ clk_int : if (USE_125MHZ_EXTCLK = 0) generate
 end generate clk_int;
 
 clk_ext : if (USE_125MHZ_EXTCLK = 1) generate
-	SERDES_GBE : serdes_gbe_0_extclock_8b                               	        
+	--SERDES_GBE : serdes_gbe_0_extclock_8b
+    SERDES_GBE : serdes_gbe_0_extclock_8b                               	                                       	        
 	port map( -- SerDes connection to outside world
 			refclkp					=> SD_REFCLK_P_IN, -- SerDes REFCLK diff. input
 			refclkn					=> SD_REFCLK_N_IN,
