@@ -162,6 +162,13 @@ signal constrSimpleFrameCurrentState, constrSimpleFrameNextState : constructSimp
 
 signal gen_data_ctr         : std_logic_vector(15 downto 0);
 
+signal state                : std_logic_vector(3 downto 0);
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of state : signal is true;
+attribute syn_preserve of state : signal is true;
+
 begin
 
 costrSimpleFrameMachineProc : process(CLK)
@@ -180,6 +187,7 @@ begin
 	case constrSimpleFrameCurrentState is
 	
 		when IDLE =>
+			state <= x"1";
 			if (PC_START_OF_SUB_IN = '1') then
 				constrSimpleFrameNextState <= WAIT_FOR_HEADERS;
 			else
@@ -187,6 +195,7 @@ begin
 			end if;
 		
 		when WAIT_FOR_HEADERS =>
+			state <= x"2";
 			if (TC_H_READY_IN = '1') then
 				constrSimpleFrameNextState <= PUT_DATA;
 			else
@@ -194,6 +203,7 @@ begin
 			end if;
 		
 		when PUT_DATA =>
+			state <= x"3";
 			if (gen_data_ctr = x"0100") then
 				constrSimpleFrameNextState <= FINISH;
 			else
@@ -201,6 +211,7 @@ begin
 			end if;
 		
 		when FINISH =>
+			state <= x"4";
 			if (TC_READY_IN = '1') then
 				constrSimpleFrameNextState <= IDLE;
 			else
