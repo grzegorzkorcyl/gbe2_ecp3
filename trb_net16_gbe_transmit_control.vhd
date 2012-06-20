@@ -212,15 +212,11 @@ begin
 	DEST_MAC_ADDRESS_OUT <= x"ffffffffffff"; --IC_DEST_MAC_ADDRESS_IN;
 	DEST_IP_ADDRESS_OUT  <= x"ff00a8c0";     --IC_DEST_IP_ADDRESS_IN;
 	DEST_UDP_PORT_OUT    <= x"1111"; --IC_DEST_UDP_PORT_IN;
-	SRC_MAC_ADDRESS_OUT  <= x"beefbeef0000"; --IC_SRC_MAC_ADDRESS_IN;
-	SRC_IP_ADDRESS_OUT   <= x"0b00a8c0";     --IC_SRC_IP_ADDRESS_IN;
+	SRC_MAC_ADDRESS_OUT  <= g_MY_MAC; --x"0096beef0000"; --IC_SRC_MAC_ADDRESS_IN;
+	SRC_IP_ADDRESS_OUT   <= g_MY_IP; --x"0b00a8c0";     --IC_SRC_IP_ADDRESS_IN;
 	SRC_UDP_PORT_OUT     <= x"1111"; --IC_SRC_UDP_PORT_IN;
 	
-	if (sent_packets_ctr(0) = '0') then
-		FC_IP_PROTOCOL_OUT   <= x"dd";
-	else
-		FC_IP_PROTOCOL_OUT   <= x"ee";
-	end if;
+	FC_IP_PROTOCOL_OUT   <= x"11";
 	
 
       when TRANSMIT_CTRL =>
