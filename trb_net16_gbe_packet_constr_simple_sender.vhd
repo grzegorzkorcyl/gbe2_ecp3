@@ -229,6 +229,7 @@ PC_READY_OUT <= '1' when constrSimpleFrameCurrentState = IDLE else '0';
 PC_TRANSMIT_ON_OUT <= '0' when constrSimpleFrameCurrentState = IDLE and PC_START_OF_SUB_IN = '0' else '1';
 TC_IP_SIZE_OUT <= x"0100";
 TC_UDP_SIZE_OUT <= x"0100";
+TC_FLAGS_OFFSET_OUT <= (others => '0');
 
 --PC_TRANSMIT_ON_OUT <= '1' when constructCurrentState = WAIT_FOR_LOAD else '0';
 --PC_TRANSMIT_ON_OUT <= '0';
@@ -243,8 +244,8 @@ TC_UDP_SIZE_OUT <= x"0100";
 -- max_frame_size <= PC_MAX_FRAME_SIZE_IN;
 -- 
 -- -- Ready signal for PacketConstructor
--- pc_ready <= '1' when (constructCurrentState = CIDLE) and (df_empty = '1') else '0';
-pc_ready <= '0';
+ --pc_ready <= '1' when (constructCurrentState = CIDLE) and (df_empty = '1') else '0';
+--pc_ready <= '0';
 
 -- store event information on Start_of_Subevent
 -- THE_EVT_INFO_STORE_PROC: process( CLK )

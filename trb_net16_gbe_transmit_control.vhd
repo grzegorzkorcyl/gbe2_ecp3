@@ -209,12 +209,12 @@ begin
 	FC_FLAGS_OFFSET_OUT  <= PC_FLAGS_OFFSET_IN;
 	FC_IDENT_OUT         <= sent_packets_ctr;
 
-	DEST_MAC_ADDRESS_OUT <= x"9a680f201300"; --IC_DEST_MAC_ADDRESS_IN;
-	DEST_IP_ADDRESS_OUT  <= x"0100a8c0";     --IC_DEST_IP_ADDRESS_IN;
-	DEST_UDP_PORT_OUT    <= (others => '0'); --IC_DEST_UDP_PORT_IN;
+	DEST_MAC_ADDRESS_OUT <= x"ffffffffffff"; --IC_DEST_MAC_ADDRESS_IN;
+	DEST_IP_ADDRESS_OUT  <= x"ff00a8c0";     --IC_DEST_IP_ADDRESS_IN;
+	DEST_UDP_PORT_OUT    <= x"1111"; --IC_DEST_UDP_PORT_IN;
 	SRC_MAC_ADDRESS_OUT  <= x"beefbeef0000"; --IC_SRC_MAC_ADDRESS_IN;
 	SRC_IP_ADDRESS_OUT   <= x"0b00a8c0";     --IC_SRC_IP_ADDRESS_IN;
-	SRC_UDP_PORT_OUT     <= (others => '0'); --IC_SRC_UDP_PORT_IN;
+	SRC_UDP_PORT_OUT     <= x"1111"; --IC_SRC_UDP_PORT_IN;
 	
 	if (sent_packets_ctr(0) = '0') then
 		FC_IP_PROTOCOL_OUT   <= x"dd";
