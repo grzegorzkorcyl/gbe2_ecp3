@@ -555,14 +555,13 @@ end process LOAD_CTR_PROC;
 TC_DATA_PROC : process(construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
 begin
 
-	tc_data(8) <= '0';
-
 	case (construct_current_state) is
 
 		when BOOTP_HEADERS =>
 			for i in 0 to 7 loop
 				tc_data(i) <= bootp_hdr(load_ctr * 8 + i);
 			end loop;
+			tc_data(8) <= '0';
 			
 		when CLIENT_IP =>
 			if (main_current_state = SENDING_DISCOVER) then
@@ -572,37 +571,46 @@ begin
 					tc_data(i) <= saved_proposed_ip((load_ctr - 12) * 8 + i);
 				end loop;
 			end if;
+			tc_data(8) <= '0';
 		
 		when YOUR_IP =>
 			tc_data(7 downto 0) <= x"00";
+			tc_data(8) <= '0';
 		
 		when ZEROS1 =>
 			tc_data(7 downto 0) <= x"00";
+			tc_data(8) <= '0';
 		
 		when MY_MAC =>
 			for i in 0 to 7 loop
 				tc_data(i) <= g_MY_MAC((load_ctr - 28) * 8 + i);
 			end loop;
+			tc_data(8) <= '0';
 		
 		when ZEROS2 =>
 			tc_data(7 downto 0) <= x"00";
+			tc_data(8) <= '0';
 			
 		when VENDOR_VALS =>
 			for i in 0 to 7 loop
 				tc_data(i) <= vendor_values((load_ctr - 236) * 8 + i);
 			end loop;
+			tc_data(8) <= '0';
 			
 		-- needed only for DHCP Request message
 		when VENDOR_VALS2 =>
 			for i in 0 to 7 loop
 				tc_data(i) <= vendor_values2((load_ctr - 258) * 8 + i);
 			end loop;
+			tc_data(8) <= '0';
 			
 		when TERMINATION =>
 			tc_data(7 downto 0) <= x"ff";
 			tc_data(8)          <= '1';
 		
-		when others => tc_data(7 downto 0) <= x"00";
+		when others => 
+			tc_data(7 downto 0) <= x"00";
+			tc_data(8) <= '0';
 	
 	end case;
 	
