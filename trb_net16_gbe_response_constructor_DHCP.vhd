@@ -552,8 +552,10 @@ begin
 	end if;
 end process LOAD_CTR_PROC;
 
-TC_DATA_PROC : process(construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
+TC_DATA_PROC : process(CLK, construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
 begin
+
+	if rising_edge(CLK) then
 
 	case (construct_current_state) is
 
@@ -614,14 +616,16 @@ begin
 	
 	end case;
 	
+	end if;
+	
 end process;
 
-TC_DATA_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
+--TC_DATA_SYNC : process(CLK)
+--begin
+	--if rising_edge(CLK) then
 		TC_DATA_OUT <= tc_data;
-	end if;
-end process TC_DATA_SYNC;
+	--end if;
+--end process TC_DATA_SYNC;
 
 
 PS_BUSY_OUT <= '0' when (construct_current_state = IDLE) else '1';
