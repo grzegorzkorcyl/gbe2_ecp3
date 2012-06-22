@@ -112,7 +112,7 @@ signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
 signal tx_frame_loaded          : std_logic_vector(15 downto 0);
 
 signal packet_num               : std_logic_vector(2 downto 0);
-
+	
 signal init_ctr, reply_ctr      : std_logic_vector(15 downto 0);
 signal rx_empty, tx_empty       : std_logic;
 
@@ -150,10 +150,26 @@ receive_fifo : fifo_2048x8x16
   );
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
-rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
-								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
-								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
-								else '0';  -- preload first word
+
+RX_FIFO_RD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+
+		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
+			rx_fifo_rd <= '1';
+		elsif (gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+			rx_fifo_rd <= '1';
+		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
+			rx_fifo_rd <= '1';
+		else
+			rx_fifo_rd <= '0';
+--rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
+--								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+--								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
+--								else '0';  -- preload first word
+
+	end if;
+end process RX_FIFO_RD_PROC;
 
 INIT_DATA_OUT_PROC : process(CLK)
 begin
