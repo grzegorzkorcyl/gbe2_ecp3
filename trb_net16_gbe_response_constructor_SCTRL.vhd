@@ -155,8 +155,14 @@ rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_curren
 								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
 								else '0';  -- preload first word
 
-GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+INIT_DATA_OUT_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
+	end if;
+end process INIT_DATA_OUT_PROC;
+
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
 								(dissect_current_state = WAIT_FOR_HUB) else '0';
