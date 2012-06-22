@@ -179,7 +179,7 @@ begin
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
 		
-		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) then --or (dissect_current_state = WAIT_FOR_HUB) then
+		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
 			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
