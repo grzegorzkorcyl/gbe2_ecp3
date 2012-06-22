@@ -166,14 +166,15 @@ rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' e
 --		end if;
 --	end if;
 --end process RX_FIFO_RD_PROC;
-rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
-								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
-								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
-								else '0';  -- preload first word
+--rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
+--								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+--								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
+--								else '0';  -- preload first word
 
-INIT_DATA_OUT_PROC : process(GSC_INIT_READ_IN, dissect_current_state)
+INIT_DATA_OUT_PROC : process(CLK)
 begin
-	--if rising_edge(CLK) then
+	if rising_edge(CLK) then
+	
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
 		
@@ -183,10 +184,21 @@ begin
 			gsc_init_dataready <= '0';
 		end if;
 		
-	--end if;
+		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
+			rx_fifo_rd <= '1';
+		elsif (gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+			rx_fifo_rd <= '1';
+		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
+			rx_fifo_rd <= '1';
+		else
+			rx_fifo_rd <= '0';
+		end if;
+
+		GSC_INIT_PACKET_NUM_OUT <= packet_num;
+		
+	end if;
 end process INIT_DATA_OUT_PROC;
 
-GSC_INIT_PACKET_NUM_OUT <= packet_num;
 --gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
 --								(dissect_current_state = WAIT_FOR_HUB) else '0';
 
