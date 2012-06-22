@@ -189,6 +189,8 @@ begin
 --		else
 --			gsc_init_dataready <= '0';
 --		end if;
+
+		GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 		
 	end if;
 end process INIT_DATA_OUT_PROC;
@@ -197,8 +199,6 @@ GSC_INIT_PACKET_NUM_OUT <= packet_num;
 
 gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
 								(dissect_current_state = WAIT_FOR_HUB) else '0';
-
-GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
