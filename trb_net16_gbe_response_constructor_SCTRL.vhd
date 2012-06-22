@@ -126,8 +126,8 @@ signal make_reset               : std_logic := '0';
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of tx_data_ctr, tx_loaded_ctr : signal is true;
-attribute syn_preserve of tx_data_ctr, tx_loaded_ctr : signal is true;
+attribute syn_keep of tx_data_ctr, tx_loaded_ctr, state : signal is true;
+attribute syn_preserve of tx_data_ctr, tx_loaded_ctr, state : signal is true;
 
 signal temp_ctr                : std_logic_vector(7 downto 0);
 
@@ -450,8 +450,7 @@ begin
 			
 		when WAIT_FOR_HUB =>
 			state <= x"3";
-			--if (GSC_INIT_READ_IN = '1') then
-			if (gsc_init_read_q = '1') then
+			if (GSC_INIT_READ_IN = '1') then
 				dissect_next_state <= LOAD_TO_HUB;
 			else
 				dissect_next_state <= WAIT_FOR_HUB;
