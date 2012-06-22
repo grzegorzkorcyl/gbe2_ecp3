@@ -177,7 +177,7 @@ rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_curren
 
 INIT_DATA_OUT_PROC : process(CLK)
 begin
-	--if rising_edge(CLK) then
+	if rising_edge(CLK) then
 	
 		gsc_init_read_q <= GSC_INIT_READ_IN;
 	
@@ -191,7 +191,7 @@ begin
 			gsc_init_dataready <= '0';
 		end if;
 		
-	--end if;
+	end if;
 end process INIT_DATA_OUT_PROC;
 
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
