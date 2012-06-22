@@ -130,6 +130,8 @@ attribute syn_keep of tx_data_ctr, tx_loaded_ctr : signal is true;
 attribute syn_preserve of tx_data_ctr, tx_loaded_ctr : signal is true;
 
 signal temp_ctr                : std_logic_vector(7 downto 0);
+
+signal gsc_init_read_q         : std_logic;
 	
 begin
 
@@ -168,7 +170,8 @@ rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' e
 --end process RX_FIFO_RD_PROC;
 
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
-								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+								--(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and gsc_init_read_q = '1') or
 								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
 								else '0';  -- preload first word
 
@@ -176,10 +179,13 @@ INIT_DATA_OUT_PROC : process(CLK)
 begin
 	--if rising_edge(CLK) then
 	
+		gsc_init_read_q <= GSC_INIT_READ_IN;
+	
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
 		
-		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
+		--if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
+		if (gsc_init_read_q = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
 			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
@@ -444,7 +450,8 @@ begin
 			
 		when WAIT_FOR_HUB =>
 			state <= x"3";
-			if (GSC_INIT_READ_IN = '1') then
+			--if (GSC_INIT_READ_IN = '1') then
+			if (gsc_init_read_q = '1') then
 				dissect_next_state <= LOAD_TO_HUB;
 			else
 				dissect_next_state <= WAIT_FOR_HUB;
