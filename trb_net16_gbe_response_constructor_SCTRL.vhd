@@ -202,7 +202,7 @@ end process INIT_DATA_OUT_PROC;
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 
 gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
-								(dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = 0) else '0';
+								(dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '0') else '0';
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
