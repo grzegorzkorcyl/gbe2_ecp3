@@ -621,7 +621,7 @@ MC_LINK_OK_OUT <= link_ok;
 
 --*************
 -- GENERATE MAC_ADDRESS
-g_MY_MAC <= unique_id(23 downto 8) & x"efbe0000";
+g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 
 g_MAX_FRAME_SIZE <= x"0578";
 --
