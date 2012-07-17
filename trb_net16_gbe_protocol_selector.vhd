@@ -119,6 +119,22 @@ signal tc_ip_size               : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 
 signal tc_udp_size              : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
 signal tc_flags_size            : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
 
+-- temporary
+signal gsc_init_dataready : std_logic;
+signal gsc_init_data : std_logic_vector(15 downto 0);
+signal gsc_init_packet_num : std_logic_vector(2 downto 0);
+signal gsc_init_read : std_logic;
+signal gsc_reply_dataready : std_logic;
+signal gsc_reply_data : std_logic_vector(15 downto 0);
+signal gsc_reply_packet_num : std_logic_vector(2 downto 0);
+signal gsc_reply_read : std_logic;
+signal gsc_busy : std_logic;
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of gsc_busy, gsc_reply_read, gsc_reply_packet_num, gsc_reply_data, gsc_init_read, gsc_reply_dataready, gsc_init_packet_num, gsc_init_data, gsc_init_dataready : signal is true;
+attribute syn_preserve of gsc_busy, gsc_reply_read, gsc_reply_packet_num, gsc_reply_data, gsc_init_read, gsc_reply_dataready, gsc_init_packet_num, gsc_init_data, gsc_init_dataready : signal is true;
+
 begin
 
 -- protocol Nr. 1 ARP
@@ -331,21 +347,33 @@ port map (
 	-- END OF INTERFACE
 	
 	GSC_CLK_IN               => GSC_CLK_IN,
-	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
-	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
-	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
-	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
-	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
-	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
-	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
-	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
-	GSC_BUSY_IN              => GSC_BUSY_IN,
+	GSC_INIT_DATAREADY_OUT   => gsc_init_dataready, --GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => gsc_init_data, --GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => gsc_init_packet_num, --GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => gsc_init_read, --GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => gsc_reply_dataready, --GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => gsc_reply_data, --GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => gsc_reply_packet_num, --GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => gsc_reply_read, --GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => gsc_busy, --GSC_BUSY_IN,
 	
 	MAKE_RESET_OUT           => MAKE_RESET_OUT,
 	
 	
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
 );
+
+
+GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
+GSC_INIT_DATA_OUT <= gsc_init_data;
+GSC_INIT_PACKET_NUM_OUT <= gsc_init_packet_num;
+GSC_INIT_READ_IN <= gsc_init_read;
+GSC_REPLY_DATAREADY_IN <= gsc_reply_dataready;
+GSC_REPLY_DATA_IN <= gsc_reply_data;
+GSC_REPLY_PACKET_NUM_IN <= gsc_reply_packet_num;
+GSC_REPLY_READ_OUT <= gsc_reply_read;
+GSC_BUSY_IN <= gsc_busy;
+
 
 --stat_gen : if g_SIMULATE = 0 generate
 Stat : trb_net16_gbe_response_constructor_Stat
