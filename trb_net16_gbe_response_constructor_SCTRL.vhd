@@ -254,7 +254,7 @@ begin
 			too_much_data <= '1';
 		end if;
 	end if;
-end process TOOM_MUCH_DATA_PROC;
+end process TOO_MUCH_DATA_PROC;
 
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
