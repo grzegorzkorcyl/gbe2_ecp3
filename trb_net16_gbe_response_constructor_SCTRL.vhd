@@ -323,7 +323,7 @@ begin
 	end if;
 end process FRAME_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr; -- - divide_ctr(7 downto 1);
+TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr(7 downto 1);
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
