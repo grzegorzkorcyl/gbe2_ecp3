@@ -239,7 +239,7 @@ begin
 	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
 		FC_IP_SIZE_OUT  <= MC_IP_SIZE_IN;
 		if (MC_UDP_SIZE_IN > g_MAX_FRAME_SIZE) then
-			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN - x"1";
+			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN; -- - x"1";
 		else
 			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
 		end if;		
@@ -250,7 +250,7 @@ begin
 	
 --	FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
 --	FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
-	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN; --(others => '0'); -- fixed to one-frame packets
+	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN;
 
 	if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
 	  MC_RD_EN_OUT  <= '1';

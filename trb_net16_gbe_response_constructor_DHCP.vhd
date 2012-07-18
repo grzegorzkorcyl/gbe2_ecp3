@@ -280,7 +280,7 @@ begin
 			state3 <= x"1";
 			if (PS_ACTIVATE_IN = '1' and PS_WR_EN_IN = '1') then
 				if (main_current_state = WAITING_FOR_OFFER or main_current_state = WAITING_FOR_ACK) then  -- ready to receive dhcp frame
-					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) or (PS_DEST_MAC_ADDRESS_IN = x"ffffffffffff") then  -- check if i'm the addressee (discards broadcasts also)
+					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) then --or (PS_DEST_MAC_ADDRESS_IN = x"ffffffffffff") then  -- check if i'm the addressee (discards broadcasts also)
 						receive_next_state <= SAVE_VALUES;
 					else
 						receive_next_state <= DISCARD;  -- discard if the frame is not for me

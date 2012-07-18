@@ -136,6 +136,8 @@ signal gsc_init_read_q         : std_logic;
 signal fifo_rd_q               : std_logic;
 
 signal too_much_data           : std_logic;
+
+signal divide_ctr              : std_logic_vector(7 downto 0);
 	
 begin
 
@@ -256,6 +258,15 @@ begin
 	end if;
 end process TOO_MUCH_DATA_PROC;
 
+DIVIDE_CTR_PROC : process(CLK)
+begin
+	if (RESET = '1') or (dissect_current_state = IDLE) then
+		divide_ctr <= (others => '0');
+	elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr(10 downto 0) = b"101_0111_1000") then
+		divide_ctr <= divide_ctr + x"1";
+	end if;
+end process DIVIDE_CTR_PROC;
+
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
 begin
@@ -308,7 +319,7 @@ begin
 	end if;
 end process FRAME_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr;
+TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr;
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
@@ -469,6 +480,7 @@ begin
 	
 	end case;
 end process DISSECT_MACHINE;
+
 
 -- counter of bytes of currently constructed frame
 FRAME_LOADED_PROC : process(CLK)
