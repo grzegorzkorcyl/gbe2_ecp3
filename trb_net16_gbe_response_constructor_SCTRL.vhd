@@ -305,7 +305,8 @@ PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or diss
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
-TC_DEST_UDP_OUT    <= PS_SRC_UDP_PORT_IN; --x"a861";
+TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8); --x"a861";
+TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0); --x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
