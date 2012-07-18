@@ -138,6 +138,8 @@ signal fifo_rd_q               : std_logic;
 signal too_much_data           : std_logic;
 
 signal divide_ctr              : std_logic_vector(7 downto 0);
+
+signal temp_src_port           : std_logic_vector(15 downto 0);
 	
 begin
 
@@ -288,11 +290,13 @@ PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or diss
 									dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE)
 						else '0';
 
+temp_src_port <= PS_SRC_UDP_PORT_IN + x"1";
+
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
-TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8); --x"a861";
-TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0); --x"a861";
+TC_DEST_UDP_OUT(7 downto 0)    <= temp_src_port(15 downto 8); --x"a861";
+TC_DEST_UDP_OUT(15 downto 8)   <= temp_src_port(7 downto 0); --x"a861";
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
@@ -319,7 +323,7 @@ begin
 	end if;
 end process FRAME_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr;
+TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr(7 downto 1);
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
