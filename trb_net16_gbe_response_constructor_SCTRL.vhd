@@ -185,8 +185,8 @@ end process PACKET_NUM_PROC;
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
-    Reset             => tx_fifo_reset,
-	RPReset           => tx_fifo_reset,
+    Reset             => RESET, --tx_fifo_reset,
+	RPReset           => RESET, --tx_fifo_reset,
     WrClock           => CLK,
 	RdClock           => CLK,
     Data(7 downto 0)  => GSC_REPLY_DATA_IN(15 downto 8),
@@ -200,7 +200,7 @@ transmit_fifo : fifo_65536x18x9
     Empty             => tx_empty
   );
 
-tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
+--tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
 tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
 
@@ -245,16 +245,16 @@ begin
 	end if;
 end process TX_DATA_CTR_PROC;
 
-TOO_MUCH_DATA_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
-			too_much_data <= '0';
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = g_MAX_PACKET_SIZE) then
-			too_much_data <= '1';
-		end if;
-	end if;
-end process TOO_MUCH_DATA_PROC;
+--TOO_MUCH_DATA_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (dissect_current_state = IDLE) then
+--			too_much_data <= '0';
+--		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = g_MAX_PACKET_SIZE) then
+--			too_much_data <= '1';
+--		end if;
+--	end if;
+--end process TOO_MUCH_DATA_PROC;
 
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
@@ -353,7 +353,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	
@@ -424,11 +424,11 @@ begin
 		when SAVE_RESPONSE =>
 			state <= x"6";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
-				if (too_much_data = '0') then
+				--if (too_much_data = '0') then
 					dissect_next_state <= WAIT_FOR_LOAD;
-				else
-					dissect_next_state <= CLEANUP;
-				end if;
+				--else
+				--	dissect_next_state <= CLEANUP;
+				--end if;
 			else
 				dissect_next_state <= SAVE_RESPONSE;
 			end if;			
