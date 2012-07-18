@@ -347,15 +347,15 @@ port map (
 	-- END OF INTERFACE
 	
 	GSC_CLK_IN               => GSC_CLK_IN,
-	GSC_INIT_DATAREADY_OUT   => gsc_init_dataready, --GSC_INIT_DATAREADY_OUT,
-	GSC_INIT_DATA_OUT        => gsc_init_data, --GSC_INIT_DATA_OUT,
-	GSC_INIT_PACKET_NUM_OUT  => gsc_init_packet_num, --GSC_INIT_PACKET_NUM_OUT,
-	GSC_INIT_READ_IN         => gsc_init_read, --GSC_INIT_READ_IN,
-	GSC_REPLY_DATAREADY_IN   => gsc_reply_dataready, --GSC_REPLY_DATAREADY_IN,
-	GSC_REPLY_DATA_IN        => gsc_reply_data, --GSC_REPLY_DATA_IN,
-	GSC_REPLY_PACKET_NUM_IN  => gsc_reply_packet_num, --GSC_REPLY_PACKET_NUM_IN,
-	GSC_REPLY_READ_OUT       => gsc_reply_read, --GSC_REPLY_READ_OUT,
-	GSC_BUSY_IN              => gsc_busy, --GSC_BUSY_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => GSC_BUSY_IN,
 	
 	MAKE_RESET_OUT           => MAKE_RESET_OUT,
 	
@@ -364,15 +364,15 @@ port map (
 );
 
 
-GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
-GSC_INIT_DATA_OUT <= gsc_init_data;
-GSC_INIT_PACKET_NUM_OUT <= gsc_init_packet_num;
-gsc_init_read <= GSC_INIT_READ_IN;
-gsc_reply_dataready <= GSC_REPLY_DATAREADY_IN;
-gsc_reply_data <= GSC_REPLY_DATA_IN;
-gsc_reply_packet_num <= GSC_REPLY_PACKET_NUM_IN;
-GSC_REPLY_READ_OUT <= gsc_reply_read;
-gsc_busy <= GSC_BUSY_IN;
+--GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
+--GSC_INIT_DATA_OUT <= gsc_init_data;
+--GSC_INIT_PACKET_NUM_OUT <= gsc_init_packet_num;
+--gsc_init_read <= GSC_INIT_READ_IN;
+--gsc_reply_dataready <= GSC_REPLY_DATAREADY_IN;
+--gsc_reply_data <= GSC_REPLY_DATA_IN;
+--gsc_reply_packet_num <= GSC_REPLY_PACKET_NUM_IN;
+--GSC_REPLY_READ_OUT <= gsc_reply_read;
+--gsc_busy <= GSC_BUSY_IN;
 
 
 --stat_gen : if g_SIMULATE = 0 generate

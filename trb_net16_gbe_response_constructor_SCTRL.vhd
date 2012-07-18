@@ -185,8 +185,8 @@ end process PACKET_NUM_PROC;
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
-    Reset             => RESET,
-	RPReset           => RESET,
+    Reset             => tx_fifo_reset,
+	RPReset           => tx_fifo_reset,
     WrClock           => CLK,
 	RdClock           => CLK,
     Data(7 downto 0)  => GSC_REPLY_DATA_IN(15 downto 8),
