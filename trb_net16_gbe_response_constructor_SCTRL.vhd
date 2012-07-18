@@ -104,6 +104,7 @@ signal tx_eod, rx_eod           : std_logic;
 
 signal tx_fifo_q                : std_logic_vector(8 downto 0);
 signal tx_fifo_wr, tx_fifo_rd   : std_logic;
+signal tx_fifo_reset            : std_logic;
 signal gsc_reply_read           : std_logic;
 signal gsc_init_dataready       : std_logic;
 
@@ -133,6 +134,8 @@ signal temp_ctr                : std_logic_vector(7 downto 0);
 
 signal gsc_init_read_q         : std_logic;
 signal fifo_rd_q               : std_logic;
+
+signal too_much_data           : std_logic;
 	
 begin
 
@@ -154,47 +157,10 @@ receive_fifo : fifo_2048x8x16
 
 rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
 
---RX_FIFO_RD_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---
---		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1') then
---			rx_fifo_rd <= '1';
---		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
---			rx_fifo_rd <= '1';
---		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
---			rx_fifo_rd <= '1';
---		else
---			rx_fifo_rd <= '0';
---		end if;
---	end if;
---end process RX_FIFO_RD_PROC;
-
---rx_fifo_rd <= '1' when (dissect_current_state = WAIT_FOR_HUB or dissect_current_state = LOAD_TO_HUB) and GSC_INIT_READ_IN = '1' else '0'; 
-
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
 								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
 								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
 								else '0';  -- preload first word
-
---INIT_DATA_OUT_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then	
---		--gsc_init_read_q <= GSC_INIT_READ_IN;
---	
---		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
---		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
---		
---		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '0') then
---			gsc_init_dataready <= '1';
---		else
---			gsc_init_dataready <= '0';
---		end if;
---		
---		GSC_INIT_PACKET_NUM_OUT <= packet_num;
---
---	end if;
---end process INIT_DATA_OUT_PROC;
 
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
@@ -210,11 +176,8 @@ begin
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			packet_num <= "100";
 		elsif (GSC_INIT_READ_IN = '1' and gsc_init_dataready = '1' and packet_num = "100") then
-		--elsif (fifo_rd_q = '1' and (dissect_current_state = LOAD_TO_HUB) and packet_num = "100") then
 			packet_num <= "000";
 		elsif (rx_fifo_rd = '1' and packet_num /= "100") then
-		--elsif (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and packet_num /= "100") then
-		--elsif (fifo_rd_q = '1' and (dissect_current_state = LOAD_TO_HUB) and packet_num /= "100") then
 			packet_num <= packet_num + "1";
 		end if;
 	end if;
@@ -222,8 +185,8 @@ end process PACKET_NUM_PROC;
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
-    Reset             => RESET,
-	RPReset           => RESET,
+    Reset             => tx_fifo_reset, --RESET,
+	RPReset           => tx_fifo_reset, --RESET,
     WrClock           => CLK,
 	RdClock           => CLK,
     Data(7 downto 0)  => GSC_REPLY_DATA_IN(15 downto 8),
@@ -237,6 +200,7 @@ transmit_fifo : fifo_65536x18x9
     Empty             => tx_empty
   );
 
+tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
 tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
 
@@ -280,6 +244,17 @@ begin
 		end if;
 	end if;
 end process TX_DATA_CTR_PROC;
+
+TOO_MUCH_DATA_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (dissect_current_state = IDLE) then
+			too_much_data <= '0';
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = g_MAX_PACKET_SIZE) then
+			too_much_data <= '1';
+		end if;
+	end if;
+end process TOOM_MUCH_DATA_PROC;
 
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
@@ -449,7 +424,11 @@ begin
 		when SAVE_RESPONSE =>
 			state <= x"6";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
-				dissect_next_state <= WAIT_FOR_LOAD;
+				if (too_much_data = '0') then
+					dissect_next_state <= WAIT_FOR_LOAD;
+				else
+					dissect_next_state <= CLEANUP;
+				end if;
 			else
 				dissect_next_state <= SAVE_RESPONSE;
 			end if;			
@@ -467,18 +446,10 @@ begin
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= DIVIDE; --WAIT_FOR_TC; --DIVIDE;
+				dissect_next_state <= DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
-			
---		when WAIT_FOR_TC =>
---			state <= x"d";
---			if (TC_BUSY_IN = '0') then
---				dissect_next_state <= DIVIDE;
---			else
---				dissect_next_state <= WAIT_FOR_TC;
---			end if;
 
 		when DIVIDE =>
 			state <= x"c";

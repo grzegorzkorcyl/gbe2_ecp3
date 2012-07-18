@@ -624,6 +624,8 @@ MC_LINK_OK_OUT <= link_ok;
 g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 
 g_MAX_FRAME_SIZE <= x"0578";
+
+g_MAX_PACKET_SIZE <= x"fa00" if g_SIMULATE = 0 else x"0600";
 --
 --*************
 
