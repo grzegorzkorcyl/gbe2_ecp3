@@ -185,8 +185,8 @@ end process PACKET_NUM_PROC;
 
 transmit_fifo : fifo_65536x18x9
   PORT map(
-    Reset             => tx_fifo_reset, --RESET,
-	RPReset           => tx_fifo_reset, --RESET,
+    Reset             => RESET,
+	RPReset           => RESET,
     WrClock           => CLK,
 	RdClock           => CLK,
     Data(7 downto 0)  => GSC_REPLY_DATA_IN(15 downto 8),
@@ -353,7 +353,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, reset_detected, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	
