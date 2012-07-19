@@ -169,7 +169,7 @@ begin
 			state <= x"3";
 			if (remove_ctr = x"03") then  -- counter starts with a delay that's why only 3
 				-- destination MAC address filtering here 
-				if (saved_dest_mac = g_MY_MAC) or (saved_dest_mac = x"ffffffffffff") then
+				if (saved_dest_mac = g_MY_MAC) then --or (saved_dest_mac = x"ffffffffffff") then
 					filter_next_state <= REMOVE_SRC;
 				else
 					filter_next_state <= DECIDE;

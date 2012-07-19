@@ -276,10 +276,10 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			divide_temp_ctr <= (others => '0');
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_fifo_wr = '1') and (divide_temp_ctr /= b"101_0111_1000") then
+		elsif (tx_fifo_wr = '1') and (divide_temp_ctr /= b"101_0111_1000") then
 			divide_temp_ctr(15 downto 1) <= divide_temp_ctr(15 downto 1) + x"1";
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_fifo_wr = '1') and (divide_temp_ctr = b"101_0111_1000") then
-			divide_temp_ctr <= (others => '0');
+		elsif (tx_fifo_wr = '1') and (divide_temp_ctr = b"101_0111_1000") then
+			divide_temp_ctr <= x"0002";
 		end if;
 	end if;
 end process DIVIDE_TEMP_CTR_PROC;
