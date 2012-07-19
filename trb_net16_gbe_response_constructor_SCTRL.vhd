@@ -290,7 +290,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE or dissect_current_state = WAIT_FOR_HUB) then
 			tx_loaded_ctr <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		elsif (dissect_current_state = LOAD_ACK and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
