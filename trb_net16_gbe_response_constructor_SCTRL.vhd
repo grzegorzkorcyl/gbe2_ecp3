@@ -138,6 +138,7 @@ signal fifo_rd_q               : std_logic;
 signal too_much_data           : std_logic;
 
 signal divide_ctr              : std_logic_vector(7 downto 0);
+signal divide_temp_ctr         : std_logic_vector(15 downto 0);
 
 
 begin
@@ -264,11 +265,24 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			divide_ctr <= (others => '0');
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr(10 downto 0) = b"101_0111_1000") and (tx_fifo_wr = '1') then
+		elsif (dissect_current_state = SAVE_RESPONSE) and (divide_temp_ctr = b"101_0111_1000") then
 			divide_ctr <= divide_ctr + x"1";
 		end if;
 	end if;
 end process DIVIDE_CTR_PROC;
+
+DIVIDE_TEMP_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (dissect_current_state = IDLE) then
+			divide_temp_ctr <= (others => '0');
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_fifo_wr = '1') and (divide_temp_ctr /= b"101_0111_1000") then
+			divide_temp_ctr(15 downto 1) <= divide_temp_ctr(15 downto 1) + x"1";
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_fifo_wr = '1') and (divide_temp_ctr = b"101_0111_1000") then
+			divide_temp_ctr <= (others => '0');
+		end if;
+	end if;
+end process DIVIDE_TEMP_CTR_PROC;
 
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
