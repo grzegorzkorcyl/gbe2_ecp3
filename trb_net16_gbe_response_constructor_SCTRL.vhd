@@ -261,10 +261,12 @@ end process TOO_MUCH_DATA_PROC;
 
 DIVIDE_CTR_PROC : process(CLK)
 begin
-	if (RESET = '1') or (dissect_current_state = IDLE) then
-		divide_ctr <= (others => '0');
-	elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr(10 downto 0) = b"101_0111_1000") then
-		divide_ctr <= divide_ctr + x"1";
+	if rising_edge(CLK) then
+		if (RESET = '1') or (dissect_current_state = IDLE) then
+			divide_ctr <= (others => '0');
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr(10 downto 0) = b"101_0111_1000") and (tx_fifo_wr = '1') then
+			divide_ctr <= divide_ctr + x"1";
+		end if;
 	end if;
 end process DIVIDE_CTR_PROC;
 
@@ -320,7 +322,7 @@ begin
 	end if;
 end process FRAME_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr(7 downto 1);
+TC_UDP_SIZE_OUT     <= tx_data_ctr - divide_ctr;
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
