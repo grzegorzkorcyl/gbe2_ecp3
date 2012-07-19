@@ -336,7 +336,7 @@ begin
 	end if;
 end process FRAME_SIZE_PROC;
 
-TC_UDP_SIZE_OUT     <= tx_data_ctr; -- - divide_ctr;
+TC_UDP_SIZE_OUT     <= tx_data_ctr;
 
 
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
@@ -519,7 +519,7 @@ begin
 			size_left <= (others => '0');
 		elsif (dissect_current_state = WAIT_FOR_LOAD) then
 			size_left <= tx_data_ctr;
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			size_left <= size_left - x"1";
 		end if;
 	end if;
