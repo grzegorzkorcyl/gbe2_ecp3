@@ -251,7 +251,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			too_much_data <= '0';
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"0020") then
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"fa00") then
 			too_much_data <= '1';
 		end if;
 	end if;
