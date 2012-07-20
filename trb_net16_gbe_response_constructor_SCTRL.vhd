@@ -137,9 +137,6 @@ signal fifo_rd_q               : std_logic;
 
 signal too_much_data           : std_logic;
 
-signal divide_ctr              : std_logic_vector(7 downto 0);
-signal divide_temp_ctr         : std_logic_vector(15 downto 0);
-
 
 begin
 
@@ -254,35 +251,11 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			too_much_data <= '0';
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"fa00") then
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"0020") then
 			too_much_data <= '1';
 		end if;
 	end if;
 end process TOO_MUCH_DATA_PROC;
-
-DIVIDE_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
-			divide_ctr <= (others => '0');
-		elsif (dissect_current_state = SAVE_RESPONSE) and (divide_temp_ctr = b"101_0111_1000") then
-			divide_ctr <= divide_ctr + x"1";
-		end if;
-	end if;
-end process DIVIDE_CTR_PROC;
-
-DIVIDE_TEMP_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
-			divide_temp_ctr <= (others => '0');
-		elsif (tx_fifo_wr = '1') and (divide_temp_ctr /= b"101_0111_1000") then
-			divide_temp_ctr(15 downto 1) <= divide_temp_ctr(15 downto 1) + x"1";
-		elsif (tx_fifo_wr = '1') and (divide_temp_ctr = b"101_0111_1000") then
-			divide_temp_ctr <= x"0002";
-		end if;
-	end if;
-end process DIVIDE_TEMP_CTR_PROC;
 
 -- total counter of data transported to frame constructor
 TX_LOADED_CTR_PROC : process(CLK)
@@ -302,7 +275,7 @@ PS_BUSY_OUT <= '0' when (dissect_current_state = IDLE) else '1';
 
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or 
 									dissect_current_state = CLEANUP or dissect_current_state = WAIT_FOR_LOAD_ACK or
-									dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE)
+									dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) and (too_much_data = '0')
 						else '0';
 
 TC_FRAME_TYPE_OUT  <= x"0008";
