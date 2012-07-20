@@ -436,36 +436,35 @@ FLOW_MACHINE : process(flow_current_state, PC_TRANSMIT_ON_IN, PC_SOD_IN, TC_TRAN
 begin
   case flow_current_state is
 
-    when IDLE =>
-      state <= x"1";
-      --if (RC_FRAME_WAITING_IN = '1') and (PC_TRANSMIT_ON_IN = '0') then
-      if (ps_response_ready = '1') and (PC_TRANSMIT_ON_IN = '0') then
-	flow_next_state <= TRANSMIT_CTRL;
-      elsif (PC_SOD_IN = '1') then  -- pottential loss of frames
-	flow_next_state <= TRANSMIT_DATA;
-      else
-	flow_next_state <= IDLE;
-      end if;
-
-    when TRANSMIT_DATA =>
-      state <= x"2";
-      if (TC_TRANSMIT_DONE_IN = '1') then
-	flow_next_state <= CLEANUP;
-      else
-	flow_next_state <= TRANSMIT_DATA;
-      end if;
-
-    when TRANSMIT_CTRL =>
-      state <= x"3";
-      if (TC_TRANSMIT_DONE_IN = '1') then
-	flow_next_state <= CLEANUP;
-      else
-	flow_next_state <= TRANSMIT_CTRL;
-      end if;
-
-    when CLEANUP =>
-      state <= x"4";
-      flow_next_state <= IDLE;
+	when IDLE =>
+	  state <= x"1";
+	  if (ps_response_ready = '1') and (PC_TRANSMIT_ON_IN = '0') then
+		flow_next_state <= TRANSMIT_CTRL;
+	  elsif (PC_SOD_IN = '1') then  -- pottential loss of frames
+		flow_next_state <= TRANSMIT_DATA;
+	  else
+		flow_next_state <= IDLE;
+	  end if;
+	
+	when TRANSMIT_DATA =>
+	  state <= x"2";
+	  if (TC_TRANSMIT_DONE_IN = '1') then
+		flow_next_state <= CLEANUP;
+	  else
+		flow_next_state <= TRANSMIT_DATA;
+	  end if;
+	
+	when TRANSMIT_CTRL =>
+	  state <= x"3";
+	  if (TC_TRANSMIT_DONE_IN = '1') then
+		flow_next_state <= CLEANUP;
+	  else
+		flow_next_state <= TRANSMIT_CTRL;
+	  end if;
+	
+	when CLEANUP =>
+	  state <= x"4";
+	  flow_next_state <= IDLE;
 
   end case;
 end process FLOW_MACHINE;
