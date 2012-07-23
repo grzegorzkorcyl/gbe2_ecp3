@@ -598,6 +598,11 @@ signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq, mac_col_qq, mac_c
 
 signal mc_ip_size, mc_udp_size, mc_flags : std_logic_vector(15 downto 0);
 
+signal timeout_ctr : std_logic_vector(31 downto 0);
+signal timeout_noticed : std_Logic;
+attribute syn_keep of timeout_noticed : signal is true;
+attribute syn_preserve of timeout_noticed : signal is true;
+
 begin
 
 --my_mac <= x"efbeefbe0000";  -- temporary
@@ -605,7 +610,7 @@ begin
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
 
 -- gk 23.04.10
-LED_PACKET_SENT_OUT <= pc_ready;
+LED_PACKET_SENT_OUT <= timeout_noticed; --pc_ready;
 LED_AN_DONE_N_OUT <= not link_ok; --not pcs_an_complete;
 
 -- FrameConstructor fixed magic values
@@ -1292,6 +1297,30 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	--------------------------------------------------------------------------------------------
 	--------------------------------------------------------------------------------------------
 	
+	
+	TIMEOUT_CTR_PROC : process(serdes_clk_125)
+	begin
+		if rising_edge(serdes_clk_125) then
+			if (RESEt = '1' or mac_tx_done = '1') then
+				timeout_ctr <= (others => '0');
+			else
+				timeout_ctr <= timeout_ctr + x"1";
+			end if;
+		end if;
+	end process TIMEOUT_CTR_PROC;
+	
+	TIMEOUT_NOTICED_PROC : process(serdes_clk_125)
+	begin
+		if rising_edge(serdes_clk_125) then
+			if (RESET = '1') then
+				timeout_noticed <= '0';
+			elsif (timeout_ctr(29) = '1') then
+				timeout_noticed <= '1';
+			end if;	
+		end if;
+	end process TIMEOUT_NOTICED_PROC;
+	
+	
 	-- MAC part
 	MAC: tsmac35
 	port map(
@@ -1585,6 +1614,7 @@ sim_gen: if (DO_SIMULATION = 1) generate
 	SFP_TXD_P_OUT                 <= '1';
 	SFP_TXD_N_OUT                 <= '0';
 	SFP_TXDIS_OUT                 <= '0';
+	
 
 end generate sim_gen;
 
