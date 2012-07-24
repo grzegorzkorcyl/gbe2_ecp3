@@ -628,9 +628,25 @@ end process;
 --end process TC_DATA_SYNC;
 
 
-PS_BUSY_OUT <= '0' when (construct_current_state = IDLE) else '1';
+--PS_BUSY_OUT <= '0' when (construct_current_state = IDLE) else '1';
+--PS_RESPONSE_READY_OUT <= '0' when (construct_current_state = IDLE) else '1';
 
-PS_RESPONSE_READY_OUT <= '0' when (construct_current_state = IDLE) else '1';
+PS_RESPONSE_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = IDLE) then
+			PS_RESPONSE_READY_OUT <= '0';
+		else
+			PS_RESPONSE_READY_OUT <= '1';
+		end if;
+		
+		if (dissect_current_state = IDLE) then
+			PS_BUSY_OUT <= '0';
+		else
+			PS_BUSY_OUT <= '1';
+		end if;
+	end if;	
+end process PS_RESPONSE_SYNC;
 
 -- fixed sizes for discover and request messages
 TC_FRAME_SIZE_OUT <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
