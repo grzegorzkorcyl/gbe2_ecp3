@@ -168,7 +168,7 @@ RX_FIFO_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN '1' and PS_ACTIVATE_IN = '1') then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
@@ -309,7 +309,7 @@ begin
 		if (too_much_data = '0') then
 			if (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP) then
 				PS_RESPONSE_READY_OUT <= '1';
-			elsif (dissect_current_state = WAIT_FOR_LAOD_ACK or dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) then
+			elsif (dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) then
 				PS_RESPONSE_READY_OUT <= '1';
 			else
 				PS_RESPONSE_READY_OUT <= '0';
@@ -677,7 +677,7 @@ STAT_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
-			STAT_DATA_RDY_OUT <= '1'
+			STAT_DATA_RDY_OUT <= '1';
 		else
 			STAT_DATA_RDY_OUT <= '0';
 		end if;
