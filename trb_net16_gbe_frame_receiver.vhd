@@ -107,6 +107,8 @@ signal state                                : std_logic_vector(3 downto 0);
 signal parsed_frames_ctr                    : std_logic_vector(15 downto 0);
 signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
+signal rx_data                              : std_logic_vector(8 downto 0);
+
 begin
 
 DEBUG_OUT(0)            <= rec_fifo_empty;
@@ -461,8 +463,9 @@ port map(
 --TODO put here a larger fifo maybe (for sure!)
 receive_fifo : fifo_4096x9
 port map( 
-	Data(7 downto 0)    => MAC_RXD_IN,
-	Data(8)             => MAC_RX_EOF_IN,
+--	Data(7 downto 0)    => MAC_RXD_IN,
+--	Data(8)             => MAC_RX_EOF_IN,
+	Data                => rx_data,
 	WrClock             => RX_MAC_CLK,
 	RdClock             => CLK,
 	WrEn                => fifo_wr_en,
@@ -475,11 +478,35 @@ port map(
 );
 
 -- BUG HERE, probably more lost bytes in the fifo in other conditions
-fifo_wr_en <= '1' when (MAC_RX_EN_IN = '1') and ((filter_current_state = SAVE_FRAME) or 
-			--( (filter_current_state = REMOVE_TYPE and remove_ctr = x"b" and saved_frame_type /= x"8100" and saved_frame_type /= x"0800") or
-				((filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") or
-				(filter_current_state = DECIDE and frame_type_valid = '1')))
-	      else '0';
+--fifo_wr_en <= '1' when (MAC_RX_EN_IN = '1') and ((filter_current_state = SAVE_FRAME) or 
+--			--( (filter_current_state = REMOVE_TYPE and remove_ctr = x"b" and saved_frame_type /= x"8100" and saved_frame_type /= x"0800") or
+--				((filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") or
+--				(filter_current_state = DECIDE and frame_type_valid = '1')))
+--	      else '0';
+
+RX_FIFO_SYNC : process(RX_MAC_CLK)
+begin
+	if rising_edge(RX_MAC_CLK) then
+		
+		rx_data(8) <= MAC_RX_EOF_IN;
+		rx_data(7 downto 0) <= MAC_RXD_IN;
+		
+		if (MAC_RX_EN_IN = '1') then
+			if (filter_current_state = SAVE_FRAME) then
+				fifo_wr_en <= '1';
+			elsif (filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") then
+				fifo_wr_en <= '1';
+			elsif (filter_current_state = DECIDE and frame_type_valid = '1') then
+				fifo_wr_en <= '1';
+			else
+				fifo_wr_en <= '0';
+			end if;
+		else
+			fifo_wr_en <= '0';
+		end if;
+		
+	end if;
+end process RX_FIFO_SYNC;
 	      
 	      
 MAC_RX_FIFO_FULL_OUT <= rec_fifo_full;
