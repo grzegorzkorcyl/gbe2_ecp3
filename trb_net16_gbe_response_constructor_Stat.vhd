@@ -294,13 +294,13 @@ end process TC_DATA_SYNC;
 PS_RESPONSE_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (dissect_current_state = IDLE) then
+		if (construct_current_state = IDLE) then
 			PS_RESPONSE_READY_OUT <= '0';
 		else
 			PS_RESPONSE_READY_OUT <= '1';
 		end if;
 		
-		if (dissect_current_state = IDLE) then
+		if (construct_current_state = IDLE) then
 			PS_BUSY_OUT <= '0';
 		else
 			PS_BUSY_OUT <= '1';
