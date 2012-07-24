@@ -335,25 +335,25 @@ begin
 
 end process STATS_MACHINE;
 
-SELECTOR : process(stats_current_state)
+SELECTOR : process(CLK)
 begin
-
-	case(stats_current_state) is
-		
-		when LOAD_SENT =>
-			stat_data_temp <= x"0601" & sent_frames;
-			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
+	if rising_edge(CLK) then
+		case(stats_current_state) is
 			
-		when LOAD_RECEIVED =>
-			stat_data_temp <= x"0602" & rec_frames;
-			STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+			when LOAD_SENT =>
+				stat_data_temp <= x"0601" & sent_frames;
+				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
+				
+			when LOAD_RECEIVED =>
+				stat_data_temp <= x"0602" & rec_frames;
+				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+			
+			when others =>
+				stat_data_temp <= (others => '0');
+				STAT_ADDR_OUT  <= (others => '0');
 		
-		when others =>
-			stat_data_temp <= (others => '0');
-			STAT_ADDR_OUT  <= (others => '0');
-	
-	end case;
-	
+		end case;
+	end if;	
 end process SELECTOR;
 
 STAT_DATA_OUT(7 downto 0)   <= stat_data_temp(31 downto 24);
@@ -361,7 +361,17 @@ STAT_DATA_OUT(15 downto 8)  <= stat_data_temp(23 downto 16);
 STAT_DATA_OUT(23 downto 16) <= stat_data_temp(15 downto 8);
 STAT_DATA_OUT(31 downto 24) <= stat_data_temp(7 downto 0);
 
-STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
+STAT_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
+			STAT_DATA_RDY_OUT <= '1';
+		else
+			STAT_DATA_RDY_OUT <= '0';
+		end if;
+	end if;
+end process STAT_SYNC;
+--STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
 
 -- **** debug
 DEBUG_OUT(3 downto 0)   <= state;
