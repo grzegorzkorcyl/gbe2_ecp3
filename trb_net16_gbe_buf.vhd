@@ -1298,10 +1298,10 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	--------------------------------------------------------------------------------------------
 	
 	
-	TIMEOUT_CTR_PROC : process(serdes_clk_125)
+	TIMEOUT_CTR_PROC : process(CLK)
 	begin
-		if rising_edge(serdes_clk_125) then
-			if (RESEt = '1' or mac_tx_done = '1') then
+		if rising_edge(CLK) then
+			if (RESET = '1' or mac_tx_done = '1') then
 				timeout_ctr <= (others => '0');
 			else
 				timeout_ctr <= timeout_ctr + x"1";
@@ -1309,12 +1309,12 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		end if;
 	end process TIMEOUT_CTR_PROC;
 	
-	TIMEOUT_NOTICED_PROC : process(serdes_clk_125)
+	TIMEOUT_NOTICED_PROC : process(CLK)
 	begin
-		if rising_edge(serdes_clk_125) then
+		if rising_edge(CLK) then
 			if (RESET = '1') then
 				timeout_noticed <= '0';
-			elsif (timeout_ctr(29) = '1') then
+			elsif (timeout_ctr(30) = '1') then
 				timeout_noticed <= '1';
 			end if;	
 		end if;
