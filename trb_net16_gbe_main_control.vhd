@@ -637,7 +637,7 @@ begin
 	end if;
 end process LINK_DOWN_CTR_PROC;
 
-MC_LINK_OK_OUT <= link_ok;
+MC_LINK_OK_OUT <= link_ok or nothing_sent;
 
 -- END OF LINK STATE CONTROL
 --*************
