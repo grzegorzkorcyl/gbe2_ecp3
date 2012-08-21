@@ -182,14 +182,14 @@ signal stat_addr                    : std_logic_vector(7 downto 0);
 
 signal unique_id                    : std_logic_vector(63 downto 0);
 
-attribute syn_preserve : boolean;
-attribute syn_keep : boolean;
-attribute syn_keep of unique_id, nothing_sent : signal is true;
-attribute syn_preserve of unique_id, nothing_sent : signal is true;
 
 signal nothing_sent                 : std_logic;
 signal nothing_sent_ctr             : integer range 0 to 4000000000;
 
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of unique_id, nothing_sent : signal is true;
+attribute syn_preserve of unique_id, nothing_sent : signal is true;
 
 begin
 
