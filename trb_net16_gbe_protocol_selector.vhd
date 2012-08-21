@@ -363,18 +363,6 @@ port map (
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
 );
 
-
---GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
---GSC_INIT_DATA_OUT <= gsc_init_data;
---GSC_INIT_PACKET_NUM_OUT <= gsc_init_packet_num;
---gsc_init_read <= GSC_INIT_READ_IN;
---gsc_reply_dataready <= GSC_REPLY_DATAREADY_IN;
---gsc_reply_data <= GSC_REPLY_DATA_IN;
---gsc_reply_packet_num <= GSC_REPLY_PACKET_NUM_IN;
---GSC_REPLY_READ_OUT <= gsc_reply_read;
---gsc_busy <= GSC_BUSY_IN;
-
-
 --stat_gen : if g_SIMULATE = 0 generate
 Stat : trb_net16_gbe_response_constructor_Stat
 generic map( STAT_ADDRESS_BASE => 10

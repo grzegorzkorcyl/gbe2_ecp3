@@ -209,7 +209,7 @@ begin
 			state2 <= x"3"; 
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= SENDING_REQUEST;
-			elsif (wait_ctr = x"ffff_ffff") then
+			elsif (wait_ctr = x"1000_0000") then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_OFFER;
@@ -227,7 +227,7 @@ begin
 			state2 <= x"5";
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= ESTABLISHED;
-			elsif (wait_ctr = x"ffff_ffff") then
+			elsif (wait_ctr = x"1000_0000") then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_ACK;
