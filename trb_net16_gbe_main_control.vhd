@@ -184,8 +184,11 @@ signal unique_id                    : std_logic_vector(63 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of unique_id : signal is true;
-attribute syn_preserve of unique_id : signal is true;
+attribute syn_keep of unique_id, nothing_sent : signal is true;
+attribute syn_preserve of unique_id, nothing_sent : signal is true;
+
+signal nothing_sent                 : std_logic;
+signal nothing_sent_ctr             : integer range 0 to 4000000000;
 
 
 begin
@@ -472,6 +475,27 @@ end process FLOW_MACHINE;
 TC_TRANSMIT_DATA_OUT <= '1' when (flow_current_state = TRANSMIT_DATA) else '0';
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
 
+NOTHING_SENT_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or TC_TRANSMIT_DONE_IN = '1') then
+			nothing_sent_ctr <= 0;
+		else
+			nothing_sent_ctr <= nothing_sent_ctr + 1;
+		end if;
+	end if;
+end process NOTHING_SENT_CTR_PROC;
+
+NOTHING_SENT_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			nothing_sent <= '0';
+		elsif (nothing_sent_ctr = 4000000000) then
+			nothing_sent <= '1';
+		end if;
+	end if;
+end process NOTHING_SENT_PROC;
 
 --***********************
 --	LINK STATE CONTROL
