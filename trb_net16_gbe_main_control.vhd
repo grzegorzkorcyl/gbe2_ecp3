@@ -184,7 +184,7 @@ signal unique_id                    : std_logic_vector(63 downto 0);
 
 
 signal nothing_sent                 : std_logic;
-signal nothing_sent_ctr             : integer range 0 to 4000000000;
+signal nothing_sent_ctr             : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -479,9 +479,9 @@ NOTHING_SENT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or TC_TRANSMIT_DONE_IN = '1') then
-			nothing_sent_ctr <= 0;
+			nothing_sent_ctr <= (others => '0');
 		else
-			nothing_sent_ctr <= nothing_sent_ctr + 1;
+			nothing_sent_ctr <= nothing_sent_ctr + x"1";
 		end if;
 	end if;
 end process NOTHING_SENT_CTR_PROC;
@@ -491,7 +491,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			nothing_sent <= '0';
-		elsif (nothing_sent_ctr = 4000000000) then
+		elsif (nothing_sent_ctr = x"ffff_ffff") then
 			nothing_sent <= '1';
 		end if;
 	end if;
