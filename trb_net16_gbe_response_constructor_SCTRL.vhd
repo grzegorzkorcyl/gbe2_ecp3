@@ -316,7 +316,7 @@ begin
 			end if;
 		end if;
 		
-		if (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE or dissect_current_state = WAIT_FOR_RESPONSE) then
 			PS_BUSY_OUT <= '0';
 		else
 			PS_BUSY_OUT <= '1';

@@ -335,6 +335,7 @@ begin
 			else
 				redirect_next_state <= DROP;
 			end if;
+			
 		when CHECK_BUSY =>
 			redirect_state <= x"6";
 			if (or_all(ps_busy and RC_FRAME_PROTO_IN) = '0') then
