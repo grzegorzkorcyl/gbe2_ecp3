@@ -605,20 +605,15 @@ attribute syn_preserve of timeout_noticed : signal is true;
 
 begin
 
---my_mac <= x"efbeefbe0000";  -- temporary
-
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= timeout_noticed; --pc_ready;
-LED_AN_DONE_N_OUT <= not link_ok; --not pcs_an_complete;
+LED_AN_DONE_N_OUT   <= not link_ok; --not pcs_an_complete;
 
--- FrameConstructor fixed magic values
---fc_type           <= x"0008";
-fc_ihl_version    <= x"45";
-fc_tos            <= x"10";
-fc_ttl            <= x"ff";
---fc_protocol       <= x"11";
+fc_ihl_version      <= x"45";
+fc_tos              <= x"10";
+fc_ttl              <= x"ff";
 
 
 MAIN_CONTROL : trb_net16_gbe_main_control
