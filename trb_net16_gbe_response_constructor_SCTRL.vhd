@@ -564,8 +564,6 @@ begin
 			make_reset <= '0';
 		elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
 			make_reset <= '1';
---		else
---			make_reset <= '0';
 		end if;
 	end if;
 end process MAKE_RESET_PROC;
@@ -686,5 +684,14 @@ end process STAT_SYNC;
 --STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
 
 -- end of statistics
+
+-- **** debug
+DEBUG_OUT(3 downto 0)   <= state;
+DEBUG_OUT(4)            <= '0';
+DEBUG_OUT(7 downto 5)   <= "000";
+DEBUG_OUT(8)            <= '0';
+DEBUG_OUT(11 downto 9)  <= "000";
+DEBUG_OUT(31 downto 12) <= (others => '0');
+-- ****
 
 end architecture RTL;

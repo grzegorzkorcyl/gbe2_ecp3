@@ -109,6 +109,11 @@ signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
 signal rx_data                              : std_logic_vector(8 downto 0);
 
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of rec_fifo_empty, rec_fifo_full, state, sizes_fifo_empty, sizes_fifo_full : signal is true;
+attribute syn_preserve of rec_fifo_empty, rec_fifo_full, state, sizes_fifo_empty, sizes_fifo_full : signal is true;
+
 begin
 
 DEBUG_OUT(0)            <= rec_fifo_empty;

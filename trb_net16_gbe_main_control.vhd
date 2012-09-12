@@ -186,10 +186,12 @@ signal unique_id                    : std_logic_vector(63 downto 0);
 signal nothing_sent                 : std_logic;
 signal nothing_sent_ctr             : std_logic_vector(31 downto 0);
 
+signal dbg_ps                       : std_Logic_vector(63 downto 0);
+
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of unique_id, nothing_sent : signal is true;
-attribute syn_preserve of unique_id, nothing_sent : signal is true;
+attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
+attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
 
 begin
 
@@ -260,7 +262,7 @@ port map(
 	STAT_DATA_ACK_OUT  => stat_ack,
 
 	
-	DEBUG_OUT		=> open
+	DEBUG_OUT		=> dbg_ps
 );
 
 TC_FRAME_TYPE_OUT <= frame_type when flow_current_state = TRANSMIT_CTRL else x"0008";
@@ -827,14 +829,14 @@ begin
 end process SAVE_VALUES_PROC;
 
 
-DEBUG_OUT(3 downto 0)   <= mac_control_debug(3 downto 0);
+DEBUG_OUT(3 downto 0)   <= link_state;
 DEBUG_OUT(7 downto 4)   <= state;
 DEBUG_OUT(11 downto 8)  <= redirect_state;
 DEBUG_OUT(15 downto 12) <= link_state;
 DEBUG_OUT(23 downto 16) <= frame_waiting_ctr(7 downto 0);
 DEBUG_OUT(27 downto 24) <= (others => '0'); --ps_busy_q;
 DEBUG_OUT(31 downto 28) <= (others => '0'); --rc_frame_proto_q;
-DEBUG_OUT(63 downto 32) <= (others => '0');
+DEBUG_OUT(63 downto 32) <= dbg_ps(31 downto 0) or dbg_ps(63 downto 32);
 
 
 -- ****

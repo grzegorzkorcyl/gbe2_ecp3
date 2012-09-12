@@ -1166,7 +1166,6 @@ port map(
 );
 
 
-
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
 	CLK			=> CLK,
@@ -1212,7 +1211,6 @@ port map(
 );
 dbg_q(15 downto 9) <= (others  => '0');
 
-
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
 	CLK				=> CLK,
@@ -1241,7 +1239,6 @@ port map(
 	--DEBUG_OUT(31 downto 0)		=> open,
 	--DEBUG_OUT(63 downto 32)		=> open
 );  
-      
 
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
@@ -1693,7 +1690,7 @@ discfrm_sync : signal_sync
 --***************
 --	LOGIC ANALYZER SIGNALS
 --***************
---analyzer_debug <= pcs_stat_debug;
+ANALYZER_DEBUG_OUT <= dbg_mc or dbg_tc or (dbg_fc1 & dbg_fc2) or rc_debug or dbg_ft or dbg_fr(63 downto 0) or (dbg_fr(95 downto 64) & x"00000000");
 
 -- Outputs
 FEE_READ_OUT             <= fee_read;
@@ -1705,14 +1702,6 @@ CTS_LENGTH_OUT           <= cts_length;
 CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
 
 STAGE_STAT_REGS_OUT      <= stage_stat_regs;
-
-ANALYZER_DEBUG_OUT       <= analyzer_debug;
---analyzer_debug(0) <= serdes_clk_125;
---analyzer_debug(1) <= not pcs_stat_debug(22);
---analyzer_debug(2) <= SFP_PRSNT_N_IN;
---analyzer_debug(3) <= SFP_LOS_IN;
---analyzer_debug(63 downto 4) <= (others => '0');
-analyzer_debug(3 downto 0) <= dbg_mc(15 downto 12); 
 
 
 end architecture;
