@@ -466,6 +466,7 @@ begin
 			end if;
 			
 		when WAIT_FOR_LOAD =>
+			state <= x"2";
 			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
 				construct_next_state <= BOOTP_HEADERS;
 			else
@@ -647,7 +648,7 @@ end process;
 PS_RESPONSE_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (construct_current_state = IDLE) then
+		if (construct_current_state = IDLE or construct_current_state = CLEANUP) then
 			PS_RESPONSE_READY_OUT <= '0';
 		else
 			PS_RESPONSE_READY_OUT <= '1';
