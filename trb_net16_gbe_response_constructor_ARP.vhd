@@ -92,6 +92,11 @@ signal rec_frames               : std_logic_vector(15 downto 0);
 signal sent_frames              : std_logic_vector(15 downto 0);
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of state : signal is true;
+attribute syn_preserve of state : signal is true;
+
 begin
 
 values(15 downto 0)    <= x"0100";  -- hardware type

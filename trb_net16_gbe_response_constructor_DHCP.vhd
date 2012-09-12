@@ -123,6 +123,11 @@ signal discarded_ctr            : std_logic_vector(15 downto 0);
 
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of state : signal is true;
+attribute syn_preserve of state : signal is true;
+
 begin
 
 
