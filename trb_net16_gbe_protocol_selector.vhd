@@ -485,7 +485,7 @@ begin
 --						PS_RESPONSE_READY_OUT <= '0';
 					end if;
 				end loop;
-			elsif (MC_BUSY_IN = '1') then
+			elsif (or_all(resp_ready) = '1' and MC_BUSY_IN = '1') then
 				TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
 				TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
 				TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);

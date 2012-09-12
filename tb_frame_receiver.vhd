@@ -692,7 +692,7 @@ begin
 	
 	--for i in 0 to 1000 loop
 	
-	wait for 20000 ns;
+	wait for 30 ns;
 		
 		
 					-- FIRST FRAME (ARP Request)	
