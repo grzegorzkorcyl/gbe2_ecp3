@@ -183,6 +183,7 @@ port (
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	
 	TC_BUSY_IN		: in	std_logic;
+	MC_BUSY_IN      : in	std_logic;
 	
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);

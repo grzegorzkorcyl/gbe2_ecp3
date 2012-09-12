@@ -56,6 +56,7 @@ port (
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	
 	TC_BUSY_IN		: in	std_logic;
+	MC_BUSY_IN      : in	std_logic;
 	
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
@@ -457,9 +458,9 @@ begin
 			selected              <= (others => '0');
 			found := false;
 		else
-			if (or_all(resp_ready) = '1') then
+			if (or_all(resp_ready) = '1' and MC_BUSY_IN = '0') then
 				for i in 0 to c_MAX_PROTOCOLS - 1 loop
-					if (resp_ready(i) = '1') then
+					if (resp_ready(i) = '1' and found = false) then
 						TC_DATA_OUT           <= tc_data((i + 1) * 9 - 1 downto i * 9);
 						TC_FRAME_SIZE_OUT     <= tc_size((i + 1) * 16 - 1 downto i * 16);
 						TC_FRAME_TYPE_OUT     <= tc_type((i + 1) * 16 - 1 downto i * 16);
@@ -476,9 +477,9 @@ begin
 						PS_RESPONSE_READY_OUT <= '1';
 						selected(i)           <= '1';
 						found := true;
-					elsif (i = c_MAX_PROTOCOLS - 1) and (resp_ready(i) = '0') and (found = false) then
-						found := false;
-						PS_RESPONSE_READY_OUT <= '0';
+--					elsif (i = c_MAX_PROTOCOLS - 1) and (resp_ready(i) = '0') and (found = false) then
+--						found := false;
+--						PS_RESPONSE_READY_OUT <= '0';
 					end if;
 				end loop;
 			else

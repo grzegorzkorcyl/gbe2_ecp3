@@ -193,6 +193,8 @@ attribute syn_keep : boolean;
 attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
 attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
 
+signal mc_busy                      : std_logic;
+
 begin
 
 unique_id <= MC_UNIQUE_ID_IN;
@@ -234,6 +236,7 @@ port map(
 	TC_FLAGS_OFFSET_OUT	=> TC_FLAGS_OFFSET_OUT,
 	
 	TC_BUSY_IN		=> TC_BUSY_IN,
+	MC_BUSY_IN      => mc_busy,
 	
 	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,
 	SENT_FRAMES_OUT		=> SELECT_SENT_FRAMES_OUT,
@@ -477,6 +480,8 @@ end process FLOW_MACHINE;
 
 TC_TRANSMIT_DATA_OUT <= '1' when (flow_current_state = TRANSMIT_DATA) else '0';
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
+
+mc_busy <= '0' when flow_current_state = IDLE else '1';  
 
 NOTHING_SENT_CTR_PROC : process(CLK)
 begin
