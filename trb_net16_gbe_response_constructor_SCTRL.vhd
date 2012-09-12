@@ -564,8 +564,8 @@ begin
 			make_reset <= '0';
 		elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
 			make_reset <= '1';
-		else
-			make_reset <= '0';
+--		else
+--			make_reset <= '0';
 		end if;
 	end if;
 end process MAKE_RESET_PROC;
