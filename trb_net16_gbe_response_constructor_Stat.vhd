@@ -212,11 +212,12 @@ begin
 	
 		when IDLE =>
 			state <= x"1";
-			if (timer(pause) = '1' and timer_lock = '0') then
-				construct_next_state <= WAIT_FOR_LOAD;
-			else
-				construct_next_state <= IDLE;
-			end if;
+--			if (timer(pause) = '1' and timer_lock = '0') then
+--				construct_next_state <= WAIT_FOR_LOAD;
+--			else
+--				construct_next_state <= IDLE;
+--			end if;
+			construct_next_state <= IDLE;
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"4";
@@ -322,6 +323,15 @@ TC_IP_PROTOCOL_OUT <= x"11"; -- udp
 TC_IP_SIZE_OUT    <= x"0100";
 TC_UDP_SIZE_OUT   <= x"0100";
 TC_FLAGS_OFFSET_OUT <= (others => '0');
+
+-- **** debug
+DEBUG_OUT(3 downto 0)   <= state;
+DEBUG_OUT(4)            <= '0';
+DEBUG_OUT(7 downto 5)   <= "000";
+DEBUG_OUT(8)            <= '0';
+DEBUG_OUT(11 downto 9)  <= "000";
+DEBUG_OUT(31 downto 12) <= (others => '0');
+-- ****
 
 end Behavioral;
 
