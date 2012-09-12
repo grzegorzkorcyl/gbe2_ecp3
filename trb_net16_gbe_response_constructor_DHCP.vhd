@@ -84,7 +84,7 @@ type receive_states is (IDLE, DISCARD, CLEANUP, SAVE_VALUES);
 signal receive_current_state, receive_next_state : receive_states;
 attribute syn_encoding of receive_current_state: signal is "safe,gray";
 
-type discover_states is (IDLE, BOOTP_HEADERS, CLIENT_IP, YOUR_IP, ZEROS1, MY_MAC, ZEROS2, VENDOR_VALS, VENDOR_VALS2, TERMINATION, CLEANUP, WAIT_FOR_LOAD);
+type discover_states is (IDLE, BOOTP_HEADERS, CLIENT_IP, YOUR_IP, ZEROS1, MY_MAC, ZEROS2, VENDOR_VALS, VENDOR_VALS2, TERMINATION, CLEANUP);
 signal construct_current_state, construct_next_state : discover_states;
 attribute syn_encoding of construct_current_state: signal is "safe,gray";
 
@@ -460,18 +460,18 @@ begin
 		when IDLE =>
 			state <= x"1";
 			if (main_current_state = SENDING_DISCOVER) or (main_current_state = SENDING_REQUEST) then
-				construct_next_state <= WAIT_FOR_LOAD; --BOOTP_HEADERS;
+				construct_next_state <= BOOTP_HEADERS;
 			else
 				construct_next_state <= IDLE;
 			end if;
 			
-		when WAIT_FOR_LOAD =>
-			state <= x"2";
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
-				construct_next_state <= BOOTP_HEADERS;
-			else
-				construct_next_state <= WAIT_FOR_LOAD;
-			end if;
+--		when WAIT_FOR_LOAD =>
+--			state <= x"2";
+--			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+--				construct_next_state <= BOOTP_HEADERS;
+--			else
+--				construct_next_state <= WAIT_FOR_LOAD;
+--			end if;
 		
 			
 		when BOOTP_HEADERS =>
