@@ -146,7 +146,7 @@ begin
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"3";
-			if (TC_BUSY_IN = '0') then
+			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;

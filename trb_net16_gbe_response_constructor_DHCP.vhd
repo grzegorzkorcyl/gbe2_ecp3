@@ -84,7 +84,7 @@ type receive_states is (IDLE, DISCARD, CLEANUP, SAVE_VALUES);
 signal receive_current_state, receive_next_state : receive_states;
 attribute syn_encoding of receive_current_state: signal is "safe,gray";
 
-type discover_states is (IDLE, BOOTP_HEADERS, CLIENT_IP, YOUR_IP, ZEROS1, MY_MAC, ZEROS2, VENDOR_VALS, VENDOR_VALS2, TERMINATION, CLEANUP);
+type discover_states is (IDLE, BOOTP_HEADERS, CLIENT_IP, YOUR_IP, ZEROS1, MY_MAC, ZEROS2, VENDOR_VALS, VENDOR_VALS2, TERMINATION, CLEANUP, WAIT_FOR_LOAD);
 signal construct_current_state, construct_next_state : discover_states;
 attribute syn_encoding of construct_current_state: signal is "safe,gray";
 
@@ -264,7 +264,7 @@ end process WAIT_CTR_PROC;
 DHCP_DONE_OUT <= '1' when main_current_state = ESTABLISHED else '0';
 
 
--- **** MESSAGES RECEIVEING PART
+-- **** MESSAGES RECEIVING PART
 
 RECEIVE_MACHINE_PROC : process(CLK)
 begin
@@ -453,17 +453,25 @@ begin
 	end if;
 end process CONSTRUCT_MACHINE_PROC;
 
-CONSTRUCT_MACHINE : process(construct_current_state, main_current_state, load_ctr)
+CONSTRUCT_MACHINE : process(construct_current_state, main_current_state, load_ctr, TC_BUSY_IN, PS_SELECTED_IN)
 begin
 	case construct_current_state is
 	
 		when IDLE =>
 			state <= x"1";
 			if (main_current_state = SENDING_DISCOVER) or (main_current_state = SENDING_REQUEST) then
-				construct_next_state <= BOOTP_HEADERS;
+				construct_next_state <= WAIT_FOR_LOAD; --BOOTP_HEADERS;
 			else
 				construct_next_state <= IDLE;
 			end if;
+			
+		when WAIT_FOR_LOAD =>
+			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+				construct_next_state <= BOOTP_HEADERS;
+			else
+				construct_next_state <= WAIT_FOR_LOAD;
+			end if;
+		
 			
 		when BOOTP_HEADERS =>
 			state <= x"3";
