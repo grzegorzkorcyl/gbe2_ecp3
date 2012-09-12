@@ -435,6 +435,7 @@ PS_BUSY_OUT <= busy;
 
 SELECTOR_PROC : process(CLK)
 	variable found : boolean := false;
+	variable index : integer range 0 to c_MAX_PROTOCOLS - 1 := 0;
 begin
 	if rising_edge(CLK) then
 	
@@ -457,6 +458,7 @@ begin
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');
 			found := false;
+			index := 0;
 		else
 			if (or_all(resp_ready) = '1' and MC_BUSY_IN = '0') then
 				for i in 0 to c_MAX_PROTOCOLS - 1 loop
@@ -476,12 +478,48 @@ begin
 						TC_FLAGS_OFFSET_OUT   <= tc_flags_size((i + 1) * 16 - 1 downto i * 16);
 						PS_RESPONSE_READY_OUT <= '1';
 						selected(i)           <= '1';
+						index := i;
 						found := true;
 --					elsif (i = c_MAX_PROTOCOLS - 1) and (resp_ready(i) = '0') and (found = false) then
 --						found := false;
 --						PS_RESPONSE_READY_OUT <= '0';
 					end if;
 				end loop;
+			elsif (MC_BUSY_IN = '1') then
+				TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
+				TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
+				TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
+				TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
+				TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
+				TC_DEST_UDP_OUT       <= tc_udp((index + 1) * 16 - 1 downto index * 16);
+				TC_SRC_MAC_OUT        <= tc_src_mac((index + 1) * 48 - 1 downto index * 48);
+				TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
+				TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
+				TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
+				TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
+				TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
+				TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
+				PS_RESPONSE_READY_OUT <= '1';
+				selected(index)       <= '1';
+				index := index;
+				found := true;
+			elsif (MC_BUSY_IN = '0') then
+				TC_DATA_OUT           <= (others => '0');
+				TC_FRAME_SIZE_OUT     <= (others => '0');
+				TC_FRAME_TYPE_OUT     <= (others => '0');
+				TC_DEST_MAC_OUT       <= (others => '0');
+				TC_DEST_IP_OUT        <= (others => '0');
+				TC_DEST_UDP_OUT       <= (others => '0');
+				TC_SRC_MAC_OUT        <= (others => '0');
+				TC_SRC_IP_OUT         <= (others => '0');
+				TC_SRC_UDP_OUT        <= (others => '0');
+				TC_IP_PROTOCOL_OUT    <= (others => '0');
+				TC_IP_SIZE_OUT        <= (others => '0');
+				TC_UDP_SIZE_OUT       <= (others => '0');
+				TC_FLAGS_OFFSET_OUT   <= (others => '0');
+				PS_RESPONSE_READY_OUT <= '0';
+				found := false;
+				index := 0;
 			else
 				TC_DATA_OUT           <= (others => '0');
 				TC_FRAME_SIZE_OUT     <= (others => '0');
@@ -498,6 +536,7 @@ begin
 				TC_FLAGS_OFFSET_OUT   <= (others => '0');
 				PS_RESPONSE_READY_OUT <= '0';
 				found := false;
+				index := 0;
 			end if;
 		end if;
 		

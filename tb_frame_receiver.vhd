@@ -11,10 +11,10 @@ use work.trb_net_std.all;
 use work.trb_net_components.all;
 use work.trb_net16_hub_func.all;
 
-entity testbench is
-end testbench;
+entity tb_frame_receiver is
+end tb_frame_receiver;
 
-architecture behavior of testbench is
+architecture behavior of tb_frame_receiver is
 
 component trb_net16_hub_streaming_port_sctrl is
   generic(
@@ -692,7 +692,7 @@ begin
 	
 	--for i in 0 to 1000 loop
 	
-	wait for 200 ns;
+	wait for 20000 ns;
 		
 		
 					-- FIRST FRAME (ARP Request)	
