@@ -582,7 +582,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				if (wait_ctr = x"0010_0000") then
+				if (wait_ctr = x"f000_0000") then
 					link_next_state <= GET_ADDRESS;
 				else
 					link_next_state <= WAIT_FOR_BOOT;
