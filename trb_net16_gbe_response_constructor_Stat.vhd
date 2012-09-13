@@ -114,7 +114,7 @@ signal pause    : integer range 0 to 28;
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 begin
-pause <= 10 when g_SIMULATE = 1 else 28;
+pause <= 10 when g_SIMULATE = 1 else 20;
 
 
 mem : statts_mem
