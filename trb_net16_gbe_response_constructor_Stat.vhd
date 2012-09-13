@@ -114,7 +114,7 @@ signal pause    : integer range 0 to 28;
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 begin
-pause <= 10 when g_SIMULATE = 1 else 28;
+pause <= 4 when g_SIMULATE = 1 else 28;
 
 
 mem : statts_mem
@@ -212,11 +212,12 @@ begin
 	
 		when IDLE =>
 			state <= x"1";
-			if (timer(pause) = '1' and timer_lock = '0') then
-				construct_next_state <= WAIT_FOR_LOAD;
-			else
-				construct_next_state <= IDLE;
-			end if;
+--			if (timer(pause) = '1' and timer_lock = '0') then
+--				construct_next_state <= WAIT_FOR_LOAD;
+--			else
+--				construct_next_state <= IDLE;
+--			end if;
+			construct_next_state <= IDLE;
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"4";
