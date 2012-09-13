@@ -120,21 +120,18 @@ signal tc_ip_size               : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 
 signal tc_udp_size              : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
 signal tc_flags_size            : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
 
--- temporary
-signal gsc_init_dataready : std_logic;
-signal gsc_init_data : std_logic_vector(15 downto 0);
-signal gsc_init_packet_num : std_logic_vector(2 downto 0);
-signal gsc_init_read : std_logic;
-signal gsc_reply_dataready : std_logic;
-signal gsc_reply_data : std_logic_vector(15 downto 0);
-signal gsc_reply_packet_num : std_logic_vector(2 downto 0);
-signal gsc_reply_read : std_logic;
-signal gsc_busy : std_logic;
+
+type select_states is (IDLE, LOOP_OVER, SELECT_ONE, PROCESS_REQUEST, CLEANUP);
+signal select_current_state, select_next_state : select_states;
+
+signal state                    : std_logic_vector(3 downto 0);
+signal index                    : integer range 0 to c_MAX_PROTOCOLS - 1;
+
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of gsc_busy, gsc_reply_read, gsc_reply_packet_num, gsc_reply_data, gsc_init_read, gsc_reply_dataready, gsc_init_packet_num, gsc_init_data, gsc_init_dataready : signal is true;
-attribute syn_preserve of gsc_busy, gsc_reply_read, gsc_reply_packet_num, gsc_reply_data, gsc_init_read, gsc_reply_dataready, gsc_init_packet_num, gsc_init_data, gsc_init_dataready : signal is true;
+attribute syn_keep of state : signal is true;
+attribute syn_preserve of state : signal is true;
 
 begin
 
@@ -433,14 +430,80 @@ STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
 PS_BUSY_OUT <= busy;
 
-SELECTOR_PROC : process(CLK)
-	variable found : boolean := false;
-	variable index : integer range 0 to c_MAX_PROTOCOLS - 1 := 0;
+SELECT_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
+		if (RESET = '1') then
+			select_current_state <= IDLE;
+		else
+			select_current_state <= select_next_state;
+		end if;
+	end if;
+end process SELECT_MACHINE_PROC;
+
+SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index)
+begin
 	
-		selected              <= (others => '0');
+	case (select_current_state) is
 	
+		when IDLE =>
+			state <= x"1";
+			if (MC_BUSY_IN = '0') then
+				select_next_state <= LOOP_OVER;
+			else
+				select_next_state <= IDLE;
+			end if;
+		
+		when LOOP_OVER =>
+			state <= x"2";
+			if (or_all(resp_ready) = '1') then
+				if (resp_ready(index) = '1') then
+					select_next_state <= SELECT_ONE;
+				elsif (index = c_MAX_PROTOCOLS) then
+					select_next_state <= CLEANUP;
+				end if;
+			else
+				select_next_state <= CLEANUP;
+			end if;			
+		
+		when SELECT_ONE =>
+			state <= x"3";
+			if (MC_BUSY_IN = '1') then
+				select_next_state <= PROCESS_REQUEST;
+			else
+				select_next_state <= SELECT_ONE;
+			end if;
+			
+		when PROCESS_REQUEST =>
+			state <= x"4";
+			if (MC_BUSY_IN = '0') then
+				select_next_state <= CLEANUP;
+			else
+				select_next_state <= PROCESS_REQUEST;
+			end if;
+		
+		when CLEANUP =>
+			state <= x"5";
+			select_next_state <= IDLE;
+	
+	end case;
+	
+end process SELECT_MACHINE;
+
+INDEX_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (select_current_state = IDLE) then
+			index <= 0;
+		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0' and or_all(resp_ready) = '1') then
+			index <= index + 1;
+		end if;
+	end if;
+end process INDEX_PROC;
+
+SELECTOR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
 		if (RESET = '1') then
 			TC_DATA_OUT           <= (others => '0');
 			TC_FRAME_SIZE_OUT     <= (others => '0');
@@ -457,91 +520,155 @@ begin
 			TC_FLAGS_OFFSET_OUT   <= (others => '0');
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');
-			found := false;
-			index := 0;
-		else
-			if (or_all(resp_ready) = '1' and MC_BUSY_IN = '0') then
-				for i in 0 to c_MAX_PROTOCOLS - 1 loop
-					if (resp_ready(i) = '1' and found = false) then
-						TC_DATA_OUT           <= tc_data((i + 1) * 9 - 1 downto i * 9);
-						TC_FRAME_SIZE_OUT     <= tc_size((i + 1) * 16 - 1 downto i * 16);
-						TC_FRAME_TYPE_OUT     <= tc_type((i + 1) * 16 - 1 downto i * 16);
-						TC_DEST_MAC_OUT       <= tc_mac((i + 1) * 48 - 1 downto i * 48);
-						TC_DEST_IP_OUT        <= tc_ip((i + 1) * 32 - 1 downto i * 32);
-						TC_DEST_UDP_OUT       <= tc_udp((i + 1) * 16 - 1 downto i * 16);
-						TC_SRC_MAC_OUT        <= tc_src_mac((i + 1) * 48 - 1 downto i * 48);
-						TC_SRC_IP_OUT         <= tc_src_ip((i + 1) * 32 - 1 downto i * 32);
-						TC_SRC_UDP_OUT        <= tc_src_udp((i + 1) * 16 - 1 downto i * 16);
-						TC_IP_PROTOCOL_OUT    <= tc_ip_proto((i + 1) * 8 - 1 downto i * 8);
-						TC_IP_SIZE_OUT        <= tc_ip_size((i + 1) * 16 - 1 downto i * 16);
-						TC_UDP_SIZE_OUT       <= tc_udp_size((i + 1) * 16 - 1 downto i * 16);
-						TC_FLAGS_OFFSET_OUT   <= tc_flags_size((i + 1) * 16 - 1 downto i * 16);
-						PS_RESPONSE_READY_OUT <= '1';
-						selected(i)           <= '1';
-						index := i;
-						found := true;
---					elsif (i = c_MAX_PROTOCOLS - 1) and (resp_ready(i) = '0') and (found = false) then
---						found := false;
---						PS_RESPONSE_READY_OUT <= '0';
-					end if;
-				end loop;
-			elsif (or_all(resp_ready) = '1' and MC_BUSY_IN = '1') then
-				TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
-				TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
-				TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
-				TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
-				TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
-				TC_DEST_UDP_OUT       <= tc_udp((index + 1) * 16 - 1 downto index * 16);
-				TC_SRC_MAC_OUT        <= tc_src_mac((index + 1) * 48 - 1 downto index * 48);
-				TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
-				TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
-				TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
-				TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
-				TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
-				TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
+		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
+			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
+			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
+			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
+			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
+			TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
+			TC_DEST_UDP_OUT       <= tc_udp((index + 1) * 16 - 1 downto index * 16);
+			TC_SRC_MAC_OUT        <= tc_src_mac((index + 1) * 48 - 1 downto index * 48);
+			TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
+			TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
+			TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
+			TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
+			TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
+			TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
+			if (select_current_state = SELECT_ONE) then
 				PS_RESPONSE_READY_OUT <= '1';
-				selected(index)       <= '1';
-				index := index;
-				found := true;
-			elsif (MC_BUSY_IN = '0') then
-				TC_DATA_OUT           <= (others => '0');
-				TC_FRAME_SIZE_OUT     <= (others => '0');
-				TC_FRAME_TYPE_OUT     <= (others => '0');
-				TC_DEST_MAC_OUT       <= (others => '0');
-				TC_DEST_IP_OUT        <= (others => '0');
-				TC_DEST_UDP_OUT       <= (others => '0');
-				TC_SRC_MAC_OUT        <= (others => '0');
-				TC_SRC_IP_OUT         <= (others => '0');
-				TC_SRC_UDP_OUT        <= (others => '0');
-				TC_IP_PROTOCOL_OUT    <= (others => '0');
-				TC_IP_SIZE_OUT        <= (others => '0');
-				TC_UDP_SIZE_OUT       <= (others => '0');
-				TC_FLAGS_OFFSET_OUT   <= (others => '0');
-				PS_RESPONSE_READY_OUT <= '0';
-				found := false;
-				index := 0;
 			else
-				TC_DATA_OUT           <= (others => '0');
-				TC_FRAME_SIZE_OUT     <= (others => '0');
-				TC_FRAME_TYPE_OUT     <= (others => '0');
-				TC_DEST_MAC_OUT       <= (others => '0');
-				TC_DEST_IP_OUT        <= (others => '0');
-				TC_DEST_UDP_OUT       <= (others => '0');
-				TC_SRC_MAC_OUT        <= (others => '0');
-				TC_SRC_IP_OUT         <= (others => '0');
-				TC_SRC_UDP_OUT        <= (others => '0');
-				TC_IP_PROTOCOL_OUT    <= (others => '0');
-				TC_IP_SIZE_OUT        <= (others => '0');
-				TC_UDP_SIZE_OUT       <= (others => '0');
-				TC_FLAGS_OFFSET_OUT   <= (others => '0');
 				PS_RESPONSE_READY_OUT <= '0';
-				found := false;
-				index := 0;
 			end if;
+			selected(index)       <= '1';
+		else
+			TC_DATA_OUT           <= (others => '0');
+			TC_FRAME_SIZE_OUT     <= (others => '0');
+			TC_FRAME_TYPE_OUT     <= (others => '0');
+			TC_DEST_MAC_OUT       <= (others => '0');
+			TC_DEST_IP_OUT        <= (others => '0');
+			TC_DEST_UDP_OUT       <= (others => '0');
+			TC_SRC_MAC_OUT        <= (others => '0');
+			TC_SRC_IP_OUT         <= (others => '0');
+			TC_SRC_UDP_OUT        <= (others => '0');
+			TC_IP_PROTOCOL_OUT    <= (others => '0');
+			TC_IP_SIZE_OUT        <= (others => '0');
+			TC_UDP_SIZE_OUT       <= (others => '0');
+			TC_FLAGS_OFFSET_OUT   <= (others => '0');
+			PS_RESPONSE_READY_OUT <= '0';
+			selected              <= (others => '0');		
 		end if;
-		
 	end if;
 end process SELECTOR_PROC;
+
+--SELECTOR_PROC : process(CLK)
+--	variable found : boolean := false;
+--	variable index : integer range 0 to c_MAX_PROTOCOLS - 1 := 0;
+--begin
+--	if rising_edge(CLK) then
+--	
+--		selected              <= (others => '0');
+--	
+--		if (RESET = '1') then
+--			TC_DATA_OUT           <= (others => '0');
+--			TC_FRAME_SIZE_OUT     <= (others => '0');
+--			TC_FRAME_TYPE_OUT     <= (others => '0');
+--			TC_DEST_MAC_OUT       <= (others => '0');
+--			TC_DEST_IP_OUT        <= (others => '0');
+--			TC_DEST_UDP_OUT       <= (others => '0');
+--			TC_SRC_MAC_OUT        <= (others => '0');
+--			TC_SRC_IP_OUT         <= (others => '0');
+--			TC_SRC_UDP_OUT        <= (others => '0');
+--			TC_IP_PROTOCOL_OUT    <= (others => '0');
+--			TC_IP_SIZE_OUT        <= (others => '0');
+--			TC_UDP_SIZE_OUT       <= (others => '0');
+--			TC_FLAGS_OFFSET_OUT   <= (others => '0');
+--			PS_RESPONSE_READY_OUT <= '0';
+--			selected              <= (others => '0');
+--			found := false;
+--			index := 0;
+--		else
+--			if (or_all(resp_ready) = '1' and MC_BUSY_IN = '0') then
+--				for i in 0 to c_MAX_PROTOCOLS - 1 loop
+--					if (resp_ready(i) = '1' and found = false) then
+--						TC_DATA_OUT           <= tc_data((i + 1) * 9 - 1 downto i * 9);
+--						TC_FRAME_SIZE_OUT     <= tc_size((i + 1) * 16 - 1 downto i * 16);
+--						TC_FRAME_TYPE_OUT     <= tc_type((i + 1) * 16 - 1 downto i * 16);
+--						TC_DEST_MAC_OUT       <= tc_mac((i + 1) * 48 - 1 downto i * 48);
+--						TC_DEST_IP_OUT        <= tc_ip((i + 1) * 32 - 1 downto i * 32);
+--						TC_DEST_UDP_OUT       <= tc_udp((i + 1) * 16 - 1 downto i * 16);
+--						TC_SRC_MAC_OUT        <= tc_src_mac((i + 1) * 48 - 1 downto i * 48);
+--						TC_SRC_IP_OUT         <= tc_src_ip((i + 1) * 32 - 1 downto i * 32);
+--						TC_SRC_UDP_OUT        <= tc_src_udp((i + 1) * 16 - 1 downto i * 16);
+--						TC_IP_PROTOCOL_OUT    <= tc_ip_proto((i + 1) * 8 - 1 downto i * 8);
+--						TC_IP_SIZE_OUT        <= tc_ip_size((i + 1) * 16 - 1 downto i * 16);
+--						TC_UDP_SIZE_OUT       <= tc_udp_size((i + 1) * 16 - 1 downto i * 16);
+--						TC_FLAGS_OFFSET_OUT   <= tc_flags_size((i + 1) * 16 - 1 downto i * 16);
+--						PS_RESPONSE_READY_OUT <= '1';
+--						selected(i)           <= '1';
+--						index := i;
+--						found := true;
+----					elsif (i = c_MAX_PROTOCOLS - 1) and (resp_ready(i) = '0') and (found = false) then
+----						found := false;
+----						PS_RESPONSE_READY_OUT <= '0';
+--					end if;
+--				end loop;
+--			elsif (or_all(resp_ready) = '1' and MC_BUSY_IN = '1') then
+--				TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
+--				TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
+--				TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
+--				TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
+--				TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
+--				TC_DEST_UDP_OUT       <= tc_udp((index + 1) * 16 - 1 downto index * 16);
+--				TC_SRC_MAC_OUT        <= tc_src_mac((index + 1) * 48 - 1 downto index * 48);
+--				TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
+--				TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
+--				TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
+--				TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
+--				TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
+--				TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
+--				PS_RESPONSE_READY_OUT <= '1';
+--				selected(index)       <= '1';
+--				index := index;
+--				found := true;
+--			elsif (MC_BUSY_IN = '0') then
+--				TC_DATA_OUT           <= (others => '0');
+--				TC_FRAME_SIZE_OUT     <= (others => '0');
+--				TC_FRAME_TYPE_OUT     <= (others => '0');
+--				TC_DEST_MAC_OUT       <= (others => '0');
+--				TC_DEST_IP_OUT        <= (others => '0');
+--				TC_DEST_UDP_OUT       <= (others => '0');
+--				TC_SRC_MAC_OUT        <= (others => '0');
+--				TC_SRC_IP_OUT         <= (others => '0');
+--				TC_SRC_UDP_OUT        <= (others => '0');
+--				TC_IP_PROTOCOL_OUT    <= (others => '0');
+--				TC_IP_SIZE_OUT        <= (others => '0');
+--				TC_UDP_SIZE_OUT       <= (others => '0');
+--				TC_FLAGS_OFFSET_OUT   <= (others => '0');
+--				PS_RESPONSE_READY_OUT <= '0';
+--				found := false;
+--				index := 0;
+--			else
+--				TC_DATA_OUT           <= (others => '0');
+--				TC_FRAME_SIZE_OUT     <= (others => '0');
+--				TC_FRAME_TYPE_OUT     <= (others => '0');
+--				TC_DEST_MAC_OUT       <= (others => '0');
+--				TC_DEST_IP_OUT        <= (others => '0');
+--				TC_DEST_UDP_OUT       <= (others => '0');
+--				TC_SRC_MAC_OUT        <= (others => '0');
+--				TC_SRC_IP_OUT         <= (others => '0');
+--				TC_SRC_UDP_OUT        <= (others => '0');
+--				TC_IP_PROTOCOL_OUT    <= (others => '0');
+--				TC_IP_SIZE_OUT        <= (others => '0');
+--				TC_UDP_SIZE_OUT       <= (others => '0');
+--				TC_FLAGS_OFFSET_OUT   <= (others => '0');
+--				PS_RESPONSE_READY_OUT <= '0';
+--				found := false;
+--				index := 0;
+--			end if;
+--		end if;
+--		
+--	end if;
+--end process SELECTOR_PROC;
 -- ************
 
 end trb_net16_gbe_protocol_selector;
