@@ -212,12 +212,11 @@ begin
 	
 		when IDLE =>
 			state <= x"1";
---			if (timer(pause) = '1' and timer_lock = '0') then
---				construct_next_state <= WAIT_FOR_LOAD;
---			else
---				construct_next_state <= IDLE;
---			end if;
-			construct_next_state <= IDLE;
+			if (timer(pause) = '1' and timer_lock = '0') then
+				construct_next_state <= WAIT_FOR_LOAD;
+			else
+				construct_next_state <= IDLE;
+			end if;
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"4";
