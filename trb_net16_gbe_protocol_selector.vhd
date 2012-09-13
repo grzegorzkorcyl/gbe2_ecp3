@@ -127,11 +127,12 @@ signal select_current_state, select_next_state : select_states;
 signal state                    : std_logic_vector(3 downto 0);
 signal index                    : integer range 0 to c_MAX_PROTOCOLS - 1;
 
+signal mult                     : std_logic;
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of state : signal is true;
-attribute syn_preserve of state : signal is true;
+attribute syn_keep of state, mult : signal is true;
+attribute syn_preserve of state, mult : signal is true;
 
 begin
 
@@ -427,6 +428,8 @@ stat_addr((c_MAX_PROTOCOLS + 1) * 8 - 1 downto c_MAX_PROTOCOLS * 8)   <= STAT_AD
 stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
 STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
+mult <= or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
+
 
 PS_BUSY_OUT <= busy;
 
@@ -495,7 +498,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (select_current_state = IDLE) then
 			index <= 0;
-		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0' and or_all(resp_ready) = '1') then
+		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0' and (or_all(resp_ready) = '1' or mult = '1')) then
 			index <= index + 1;
 		end if;
 	end if;
