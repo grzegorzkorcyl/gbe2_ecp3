@@ -150,7 +150,7 @@ receive_fifo : fifo_2048x8x16
 	RPReset          => RESET,
     WrClock          => CLK,
 	RdClock          => CLK,
-    Data             => rx_fifo_data, --PS_DATA_IN,
+    Data             => rx_fifo_data,
     WrEn             => rx_fifo_wr,
     RdEn             => rx_fifo_rd,
     Q                => rx_fifo_q,
@@ -228,33 +228,46 @@ transmit_fifo : fifo_65536x18x9
 
 tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
 tx_fifo_wr              <= '1' when GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1' else '0';
-tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
+--tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
 
-TC_DATA_PROC : process(dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
+TC_DATA_PROC : process(CLK) -- dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
-	if (dissect_current_state = LOAD_FRAME) then
-	
-		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+	if rising_edge(CLK) then
+		if (dissect_current_state = LOAD_FRAME) then
 		
-		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
-			TC_DATA_OUT(8) <= '1';
+			TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+			
+			if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+				TC_DATA_OUT(8) <= '1';
+			else
+				TC_DATA_OUT(8) <= '0';
+			end if;
+			
+		elsif (dissect_current_state = LOAD_ACK) then
+		
+			TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
+			
+			if (tx_loaded_ctr = x"0010" + x"1") then
+				TC_DATA_OUT(8) <= '1';
+			else
+				TC_DATA_OUT(8) <= '0';
+			end if;
 		else
-			TC_DATA_OUT(8) <= '0';
+			TC_DATA_OUT <= (others => '0');
 		end if;
-		
-	elsif (dissect_current_state = LOAD_ACK) then
-	
-		TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
-		
-		if (tx_loaded_ctr = x"0010" + x"1") then
-			TC_DATA_OUT(8) <= '1';
-		else
-			TC_DATA_OUT(8) <= '0';
-		end if;
-	else
-		TC_DATA_OUT <= (others => '0');
 	end if;
 end process TC_DATA_PROC;
+
+TX_SYNC_PROC : process(CLK)
+begin
+	if rising_edge(CLIK) then
+		if (TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
+			tx_fifo_rd <= '1';
+		else
+			tx_fifo_rd <= '0';
+		end if;
+	end if;
+end process TX_SYNC_PROC;
 
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
 gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
