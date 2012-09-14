@@ -260,7 +260,7 @@ end process TC_DATA_PROC;
 
 TX_SYNC_PROC : process(CLK)
 begin
-	if rising_edge(CLIK) then
+	if rising_edge(CLK) then
 		if (TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			tx_fifo_rd <= '1';
 		else
