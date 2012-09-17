@@ -184,26 +184,26 @@ begin
 --			rx_fifo_rd <= '0';
 --		end if;
 
-		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
-		
-		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
-			gsc_init_dataready <= '1';
-		else
-			gsc_init_dataready <= '0';
-		end if;
+--		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+--		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+--		
+--		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
+--			gsc_init_dataready <= '1';
+--		else
+--			gsc_init_dataready <= '0';
+--		end if;
 		
 		rx_fifo_data <= PS_DATA_IN;
 	end if;
 end process RX_FIFO_SYNC;
 
---GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
---GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
+GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
 
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
---gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
---							   (dissect_current_state = WAIT_FOR_HUB) else '0';
+gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
+							   (dissect_current_state = WAIT_FOR_HUB) else '0';
 								
 PACKET_NUM_PROC : process(CLK)
 begin
