@@ -150,7 +150,7 @@ receive_fifo : fifo_2048x8x16
 	RPReset          => RESET,
     WrClock          => CLK,
 	RdClock          => CLK,
-    Data             => rx_fifo_data,
+    Data             => PS_DATA_IN, --rx_fifo_data,
     WrEn             => rx_fifo_wr,
     RdEn             => rx_fifo_rd,
     Q                => rx_fifo_q,
@@ -158,7 +158,7 @@ receive_fifo : fifo_2048x8x16
     Empty            => rx_empty
   );
 
---rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
+rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
 								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
 								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
@@ -168,11 +168,11 @@ RX_FIFO_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-			rx_fifo_wr <= '1';
-		else
-			rx_fifo_wr <= '0';
-		end if;
+--		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+--			rx_fifo_wr <= '1';
+--		else
+--			rx_fifo_wr <= '0';
+--		end if;
 		
 --		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
 --			rx_fifo_rd <= '1';
@@ -193,7 +193,7 @@ begin
 --			gsc_init_dataready <= '0';
 --		end if;
 		
-		rx_fifo_data <= PS_DATA_IN;
+--		rx_fifo_data <= PS_DATA_IN;
 	end if;
 end process RX_FIFO_SYNC;
 
