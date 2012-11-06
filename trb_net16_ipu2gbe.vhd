@@ -81,7 +81,7 @@ port(
 );
 end component;
 
-type saveStates is (SIDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SCLOSE);
+type saveStates is (SIDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SCLOSE, RESET_FIFO);
 signal saveCurrentState, saveNextState : saveStates;
 signal state                : std_logic_vector(3 downto 0);
 signal data_req_comb        : std_logic;
@@ -258,6 +258,10 @@ signal message_size         : std_logic_vector(31 downto 0);
 signal prev_bank_select     : std_logic_vector(3 downto 0);
 signal first_event          : std_logic;
 
+signal reset_split_fifo     : std_logic;
+
+signal input_data_ctr       : std_logic_vector(31 downto 0);
+
 begin
 
 BANK_SELECT_OUT <= bank_select; -- gk 27.03.10
@@ -418,10 +422,17 @@ begin
 		when SCLOSE =>
 			state <= x"4";
 			if (CTS_START_READOUT_IN = '0') then
-				saveNextState <= ADD_SUBSUB1; --SIDLE;  -- gk 29.03.10
+				if (input_data_ctr > MAX_MESSAGE_SIZE_IN) then -- gk 06.11.2012
+					saveNextState <= RESET_FIFO;
+				else
+					saveNextState <= ADD_SUBSUB1; --SIDLE;  -- gk 29.03.10
+				end if;
 			else
 				saveNextState <= SCLOSE;
 			end if;
+		-- gk 06.11.2012
+		when RESET_FIFO =>
+			saveNextState <= SIDLE;
 		-- gk 29.03.10 new states during which the subsub bytes are saved
 		when ADD_SUBSUB1 =>
 			state <= x"6";
@@ -445,6 +456,18 @@ begin
 			saveNextState <= SIDLE;
 	end case;
 end process saveMachine;
+
+-- gk 06.11.2012
+INPUT_DATA_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or rst_saved_ctr = '1') then
+			input_data_ctr <= (others => '0');
+		elsif (saveCurrentState = SAVE_DATA and sf_real_wr_en = '1') then
+			input_data_ctr(31 downto 1) <= input_data_ctr(31 downto 1) + x"1";
+		end if;
+	end if;
+end process INPUT_DATA_CTR_PROC;
 
 -- gk 29.03.10
 ADD_SUB_CTR_PROC : process( CLK )
@@ -562,7 +585,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			saved_events_ctr <= (others => '0');
-		elsif (save_eod = '1') then
+		elsif (save_eod = '1') and (input_data_ctr < MAX_MESSAGE_SIZE_IN) then  -- gk 06.11.2012
 			saved_events_ctr <= saved_events_ctr + x"1";
 		end if;
 	end if;
@@ -597,8 +620,8 @@ port map(
 	RdClock         => CLK,
 	WrEn            => sf_real_wr_en, -- gk 06.08.10 --sf_wr_en,
 	RdEn            => sf_rd_en,
-	Reset           => RESET,
-	RPReset         => RESET,
+	Reset           => reset_split_fifo, --RESET,  -- gk 06.11.2012
+	RPReset         => reset_split_fifo, --RESET,  -- gk 06.11.2012
 	AmEmptyThresh   => b"0000_0000_0000_0010", -- one byte ahead
 	AmFullThresh    =>  b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)   => pc_data,

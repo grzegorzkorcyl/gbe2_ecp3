@@ -262,7 +262,7 @@ begin
 			end if;
 		when SAVE_DATA =>
 			constr_state <= x"1";
-			if( PC_END_OF_DATA_IN = '1' ) then
+			if( PC_END_OF_DATA_IN = '1') then
 				constructNextState <= WAIT_FOR_LOAD;
 			else
 				constructNextState <= SAVE_DATA;
