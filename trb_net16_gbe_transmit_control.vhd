@@ -158,8 +158,8 @@ begin
 		if (FC_READY_IN = '1') then
 			if (MC_TRANSMIT_CTRL_IN = '1') then
 		  		tx_next_state <= TRANSMIT_CTRL;
-			elsif (MC_TRANSMIT_DATA_IN = '1') then
-		  		tx_next_state <= TRANSMIT_DATA;
+			--elsif (MC_TRANSMIT_DATA_IN = '1') then
+		  	--	tx_next_state <= TRANSMIT_DATA;
 			else
 		  		tx_next_state <= IDLE;
 			end if;
@@ -209,12 +209,12 @@ begin
 	FC_FLAGS_OFFSET_OUT  <= PC_FLAGS_OFFSET_IN;
 	FC_IDENT_OUT         <= sent_packets_ctr;
 
-	DEST_MAC_ADDRESS_OUT <= x"ffffffffffff"; --IC_DEST_MAC_ADDRESS_IN;
-	DEST_IP_ADDRESS_OUT  <= x"ff00a8c0";     --IC_DEST_IP_ADDRESS_IN;
-	DEST_UDP_PORT_OUT    <= x"1111"; --IC_DEST_UDP_PORT_IN;
-	SRC_MAC_ADDRESS_OUT  <= g_MY_MAC; --x"0096beef0000"; --IC_SRC_MAC_ADDRESS_IN;
-	SRC_IP_ADDRESS_OUT   <= g_MY_IP; --x"0b00a8c0";     --IC_SRC_IP_ADDRESS_IN;
-	SRC_UDP_PORT_OUT     <= x"1111"; --IC_SRC_UDP_PORT_IN;
+	DEST_MAC_ADDRESS_OUT <= IC_DEST_MAC_ADDRESS_IN;
+	DEST_IP_ADDRESS_OUT  <= IC_DEST_IP_ADDRESS_IN;
+	DEST_UDP_PORT_OUT    <= IC_DEST_UDP_PORT_IN;
+	SRC_MAC_ADDRESS_OUT  <= IC_SRC_MAC_ADDRESS_IN;
+	SRC_IP_ADDRESS_OUT   <= IC_SRC_IP_ADDRESS_IN;
+	SRC_UDP_PORT_OUT     <= IC_SRC_UDP_PORT_IN;
 	
 	FC_IP_PROTOCOL_OUT   <= x"11";
 	
