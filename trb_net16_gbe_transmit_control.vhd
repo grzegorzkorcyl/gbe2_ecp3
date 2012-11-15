@@ -156,14 +156,14 @@ begin
 	when IDLE =>
 		state <= x"1";
 		if (FC_READY_IN = '1') then
-			if (MC_TRANSMIT_DATA_IN = '1') then
-		  		tx_next_state <= TRANSMIT_DATA;
-		  	elsif (MC_TRANSMIT_CTRL_IN = '1') then
-		  		tx_next_state <= TRANSMIT_CTRL;
---			if (MC_TRANSMIT_CTRL_IN = '1') then
---		  		tx_next_state <= TRANSMIT_CTRL;
---			elsif (MC_TRANSMIT_DATA_IN = '1') then
+--			if (MC_TRANSMIT_DATA_IN = '1') then
 --		  		tx_next_state <= TRANSMIT_DATA;
+--		  	elsif (MC_TRANSMIT_CTRL_IN = '1') then
+--		  		tx_next_state <= TRANSMIT_CTRL;
+			if (MC_TRANSMIT_CTRL_IN = '1') then
+		  		tx_next_state <= TRANSMIT_CTRL;
+			elsif (MC_TRANSMIT_DATA_IN = '1') then
+		  		tx_next_state <= TRANSMIT_DATA;
 			else
 		  		tx_next_state <= IDLE;
 			end if;
