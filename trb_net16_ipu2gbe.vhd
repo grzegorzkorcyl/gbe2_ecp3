@@ -369,7 +369,7 @@ begin
 	end if;
 end process saveMachineProc;
 
-saveMachine: process( saveCurrentState, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN)
+saveMachine: process( saveCurrentState, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN, input_data_ctr, MAX_MESSAGE_SIZE_IN)
 begin
 	saveNextState      <= SIDLE;
 	data_req_comb      <= '0';
@@ -634,6 +634,8 @@ port map(
 	AlmostFull      => sf_afull
 );
 
+reset_split_fifo <= '1' when (saveCurrentState = RESET_FIFO or RESET = '1') else '0';
+
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
@@ -737,7 +739,8 @@ end process loadMachineProc;
 loadMachine : process( loadCurrentState, sf_aempty, remove_done, read_done, padding_needed,
 			PC_READY_IN, load_sub_done, pc_sub_size, MIN_MESSAGE_SIZE_IN,
 			MAX_MESSAGE_SIZE_IN, pc_trig_nr, first_run_trg, endpoint_addr,
-			first_run_addr, load_eod, event_waiting, MULT_EVT_ENABLE_IN, message_size)
+			first_run_addr, load_eod, event_waiting, MULT_EVT_ENABLE_IN, message_size, DATA_GBE_ENABLE_IN, first_event,
+			prev_bank_select, bank_select)
 begin
 	loadNextState    <= LIDLE;
 	rst_rem_ctr_comb <= '0';

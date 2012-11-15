@@ -44,6 +44,8 @@ port(
 	GBE_DELAY_OUT             : out std_logic_vector(31 downto 0);
 	GBE_ALLOW_LARGE_OUT       : out std_logic;
 	GBE_ALLOW_RX_OUT          : out std_logic;
+	GBE_ALLOW_BRDCST_ETH_OUT  : out std_logic;
+	GBE_ALLOW_BRDCST_IP_OUT   : out std_logic;
 	GBE_FRAME_DELAY_OUT       : out std_logic_vector(31 downto 0); -- gk 09.12.10
 	GBE_ALLOWED_TYPES_OUT	  : out	std_logic_vector(31 downto 0);
 	GBE_ALLOWED_IP_OUT	  : out	std_logic_vector(31 downto 0);

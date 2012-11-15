@@ -814,6 +814,8 @@ port map(
 	GBE_DELAY_OUT             => pc_delay,
 	GBE_ALLOW_LARGE_OUT       => allow_large,  -- gk 21.07.10
 	GBE_ALLOW_RX_OUT          => allow_rx,
+	GBE_ALLOW_BRDCST_ETH_OUT  => open,
+	GBE_ALLOW_BRDCST_IP_OUT   => open,
 	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
 	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
 	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
@@ -905,6 +907,8 @@ port map(
 	GBE_DELAY_OUT             => pc_delay,
 	GBE_ALLOW_LARGE_OUT       => open,
 	GBE_ALLOW_RX_OUT          => open,
+	GBE_ALLOW_BRDCST_ETH_OUT  => open,
+	GBE_ALLOW_BRDCST_IP_OUT   => open,
 	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
 	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
 	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
