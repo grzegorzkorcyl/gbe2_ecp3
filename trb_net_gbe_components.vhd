@@ -792,6 +792,8 @@ port(
 	DBG_SELECT_SENT_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	DBG_SELECT_PROTOS_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
+	SCTRL_DUMMY_SIZE_OUT : out std_logic_vector(31 downto 0);
+	
 	DBG_FIFO_Q_IN             : in std_logic_vector(15 downto 0)
 	--DBG_FIFO_RESET_OUT       : out std_logic
 );

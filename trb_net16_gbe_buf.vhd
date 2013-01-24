@@ -603,6 +603,8 @@ signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
+signal sctrl_dummy_size : std_Logic_vector(31 downto 0);
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -868,6 +870,8 @@ port map(
 	DBG_SELECT_SENT_IN	=> dbg_select_sent,
 	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
 	
+	SCTRL_DUMMY_SIZE_OUT = > sctrl_dummy_size,
+	
 	DBG_FIFO_Q_IN             => dbg_q
 	
 	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
@@ -1095,12 +1099,12 @@ port map(
 	PC_WR_EN_IN			=> pc_wr_en,
 	PC_DATA_IN			=> pc_data,
 	PC_READY_OUT			=> pc_ready,
-	PC_START_OF_SUB_IN		=> pc_sos, --CHANGED TO SLOW CONTROL PULSE
+	PC_START_OF_SUB_IN		=> pc_sos, 
 	PC_END_OF_SUB_IN		=> pc_eos, -- gk 07.10.10
 	PC_END_OF_DATA_IN		=> pc_eod,
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	-- queue and subevent layer headers
-	PC_SUB_SIZE_IN			=> pc_sub_size,
+	PC_SUB_SIZE_IN			=> sctrl_dummy_size, --pc_sub_size,
 	PC_PADDING_IN			=> pc_padding, -- gk 29.03.10
 	PC_DECODING_IN			=> pc_decoding,
 	PC_EVENT_ID_IN			=> pc_event_id,

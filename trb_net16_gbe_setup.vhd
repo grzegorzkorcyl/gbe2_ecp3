@@ -94,6 +94,8 @@ port(
 	DBG_SELECT_SENT_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	DBG_SELECT_PROTOS_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
+	SCTRL_DUMMY_SIZE_OUT : out std_logic_vector(31 downto 0);
+	
 	DBG_FIFO_Q_IN             : in std_logic_vector(15 downto 0)
 	--DBG_RESET_FIFO_OUT       : out std_logic  -- gk 28.09.10
 );
@@ -131,6 +133,7 @@ signal allowed_udp       : std_logic_vector(31 downto 0);
 signal vlan_id           : std_logic_vector(31 downto 0);
 signal allow_brdcst_eth  : std_logic;
 signal allow_brdcst_ip   : std_logic;
+signal dummy_size        : std_logic_vector(31 downto 0);
 
 begin
 
@@ -162,6 +165,7 @@ begin
 		GBE_ALLOWED_IP_OUT        <= allowed_ip;
 		GBE_ALLOWED_UDP_OUT       <= allowed_udp;
 		GBE_VLAN_ID_OUT           <= vlan_id;
+		SCTRL_DUMMY_SIZE_OUT      <= dummy_size;
 	end if;
 end process OUT_PROC;
 
@@ -209,6 +213,7 @@ begin
 			vlan_id           <= x"0000_0000";  -- no vlan id by default
 			allow_brdcst_eth  <= '1';
 			allow_brdcst_ip   <= '1';
+			dummy_size        <= x"0000_0010";
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 			case BUS_ADDR_IN is
@@ -293,6 +298,10 @@ begin
 					
 				when x"12" =>
 					allowed_udp <= BUS_DATA_IN;
+					
+				when x"13" =>
+					dummy_size(31 downto 16) <= x"0000";
+					dummy_size(15 downto 0) <= BUS_DATA_IN(15 downto 0);
 
 				-- gk 28.09.10
 				when x"fe" =>
@@ -334,6 +343,7 @@ begin
 					allowed_udp        <= allowed_udp;
 					allow_brdcst_eth   <= allow_brdcst_eth;
 					allow_brdcst_ip    <= allow_brdcst_ip;
+					dummy_size         <= dummy_size;
 
 			end case;
 		else
@@ -429,6 +439,9 @@ begin
 					
 				when x"12" =>
 					data_out  <= allowed_udp;
+					
+				when x"13" =>
+					data_out <= dummy_size;
 
 				-- gk 01.06.10
 				when x"e0" =>
