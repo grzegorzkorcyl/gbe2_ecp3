@@ -1104,7 +1104,7 @@ port map(
 	PC_END_OF_DATA_IN		=> pc_eod,
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	-- queue and subevent layer headers
-	PC_SUB_SIZE_IN			=> pc_sub_size, --sctrl_dummy_size, --pc_sub_size,
+	PC_SUB_SIZE_IN			=> sctrl_dummy_size, --pc_sub_size,
 	PC_PADDING_IN			=> pc_padding, -- gk 29.03.10
 	PC_DECODING_IN			=> pc_decoding,
 	PC_EVENT_ID_IN			=> pc_event_id,
