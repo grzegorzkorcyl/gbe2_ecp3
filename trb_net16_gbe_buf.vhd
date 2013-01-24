@@ -870,7 +870,7 @@ port map(
 	DBG_SELECT_SENT_IN	=> dbg_select_sent,
 	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
 	
-	SCTRL_DUMMY_SIZE_OUT = > sctrl_dummy_size,
+	SCTRL_DUMMY_SIZE_OUT => sctrl_dummy_size,
 	
 	DBG_FIFO_Q_IN             => dbg_q
 	
