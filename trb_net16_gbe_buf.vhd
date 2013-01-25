@@ -603,7 +603,8 @@ signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
-signal sctrl_dummy_size : std_Logic_vector(31 downto 0);
+signal sctrl_dummy_size  : std_Logic_vector(31 downto 0);
+signal sctrl_dummy_pause : std_Logic_vector(31 downto 0);
 
 begin
 
@@ -871,6 +872,7 @@ port map(
 	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
 	
 	SCTRL_DUMMY_SIZE_OUT => sctrl_dummy_size,
+	SCTRL_DUMMY_PAUSE_OUT => sctrl_dummy_pause,
 	
 	DBG_FIFO_Q_IN             => dbg_q
 	
@@ -1022,7 +1024,7 @@ port map(
 );
 
 -- First stage: get data from IPU channel, buffer it and terminate the IPU transmission to CTS
-THE_IPU_INTERFACE: trb_net16_ipu2gbe
+THE_IPU_INTERFACE: trb_net16_ipu2gbe_dummy
 port map( 
 	CLK					=> CLK,
 	RESET					=> RESET,
@@ -1068,6 +1070,11 @@ port map(
 	PC_SUB_SIZE_OUT				=> pc_sub_size,
 	PC_TRIG_NR_OUT				=> pc_trig_nr,
 	PC_PADDING_OUT				=> pc_padding,
+	
+	
+	SCTRL_DUMMY_SIZE_IN         => sctrl_dummy_size(15 downto 0),
+	SCTRL_DUMMY_PAUSE_IN        => sctrl_dummy_pause,
+	
 	MONITOR_OUT(31 downto 0)                => monitor_sent,
 	MONITOR_OUT(63 downto 32)               => monitor_dropped,
 	MONITOR_OUT(95 downto 64)               => monitor_hr,
