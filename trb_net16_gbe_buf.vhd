@@ -1024,7 +1024,7 @@ port map(
 );
 
 -- First stage: get data from IPU channel, buffer it and terminate the IPU transmission to CTS
-THE_IPU_INTERFACE: trb_net16_ipu2gbe_dummy
+THE_IPU_INTERFACE: trb_net16_ipu2gbe
 port map( 
 	CLK					=> CLK,
 	RESET					=> RESET,
@@ -1072,8 +1072,8 @@ port map(
 	PC_PADDING_OUT				=> pc_padding,
 	
 	
-	SCTRL_DUMMY_SIZE_IN         => sctrl_dummy_size(15 downto 0),
-	SCTRL_DUMMY_PAUSE_IN        => sctrl_dummy_pause,
+--	SCTRL_DUMMY_SIZE_IN         => sctrl_dummy_size(15 downto 0),
+--	SCTRL_DUMMY_PAUSE_IN        => sctrl_dummy_pause,
 	
 	MONITOR_OUT(31 downto 0)                => monitor_sent,
 	MONITOR_OUT(63 downto 32)               => monitor_dropped,
