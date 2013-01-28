@@ -94,9 +94,6 @@ port(
 	DBG_SELECT_SENT_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 	DBG_SELECT_PROTOS_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	SCTRL_DUMMY_SIZE_OUT : out std_logic_vector(31 downto 0);
-	SCTRL_DUMMY_PAUSE_OUT : out std_logic_vector(31 downto 0);
-	
 	DBG_FIFO_Q_IN             : in std_logic_vector(15 downto 0)
 	--DBG_RESET_FIFO_OUT       : out std_logic  -- gk 28.09.10
 );
@@ -134,8 +131,6 @@ signal allowed_udp       : std_logic_vector(31 downto 0);
 signal vlan_id           : std_logic_vector(31 downto 0);
 signal allow_brdcst_eth  : std_logic;
 signal allow_brdcst_ip   : std_logic;
-signal dummy_size        : std_logic_vector(31 downto 0);
-signal dummy_pause       : std_logic_vector(31 downto 0);
 
 begin
 
@@ -167,8 +162,6 @@ begin
 		GBE_ALLOWED_IP_OUT        <= allowed_ip;
 		GBE_ALLOWED_UDP_OUT       <= allowed_udp;
 		GBE_VLAN_ID_OUT           <= vlan_id;
-		SCTRL_DUMMY_SIZE_OUT      <= dummy_size;
-		SCTRL_DUMMY_PAUSE_OUT     <= dummy_pause;
 	end if;
 end process OUT_PROC;
 
@@ -216,8 +209,6 @@ begin
 			vlan_id           <= x"0000_0000";  -- no vlan id by default
 			allow_brdcst_eth  <= '1';
 			allow_brdcst_ip   <= '1';
-			dummy_size        <= x"0000_0010";
-			dummy_pause       <= x"00f0_0000";
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 			case BUS_ADDR_IN is
@@ -302,13 +293,6 @@ begin
 					
 				when x"12" =>
 					allowed_udp <= BUS_DATA_IN;
-					
-				when x"13" =>
-					dummy_size(31 downto 16) <= x"0000";
-					dummy_size(15 downto 0) <= BUS_DATA_IN(15 downto 0);
-					
-				when x"14" =>
-					dummy_pause <= BUS_DATA_IN;
 
 				-- gk 28.09.10
 				when x"fe" =>
@@ -350,8 +334,6 @@ begin
 					allowed_udp        <= allowed_udp;
 					allow_brdcst_eth   <= allow_brdcst_eth;
 					allow_brdcst_ip    <= allow_brdcst_ip;
-					dummy_size         <= dummy_size;
-					dummy_pause        <= dummy_pause;
 
 			end case;
 		else
@@ -447,101 +429,95 @@ begin
 					
 				when x"12" =>
 					data_out  <= allowed_udp;
-					
-				when x"13" =>
-					data_out <= dummy_size;
-					
-				when x"14" =>
-					data_out <= dummy_pause;
 
 				-- gk 01.06.10
---				when x"e0" =>
---					data_out <= DBG_IPU2GBE1_IN;
---
---				when x"e1" =>
---					data_out <= DBG_IPU2GBE2_IN;
---
---				when x"e2" =>
---					data_out <= DBG_PC1_IN;
---
---				when x"e3" =>
---					data_out <= DBG_PC2_IN;
---
---				when x"e4" =>
---					data_out <= DBG_FC1_IN;
---
---				when x"e5" =>
---					data_out <= DBG_FC2_IN;
---
---				when x"e6" =>
---					data_out <= DBG_FT1_IN;
---
---				when x"e7" =>
---					data_out <= DBG_FT2_IN;
---
---				when x"e8" =>
---					data_out(15 downto 0) <= DBG_FIFO_Q_IN;
---					data_out(31 downto 16) <= (others => '0');
---
---				when x"e9" =>
---					data_out <= DBG_IPU2GBE3_IN;
---
---				when x"ea" =>
---					data_out <= DBG_IPU2GBE4_IN;
---
---				when x"eb" =>
---					data_out <= DBG_IPU2GBE5_IN;
---
---				when x"ec" =>
---					data_out <= DBG_IPU2GBE6_IN;
---
---				when x"ed" =>
---					data_out <= DBG_IPU2GBE7_IN;
---
---				when x"ee" =>
---					data_out <= DBG_IPU2GBE8_IN;
---
---				when x"ef" =>
---					data_out <= DBG_IPU2GBE9_IN;
---
---				when x"f0" =>
---					data_out <= DBG_IPU2GBE10_IN;
---
---				when x"f1" =>
---					data_out <= DBG_IPU2GBE11_IN;
---
---				when x"f2" =>
---					data_out <= DBG_IPU2GBE12_IN;
---
---				when x"f3" =>
---					data_out <= MONITOR_BYTES_IN;
---
---				when x"f4" =>
---					data_out <= MONITOR_SENT_IN;
---
---				when x"f5" =>
---					data_out <= MONITOR_DROPPED_IN;
---
---				when x"f6" =>
---					data_out <= MONITOR_SM_IN;
---
---				when x"f7" =>
---					data_out <= MONITOR_LR_IN;
---
---				when x"f8" =>
---					data_out <= MONITOR_HDR_IN;
---
---				when x"f9" =>
---					data_out <= MONITOR_FIFOS_IN;
---
---				when x"fa" =>
---					data_out <= MONITOR_DISCFRM_IN;
---
---				when x"fb" =>
---					data_out <= MONITOR_LINK_DWN_IN;
---
---				when x"fc" =>
---					data_out <= MONITOR_EMPTY_IN;
+				when x"e0" =>
+					data_out <= DBG_IPU2GBE1_IN;
+
+				when x"e1" =>
+					data_out <= DBG_IPU2GBE2_IN;
+
+				when x"e2" =>
+					data_out <= DBG_PC1_IN;
+
+				when x"e3" =>
+					data_out <= DBG_PC2_IN;
+
+				when x"e4" =>
+					data_out <= DBG_FC1_IN;
+
+				when x"e5" =>
+					data_out <= DBG_FC2_IN;
+
+				when x"e6" =>
+					data_out <= DBG_FT1_IN;
+
+				when x"e7" =>
+					data_out <= DBG_FT2_IN;
+
+				when x"e8" =>
+					data_out(15 downto 0) <= DBG_FIFO_Q_IN;
+					data_out(31 downto 16) <= (others => '0');
+
+				when x"e9" =>
+					data_out <= DBG_IPU2GBE3_IN;
+
+				when x"ea" =>
+					data_out <= DBG_IPU2GBE4_IN;
+
+				when x"eb" =>
+					data_out <= DBG_IPU2GBE5_IN;
+
+				when x"ec" =>
+					data_out <= DBG_IPU2GBE6_IN;
+
+				when x"ed" =>
+					data_out <= DBG_IPU2GBE7_IN;
+
+				when x"ee" =>
+					data_out <= DBG_IPU2GBE8_IN;
+
+				when x"ef" =>
+					data_out <= DBG_IPU2GBE9_IN;
+
+				when x"f0" =>
+					data_out <= DBG_IPU2GBE10_IN;
+
+				when x"f1" =>
+					data_out <= DBG_IPU2GBE11_IN;
+
+				when x"f2" =>
+					data_out <= DBG_IPU2GBE12_IN;
+
+				when x"f3" =>
+					data_out <= MONITOR_BYTES_IN;
+
+				when x"f4" =>
+					data_out <= MONITOR_SENT_IN;
+
+				when x"f5" =>
+					data_out <= MONITOR_DROPPED_IN;
+
+				when x"f6" =>
+					data_out <= MONITOR_SM_IN;
+
+				when x"f7" =>
+					data_out <= MONITOR_LR_IN;
+
+				when x"f8" =>
+					data_out <= MONITOR_HDR_IN;
+
+				when x"f9" =>
+					data_out <= MONITOR_FIFOS_IN;
+
+				when x"fa" =>
+					data_out <= MONITOR_DISCFRM_IN;
+
+				when x"fb" =>
+					data_out <= MONITOR_LINK_DWN_IN;
+
+				when x"fc" =>
+					data_out <= MONITOR_EMPTY_IN;
 
 				--when x"d1" =>
 				--	data_out <= DBG_FR_IN;
@@ -554,61 +530,61 @@ begin
 					
 				-- **** receive debug section
 				
---				when x"a0" =>
---					data_out <= DBG_FR_IN(31 downto 0);  -- received frames from tsmac | state machine | fifos status
---					
---				when x"a1" =>
---					data_out <= DBG_FR_IN(63 downto 32); -- dropped | accepted frames
---					
---				when x"a2" =>
---					data_out <= MONITOR_RX_FRAMES_IN;
---
---				when x"a3" =>
---					data_out <= MONITOR_RX_BYTES_IN;
---
---				when x"a4" =>
---					data_out <= MONITOR_RX_BYTES_R_IN;
---					
---				when x"a5" =>
---					data_out <= DBG_MC_IN(31 downto 0);
---					
---					
---					-- *** debug of response constructors
---					
---				-- Forward
---				when x"b0" =>
---					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(1 * 16 - 1 downto 0 * 16);
---					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(1 * 16 - 1 downto 0 * 16);
---				when x"b1" =>
---					data_out <= DBG_SELECT_PROTOS_IN(1 * 32 - 1 downto 0 * 32);
---					
---				-- ARP
---				when x"b2" =>
---					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(2 * 16 - 1 downto 1 * 16);
---					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(2 * 16 - 1 downto 1 * 16);
---				when x"b3" =>
---					data_out <= DBG_SELECT_PROTOS_IN(2 * 32 - 1 downto 1 * 32);
---					
---				-- Test
---				when x"b4" =>
---					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(3 * 16 - 1 downto 2 * 16);
---					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(3 * 16 - 1 downto 2 * 16);
---				when x"b5" =>
---					data_out <= DBG_SELECT_PROTOS_IN(3 * 32 - 1 downto 2 * 32);
---					
---				-- DHCP
---				when x"b6" =>
---					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(4 * 16 - 1 downto 3 * 16);
---					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(4 * 16 - 1 downto 3 * 16);
---				when x"b7" =>
---					data_out <= DBG_SELECT_PROTOS_IN(4 * 32 - 1 downto 3 * 32);	
---					
---				-- PING
---				when x"b8" =>
---					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(5 * 16 - 1 downto 4 * 16);
---					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(5 * 16 - 1 downto 4 * 16);
---				when x"b9" =>
---					data_out <= DBG_SELECT_PROTOS_IN(5 * 32 - 1 downto 4 * 32);
+				when x"a0" =>
+					data_out <= DBG_FR_IN(31 downto 0);  -- received frames from tsmac | state machine | fifos status
+					
+				when x"a1" =>
+					data_out <= DBG_FR_IN(63 downto 32); -- dropped | accepted frames
+					
+				when x"a2" =>
+					data_out <= MONITOR_RX_FRAMES_IN;
+
+				when x"a3" =>
+					data_out <= MONITOR_RX_BYTES_IN;
+
+				when x"a4" =>
+					data_out <= MONITOR_RX_BYTES_R_IN;
+					
+				when x"a5" =>
+					data_out <= DBG_MC_IN(31 downto 0);
+					
+					
+					-- *** debug of response constructors
+					
+				-- Forward
+				when x"b0" =>
+					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(1 * 16 - 1 downto 0 * 16);
+					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(1 * 16 - 1 downto 0 * 16);
+				when x"b1" =>
+					data_out <= DBG_SELECT_PROTOS_IN(1 * 32 - 1 downto 0 * 32);
+					
+				-- ARP
+				when x"b2" =>
+					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(2 * 16 - 1 downto 1 * 16);
+					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(2 * 16 - 1 downto 1 * 16);
+				when x"b3" =>
+					data_out <= DBG_SELECT_PROTOS_IN(2 * 32 - 1 downto 1 * 32);
+					
+				-- Test
+				when x"b4" =>
+					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(3 * 16 - 1 downto 2 * 16);
+					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(3 * 16 - 1 downto 2 * 16);
+				when x"b5" =>
+					data_out <= DBG_SELECT_PROTOS_IN(3 * 32 - 1 downto 2 * 32);
+					
+				-- DHCP
+				when x"b6" =>
+					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(4 * 16 - 1 downto 3 * 16);
+					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(4 * 16 - 1 downto 3 * 16);
+				when x"b7" =>
+					data_out <= DBG_SELECT_PROTOS_IN(4 * 32 - 1 downto 3 * 32);	
+					
+				-- PING
+				when x"b8" =>
+					data_out(15 downto 0)  <= DBG_SELECT_REC_IN(5 * 16 - 1 downto 4 * 16);
+					data_out(31 downto 16) <= DBG_SELECT_SENT_IN(5 * 16 - 1 downto 4 * 16);
+				when x"b9" =>
+					data_out <= DBG_SELECT_PROTOS_IN(5 * 32 - 1 downto 4 * 32);
 										
 				-- Trash
 				--when x"b8" =>

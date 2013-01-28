@@ -204,7 +204,7 @@ begin
 		
 		when PUT_DATA =>
 			state <= x"3";
-			if (gen_data_ctr = PC_SUB_SIZE_IN(15 downto 0)) then
+			if (gen_data_ctr = x"0100") then
 				constrSimpleFrameNextState <= FINISH;
 			else
 				constrSimpleFrameNextState <= PUT_DATA;
@@ -235,11 +235,11 @@ end process;
 TC_DATA_OUT <= gen_data_ctr(7 downto 0);
 TC_WR_EN_OUT <= '1' when constrSimpleFrameCurrentState = PUT_DATA else '0';
 TC_SOD_OUT <= '1' when (constrSimpleFrameCurrentState = IDLE and PC_START_OF_SUB_IN = '1') or (constrSimpleFrameCurrentState = WAIT_FOR_HEADERS and TC_H_READY_IN = '0') else '0';
-TC_EOD_OUT <= '1' when constrSimpleFrameCurrentState = PUT_DATA and gen_data_ctr = PC_SUB_SIZE_IN(15 downto 0) else '0';
+TC_EOD_OUT <= '1' when constrSimpleFrameCurrentState = PUT_DATA and gen_data_ctr = x"0100" else '0';
 PC_READY_OUT <= '1' when constrSimpleFrameCurrentState = IDLE else '0';
 PC_TRANSMIT_ON_OUT <= '0' when constrSimpleFrameCurrentState = IDLE and PC_START_OF_SUB_IN = '0' else '1';
-TC_IP_SIZE_OUT <= PC_SUB_SIZE_IN(15 downto 0);
-TC_UDP_SIZE_OUT <= PC_SUB_SIZE_IN(15 downto 0);
+TC_IP_SIZE_OUT <= x"0100";
+TC_UDP_SIZE_OUT <= x"0100";
 TC_FLAGS_OFFSET_OUT <= (others => '0');
 
 --PC_TRANSMIT_ON_OUT <= '1' when constructCurrentState = WAIT_FOR_LOAD else '0';

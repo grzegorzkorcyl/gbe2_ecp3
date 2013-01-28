@@ -6,7 +6,7 @@ use IEEE.std_logic_arith.all;
 
 library work;
 
-entity trb_net16_ipu2gbe_dummy is
+entity trb_net16_ipu2gbe is
 port( 
 	CLK                         : in    std_logic;
 	RESET                       : in    std_logic;
@@ -51,16 +51,11 @@ port(
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
 	PC_PADDING_OUT              : out   std_logic;
 	MONITOR_OUT                 : out   std_logic_vector(223 downto 0);
-	
-	SCTRL_DUMMY_SIZE_IN         : in std_logic_vector(15 downto 0);
-	SCTRL_DUMMY_PAUSE_IN        : in std_Logic_vector(31 downto 0);
-	
-	
 	DEBUG_OUT                   : out   std_logic_vector(383 downto 0)
 );
 end entity;
 
-architecture trb_net16_ipu2gbe_dummy of trb_net16_ipu2gbe_dummy is
+architecture trb_net16_ipu2gbe of trb_net16_ipu2gbe is
 
 -- attribute HGROUP : string;
 -- attribute HGROUP of trb_net16_ipu2gbe : architecture  is "GBE_ipu2gbe";
@@ -263,15 +258,6 @@ signal message_size         : std_logic_vector(31 downto 0);
 signal prev_bank_select     : std_logic_vector(3 downto 0);
 signal first_event          : std_logic;
 
-
-
-
-
-type dummy_states is (IDLE, GENERATE_DATA, PAUSE, CLEANUP);
-signal dummy_current_state, dummy_next_state : dummy_states;
-signal pause_ctr : std_logic_vector(31 downto 0);
-signal data_ctr : std_logic_vector(15 downto 0);
-
 begin
 
 BANK_SELECT_OUT <= bank_select; -- gk 27.03.10
@@ -356,109 +342,109 @@ sf_real_wr_en <= '1' when ((sf_wr_en = '1') and (DATA_GBE_ENABLE_IN = '1')) else
 ce_saved_ctr <= '0' when addr_saved = '1' else sf_wr_en;
 
 -- Statemachine for reading data payload, handling IPU channel and storing data in the SPLIT_FIFO
- saveMachineProc: process( CLK )
- begin
- 	if rising_edge(CLK) then
- 		if (RESET = '1') then
- 			saveCurrentState <= SIDLE;
- 			data_req         <= '0';
- 			rst_saved_ctr    <= '0';
- 			save_addr	 <= '0'; -- gk 27.03.10
- 			addr_saved	 <= '0'; -- gk 27.03.10
- 			add_sub_state    <= '0'; -- gk 29.03.10
- 			save_eod         <= '0'; -- gk 25.07.10
- 		else
- 			saveCurrentState <= saveNextState;
- 			data_req         <= data_req_comb;
- 			rst_saved_ctr    <= rst_saved_ctr_comb;
- 			save_addr	 <= save_addr_comb; -- gk 27.03.10
- 			addr_saved	 <= addr_saved_comb; -- gk 27.03.10
- 			add_sub_state    <= add_sub_state_comb; -- gk 29.03.10
- 			save_eod         <= save_eod_comb; -- gk 25.07.10
- 		end if;
- 	end if;
- end process saveMachineProc;
- 
- saveMachine: process( saveCurrentState, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN)
- begin
- 	saveNextState      <= SIDLE;
- 	data_req_comb      <= '0';
- 	rst_saved_ctr_comb <= '0';
- 	save_addr_comb     <= '0'; -- gk 27.03.10
- 	addr_saved_comb    <= '0'; -- gk 27.03.10
- 	add_sub_state_comb <= '0'; -- gk 29.03.10
- 	save_eod_comb      <= '0'; -- gk 25.07.10
- 	case saveCurrentState is
- 		when SIDLE =>
- 			state <= x"0";
- 			if (CTS_START_READOUT_IN = '1') then
- 				saveNextState <= SAVE_EVT_ADDR; --WAIT_FOR_DATA; -- gk 27.03.10
- 				data_req_comb <= '1';
- 				rst_saved_ctr_comb <= '1';
- 			else
- 				saveNextState <= SIDLE;
- 			end if;
- 		-- gk 27.03.10
- 		when SAVE_EVT_ADDR =>
- 			state <= x"5";
- 			saveNextState <= WAIT_FOR_DATA;
- 			data_req_comb <= '1';
- 			save_addr_comb <= '1';
- 		when WAIT_FOR_DATA =>
- 			state <= x"1";
- 			if (FEE_BUSY_IN = '1') then
- 				saveNextState <= SAVE_DATA;
- 				data_req_comb <= '1';
- 			else
- 				saveNextState <= WAIT_FOR_DATA;
- 				data_req_comb <= '1';
- 			end if;
- 			addr_saved_comb <= '1';  -- gk 27.03.10
- 		when SAVE_DATA =>
- 			state <= x"2";
- 			if (FEE_BUSY_IN = '0') then
- 				saveNextState <= TERMINATE;
- 			else
- 				saveNextState <= SAVE_DATA;
- 				data_req_comb <= '1';
- 			end if;
- 		when TERMINATE =>
- 			state <= x"3";
- 			if (CTS_READ_IN = '1') then
- 				saveNextState <= SCLOSE;
- 			else
- 				saveNextState <= TERMINATE;
- 			end if;
- 		when SCLOSE =>
- 			state <= x"4";
- 			if (CTS_START_READOUT_IN = '0') then
- 				saveNextState <= ADD_SUBSUB1; --SIDLE;  -- gk 29.03.10
- 			else
- 				saveNextState <= SCLOSE;
- 			end if;
- 		-- gk 29.03.10 new states during which the subsub bytes are saved
- 		when ADD_SUBSUB1 =>
- 			state <= x"6";
- 			saveNextState <= ADD_SUBSUB2;
- 			add_sub_state_comb <= '1';
- 		when ADD_SUBSUB2 =>
- 			state<= x"7";
- 			saveNextState <= ADD_SUBSUB3;
- 			add_sub_state_comb <= '1';
- 			save_eod_comb <= '1';
- 		when ADD_SUBSUB3 =>
- 			state<= x"8";
- 			saveNextState <= ADD_SUBSUB4;
- 			add_sub_state_comb <= '1';
- 		when ADD_SUBSUB4 =>
- 			state<= x"9";
- 			saveNextState <= SIDLE;
- 			add_sub_state_comb <= '1';
- 		when others =>
- 			state <= x"f";
- 			saveNextState <= SIDLE;
- 	end case;
- end process saveMachine;
+-- saveMachineProc: process( CLK )
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			saveCurrentState <= SIDLE;
+-- 			data_req         <= '0';
+-- 			rst_saved_ctr    <= '0';
+-- 			save_addr	 <= '0'; -- gk 27.03.10
+-- 			addr_saved	 <= '0'; -- gk 27.03.10
+-- 			add_sub_state    <= '0'; -- gk 29.03.10
+-- 			save_eod         <= '0'; -- gk 25.07.10
+-- 		else
+-- 			saveCurrentState <= saveNextState;
+-- 			data_req         <= data_req_comb;
+-- 			rst_saved_ctr    <= rst_saved_ctr_comb;
+-- 			save_addr	 <= save_addr_comb; -- gk 27.03.10
+-- 			addr_saved	 <= addr_saved_comb; -- gk 27.03.10
+-- 			add_sub_state    <= add_sub_state_comb; -- gk 29.03.10
+-- 			save_eod         <= save_eod_comb; -- gk 25.07.10
+-- 		end if;
+-- 	end if;
+-- end process saveMachineProc;
+-- 
+-- saveMachine: process( saveCurrentState, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN)
+-- begin
+-- 	saveNextState      <= SIDLE;
+-- 	data_req_comb      <= '0';
+-- 	rst_saved_ctr_comb <= '0';
+-- 	save_addr_comb     <= '0'; -- gk 27.03.10
+-- 	addr_saved_comb    <= '0'; -- gk 27.03.10
+-- 	add_sub_state_comb <= '0'; -- gk 29.03.10
+-- 	save_eod_comb      <= '0'; -- gk 25.07.10
+-- 	case saveCurrentState is
+-- 		when SIDLE =>
+-- 			state <= x"0";
+-- 			if (CTS_START_READOUT_IN = '1') then
+-- 				saveNextState <= SAVE_EVT_ADDR; --WAIT_FOR_DATA; -- gk 27.03.10
+-- 				data_req_comb <= '1';
+-- 				rst_saved_ctr_comb <= '1';
+-- 			else
+-- 				saveNextState <= SIDLE;
+-- 			end if;
+-- 		-- gk 27.03.10
+-- 		when SAVE_EVT_ADDR =>
+-- 			state <= x"5";
+-- 			saveNextState <= WAIT_FOR_DATA;
+-- 			data_req_comb <= '1';
+-- 			save_addr_comb <= '1';
+-- 		when WAIT_FOR_DATA =>
+-- 			state <= x"1";
+-- 			if (FEE_BUSY_IN = '1') then
+-- 				saveNextState <= SAVE_DATA;
+-- 				data_req_comb <= '1';
+-- 			else
+-- 				saveNextState <= WAIT_FOR_DATA;
+-- 				data_req_comb <= '1';
+-- 			end if;
+-- 			addr_saved_comb <= '1';  -- gk 27.03.10
+-- 		when SAVE_DATA =>
+-- 			state <= x"2";
+-- 			if (FEE_BUSY_IN = '0') then
+-- 				saveNextState <= TERMINATE;
+-- 			else
+-- 				saveNextState <= SAVE_DATA;
+-- 				data_req_comb <= '1';
+-- 			end if;
+-- 		when TERMINATE =>
+-- 			state <= x"3";
+-- 			if (CTS_READ_IN = '1') then
+-- 				saveNextState <= SCLOSE;
+-- 			else
+-- 				saveNextState <= TERMINATE;
+-- 			end if;
+-- 		when SCLOSE =>
+-- 			state <= x"4";
+-- 			if (CTS_START_READOUT_IN = '0') then
+-- 				saveNextState <= ADD_SUBSUB1; --SIDLE;  -- gk 29.03.10
+-- 			else
+-- 				saveNextState <= SCLOSE;
+-- 			end if;
+-- 		-- gk 29.03.10 new states during which the subsub bytes are saved
+-- 		when ADD_SUBSUB1 =>
+-- 			state <= x"6";
+-- 			saveNextState <= ADD_SUBSUB2;
+-- 			add_sub_state_comb <= '1';
+-- 		when ADD_SUBSUB2 =>
+-- 			state<= x"7";
+-- 			saveNextState <= ADD_SUBSUB3;
+-- 			add_sub_state_comb <= '1';
+-- 			save_eod_comb <= '1';
+-- 		when ADD_SUBSUB3 =>
+-- 			state<= x"8";
+-- 			saveNextState <= ADD_SUBSUB4;
+-- 			add_sub_state_comb <= '1';
+-- 		when ADD_SUBSUB4 =>
+-- 			state<= x"9";
+-- 			saveNextState <= SIDLE;
+-- 			add_sub_state_comb <= '1';
+-- 		when others =>
+-- 			state <= x"f";
+-- 			saveNextState <= SIDLE;
+-- 	end case;
+-- end process saveMachine;
 -- 
 -- -- gk 29.03.10
 -- ADD_SUB_CTR_PROC : process( CLK )
@@ -1255,72 +1241,140 @@ end process start_config_proc;
 -- 	end if;
 -- end process CONSTR_EVENTS_CTR_PROC;
 
-DUMMY_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dummy_current_state <= IDLE;
-		else
-			dummy_current_state <= dummy_next_state;
-		end if;	
-	end if;
-end process DUMMY_MACHINE_PROC;
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 
-DUMMY_MACHINE : process(dummy_current_state)
-begin
-	case (dummy_current_state) is
-	
-		when IDLE =>
-			if (CTS_START_READOUT_IN = '1') then
-				dummy_next_state <= GENERATE_DATA;
-			else
-				dummy_next_state <= IDLE;
-			end if;
-		
-		when GENERATE_DATA =>
-			if (data_ctr = SCTRL_DUMMY_SIZE_IN) then
-				dummy_next_state <= PAUSE;
-			else
-				dummy_next_state <= GENERATE_DATA;
-			end if;
-			
-		when PAUSE =>
-			if (pause_ctr = SCTRL_DUMMY_PAUSE_IN) then
-				dummy_next_state <= CLEANUP;
-			else
-				dummy_next_state <= CLEANUP;
-			end if;
-		
-		when CLEANUP =>
-			dummy_next_state <= IDLE;
-		
-	end case;
-end process DUMMY_MACHINE;
-
-DATA_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dummy_current_state = IDLE) then
-			data_ctr <= (others => '0');
-		elsif (dummy_current_state = GENERATE_DATA) then
-			data_ctr <= data_ctr + x"1";
-		end if;
-	end if;
-end process DATA_CTR_PROC;
-
-PAUSE_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dummy_current_state = IDLE) then
-			pause_ctr <= (others => '0');
-		elsif (dummy_current_state = PAUSE) then
-			pause_ctr <= pause_ctr + x"1";
-		end if;
-	end if;
-end process PAUSE_CTR_PROC;
-
-
-
+-- Debug signals
+-- debug(0)              <= sf_full;
+-- debug(1)              <= sf_empty;
+-- debug(2)              <= sf_afull;
+-- debug(3)              <= sf_aempty;
+-- 
+-- debug(7 downto  4)    <= state2;
+-- 
+-- debug(11 downto 8)    <= state;
+-- 
+-- dbg_bs_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			debug(15 downto 12) <= (others => '0');
+-- 		elsif ( (sf_rd_en = '1') and (rem_ctr = x"3") ) then
+-- 			debug(15 downto 12) <= bank_select;
+-- 		end if;
+-- 	end if;
+-- end process dbg_bs_proc;
+-- 
+-- debug(16)             <= config_done;
+-- debug(17)             <= '0'; --remove_done;
+-- debug(18)             <= read_done;
+-- debug(19)             <= padding_needed;
+-- 
+-- debug(20)             <= load_sub_done;
+-- 
+-- dbg_cts_inf_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			debug(39 downto 32) <= (others => '0');
+-- 		elsif ( save_addr = '1' ) then
+-- 			debug(39 downto 32) <= CTS_INFORMATION_IN;
+-- 		end if;
+-- 	end if;
+-- end process dbg_cts_inf_proc;
+-- 
+-- debug(47 downto 40) <= (others => '0');
+-- 
+-- 
+-- debug(63 downto 48)   <= actual_message_size(15 downto 0);
+-- 
+-- dbg_pc_sub_size_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			debug(81 downto 64) <= (others => '0');
+-- 		elsif (loadCurrentState = DECIDE) then
+-- 			debug(81 downto 64) <= pc_sub_size;
+-- 		end if;
+-- 	end if;
+-- end process dbg_pc_sub_size_proc;
+-- 
+-- dbg_empty_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') or (rst_regs = '1') then
+-- 			debug(84 downto 82) <= (others => '0');
+-- 		elsif (read_size = 2) then
+-- 			debug(82) <= sf_empty;
+-- 		elsif (read_size = 1) then
+-- 			debug(83) <= sf_empty;
+-- 		elsif (read_size = 0) then
+-- 			debug(84) <= sf_empty;
+-- 		end if;
+-- 	end if;
+-- end process dbg_empty_proc;
+-- 
+-- debug(95 downto 85) <= (others => '0');
+-- 
+-- dbg_inc_ctr_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			debug(127 downto 96) <= (others => '1');
+-- 		elsif (saveCurrentState = SCLOSE) then
+-- 			debug(127 downto 96) <= inc_data_ctr;
+-- 		end if;
+-- 	end if;
+-- end process dbg_inc_ctr_proc;
+-- 
+-- debug(143 downto 128) <= dropped_sm_events_ctr(15 downto 0);
+-- debug(159 downto 144) <= dropped_lr_events_ctr(15 downto 0);
+-- 
+-- debug(175 downto 160) <= headers_invalid_ctr(15 downto 0);
+-- debug(191 downto 176) <= (others => '0');
+-- 
+-- dbg_cts_q_proc : process(CLK)
+-- begin
+-- 	if rising_edge(CLK) then
+-- 		if (RESET = '1') then
+-- 			cts_len_q <= (others => '0');
+-- 			cts_rnd_q <= (others => '0');
+-- 			cts_trg_q <= (others => '0');
+-- 			cts_addr_q <= (others => '0');
+-- 		elsif (cts_len_saved = '1') then
+-- 			cts_len_q <= cts_len(16 downto 1);
+-- 			cts_addr_q <= cts_addr;
+-- 			cts_rnd_q <= cts_rnd;
+-- 			cts_trg_q <= cts_trg;
+-- 		end if;
+-- 	end if;
+-- end process dbg_cts_q_proc;
+-- 
+-- debug(207 downto 192) <= cts_trg_q;
+-- debug(223 downto 208) <= cts_rnd_q;
+-- debug(239 downto 224) <= cts_addr_q;
+-- debug(255 downto 240) <= cts_len_q;
+-- debug(271 downto 256) <= first_run_trg;
+-- debug(287 downto 272) <= first_run_addr;
+-- 
+-- debug(303 downto 288) <= saved_events_ctr;
+-- debug(319 downto 304) <= loaded_events_ctr;
+-- 
+-- debug(335 downto 320) <= constr_events_ctr(15 downto 0);
+-- debug(351 downto 336) <= dropped_ctr(15 downto 0);
+-- 
+-- debug(367 downto 352) <= invalid_hsize_ctr;
+-- debug(383 downto 368) <= (others => '0');
+-- 
+-- MONITOR_OUT(31 downto 0)    <= constr_events_ctr;
+-- MONITOR_OUT(63 downto 32)   <= dropped_ctr;
+-- MONITOR_OUT(95 downto 64)   <= headers_invalid_ctr;
+-- MONITOR_OUT(127 downto 96)  <= dropped_sm_events_ctr;
+-- MONITOR_OUT(159 downto 128) <= dropped_lr_events_ctr;
+-- MONITOR_OUT(163 downto 160) <= b"1111" when (sf_afull = '1') else b"0000";
+-- MONITOR_OUT(191 downto 164) <= (others => '0');
+-- MONITOR_OUT(223 downto 192) <= found_empty_evt_ctr; -- gk 01.10.10
 
 -- Outputs
 FEE_READ_OUT             <= fee_read;
@@ -1330,15 +1384,19 @@ CTS_DATAREADY_OUT        <= cts_dataready;
 CTS_READOUT_FINISHED_OUT <= cts_readout_finished;
 CTS_LENGTH_OUT           <= cts_length;
 
-PC_SOS_OUT               <= '1' when (dummy_current_state = IDLE and CTS_START_READOUT_IN = '1') else '0';
-PC_EOD_OUT               <= '1' when (dummy_current_state = PAUSE and pause_ctr = x"0000_0000") else '0';
-PC_DATA_OUT              <= data_ctr(7 downto 0);
-PC_WR_EN_OUT             <= '1' when (dummy_current_state = GENERATE_DATA) else '0';
+PC_SOS_OUT               <= pc_sos;
+PC_EOD_OUT               <= '1' when ((MULT_EVT_ENABLE_IN = '0') and (pc_eod = '1'))
+				or ((MULT_EVT_ENABLE_IN = '1') and (message_size + pc_sub_size >= MAX_MESSAGE_SIZE_IN) and (remove_done = '1'))
+				-- gk 07.12.10
+				or ((MULT_EVT_ENABLE_IN = '1') and (prev_bank_select /= bank_select) and (remove_done = '1'))
+				else '0'; -- gk 07.10.10
+PC_DATA_OUT              <= pc_data_q;
+PC_WR_EN_OUT             <= pc_wr_en_qq;
 
 PC_TRIG_NR_OUT           <= readout_ctr(23 downto 16) & pc_trig_nr & trig_random;
 
-PC_SUB_SIZE_OUT          <= x"0000" & SCTRL_DUMMY_SIZE_IN; 
-PC_PADDING_OUT           <= '0';
+PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
+PC_PADDING_OUT           <= padding_needed;
 
 DEBUG_OUT                <= debug;
 

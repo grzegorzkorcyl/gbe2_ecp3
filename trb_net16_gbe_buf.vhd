@@ -603,9 +603,6 @@ signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
-signal sctrl_dummy_size  : std_Logic_vector(31 downto 0);
-signal sctrl_dummy_pause : std_Logic_vector(31 downto 0);
-
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -871,9 +868,6 @@ port map(
 	DBG_SELECT_SENT_IN	=> dbg_select_sent,
 	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
 	
-	SCTRL_DUMMY_SIZE_OUT => sctrl_dummy_size,
-	SCTRL_DUMMY_PAUSE_OUT => sctrl_dummy_pause,
-	
 	DBG_FIFO_Q_IN             => dbg_q
 	
 	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
@@ -1070,11 +1064,6 @@ port map(
 	PC_SUB_SIZE_OUT				=> pc_sub_size,
 	PC_TRIG_NR_OUT				=> pc_trig_nr,
 	PC_PADDING_OUT				=> pc_padding,
-	
-	
---	SCTRL_DUMMY_SIZE_IN         => sctrl_dummy_size(15 downto 0),
---	SCTRL_DUMMY_PAUSE_IN        => sctrl_dummy_pause,
-	
 	MONITOR_OUT(31 downto 0)                => monitor_sent,
 	MONITOR_OUT(63 downto 32)               => monitor_dropped,
 	MONITOR_OUT(95 downto 64)               => monitor_hr,
@@ -1106,7 +1095,7 @@ port map(
 	PC_WR_EN_IN			=> pc_wr_en,
 	PC_DATA_IN			=> pc_data,
 	PC_READY_OUT			=> pc_ready,
-	PC_START_OF_SUB_IN		=> pc_sos, 
+	PC_START_OF_SUB_IN		=> pc_sos, --CHANGED TO SLOW CONTROL PULSE
 	PC_END_OF_SUB_IN		=> pc_eos, -- gk 07.10.10
 	PC_END_OF_DATA_IN		=> pc_eod,
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,

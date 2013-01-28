@@ -433,6 +433,7 @@ begin
 		-- gk 06.11.2012
 		when RESET_FIFO =>
 			saveNextState <= SIDLE;
+			state <= x"E";
 		-- gk 29.03.10 new states during which the subsub bytes are saved
 		when ADD_SUBSUB1 =>
 			state <= x"6";
