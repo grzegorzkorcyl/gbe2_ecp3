@@ -39,6 +39,10 @@ port(
 	MIN_MESSAGE_SIZE_IN			: in	std_logic_vector(31 downto 0); -- gk 20.07.10
 	READOUT_CTR_IN				: in	std_logic_vector(23 downto 0); -- gk 26.04.10
 	READOUT_CTR_VALID_IN			: in	std_logic; -- gk 26.04.10
+	
+	SCTRL_DUMMY_SIZE_IN      : in std_logic_vector(15 downto 0);
+	SCTRL_DUMMY_PAUSE_IN     : in std_logic_vector(31 downto 0);
+	
 	-- PacketConstructor interface
 	ALLOW_LARGE_IN				: in	std_logic;  -- gk 21.07.10
 	PC_WR_EN_OUT                : out   std_logic;
@@ -1431,17 +1435,20 @@ CTS_LENGTH_OUT           <= cts_length;
 PC_TRIG_NR_OUT           <= readout_ctr(23 downto 16) & pc_trig_nr & trig_random;
 
 --PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
-PC_PADDING_OUT           <= padding_needed;
+--PC_PADDING_OUT           <= padding_needed;
 
 DEBUG_OUT                <= debug;
 
 -- SIMPLE SENDER STUFF
 
+
+
 PC_SOS_OUT      <= '1' when gen_current_state = IDLE and event_waiting = '1' else '0';
-PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = x"0100" else '0';
+PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = SCTRL_DUMMY_SIZE_IN else '0';
 PC_DATA_OUT     <= gen_data_ctr(7 downto 0);
 PC_WR_EN_OUT    <= '1' when gen_current_state = GENERATE_DATA else '0';
-PC_SUB_SIZE_OUT <= x"0000_0100";
+PC_SUB_SIZE_OUT <= x"0000" & SCTRL_DUMMY_SIZE_IN;
+PC_PADDING_OUT  <= '0';
 
 GEN_MACHINE_PROC : process(CLK)
 begin
@@ -1454,7 +1461,7 @@ begin
 	end if;
 end process GEN_MACHINE_PROC;
 
-GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting, DATA_GBE_ENABLE_IN)
+GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting, DATA_GBE_ENABLE_IN, SCTRL_DUMMY_SIZE_IN)
 begin
 	case (gen_current_state) is
 	
@@ -1466,7 +1473,7 @@ begin
 			end if;
 		
 		when GENERATE_DATA =>
-			if (gen_data_ctr = x"0100") then
+			if (gen_data_ctr = SCTRL_DUMMY_SIZE_IN) then
 				gen_next_state <= CLEANUP;
 			else
 				gen_next_state <= GENERATE_DATA;

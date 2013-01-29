@@ -603,6 +603,9 @@ signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
+signal dummy_size : std_logic_vector(15 downto 0);
+signal dummy_pause : std_logic_vector(31 downto 0);
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -868,6 +871,9 @@ port map(
 	DBG_SELECT_SENT_IN	=> dbg_select_sent,
 	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
 	
+	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
+	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
+	
 	DBG_FIFO_Q_IN             => dbg_q
 	
 	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
@@ -1054,6 +1060,8 @@ port map(
 	READOUT_CTR_IN				=> readout_ctr, -- gk 26.04.10
 	READOUT_CTR_VALID_IN			=> readout_ctr_valid, -- gk 26.04.10
 	ALLOW_LARGE_IN				=> allow_large, -- gk 21.07.10
+	SCTRL_DUMMY_SIZE_IN      => dummy_size,
+	SCTRL_DUMMY_PAUSE_IN     => dummy_pause,
 	-- PacketConstructor interface
 	PC_WR_EN_OUT				=> pc_wr_en,
 	PC_DATA_OUT				=> pc_data,
