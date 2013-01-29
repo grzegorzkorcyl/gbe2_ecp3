@@ -1454,12 +1454,12 @@ begin
 	end if;
 end process GEN_MACHINE_PROC;
 
-GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting)
+GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting, DATA_GBE_ENABLE_IN)
 begin
 	case (gen_current_state) is
 	
 		when IDLE =>
-			if (event_waiting = '1') then
+			if (event_waiting = '1' and DATA_GBE_ENABLE_IN = '1') then
 				gen_next_state <= GENERATE_DATA;
 			else
 				gen_next_state <= IDLE;
