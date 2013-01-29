@@ -630,10 +630,12 @@ port map(
 	WCNT            => sf_wcnt,
 	RCNT            => sf_rcnt,
 	Empty           => sf_empty,
-	AlmostEmpty     => sf_aempty,
+	AlmostEmpty     => open, --sf_aempty,
 	Full            => sf_full,
 	AlmostFull      => sf_afull
 );
+
+sf_aempty <= '0';
 
 reset_split_fifo <= '1' when (saveCurrentState = RESET_FIFO or RESET = '1') else '0';
 
@@ -1273,135 +1275,135 @@ end process CONSTR_EVENTS_CTR_PROC;
 ------------------------------------------------------------------------------------------
 
 -- Debug signals
-debug(0)              <= sf_full;
-debug(1)              <= sf_empty;
-debug(2)              <= sf_afull;
-debug(3)              <= sf_aempty;
-
-debug(7 downto  4)    <= state2;
-
-debug(11 downto 8)    <= state;
-
-dbg_bs_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			debug(15 downto 12) <= (others => '0');
-		elsif ( (sf_rd_en = '1') and (rem_ctr = x"3") ) then
-			debug(15 downto 12) <= bank_select;
-		end if;
-	end if;
-end process dbg_bs_proc;
-
-debug(16)             <= config_done;
-debug(17)             <= '0'; --remove_done;
-debug(18)             <= read_done;
-debug(19)             <= padding_needed;
-
-debug(20)             <= load_sub_done;
-
-dbg_cts_inf_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			debug(39 downto 32) <= (others => '0');
-		elsif ( save_addr = '1' ) then
-			debug(39 downto 32) <= CTS_INFORMATION_IN;
-		end if;
-	end if;
-end process dbg_cts_inf_proc;
-
-debug(47 downto 40) <= (others => '0');
-
-
-debug(63 downto 48)   <= actual_message_size(15 downto 0);
-
-dbg_pc_sub_size_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			debug(81 downto 64) <= (others => '0');
-		elsif (loadCurrentState = DECIDE) then
-			debug(81 downto 64) <= pc_sub_size;
-		end if;
-	end if;
-end process dbg_pc_sub_size_proc;
-
-dbg_empty_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (rst_regs = '1') then
-			debug(84 downto 82) <= (others => '0');
-		elsif (read_size = 2) then
-			debug(82) <= sf_empty;
-		elsif (read_size = 1) then
-			debug(83) <= sf_empty;
-		elsif (read_size = 0) then
-			debug(84) <= sf_empty;
-		end if;
-	end if;
-end process dbg_empty_proc;
-
-debug(95 downto 85) <= (others => '0');
-
-dbg_inc_ctr_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			debug(127 downto 96) <= (others => '1');
-		elsif (saveCurrentState = SCLOSE) then
-			debug(127 downto 96) <= inc_data_ctr;
-		end if;
-	end if;
-end process dbg_inc_ctr_proc;
-
-debug(143 downto 128) <= dropped_sm_events_ctr(15 downto 0);
-debug(159 downto 144) <= dropped_lr_events_ctr(15 downto 0);
-
-debug(175 downto 160) <= headers_invalid_ctr(15 downto 0);
-debug(191 downto 176) <= (others => '0');
-
-dbg_cts_q_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			cts_len_q <= (others => '0');
-			cts_rnd_q <= (others => '0');
-			cts_trg_q <= (others => '0');
-			cts_addr_q <= (others => '0');
-		elsif (cts_len_saved = '1') then
-			cts_len_q <= cts_len(16 downto 1);
-			cts_addr_q <= cts_addr;
-			cts_rnd_q <= cts_rnd;
-			cts_trg_q <= cts_trg;
-		end if;
-	end if;
-end process dbg_cts_q_proc;
-
-debug(207 downto 192) <= cts_trg_q;
-debug(223 downto 208) <= cts_rnd_q;
-debug(239 downto 224) <= cts_addr_q;
-debug(255 downto 240) <= cts_len_q;
-debug(271 downto 256) <= first_run_trg;
-debug(287 downto 272) <= first_run_addr;
-
-debug(303 downto 288) <= saved_events_ctr;
-debug(319 downto 304) <= loaded_events_ctr;
-
-debug(335 downto 320) <= constr_events_ctr(15 downto 0);
-debug(351 downto 336) <= dropped_ctr(15 downto 0);
-
-debug(367 downto 352) <= invalid_hsize_ctr;
-debug(383 downto 368) <= (others => '0');
-
-MONITOR_OUT(31 downto 0)    <= constr_events_ctr;
-MONITOR_OUT(63 downto 32)   <= dropped_ctr;
-MONITOR_OUT(95 downto 64)   <= headers_invalid_ctr;
-MONITOR_OUT(127 downto 96)  <= dropped_sm_events_ctr;
-MONITOR_OUT(159 downto 128) <= dropped_lr_events_ctr;
-MONITOR_OUT(163 downto 160) <= b"1111" when (sf_afull = '1') else b"0000";
-MONITOR_OUT(191 downto 164) <= (others => '0');
-MONITOR_OUT(223 downto 192) <= found_empty_evt_ctr; -- gk 01.10.10
+--debug(0)              <= sf_full;
+--debug(1)              <= sf_empty;
+--debug(2)              <= sf_afull;
+--debug(3)              <= sf_aempty;
+--
+--debug(7 downto  4)    <= state2;
+--
+--debug(11 downto 8)    <= state;
+--
+--dbg_bs_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			debug(15 downto 12) <= (others => '0');
+--		elsif ( (sf_rd_en = '1') and (rem_ctr = x"3") ) then
+--			debug(15 downto 12) <= bank_select;
+--		end if;
+--	end if;
+--end process dbg_bs_proc;
+--
+--debug(16)             <= config_done;
+--debug(17)             <= '0'; --remove_done;
+--debug(18)             <= read_done;
+--debug(19)             <= padding_needed;
+--
+--debug(20)             <= load_sub_done;
+--
+--dbg_cts_inf_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			debug(39 downto 32) <= (others => '0');
+--		elsif ( save_addr = '1' ) then
+--			debug(39 downto 32) <= CTS_INFORMATION_IN;
+--		end if;
+--	end if;
+--end process dbg_cts_inf_proc;
+--
+--debug(47 downto 40) <= (others => '0');
+--
+--
+--debug(63 downto 48)   <= actual_message_size(15 downto 0);
+--
+--dbg_pc_sub_size_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			debug(81 downto 64) <= (others => '0');
+--		elsif (loadCurrentState = DECIDE) then
+--			debug(81 downto 64) <= pc_sub_size;
+--		end if;
+--	end if;
+--end process dbg_pc_sub_size_proc;
+--
+--dbg_empty_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (rst_regs = '1') then
+--			debug(84 downto 82) <= (others => '0');
+--		elsif (read_size = 2) then
+--			debug(82) <= sf_empty;
+--		elsif (read_size = 1) then
+--			debug(83) <= sf_empty;
+--		elsif (read_size = 0) then
+--			debug(84) <= sf_empty;
+--		end if;
+--	end if;
+--end process dbg_empty_proc;
+--
+--debug(95 downto 85) <= (others => '0');
+--
+--dbg_inc_ctr_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			debug(127 downto 96) <= (others => '1');
+--		elsif (saveCurrentState = SCLOSE) then
+--			debug(127 downto 96) <= inc_data_ctr;
+--		end if;
+--	end if;
+--end process dbg_inc_ctr_proc;
+--
+--debug(143 downto 128) <= dropped_sm_events_ctr(15 downto 0);
+--debug(159 downto 144) <= dropped_lr_events_ctr(15 downto 0);
+--
+--debug(175 downto 160) <= headers_invalid_ctr(15 downto 0);
+--debug(191 downto 176) <= (others => '0');
+--
+--dbg_cts_q_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			cts_len_q <= (others => '0');
+--			cts_rnd_q <= (others => '0');
+--			cts_trg_q <= (others => '0');
+--			cts_addr_q <= (others => '0');
+--		elsif (cts_len_saved = '1') then
+--			cts_len_q <= cts_len(16 downto 1);
+--			cts_addr_q <= cts_addr;
+--			cts_rnd_q <= cts_rnd;
+--			cts_trg_q <= cts_trg;
+--		end if;
+--	end if;
+--end process dbg_cts_q_proc;
+--
+--debug(207 downto 192) <= cts_trg_q;
+--debug(223 downto 208) <= cts_rnd_q;
+--debug(239 downto 224) <= cts_addr_q;
+--debug(255 downto 240) <= cts_len_q;
+--debug(271 downto 256) <= first_run_trg;
+--debug(287 downto 272) <= first_run_addr;
+--
+--debug(303 downto 288) <= saved_events_ctr;
+--debug(319 downto 304) <= loaded_events_ctr;
+--
+--debug(335 downto 320) <= constr_events_ctr(15 downto 0);
+--debug(351 downto 336) <= dropped_ctr(15 downto 0);
+--
+--debug(367 downto 352) <= invalid_hsize_ctr;
+--debug(383 downto 368) <= (others => '0');
+--
+--MONITOR_OUT(31 downto 0)    <= constr_events_ctr;
+--MONITOR_OUT(63 downto 32)   <= dropped_ctr;
+--MONITOR_OUT(95 downto 64)   <= headers_invalid_ctr;
+--MONITOR_OUT(127 downto 96)  <= dropped_sm_events_ctr;
+--MONITOR_OUT(159 downto 128) <= dropped_lr_events_ctr;
+--MONITOR_OUT(163 downto 160) <= b"1111" when (sf_afull = '1') else b"0000";
+--MONITOR_OUT(191 downto 164) <= (others => '0');
+--MONITOR_OUT(223 downto 192) <= found_empty_evt_ctr; -- gk 01.10.10
 
 -- Outputs
 FEE_READ_OUT             <= fee_read;
@@ -1411,19 +1413,24 @@ CTS_DATAREADY_OUT        <= cts_dataready;
 CTS_READOUT_FINISHED_OUT <= cts_readout_finished;
 CTS_LENGTH_OUT           <= cts_length;
 
-PC_SOS_OUT               <= pc_sos;
-PC_EOD_OUT               <= '1' when ((MULT_EVT_ENABLE_IN = '0') and (pc_eod = '1'))
-				or ((MULT_EVT_ENABLE_IN = '1') and (message_size + pc_sub_size >= MAX_MESSAGE_SIZE_IN) and (remove_done = '1'))
-				-- gk 07.12.10
-				or ((MULT_EVT_ENABLE_IN = '1') and (prev_bank_select /= bank_select) and (remove_done = '1'))
-				else '0'; -- gk 07.10.10
-PC_DATA_OUT              <= pc_data_q;
-PC_WR_EN_OUT             <= pc_wr_en_qq;
+--PC_SOS_OUT               <= pc_sos;
+--PC_EOD_OUT               <= '1' when ((MULT_EVT_ENABLE_IN = '0') and (pc_eod = '1'))
+--				or ((MULT_EVT_ENABLE_IN = '1') and (message_size + pc_sub_size >= MAX_MESSAGE_SIZE_IN) and (remove_done = '1'))
+--				-- gk 07.12.10
+--				or ((MULT_EVT_ENABLE_IN = '1') and (prev_bank_select /= bank_select) and (remove_done = '1'))
+--				else '0'; -- gk 07.10.10
+--PC_DATA_OUT              <= pc_data_q;
+--PC_WR_EN_OUT             <= pc_wr_en_qq;
 
 PC_TRIG_NR_OUT           <= readout_ctr(23 downto 16) & pc_trig_nr & trig_random;
 
 PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
 PC_PADDING_OUT           <= padding_needed;
+
+PC_SOS_OUT  <= '0';
+PC_EOD_OUT  <= '0';
+PC_DATA_OUT <= (others => '0'); 
+PC_WR_EN_OUT <= '0';
 
 DEBUG_OUT                <= debug;
 
