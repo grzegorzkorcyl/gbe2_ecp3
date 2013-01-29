@@ -537,58 +537,58 @@ begin
 end process CTS_TRG_PROC;
 
 -- save size from incoming data for cts response (future) and to get rid of padding
-CTS_SIZE_PROC: process( CLK )
-begin
-	if( rising_edge(CLK) ) then
-		if   ( (RESET = '1') or (rst_saved_ctr = '1') ) then
-			cts_len       <= (others => '0');
-			cts_len_saved <= '0';
-		elsif( (saved_ctr(2 downto 0) = b"010") and (sf_wr_en = '1') and (cts_len_saved = '0') ) then
-			cts_len(16 downto 1) <= sf_data; -- change from 32b words to 16b words
-			cts_len(0)           <= '0';
-		elsif( (saved_ctr(2 downto 0) = b"011") and (cts_len_saved = '0') ) then
-			cts_len       <= cts_len + x"4";
-			cts_len_saved <= '1';
-		end if;
-	end if;
-end process CTS_SIZE_PROC;
+--CTS_SIZE_PROC: process( CLK )
+--begin
+--	if( rising_edge(CLK) ) then
+--		if   ( (RESET = '1') or (rst_saved_ctr = '1') ) then
+--			cts_len       <= (others => '0');
+--			cts_len_saved <= '0';
+--		elsif( (saved_ctr(2 downto 0) = b"010") and (sf_wr_en = '1') and (cts_len_saved = '0') ) then
+--			cts_len(16 downto 1) <= sf_data; -- change from 32b words to 16b words
+--			cts_len(0)           <= '0';
+--		elsif( (saved_ctr(2 downto 0) = b"011") and (cts_len_saved = '0') ) then
+--			cts_len       <= cts_len + x"4";
+--			cts_len_saved <= '1';
+--		end if;
+--	end if;
+--end process CTS_SIZE_PROC;
 
 -- gk 22.07.10
-CTS_ADDR_PROC : process(CLK)
-begin
-	if( rising_edge(CLK) ) then
-		if   ( (RESET = '1') or (rst_saved_ctr = '1') ) then
-			cts_addr       <= (others => '0');
-			cts_addr_saved <= '0';
-		elsif( (saved_ctr(2 downto 0) = b"011") and (sf_wr_en = '1') and (cts_addr_saved = '0') ) then
-			cts_addr       <= sf_data;
-			cts_addr_saved <= '1';
-		end if;
-	end if;
-end process CTS_ADDR_PROC;
+--CTS_ADDR_PROC : process(CLK)
+--begin
+--	if( rising_edge(CLK) ) then
+--		if   ( (RESET = '1') or (rst_saved_ctr = '1') ) then
+--			cts_addr       <= (others => '0');
+--			cts_addr_saved <= '0';
+--		elsif( (saved_ctr(2 downto 0) = b"011") and (sf_wr_en = '1') and (cts_addr_saved = '0') ) then
+--			cts_addr       <= sf_data;
+--			cts_addr_saved <= '1';
+--		end if;
+--	end if;
+--end process CTS_ADDR_PROC;
 
 --******
 -- SAVE FIRST EVENT HEADER VALUES
 --******
 
 -- gk 22.07.10
-FIRST_RUN_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			first_run_trg <= (others => '0');
-			first_run_addr <= (others => '0');
-			first_run_lock <= '0';
-		elsif (first_run_lock = '0') and (cts_addr_saved = '1') then
-			first_run_trg <= cts_trg;
-			first_run_addr <= cts_addr;
-			first_run_lock <= '1';
-		-- important: value saved by saveMachine but incremented by loadMachine
-		elsif (first_run_lock = '1') and (inc_trg_ctr = '1') then
-			first_run_trg <= first_run_trg + x"1";
-		end if;
-	end if;
-end process FIRST_RUN_PROC;
+--FIRST_RUN_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			first_run_trg <= (others => '0');
+--			first_run_addr <= (others => '0');
+--			first_run_lock <= '0';
+--		elsif (first_run_lock = '0') and (cts_addr_saved = '1') then
+--			first_run_trg <= cts_trg;
+--			first_run_addr <= cts_addr;
+--			first_run_lock <= '1';
+--		-- important: value saved by saveMachine but incremented by loadMachine
+--		elsif (first_run_lock = '1') and (inc_trg_ctr = '1') then
+--			first_run_trg <= first_run_trg + x"1";
+--		end if;
+--	end if;
+--end process FIRST_RUN_PROC;
 
 -- gk 25.07.10
 SAVED_EVT_CTR_PROC : process(CLK)
@@ -603,17 +603,17 @@ begin
 end process SAVED_EVT_CTR_PROC;
 
 
--- gk 20.07.10
-INC_DATA_CTR_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (rst_saved_ctr = '1') then
-			inc_data_ctr <= (others => '0');
-		elsif (sf_wr_en = '1') and (data_req = '1') then
-			inc_data_ctr(31 downto 1) <= inc_data_ctr(31 downto 1) + x"1";
-		end if;
-	end if;
-end process INC_DATA_CTR_proc;
+---- gk 20.07.10
+--INC_DATA_CTR_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (rst_saved_ctr = '1') then
+--			inc_data_ctr <= (others => '0');
+--		elsif (sf_wr_en = '1') and (data_req = '1') then
+--			inc_data_ctr(31 downto 1) <= inc_data_ctr(31 downto 1) + x"1";
+--		end if;
+--	end if;
+--end process INC_DATA_CTR_proc;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
@@ -820,24 +820,24 @@ begin
 				loadNextState <= WAIT_TO_REMOVE;
 			end if;
 		when DECIDE =>
-			if (pc_sub_size >= MAX_MESSAGE_SIZE_IN) then
-				loadNextState <= PAUSE_BEFORE_DROP1;
-				drop_large_comb <= '1';
-			elsif (pc_sub_size = b"0000_0000_0000_00") then  -- gk 01.10.10
+--			if (pc_sub_size >= MAX_MESSAGE_SIZE_IN) then
+--				loadNextState <= PAUSE_BEFORE_DROP1;
+--				drop_large_comb <= '1';
+--			elsif (pc_sub_size = b"0000_0000_0000_00") then  -- gk 01.10.10
+--				loadNextState <= CALCA;
+--				found_empty_evt_comb <= '1';
+--			elsif (pc_sub_size < MIN_MESSAGE_SIZE_IN) then
+--				loadNextState <= PAUSE_BEFORE_DROP1;
+--				drop_small_comb <= '1';
+--			elsif (pc_trig_nr + x"1" /= first_run_trg) then
+--				loadNextState <= PAUSE_BEFORE_DROP1;
+--				drop_headers_comb <= '1';
+--			elsif (endpoint_addr /= first_run_addr) then
+--				loadNextState <= PAUSE_BEFORE_DROP1;
+--				drop_headers_comb <= '1';
+--			else
 				loadNextState <= CALCA;
-				found_empty_evt_comb <= '1';
-			elsif (pc_sub_size < MIN_MESSAGE_SIZE_IN) then
-				loadNextState <= PAUSE_BEFORE_DROP1;
-				drop_small_comb <= '1';
-			elsif (pc_trig_nr + x"1" /= first_run_trg) then
-				loadNextState <= PAUSE_BEFORE_DROP1;
-				drop_headers_comb <= '1';
-			elsif (endpoint_addr /= first_run_addr) then
-				loadNextState <= PAUSE_BEFORE_DROP1;
-				drop_headers_comb <= '1';
-			else
-				loadNextState <= CALCA;
-			end if;
+--			end if;
 			calc_pad_comb <= '1';
 		when CALCA =>
 			state2 <= x"3";
@@ -949,36 +949,36 @@ begin
 end process loadMachine;
 
 -- gk 25.07.10
-INVALID_STATS_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dropped_lr_events_ctr <= (others => '0');
-			dropped_sm_events_ctr <= (others => '0');
-			headers_invalid_ctr   <= (others => '0');
-			dropped_ctr           <= (others => '0');
-			invalid_hsize_ctr     <= (others => '0');
-			found_empty_evt_ctr   <= (others => '0');  -- gk 01.10.10
-		elsif (rst_regs = '1') then
-			invalid_hsize_lock <= '0';
-		elsif (drop_small = '1') then
-			dropped_sm_events_ctr <= dropped_sm_events_ctr + x"1";
-			dropped_ctr <= dropped_ctr + x"1";
-		elsif (drop_large = '1') then
-			dropped_lr_events_ctr <= dropped_lr_events_ctr + x"1";
-			dropped_ctr <= dropped_ctr + x"1";
-		elsif (drop_headers = '1') then
-			headers_invalid_ctr   <= headers_invalid_ctr + x"1";
-			dropped_ctr <= dropped_ctr + x"1";
-		elsif (load_eod_q = '1') and (read_size_q /= x"3fffe") and (invalid_hsize_lock = '0') then -- ??
-			invalid_hsize_ctr <= invalid_hsize_ctr + x"1";
-			invalid_hsize_lock <= '1';
-		-- gk 01.10.10
-		elsif (found_empty_evt = '1') then
-			found_empty_evt_ctr <= found_empty_evt_ctr + x"1";
-		end if;
-	end if;
-end process INVALID_STATS_PROC;
+--INVALID_STATS_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			dropped_lr_events_ctr <= (others => '0');
+--			dropped_sm_events_ctr <= (others => '0');
+--			headers_invalid_ctr   <= (others => '0');
+--			dropped_ctr           <= (others => '0');
+--			invalid_hsize_ctr     <= (others => '0');
+--			found_empty_evt_ctr   <= (others => '0');  -- gk 01.10.10
+--		elsif (rst_regs = '1') then
+--			invalid_hsize_lock <= '0';
+--		elsif (drop_small = '1') then
+--			dropped_sm_events_ctr <= dropped_sm_events_ctr + x"1";
+--			dropped_ctr <= dropped_ctr + x"1";
+--		elsif (drop_large = '1') then
+--			dropped_lr_events_ctr <= dropped_lr_events_ctr + x"1";
+--			dropped_ctr <= dropped_ctr + x"1";
+--		elsif (drop_headers = '1') then
+--			headers_invalid_ctr   <= headers_invalid_ctr + x"1";
+--			dropped_ctr <= dropped_ctr + x"1";
+--		elsif (load_eod_q = '1') and (read_size_q /= x"3fffe") and (invalid_hsize_lock = '0') then -- ??
+--			invalid_hsize_ctr <= invalid_hsize_ctr + x"1";
+--			invalid_hsize_lock <= '1';
+--		-- gk 01.10.10
+--		elsif (found_empty_evt = '1') then
+--			found_empty_evt_ctr <= found_empty_evt_ctr + x"1";
+--		end if;
+--	end if;
+--end process INVALID_STATS_PROC;
 
 -- gk 05.08.10
 INVALID_H_PROC : process(CLK)
@@ -1265,17 +1265,17 @@ begin
 	end if;
 end process LOADED_EVT_CTR_PROC;
 
--- gk 25.07.10
-CONSTR_EVENTS_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			constr_events_ctr <= (others => '0');
-		elsif (pc_eod = '1') then
-			constr_events_ctr <= constr_events_ctr + x"1";
-		end if;
-	end if;
-end process CONSTR_EVENTS_CTR_PROC;
+---- gk 25.07.10
+--CONSTR_EVENTS_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			constr_events_ctr <= (others => '0');
+--		elsif (pc_eod = '1') then
+--			constr_events_ctr <= constr_events_ctr + x"1";
+--		end if;
+--	end if;
+--end process CONSTR_EVENTS_CTR_PROC;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
