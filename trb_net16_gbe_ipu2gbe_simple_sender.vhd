@@ -262,6 +262,12 @@ signal reset_split_fifo     : std_logic;
 
 signal input_data_ctr       : std_logic_vector(31 downto 0);
 
+-- SIMPLE SENDER STUFF
+type gen_states is (IDLE, GENERATE_DATA, CLEANUP);
+signal gen_current_state, gen_next_state : gen_states;
+
+signal gen_data_ctr : std_logic_vector(15 downto 0);
+
 begin
 
 BANK_SELECT_OUT <= bank_select; -- gk 27.03.10
@@ -1424,14 +1430,52 @@ CTS_LENGTH_OUT           <= cts_length;
 
 PC_TRIG_NR_OUT           <= readout_ctr(23 downto 16) & pc_trig_nr & trig_random;
 
-PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
+--PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
 PC_PADDING_OUT           <= padding_needed;
 
-PC_SOS_OUT  <= '0';
-PC_EOD_OUT  <= '0';
-PC_DATA_OUT <= (others => '0'); 
-PC_WR_EN_OUT <= '0';
-
 DEBUG_OUT                <= debug;
+
+-- SIMPLE SENDER STUFF
+
+PC_SOS_OUT      <= '1' when gen_current_state = IDLE and event_waiting = '1' else '0';
+PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = x"0100" else '0';
+PC_DATA_OUT     <= gen_data_ctr(7 downto 0);
+PC_WR_EN_OUT    <= '1' when gen_current_state = GENERATE_DATA else '0';
+PC_SUB_SIZE_OUT <= x"0000_0100";
+
+GEN_MACHINE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			gen_current_state <= IDLE;
+		else
+			gen_current_state <= gen_next_state;
+		end if;
+	end if;
+end process GEN_MACHINE_PROC;
+
+GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting)
+begin
+	case (gen_current_state) is
+	
+		when IDLE =>
+			if (event_waiting = '1') then
+				gen_next_state <= GENERATE_DATA;
+			else
+				gen_next_state <= IDLE;
+			end if;
+		
+		when GENERATE_DATA =>
+			if (gen_data_ctr = x"0100") then
+				gen_next_state <= CLEANUP;
+			else
+				gen_next_state <= GENERATE_DATA;
+			end if;
+		
+		when CLEANUP =>
+			gen_next_state <= IDLE;
+	
+	end case;
+end process GEN_MACHINE;
 
 end architecture;
