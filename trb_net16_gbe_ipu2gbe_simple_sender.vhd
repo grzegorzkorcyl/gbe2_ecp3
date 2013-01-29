@@ -267,7 +267,7 @@ signal reset_split_fifo     : std_logic;
 signal input_data_ctr       : std_logic_vector(31 downto 0);
 
 -- SIMPLE SENDER STUFF
-type gen_states is (IDLE, GENERATE_DATA, CLEANUP);
+type gen_states is (IDLE, WAIT_FOR_PC, GENERATE_DATA, CLEANUP);
 signal gen_current_state, gen_next_state : gen_states;
 
 signal gen_data_ctr : std_logic_vector(15 downto 0);
@@ -1442,7 +1442,7 @@ DEBUG_OUT                <= debug;
 
 
 
-PC_SOS_OUT      <= '1' when gen_current_state = IDLE and event_waiting = '1' else '0';
+PC_SOS_OUT      <= '1' when gen_current_state = WAIT_FOR_PC and PC_READY_IN = '1' else '0';
 PC_EOS_OUT      <= '0';
 PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = SCTRL_DUMMY_SIZE_IN else '0';
 PC_DATA_OUT     <= gen_data_ctr(7 downto 0);
@@ -1461,15 +1461,22 @@ begin
 	end if;
 end process GEN_MACHINE_PROC;
 
-GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting, DATA_GBE_ENABLE_IN, SCTRL_DUMMY_SIZE_IN)
+GEN_MACHINE : process(gen_current_state, gen_data_ctr, event_waiting, DATA_GBE_ENABLE_IN, SCTRL_DUMMY_SIZE_IN, PC_READY_IN)
 begin
 	case (gen_current_state) is
 	
 		when IDLE =>
 			if (event_waiting = '1' and DATA_GBE_ENABLE_IN = '1') then
-				gen_next_state <= GENERATE_DATA;
+				gen_next_state <= WAIT_FOR_PC;
 			else
 				gen_next_state <= IDLE;
+			end if;
+			
+		when WAIT_FOR_PC =>
+			if (PC_READY_IN = '1') then
+				gen_next_state <= GENERATE_DATA;
+			else
+				gen_next_state <= WAIT_FOR_PC;
 			end if;
 		
 		when GENERATE_DATA =>
