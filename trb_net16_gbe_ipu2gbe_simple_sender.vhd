@@ -948,9 +948,6 @@ begin
 	end case;
 end process loadMachine;
 
--- gk 07.10.10
-PC_EOS_OUT <= '1' when (MULT_EVT_ENABLE_IN = '1') and (pc_eod = '1') else '0';
-
 -- gk 25.07.10
 INVALID_STATS_PROC : process(CLK)
 begin
@@ -1436,6 +1433,8 @@ PC_TRIG_NR_OUT           <= readout_ctr(23 downto 16) & pc_trig_nr & trig_random
 
 --PC_SUB_SIZE_OUT          <= b"0000_0000_0000_00" & pc_sub_size;
 --PC_PADDING_OUT           <= padding_needed;
+-- gk 07.10.10
+--PC_EOS_OUT <= '1' when (MULT_EVT_ENABLE_IN = '1') and (pc_eod = '1') else '0';
 
 DEBUG_OUT                <= debug;
 
@@ -1444,10 +1443,11 @@ DEBUG_OUT                <= debug;
 
 
 PC_SOS_OUT      <= '1' when gen_current_state = IDLE and event_waiting = '1' else '0';
+PC_EOS_OUT      <= '0';
 PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = SCTRL_DUMMY_SIZE_IN else '0';
 PC_DATA_OUT     <= gen_data_ctr(7 downto 0);
 PC_WR_EN_OUT    <= '1' when gen_current_state = GENERATE_DATA else '0';
-PC_SUB_SIZE_OUT <= x"0000" & SCTRL_DUMMY_SIZE_IN;
+PC_SUB_SIZE_OUT <= x"0000" & SCTRL_DUMMY_SIZE_IN + x"1";
 PC_PADDING_OUT  <= '0';
 
 GEN_MACHINE_PROC : process(CLK)
