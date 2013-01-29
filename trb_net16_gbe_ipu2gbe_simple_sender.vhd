@@ -1478,4 +1478,15 @@ begin
 	end case;
 end process GEN_MACHINE;
 
+GEN_DATA_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') or (gen_current_state = IDLE) then
+			gen_data_ctr <= (others => '0');
+		elsif (gen_current_state = GENERATE_DATA) then
+			gen_data_ctr <= gen_data_ctr + x"1";
+		end if;
+	end if;
+end process GEN_DATA_CTR_PROC;
+
 end architecture;
