@@ -380,9 +380,9 @@ begin
 		if (RESET = '1') then
 			sent_packets_ctr <= (others => '0');
 		--elsif (tx_current_state = CLEANUP and MC_FLAGS_OFFSET_IN(13) = '0') then
-		elsif (tx_current_state = TRANSMIT_DATA and PC_EOD_IN = '1' and PC_FLAGS_OFFSET(13) = '1') then
+		elsif (tx_current_state = TRANSMIT_DATA and PC_EOD_IN = '1' and PC_FLAGS_OFFSET_IN(13) = '1') then
 			sent_packets_ctr <= sent_packets_ctr + x"1";
-		elsif (tx_current_state = TRANSMIT_CTRL and ctrl_construct_current_state = CLOSE and MC_FLAGS_OFFSET(13) = '1') then
+		elsif (tx_current_state = TRANSMIT_CTRL and ctrl_construct_current_state = CLOSE and MC_FLAGS_OFFSET_IN(13) = '1') then
 			sent_packets_ctr <= sent_packets_ctr + x"1";
 		end if;
 	end if;
