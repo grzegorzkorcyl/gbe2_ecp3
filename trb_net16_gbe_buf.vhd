@@ -606,6 +606,9 @@ attribute syn_preserve of timeout_noticed : signal is true;
 signal dummy_size : std_logic_vector(15 downto 0);
 signal dummy_pause : std_logic_vector(31 downto 0);
 
+signal make_reset    : std_logic;
+signal idle_too_long : std_logic;
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -627,6 +630,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> MR_RESTART_IN,
+	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
 
   -- signals to/from receive controller
 	  RC_FRAME_WAITING_IN	=> rc_frame_ready,
@@ -687,7 +691,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 
-	MAKE_RESET_OUT           => MAKE_RESET_OUT,
+	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -706,6 +710,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
 	  DEBUG_OUT		=> dbg_mc
   );
+  
+  MAKE_RESET_OUT <= make_reset or idle_too_long;
 
 
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control

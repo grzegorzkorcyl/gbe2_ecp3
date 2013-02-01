@@ -26,6 +26,7 @@ port (
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
+	MC_IDLE_TOO_LONG_OUT : out std_logic;
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -486,7 +487,7 @@ mc_busy <= '0' when flow_current_state = IDLE else '1';
 NOTHING_SENT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or TC_TRANSMIT_DONE_IN = '1') then
+		if (RESET = '1' or flow_current_state = IDLE or flow_current_state = CLEANUP) then
 			nothing_sent_ctr <= (others => '0');
 		else
 			nothing_sent_ctr <= nothing_sent_ctr + x"1";
@@ -499,11 +500,13 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			nothing_sent <= '0';
-		elsif (nothing_sent_ctr = x"ffff_ffff") then
+		elsif (nothing_sent_ctr = x"0fff_ffff") then
 			nothing_sent <= '1';
 		end if;
 	end if;
 end process NOTHING_SENT_PROC;
+
+MC_IDLE_TOO_LONG_OUT <= nothing_sent;
 
 --***********************
 --	LINK STATE CONTROL
@@ -645,7 +648,7 @@ begin
 	end if;
 end process LINK_DOWN_CTR_PROC;
 
-MC_LINK_OK_OUT <= link_ok or nothing_sent;
+MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 
 -- END OF LINK STATE CONTROL
 --*************

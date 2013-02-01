@@ -251,6 +251,7 @@ port (
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
+	MC_IDLE_TOO_LONG_OUT : out std_logic;
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;

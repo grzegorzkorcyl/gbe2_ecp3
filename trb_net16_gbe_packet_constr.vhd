@@ -477,32 +477,6 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			divide_position <= "00";
--- 		elsif (bytes_loaded = max_frame_size - 1) then
--- 			if (loadCurrentState = LIDLE) then
--- 				divide_position <= "00";
--- 			elsif (loadCurrentState = LOAD_DATA) then
--- 				-- gk 07.10.10
--- 				if (MULT_EVT_ENABLE_IN = '1') and (size_left = x"0000_003a") then
--- 					divide_position <= "11";
--- 				-- gk 07.10.10
--- 				elsif (MULT_EVT_ENABLE_IN = '1') and (load_eod_q = '1') then
--- 					divide_position <= "01";
--- 				-- gk 26.07.10
--- 				elsif (MULT_EVT_ENABLE_IN = '0') and (load_eod_q = '1') then -- if termination is about to be loaded divide on term
--- 					divide_position <= "11";
--- 				else
--- 					divide_position <= "00"; -- still data loaded divide on data
--- 				end if;
--- 			elsif (loadCurrentState = LOAD_SUB) then
--- 				if (all_int_ctr = 15) then
--- 					divide_position <= "00";
--- 				else
--- 					divide_position <= "01";
--- 				end if;
--- 			elsif (loadCurrentState = LOAD_TERM) then
--- 				divide_position <= "11";
--- 			end if;
--- 		end if;
 		elsif (bytes_loaded = max_frame_size - 1) then
 			if (loadCurrentState = LIDLE) then
 				divide_position <= "00";
@@ -652,18 +626,6 @@ begin
 end process shfRdEnProc;
 
 
--- fcWrEnProc : process(loadCurrentState, RESET)
--- begin
--- 	if (RESET = '1') then  -- gk 31.05.10
--- 		fc_wr_en <= '0';
--- 	elsif (loadCurrentState = PUT_Q_LEN) or (loadCurrentState = PUT_Q_DEC) then
--- 		fc_wr_en <= '1';
--- 	elsif (loadCurrentState = LOAD_SUB) or (loadCurrentState = LOAD_DATA) or (loadCurrentState = LOAD_TERM) then
--- 		fc_wr_en <= '1';
--- 	else
--- 		fc_wr_en <= '0';
--- 	end if;
--- end process fcWrEnProc;
 fcWrEnProc : process(loadCurrentState, RESET, first_sub_in_multi, from_divide_state, MULT_EVT_ENABLE_IN, divide_position, disable_prep)
 begin
 	if (RESET = '1') then  -- gk 31.05.10
