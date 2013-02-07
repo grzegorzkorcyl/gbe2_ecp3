@@ -89,6 +89,34 @@ port (
 	GSC_REPLY_READ_OUT       : out std_logic;
 	GSC_BUSY_IN              : in std_logic;
 	
+	-- signal for data readout
+	-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	-- ip configurator
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	
 	MAKE_RESET_OUT           : out std_logic;
 
 -- signal to/from Host interface of TriSpeed MAC
@@ -258,6 +286,33 @@ port map(
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 		
 	MAKE_RESET_OUT           => MAKE_RESET_OUT,
+	
+	-- CTS interface
+	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+	CTS_CODE_IN					=> CTS_CODE_IN,
+	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+	CTS_DATA_OUT				=> CTS_DATA_OUT,
+	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+	CTS_READ_IN					=> CTS_READ_IN,
+	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+	-- Data payload interface
+	FEE_DATA_IN					=> FEE_DATA_IN,
+	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+	FEE_READ_OUT				=> FEE_READ_OUT,
+	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	-- ip configurator
+	SLV_ADDR_IN                 => SLV_ADDR_IN,
+	SLV_READ_IN                 => SLV_READ_IN,
+	SLV_WRITE_IN                => SLV_WRITE_IN,
+	SLV_BUSY_OUT                => SLV_BUSY_OUT,
+	SLV_ACK_OUT                 => SLV_ACK_OUT,
+	SLV_DATA_IN                 => SLV_DATA_IN,
+	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,

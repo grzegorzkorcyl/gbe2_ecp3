@@ -20,7 +20,7 @@ signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0); -- set up in main c
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
-constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5;
+constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 6;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
 constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 3;
 
@@ -472,6 +472,82 @@ port (
 	STAT_ADDR_IN : in std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
 	STAT_DATA_RDY_IN  : in std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 	STAT_DATA_ACK_OUT : out std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
+
+-- debug
+	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+);
+end component;
+
+component trb_net16_gbe_response_constructor_TrbNetData is
+port (
+	CLK			: in	std_logic;  -- system clock
+	RESET			: in	std_logic;
+	
+-- INTERFACE	
+	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
+	PS_WR_EN_IN		: in	std_logic;
+	PS_ACTIVATE_IN		: in	std_logic;
+	PS_RESPONSE_READY_OUT	: out	std_logic;
+	PS_BUSY_OUT		: out	std_logic;
+	PS_SELECTED_IN		: in	std_logic;
+	PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
+	PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
+	PS_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+	
+	TC_RD_EN_IN		: in	std_logic;
+	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
+	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+		
+	TC_BUSY_IN		: in	std_logic;
+	
+	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
+	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
+	STAT_DATA_RDY_OUT : out std_logic;
+	STAT_DATA_ACK_IN  : in std_logic;
+	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
+	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
+-- END OF INTERFACE
+
+	-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	-- ip configurator
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 
 -- debug
 	DEBUG_OUT		: out	std_logic_vector(31 downto 0)

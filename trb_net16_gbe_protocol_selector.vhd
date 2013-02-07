@@ -79,6 +79,34 @@ port (
 	GSC_BUSY_IN              : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
+	
+	-- signal for data readout
+		-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	-- ip configurator
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
@@ -360,6 +388,84 @@ port map (
 	
 	
 	DEBUG_OUT		=> PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
+);
+
+TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
+port map (
+	CLK							=> CLK,
+	RESET						=> RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN					=> PS_DATA_IN,
+	PS_WR_EN_IN					=> PS_WR_EN_IN,
+	PS_ACTIVATE_IN				=> PS_PROTO_SELECT_IN(5),
+	PS_RESPONSE_READY_OUT		=> resp_ready(5),
+	PS_BUSY_OUT					=> busy(5),
+	PS_SELECTED_IN				=> selected(5),
+	
+	PS_SRC_MAC_ADDRESS_IN		=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN 		=> PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN		=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN		=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN			=> PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN			=> PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN					=> TC_RD_EN_IN,
+	TC_DATA_OUT					=> tc_data(6 * 9 - 1 downto 5 * 9),
+	TC_FRAME_SIZE_OUT			=> tc_size(6 * 16 - 1 downto 5 * 16),
+	TC_FRAME_TYPE_OUT			=> tc_type(6 * 16 - 1 downto 5 * 16),
+	TC_IP_PROTOCOL_OUT			=> tc_ip_proto(6 * 8 - 1 downto 5 * 8),
+	
+	TC_DEST_MAC_OUT				=> tc_mac(6 * 48 - 1 downto 5 * 48),
+	TC_DEST_IP_OUT				=> tc_ip(6 * 32 - 1 downto 5 * 32),
+	TC_DEST_UDP_OUT				=> tc_udp(6 * 16 - 1 downto 5 * 16),
+	TC_SRC_MAC_OUT				=> tc_src_mac(6 * 48 - 1 downto 5 * 48),
+	TC_SRC_IP_OUT				=> tc_src_ip(6 * 32 - 1 downto 5 * 32),
+	TC_SRC_UDP_OUT				=> tc_src_udp(6 * 16 - 1 downto 5 * 16),
+	
+	TC_IP_SIZE_OUT				=> tc_ip_size(6 * 16 - 1 downto 5 * 16),
+	TC_UDP_SIZE_OUT				=> tc_udp_size(6 * 16 - 1 downto 5 * 16),
+	TC_FLAGS_OFFSET_OUT			=> tc_flags_size(6 * 16 - 1 downto 5 * 16),
+	
+	TC_BUSY_IN					=> TC_BUSY_IN,
+	
+	STAT_DATA_OUT 				=> stat_data(6 * 32 - 1 downto 5 * 32),
+	STAT_ADDR_OUT 				=> stat_addr(6 * 8 - 1 downto 5 * 8),
+	STAT_DATA_RDY_OUT 			=> stat_rdy(5),
+	STAT_DATA_ACK_IN  			=> stat_ack(5),
+	RECEIVED_FRAMES_OUT			=> RECEIVED_FRAMES_OUT(6 * 16 - 1 downto 5 * 16),
+	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(6 * 16 - 1 downto 5 * 16),
+-- END OF INTERFACE
+
+	-- CTS interface
+	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+	CTS_CODE_IN					=> CTS_CODE_IN,
+	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+	CTS_DATA_OUT				=> CTS_DATA_OUT,
+	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+	CTS_READ_IN					=> CTS_READ_IN,
+	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+	-- Data payload interface
+	FEE_DATA_IN					=> FEE_DATA_IN,
+	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+	FEE_READ_OUT				=> FEE_READ_OUT,
+	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	-- ip configurator
+	SLV_ADDR_IN                 => SLV_ADDR_IN,
+	SLV_READ_IN                 => SLV_READ_IN,
+	SLV_WRITE_IN                => SLV_WRITE_IN,
+	SLV_BUSY_OUT                => SLV_BUSY_OUT,
+	SLV_ACK_OUT                 => SLV_ACK_OUT,
+	SLV_DATA_IN                 => SLV_DATA_IN,
+	SLV_DATA_OUT                => SLV_DATA_OUT,
+
+-- debug
+	DEBUG_OUT					=> open
 );
 
 --stat_gen : if g_SIMULATE = 0 generate
