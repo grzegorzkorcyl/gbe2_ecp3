@@ -210,7 +210,7 @@ port map(
 	START_CONFIG_OUT		 => ip_cfg_start,
 	BANK_SELECT_OUT			 => ip_cfg_bank,
 	CONFIG_DONE_IN			 => ip_cfg_done,
-	DATA_GBE_ENABLE_IN		 => '1',
+	DATA_GBE_ENABLE_IN		 => '0',
 	DATA_IPU_ENABLE_IN		 => '0',
 	MULT_EVT_ENABLE_IN		 => '0',
 	MAX_MESSAGE_SIZE_IN		 => x"0000_0fd0",
