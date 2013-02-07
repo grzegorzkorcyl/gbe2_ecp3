@@ -309,7 +309,7 @@ begin
 end process DISSECT_MACHINE;
 
 tc_ready <= not TC_BUSY_IN;
-tc_h_ready <= '1' dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
+tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
 
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) else '0';
