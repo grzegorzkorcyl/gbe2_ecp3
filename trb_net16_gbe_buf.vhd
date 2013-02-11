@@ -649,7 +649,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
 
   -- signals to/from packet constructor
-	  PC_READY_IN		=> pc_ready,
+	  PC_READY_IN		=> '1', --pc_ready,
 	  PC_TRANSMIT_ON_IN	=> pc_transmit_on,
 	  PC_SOD_IN		=> tc_sod,
 
@@ -725,7 +725,7 @@ port map(
 	RESET			=> RESET,
 
 -- signals to/from packet constructor
-	PC_READY_IN		=> pc_ready,
+	PC_READY_IN		=> '1', --pc_ready,
 	PC_DATA_IN		=> tc_data,
 	PC_WR_EN_IN		=> tc_wr_en,
 	PC_IP_SIZE_IN		=> tc_ip_size,
