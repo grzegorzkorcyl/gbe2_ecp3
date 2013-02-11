@@ -22,7 +22,7 @@ signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0); -- set up in main c
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
 constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 6;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
-constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 3;
+constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 4;
 
 type frame_types_a is array(c_MAX_FRAME_TYPES - 1 downto 0) of std_logic_vector(15 downto 0);
 constant FRAME_TYPES : frame_types_a := (x"0800", x"0806"); 
