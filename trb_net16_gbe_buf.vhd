@@ -650,8 +650,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
   -- signals to/from packet constructor
 	  PC_READY_IN		=> '1', --pc_ready,
-	  PC_TRANSMIT_ON_IN	=> pc_transmit_on,
-	  PC_SOD_IN		=> tc_sod,
+	  PC_TRANSMIT_ON_IN	=> '0', --pc_transmit_on,
+	  PC_SOD_IN		=> '0', --tc_sod,
 
   -- signals to/from sgmii/gbe pcs_an_complete
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
@@ -731,11 +731,11 @@ port map(
 	PC_IP_SIZE_IN		=> tc_ip_size,
 	PC_UDP_SIZE_IN		=> tc_udp_size,
 	PC_FLAGS_OFFSET_IN	=> tc_flags_offset,
-	PC_SOD_IN		=> tc_sod,
-	PC_EOD_IN		=> tc_eod,
+	PC_SOD_IN		=> '0', --tc_sod,
+	PC_EOD_IN		=> '0', --tc_eod,
 	PC_FC_READY_OUT		=> tc_pc_ready,
 	PC_FC_H_READY_OUT	=> tc_pc_h_ready,
-	PC_TRANSMIT_ON_IN	=> pc_transmit_on,
+	PC_TRANSMIT_ON_IN	=> '0', --pc_transmit_on,
 
       -- signals from ip_configurator used by packet constructor
 	IC_DEST_MAC_ADDRESS_IN  => ic_dest_mac,

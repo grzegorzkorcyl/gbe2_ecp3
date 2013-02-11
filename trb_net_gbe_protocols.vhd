@@ -34,7 +34,7 @@ constant IP_PROTOCOLS : ip_protos_a := (x"11", x"01");
 
 -- this are the destination ports of the incoming packet
 type udp_protos_a is array(c_MAX_UDP_PROTOCOLS - 1 downto 0) of std_logic_vector(15 downto 0);
-constant UDP_PROTOCOLS : udp_protos_a := (x"0044", x"61a8", x"7530");
+constant UDP_PROTOCOLS : udp_protos_a := (x"0044", x"61a8", x"7530", x"7531");
 -- DHCP client, SCTRL, STATs
 
 component trb_net16_gbe_response_constructor_Forward is
