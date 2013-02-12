@@ -242,9 +242,9 @@ port map(
 	PC_WR_EN_IN				=> pc_wr_en,
 	PC_DATA_IN				=> pc_data,
 	PC_READY_OUT			=> pc_ready,
-	PC_START_OF_SUB_IN		=> '0', --pc_sos,
-	PC_END_OF_SUB_IN		=> '0', --pc_eos,
-	PC_END_OF_DATA_IN		=> '0', --pc_eod,
+	PC_START_OF_SUB_IN		=> pc_sos,
+	PC_END_OF_SUB_IN		=> pc_eos,
+	PC_END_OF_DATA_IN		=> pc_eod,
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	PC_SUB_SIZE_IN			=> pc_sub_size,
 	PC_PADDING_IN			=> pc_padding,
@@ -312,7 +312,7 @@ tc_ready <= not TC_BUSY_IN;
 tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
 
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
-PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) else '0';
+PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
 TC_DATA_OUT           <= "0" & tc_data;
 TC_FRAME_SIZE_OUT 	  <= tc_ip_size;
