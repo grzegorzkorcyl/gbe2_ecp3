@@ -320,10 +320,10 @@ TC_FRAME_SIZE_OUT 	  <= tc_ip_size;
 TC_FRAME_TYPE_OUT     <= x"0008";
 TC_DEST_MAC_OUT       <= ic_dest_mac;
 TC_DEST_IP_OUT        <= ic_dest_ip;
-TC_DEST_UDP_OUT       <= x"cb20";
-TC_SRC_MAC_OUT        <= g_MY_MAC;
+TC_DEST_UDP_OUT       <= ic_dest_udp; --x"cb20";
+TC_SRC_MAC_OUT        <= x"0000beefbeef"; --g_MY_MAC;
 TC_SRC_IP_OUT         <= g_MY_IP;
-TC_SRC_UDP_OUT        <= x"cb20";
+TC_SRC_UDP_OUT        <= ic_src_udp; --x"cb20";
 TC_IP_PROTOCOL_OUT    <= x"11";
 TC_FLAGS_OFFSET_OUT   <= tc_flags_offset;
 
