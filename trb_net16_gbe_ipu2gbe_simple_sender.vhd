@@ -1035,7 +1035,7 @@ end process first_event_proc;
 -- gk 07.12.10
 prev_bank_proc : process(CLK)
 begin
-	if rising_egde(CLK) then
+	if rising_edge(CLK) then
 		if (RESET = '1') or (loadCurrentState = WAIT_PC) then
 			prev_bank_select <= "0000";
 		elsif ((sf_rd_en = '1') and (rem_ctr = x"3") and (first_event = '1')) then
