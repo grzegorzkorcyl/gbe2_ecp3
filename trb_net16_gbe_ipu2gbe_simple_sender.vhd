@@ -1035,10 +1035,12 @@ end process first_event_proc;
 -- gk 07.12.10
 prev_bank_proc : process(CLK)
 begin
-	if (RESET = '1') or (loadCurrentState = WAIT_PC) then
-		prev_bank_select <= "0000";
-	elsif ((sf_rd_en = '1') and (rem_ctr = x"3") and (first_event = '1')) then
-		prev_bank_select <= bank_select;
+	if rising_egde(CLK) then
+		if (RESET = '1') or (loadCurrentState = WAIT_PC) then
+			prev_bank_select <= "0000";
+		elsif ((sf_rd_en = '1') and (rem_ctr = x"3") and (first_event = '1')) then
+			prev_bank_select <= bank_select;
+		end if;
 	end if;
 end process prev_bank_proc;
 
