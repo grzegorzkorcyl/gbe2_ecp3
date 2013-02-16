@@ -162,7 +162,7 @@ signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
 
 signal mac_control_debug             : std_logic_vector(63 downto 0);
 
-type flow_states is (IDLE, TRANSMIT_DATA, TRANSMIT_CTRL, CLEANUP);
+type flow_states is (IDLE, TRANSMIT_CTRL, CLEANUP);
 signal flow_current_state, flow_next_state : flow_states;
 
 signal state                        : std_logic_vector(3 downto 0);
@@ -324,7 +324,7 @@ port map(
 	DEBUG_OUT		=> dbg_ps
 );
 
-TC_FRAME_TYPE_OUT <= frame_type when flow_current_state = TRANSMIT_CTRL else x"0008";
+TC_FRAME_TYPE_OUT <= frame_type; -- when flow_current_state = TRANSMIT_CTRL else x"0008";
 
 -- gk 07.11.11
 -- do not select any response constructors when dropping a frame
@@ -505,19 +505,19 @@ begin
 	  state <= x"1";
 	  if (ps_response_ready = '1') and (PC_TRANSMIT_ON_IN = '0') then
 		flow_next_state <= TRANSMIT_CTRL;
-	  elsif (PC_SOD_IN = '1') then  -- pottential loss of frames
-		flow_next_state <= TRANSMIT_DATA;
+--	  elsif (PC_SOD_IN = '1') then  -- pottential loss of frames
+--		flow_next_state <= TRANSMIT_DATA;
 	  else
 		flow_next_state <= IDLE;
 	  end if;
 	
-	when TRANSMIT_DATA =>
-	  state <= x"2";
-	  if (TC_TRANSMIT_DONE_IN = '1') then
-		flow_next_state <= CLEANUP;
-	  else
-		flow_next_state <= TRANSMIT_DATA;
-	  end if;
+--	when TRANSMIT_DATA =>
+--	  state <= x"2";
+--	  if (TC_TRANSMIT_DONE_IN = '1') then
+--		flow_next_state <= CLEANUP;
+--	  else
+--		flow_next_state <= TRANSMIT_DATA;
+--	  end if;
 	
 	when TRANSMIT_CTRL =>
 	  state <= x"3";
@@ -534,34 +534,34 @@ begin
   end case;
 end process FLOW_MACHINE;
 
-TC_TRANSMIT_DATA_OUT <= '1' when (flow_current_state = TRANSMIT_DATA) else '0';
+TC_TRANSMIT_DATA_OUT <= '0'; --'1' when (flow_current_state = TRANSMIT_DATA) else '0';
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
 
 mc_busy <= '0' when flow_current_state = IDLE else '1';  
 
-NOTHING_SENT_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or flow_current_state = IDLE or flow_current_state = CLEANUP) then
-			nothing_sent_ctr <= (others => '0');
-		else
-			nothing_sent_ctr <= nothing_sent_ctr + x"1";
-		end if;
-	end if;
-end process NOTHING_SENT_CTR_PROC;
-
-NOTHING_SENT_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			nothing_sent <= '0';
-		elsif (nothing_sent_ctr = x"0fff_ffff") then
-			nothing_sent <= '1';
-		end if;
-	end if;
-end process NOTHING_SENT_PROC;
-
-MC_IDLE_TOO_LONG_OUT <= nothing_sent;
+--NOTHING_SENT_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or flow_current_state = IDLE or flow_current_state = CLEANUP) then
+--			nothing_sent_ctr <= (others => '0');
+--		else
+--			nothing_sent_ctr <= nothing_sent_ctr + x"1";
+--		end if;
+--	end if;
+--end process NOTHING_SENT_CTR_PROC;
+--
+--NOTHING_SENT_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			nothing_sent <= '0';
+--		elsif (nothing_sent_ctr = x"0fff_ffff") then
+--			nothing_sent <= '1';
+--		end if;
+--	end if;
+--end process NOTHING_SENT_PROC;
+--
+--MC_IDLE_TOO_LONG_OUT <= nothing_sent;
 
 --***********************
 --	LINK STATE CONTROL
@@ -764,142 +764,142 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --	STATISTICS
 -- *****
 
-
-CTRS_GEN : for n in 0 to 15 generate
-
-	CTR_PROC : process(CLK)
-	begin
-		if rising_edge(CLK) then
-			if (RESET = '1') then
-				arr(n) <= (others => '0');
-			elsif (rx_stat_en_q = '1' and rx_stat_vec_q(16 + n) = '1') then
-				arr(n) <= arr(n) + x"1";
-			end if;	
-		end if;
-	end process CTR_PROC;
-
-end generate CTRS_GEN;
-
-STAT_VEC_SYNC : signal_sync
-generic map (
-	WIDTH => 32,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => TSM_RX_STAT_VEC_IN,
-	D_OUT => rx_stat_vec_q
-);
-
-
-STAT_VEC_EN_SYNC : pulse_sync
-port map(
-	CLK_A_IN    => CLK_125,
-	RESET_A_IN  => RESET,
-	PULSE_A_IN  => TSM_RX_STAT_EN_IN,
-	CLK_B_IN    => CLK,
-	RESET_B_IN  => RESET,
-	PULSE_B_OUT => rx_stat_en_q
-);
-
-
-STATS_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			stats_current_state <= IDLE;
-		else
-			stats_current_state <= stats_next_state;
-		end if;
-	end if;
-end process STATS_MACHINE_PROC;
-
-STATS_MACHINE : process(stats_current_state, rx_stat_en_q, stats_ctr)
-begin
-
-	case (stats_current_state) is
-	
-		when IDLE =>
-			if (rx_stat_en_q = '1') then
-				stats_next_state <= LOAD_VECTOR;
-			else
-				stats_next_state <= IDLE;
-			end if;
-		
-		when LOAD_VECTOR =>
-			--if (stat_ack = '1') then
-			if (stats_ctr = 15) then
-				stats_next_state <= CLEANUP;
-			else
-				stats_next_state <= LOAD_VECTOR;
-			end if;
-		
-		when CLEANUP =>
-			stats_next_state <= IDLE;
-	
-	end case;
-
-end process STATS_MACHINE;
-
-STATS_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (stats_current_state = IDLE) then
-			stats_ctr <= 0;
-		elsif (stats_current_state = LOAD_VECTOR and stat_ack ='1') then
-			stats_ctr <= stats_ctr + 1;
-		end if;
-	end if;
-end process STATS_CTR_PROC; 
-
---stat_data <= arr(stats_ctr);
-
-stat_addr <= x"0c" + std_logic_vector(to_unsigned(stats_ctr, 8)); 
-
-stat_rdy <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
-
-stat_data(7 downto 0)   <= arr(stats_ctr)(31 downto 24);
-stat_data(15 downto 8)  <= arr(stats_ctr)(23 downto 16);
-stat_data(23 downto 16) <= arr(stats_ctr)(15 downto 8);
-stat_data(31 downto 24) <= arr(stats_ctr)(7 downto 0);
+--
+--CTRS_GEN : for n in 0 to 15 generate
+--
+--	CTR_PROC : process(CLK)
+--	begin
+--		if rising_edge(CLK) then
+--			if (RESET = '1') then
+--				arr(n) <= (others => '0');
+--			elsif (rx_stat_en_q = '1' and rx_stat_vec_q(16 + n) = '1') then
+--				arr(n) <= arr(n) + x"1";
+--			end if;	
+--		end if;
+--	end process CTR_PROC;
+--
+--end generate CTRS_GEN;
+--
+--STAT_VEC_SYNC : signal_sync
+--generic map (
+--	WIDTH => 32,
+--	DEPTH => 2
+--)
+--port map (
+--	RESET => RESET,
+--	CLK0  => CLK,
+--	CLK1  => CLK,
+--	D_IN  => TSM_RX_STAT_VEC_IN,
+--	D_OUT => rx_stat_vec_q
+--);
+--
+--
+--STAT_VEC_EN_SYNC : pulse_sync
+--port map(
+--	CLK_A_IN    => CLK_125,
+--	RESET_A_IN  => RESET,
+--	PULSE_A_IN  => TSM_RX_STAT_EN_IN,
+--	CLK_B_IN    => CLK,
+--	RESET_B_IN  => RESET,
+--	PULSE_B_OUT => rx_stat_en_q
+--);
+--
+--
+--STATS_MACHINE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			stats_current_state <= IDLE;
+--		else
+--			stats_current_state <= stats_next_state;
+--		end if;
+--	end if;
+--end process STATS_MACHINE_PROC;
+--
+--STATS_MACHINE : process(stats_current_state, rx_stat_en_q, stats_ctr)
+--begin
+--
+--	case (stats_current_state) is
+--	
+--		when IDLE =>
+--			if (rx_stat_en_q = '1') then
+--				stats_next_state <= LOAD_VECTOR;
+--			else
+--				stats_next_state <= IDLE;
+--			end if;
+--		
+--		when LOAD_VECTOR =>
+--			--if (stat_ack = '1') then
+--			if (stats_ctr = 15) then
+--				stats_next_state <= CLEANUP;
+--			else
+--				stats_next_state <= LOAD_VECTOR;
+--			end if;
+--		
+--		when CLEANUP =>
+--			stats_next_state <= IDLE;
+--	
+--	end case;
+--
+--end process STATS_MACHINE;
+--
+--STATS_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (stats_current_state = IDLE) then
+--			stats_ctr <= 0;
+--		elsif (stats_current_state = LOAD_VECTOR and stat_ack ='1') then
+--			stats_ctr <= stats_ctr + 1;
+--		end if;
+--	end if;
+--end process STATS_CTR_PROC; 
+--
+----stat_data <= arr(stats_ctr);
+--
+--stat_addr <= x"0c" + std_logic_vector(to_unsigned(stats_ctr, 8)); 
+--
+--stat_rdy <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
+--
+--stat_data(7 downto 0)   <= arr(stats_ctr)(31 downto 24);
+--stat_data(15 downto 8)  <= arr(stats_ctr)(23 downto 16);
+--stat_data(23 downto 16) <= arr(stats_ctr)(15 downto 8);
+--stat_data(31 downto 24) <= arr(stats_ctr)(7 downto 0);
 
 
 -- **** debug
-FRAME_WAITING_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			frame_waiting_ctr <= (others => '0');
-		elsif (RC_FRAME_WAITING_IN = '1') then
-			frame_waiting_ctr <= frame_waiting_ctr + x"1";
-		end if;
-	end if;
-end process FRAME_WAITING_CTR_PROC;
-
-SAVE_VALUES_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			ps_busy_q <= (others => '0');
-			rc_frame_proto_q <= (others => '0');
-		elsif (redirect_current_state = IDLE and RC_FRAME_WAITING_IN = '1') then
-			ps_busy_q <= ps_busy;
-			rc_frame_proto_q <= RC_FRAME_PROTO_IN;
-		end if;
-	end if;
-end process SAVE_VALUES_PROC;
-
-
-DEBUG_OUT(3 downto 0)   <= link_state;
-DEBUG_OUT(7 downto 4)   <= state;
-DEBUG_OUT(11 downto 8)  <= redirect_state;
-DEBUG_OUT(15 downto 12) <= link_state;
-DEBUG_OUT(23 downto 16) <= frame_waiting_ctr(7 downto 0);
-DEBUG_OUT(27 downto 24) <= (others => '0'); --ps_busy_q;
-DEBUG_OUT(31 downto 28) <= (others => '0'); --rc_frame_proto_q;
-DEBUG_OUT(63 downto 32) <= dbg_ps(31 downto 0) or dbg_ps(63 downto 32);
+--FRAME_WAITING_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			frame_waiting_ctr <= (others => '0');
+--		elsif (RC_FRAME_WAITING_IN = '1') then
+--			frame_waiting_ctr <= frame_waiting_ctr + x"1";
+--		end if;
+--	end if;
+--end process FRAME_WAITING_CTR_PROC;
+--
+--SAVE_VALUES_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			ps_busy_q <= (others => '0');
+--			rc_frame_proto_q <= (others => '0');
+--		elsif (redirect_current_state = IDLE and RC_FRAME_WAITING_IN = '1') then
+--			ps_busy_q <= ps_busy;
+--			rc_frame_proto_q <= RC_FRAME_PROTO_IN;
+--		end if;
+--	end if;
+--end process SAVE_VALUES_PROC;
+--
+--
+--DEBUG_OUT(3 downto 0)   <= link_state;
+--DEBUG_OUT(7 downto 4)   <= state;
+--DEBUG_OUT(11 downto 8)  <= redirect_state;
+--DEBUG_OUT(15 downto 12) <= link_state;
+--DEBUG_OUT(23 downto 16) <= frame_waiting_ctr(7 downto 0);
+--DEBUG_OUT(27 downto 24) <= (others => '0'); --ps_busy_q;
+--DEBUG_OUT(31 downto 28) <= (others => '0'); --rc_frame_proto_q;
+--DEBUG_OUT(63 downto 32) <= dbg_ps(31 downto 0) or dbg_ps(63 downto 32);
 
 
 -- ****

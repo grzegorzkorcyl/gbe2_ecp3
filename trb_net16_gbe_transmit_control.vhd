@@ -99,7 +99,7 @@ architecture trb_net16_gbe_transmit_control of trb_net16_gbe_transmit_control is
 
 attribute syn_encoding	: string;
 
-type tx_states is (IDLE, TRANSMIT_DATA, TRANSMIT_CTRL, CLEANUP);
+type tx_states is (IDLE, TRANSMIT_CTRL, CLEANUP);
 signal tx_current_state, tx_next_state : tx_states;
 attribute syn_encoding of tx_current_state: signal is "safe,gray";
 
@@ -171,13 +171,13 @@ begin
 			tx_next_state <= IDLE;
 	  end if;
 
-    when TRANSMIT_DATA =>
-      state <= x"2";
-      if (PC_EOD_IN = '1') then
-	tx_next_state <= CLEANUP;
-      else
-	tx_next_state <= TRANSMIT_DATA;
-      end if;
+--    when TRANSMIT_DATA =>
+--      state <= x"2";
+--      if (PC_EOD_IN = '1') then
+--	tx_next_state <= CLEANUP;
+--      else
+--	tx_next_state <= TRANSMIT_DATA;
+--      end if;
       
     when TRANSMIT_CTRL =>
       state <= x"3";
@@ -203,24 +203,24 @@ begin
 
     case tx_current_state is
       
-      when TRANSMIT_DATA =>
-      -- CHANGED FOR SIMPLE FRAME SENDER
-	FC_DATA_OUT          <= PC_DATA_IN;
-	FC_SOD_OUT           <= PC_SOD_IN;
-	FC_EOD_OUT           <= PC_EOD_IN;
-	FC_IP_SIZE_OUT       <= PC_IP_SIZE_IN;
-	FC_UDP_SIZE_OUT      <= PC_UDP_SIZE_IN;
-	FC_FLAGS_OFFSET_OUT  <= PC_FLAGS_OFFSET_IN;
-	FC_IDENT_OUT         <= sent_packets_ctr;
-
-	DEST_MAC_ADDRESS_OUT <= IC_DEST_MAC_ADDRESS_IN;
-	DEST_IP_ADDRESS_OUT  <= IC_DEST_IP_ADDRESS_IN;
-	DEST_UDP_PORT_OUT    <= x"cb20"; --IC_DEST_UDP_PORT_IN;
-	SRC_MAC_ADDRESS_OUT  <= g_MY_MAC; --IC_SRC_MAC_ADDRESS_IN;
-	SRC_IP_ADDRESS_OUT   <= g_MY_IP; --IC_SRC_IP_ADDRESS_IN;
-	SRC_UDP_PORT_OUT     <= x"cb20"; --IC_SRC_UDP_PORT_IN;
-	
-	FC_IP_PROTOCOL_OUT   <= x"11";
+--      when TRANSMIT_DATA =>
+--      -- CHANGED FOR SIMPLE FRAME SENDER
+--	FC_DATA_OUT          <= PC_DATA_IN;
+--	FC_SOD_OUT           <= PC_SOD_IN;
+--	FC_EOD_OUT           <= PC_EOD_IN;
+--	FC_IP_SIZE_OUT       <= PC_IP_SIZE_IN;
+--	FC_UDP_SIZE_OUT      <= PC_UDP_SIZE_IN;
+--	FC_FLAGS_OFFSET_OUT  <= PC_FLAGS_OFFSET_IN;
+--	FC_IDENT_OUT         <= sent_packets_ctr;
+--
+--	DEST_MAC_ADDRESS_OUT <= IC_DEST_MAC_ADDRESS_IN;
+--	DEST_IP_ADDRESS_OUT  <= IC_DEST_IP_ADDRESS_IN;
+--	DEST_UDP_PORT_OUT    <= x"cb20"; --IC_DEST_UDP_PORT_IN;
+--	SRC_MAC_ADDRESS_OUT  <= g_MY_MAC; --IC_SRC_MAC_ADDRESS_IN;
+--	SRC_IP_ADDRESS_OUT   <= g_MY_IP; --IC_SRC_IP_ADDRESS_IN;
+--	SRC_UDP_PORT_OUT     <= x"cb20"; --IC_SRC_UDP_PORT_IN;
+--	
+--	FC_IP_PROTOCOL_OUT   <= x"11";
 	
 
       when TRANSMIT_CTRL =>
@@ -368,11 +368,11 @@ begin
   end if;
 end process SENT_BYTES_CTR_PROC;
 
-PC_FC_H_READY_OUT   <= FC_H_READY_IN when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
-		      else '0';
-
-PC_FC_READY_OUT     <= FC_READY_IN   when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
-		      else '0';
+--PC_FC_H_READY_OUT   <= FC_H_READY_IN when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
+--		      else '0';
+--
+--PC_FC_READY_OUT     <= FC_READY_IN   when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
+--		      else '0';
 
 SENT_PACKETS_CTR_PROC : process(CLK)
 begin
@@ -380,8 +380,8 @@ begin
 		if (RESET = '1') then
 			sent_packets_ctr <= (others => '0');
 		--elsif (tx_current_state = CLEANUP and MC_FLAGS_OFFSET_IN(13) = '0') then
-		elsif (tx_current_state = TRANSMIT_DATA and PC_EOD_IN = '1' and PC_FLAGS_OFFSET_IN(13) = '0') then
-			sent_packets_ctr <= sent_packets_ctr + x"1";
+--		elsif (tx_current_state = TRANSMIT_DATA and PC_EOD_IN = '1' and PC_FLAGS_OFFSET_IN(13) = '0') then
+--			sent_packets_ctr <= sent_packets_ctr + x"1";
 		elsif (tx_current_state = TRANSMIT_CTRL and ctrl_construct_current_state = CLOSE and MC_FLAGS_OFFSET_IN(13) = '0') then
 			sent_packets_ctr <= sent_packets_ctr + x"1";
 		end if;
