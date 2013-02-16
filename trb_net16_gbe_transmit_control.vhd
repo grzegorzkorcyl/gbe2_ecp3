@@ -294,8 +294,8 @@ begin
     delayed_wr_en_q <= delayed_wr_en;
 
     case tx_current_state is
-      when TRANSMIT_DATA =>
-	FC_WR_EN_OUT <= PC_WR_EN_IN;
+--      when TRANSMIT_DATA =>
+--	FC_WR_EN_OUT <= PC_WR_EN_IN;
       when TRANSMIT_CTRL =>
 	FC_WR_EN_OUT <= delayed_wr_en_q;
       when  others =>
