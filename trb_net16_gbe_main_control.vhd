@@ -117,6 +117,10 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
+	CFG_GBE_ENABLE_IN            : in std_logic;
+	CFG_IPU_ENABLE_IN            : in std_logic;
+	CFG_MULT_ENABLE_IN           : in std_logic;
+	
 	MAKE_RESET_OUT           : out std_logic;
 
 -- signal to/from Host interface of TriSpeed MAC
@@ -313,6 +317,10 @@ port map(
 	SLV_ACK_OUT                 => SLV_ACK_OUT,
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
+	
+	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
+	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
+	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,

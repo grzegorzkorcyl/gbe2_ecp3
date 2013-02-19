@@ -81,6 +81,10 @@ port (
 	SLV_ACK_OUT                  : out std_logic;
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	
+	CFG_GBE_ENABLE_IN            : in std_logic;
+	CFG_IPU_ENABLE_IN            : in std_logic;
+	CFG_MULT_ENABLE_IN           : in std_logic;
 
 -- debug
 	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
@@ -210,9 +214,9 @@ port map(
 	START_CONFIG_OUT		 => ip_cfg_start,
 	BANK_SELECT_OUT			 => ip_cfg_bank,
 	CONFIG_DONE_IN			 => ip_cfg_done,
-	DATA_GBE_ENABLE_IN		 => '1',
-	DATA_IPU_ENABLE_IN		 => '0',
-	MULT_EVT_ENABLE_IN		 => '0',
+	DATA_GBE_ENABLE_IN		 => CFG_GBE_ENABLE_IN,
+	DATA_IPU_ENABLE_IN		 => CFG_IPU_ENABLE_IN,
+	MULT_EVT_ENABLE_IN		 => CFG_MULT_ENABLE_IN,
 	MAX_MESSAGE_SIZE_IN		 => x"0000_0fd0",
 	MIN_MESSAGE_SIZE_IN		 => x"0000_0007",
 	READOUT_CTR_IN			 => x"00_0000",

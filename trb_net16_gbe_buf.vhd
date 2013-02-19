@@ -697,6 +697,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	SLV_ACK_OUT                 => SLV_ACK_OUT,
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
+	
+	CFG_GBE_ENABLE_IN           => use_gbe,
+	CFG_IPU_ENABLE_IN           => use_trbnet,
+	CFG_MULT_ENABLE_IN          => use_multievents,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,

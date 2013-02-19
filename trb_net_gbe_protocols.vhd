@@ -548,6 +548,10 @@ port (
 	SLV_ACK_OUT                  : out std_logic;
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	
+	CFG_GBE_ENABLE_IN            : in std_logic;
+	CFG_IPU_ENABLE_IN            : in std_logic;
+	CFG_MULT_ENABLE_IN           : in std_logic;
 
 -- debug
 	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
