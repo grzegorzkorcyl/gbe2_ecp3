@@ -154,7 +154,6 @@ begin
 	end if;
 end process FF_RD_LOCK_PROC;
 
--- TODO: put a smaller fifo here
 FRAME_FIFO: fifo_4096x9
 port map( 
 	Data                => PS_DATA_IN,
