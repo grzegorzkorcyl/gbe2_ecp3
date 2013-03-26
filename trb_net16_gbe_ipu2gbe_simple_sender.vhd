@@ -620,30 +620,30 @@ end process SAVED_EVT_CTR_PROC;
 ------------------------------------------------------------------------------------------
 
 -- Split FIFO
-THE_SPLIT_FIFO: fifo_32kx16x8_mb2
-port map( 
-	-- Byte swapping for correct byte order on readout side of FIFO
-	Data(7 downto 0)  => sf_data(15 downto 8),
-	Data(8)           => '0',
-	Data(16 downto 9) => sf_data(7 downto 0),
-	Data(17)          => save_eod,
-	WrClock         => CLK,
-	RdClock         => CLK,
-	WrEn            => sf_real_wr_en, -- gk 06.08.10 --sf_wr_en,
-	RdEn            => sf_rd_en,
-	Reset           => reset_split_fifo, --RESET,  -- gk 06.11.2012
-	RPReset         => reset_split_fifo, --RESET,  -- gk 06.11.2012
-	AmEmptyThresh   => b"0000_0000_0000_0010", -- one byte ahead
-	AmFullThresh    =>  b"111_1111_1110_1111", -- 0x7fef = 32751
-	Q(7 downto 0)   => pc_data,
-	Q(8)            => load_eod,
-	WCNT            => sf_wcnt,
-	RCNT            => sf_rcnt,
-	Empty           => sf_empty,
-	AlmostEmpty     => open, --sf_aempty,
-	Full            => sf_full,
-	AlmostFull      => sf_afull
-);
+--THE_SPLIT_FIFO: fifo_32kx16x8_mb2
+--port map( 
+--	-- Byte swapping for correct byte order on readout side of FIFO
+--	Data(7 downto 0)  => sf_data(15 downto 8),
+--	Data(8)           => '0',
+--	Data(16 downto 9) => sf_data(7 downto 0),
+--	Data(17)          => save_eod,
+--	WrClock         => CLK,
+--	RdClock         => CLK,
+--	WrEn            => sf_real_wr_en, -- gk 06.08.10 --sf_wr_en,
+--	RdEn            => sf_rd_en,
+--	Reset           => reset_split_fifo, --RESET,  -- gk 06.11.2012
+--	RPReset         => reset_split_fifo, --RESET,  -- gk 06.11.2012
+--	AmEmptyThresh   => b"0000_0000_0000_0010", -- one byte ahead
+--	AmFullThresh    =>  b"111_1111_1110_1111", -- 0x7fef = 32751
+--	Q(7 downto 0)   => pc_data,
+--	Q(8)            => load_eod,
+--	WCNT            => sf_wcnt,
+--	RCNT            => sf_rcnt,
+--	Empty           => sf_empty,
+--	AlmostEmpty     => open, --sf_aempty,
+--	Full            => sf_full,
+--	AlmostFull      => sf_afull
+--);
 
 sf_aempty <= '0';
 
@@ -1444,11 +1444,11 @@ DEBUG_OUT                <= debug;
 
 
 
-PC_SOS_OUT      <= '1' when gen_current_state = WAIT_FOR_PC and PC_READY_IN = '1' else '0';
+PC_SOS_OUT      <= '0'; --'1' when gen_current_state = WAIT_FOR_PC and PC_READY_IN = '1' else '0';
 PC_EOS_OUT      <= '0';
-PC_EOD_OUT      <= '1' when gen_current_state = GENERATE_DATA and gen_data_ctr = SCTRL_DUMMY_SIZE_IN else '0';
+PC_EOD_OUT      <= '0'; --'1' when gen_current_state = GENERATE_DATA and gen_data_ctr = SCTRL_DUMMY_SIZE_IN else '0';
 PC_DATA_OUT     <= gen_data_ctr(7 downto 0);
-PC_WR_EN_OUT    <= '1' when gen_current_state = GENERATE_DATA else '0';
+PC_WR_EN_OUT    <= '0'; --'1' when gen_current_state = GENERATE_DATA else '0';
 PC_SUB_SIZE_OUT <= x"0000" & SCTRL_DUMMY_SIZE_IN + x"1";
 PC_PADDING_OUT  <= '0';
 
