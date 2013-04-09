@@ -1020,18 +1020,18 @@ begin
 	end if;
 end process subIntProc;
 
-debug(3 downto 0)             <= constr_state;
-debug(7 downto 4)             <= save_state;
-debug(11 downto 8)            <= load_state;
-debug(27 downto 12)           <= queue_size(15 downto 0);
-debug(28)                     <= df_full;
-debug(29)                     <= df_empty;
-debug(30)                     <= shf_full;
-debug(31)                     <= shf_empty;
-
-debug(47 downto 32)           <= size_left(15 downto 0);
-debug(52 downto 48)           <= all_ctr;
-debug(53)                     <= pc_ready;
+--debug(3 downto 0)             <= constr_state;
+--debug(7 downto 4)             <= save_state;
+--debug(11 downto 8)            <= load_state;
+--debug(27 downto 12)           <= queue_size(15 downto 0);
+--debug(28)                     <= df_full;
+--debug(29)                     <= df_empty;
+--debug(30)                     <= shf_full;
+--debug(31)                     <= shf_empty;
+--
+--debug(47 downto 32)           <= size_left(15 downto 0);
+--debug(52 downto 48)           <= all_ctr;
+--debug(53)                     <= pc_ready;
 
 -- outputs
 PC_READY_OUT                  <= pc_ready;
