@@ -222,8 +222,9 @@ port map(
 	READOUT_CTR_IN			 => x"00_0000",
 	READOUT_CTR_VALID_IN	 => '0',
 	ALLOW_LARGE_IN			 => '0',
-	SCTRL_DUMMY_SIZE_IN      => x"0100",
-	SCTRL_DUMMY_PAUSE_IN     => x"0040_0000",
+	-- only for simple sender
+--	SCTRL_DUMMY_SIZE_IN      => x"0100",
+--	SCTRL_DUMMY_PAUSE_IN     => x"0040_0000",
 	-- PacketConstructor interface
 	PC_WR_EN_OUT			 => pc_wr_en,
 	PC_DATA_OUT				 => pc_data,
