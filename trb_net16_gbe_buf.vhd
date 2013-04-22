@@ -976,7 +976,7 @@ port map(
 	DBG_FC2_IN                => dbg_fc2,
 	DBG_FT1_IN                => dbg_ft1,
 	DBG_FT2_IN                => dbg_ft(31 downto 0),
-	DBG_FR_IN                 => dbg_fr,
+	DBG_FR_IN                 => dbg_fr(64 downto 0),
 	DBG_RC_IN                 => dbg_rc,
 	DBG_MC_IN                 => dbg_mc,
 	DBG_TC_IN                 => dbg_tc(31 downto 0),
