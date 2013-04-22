@@ -953,6 +953,10 @@ port map(
 	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
 	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
 	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
+	
+	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
+	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
+	
 	-- gk 01.06.10
 	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
 	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
