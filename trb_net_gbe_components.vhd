@@ -598,8 +598,8 @@ port(
 	READOUT_CTR_IN				: in	std_logic_vector(23 downto 0); -- gk 26.04.10
 	READOUT_CTR_VALID_IN			: in	std_logic; -- gk 26.04.10
 	
-	SCTRL_DUMMY_SIZE_IN      : in std_logic_vector(15 downto 0);
-	SCTRL_DUMMY_PAUSE_IN     : in std_logic_vector(31 downto 0);
+--	SCTRL_DUMMY_SIZE_IN      : in std_logic_vector(15 downto 0);
+--	SCTRL_DUMMY_PAUSE_IN     : in std_logic_vector(31 downto 0);
 	
 	-- PacketConstructor interface
 	ALLOW_LARGE_IN				: in	std_logic;  -- gk 21.07.10
