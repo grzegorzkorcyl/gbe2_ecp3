@@ -295,7 +295,7 @@ begin
 		sf_wr_en      <= sf_wr_en_comb;
 		ce_rem_ctr    <= ce_rem_ctr_comb;
 		sf_rd_en      <= sf_rd_en_comb;
-		FEE_READ_OUT     <= fee_read_comb;
+		fee_read      <= fee_read_comb;
 		read_done     <= read_done_comb;
 		pc_eod_q      <= pc_eod;
 		pc_wr_en_qqq  <= pc_wr_en_qq;
