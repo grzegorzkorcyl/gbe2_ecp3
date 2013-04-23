@@ -902,7 +902,7 @@ end process fcUDPSizeProc;
 --      SUBEVENT HEADERS WRITE AND READ
 --***********************
 
-SUBEVENT_HEADERS_FIFO : fifo_16kx8
+SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3 --fifo_16kx8
 port map(
 	Data        =>  shf_data,
 	WrClock     =>  CLK,

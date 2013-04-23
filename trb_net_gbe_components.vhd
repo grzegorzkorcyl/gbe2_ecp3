@@ -1014,6 +1014,21 @@ port(
 );
 end component;
 
+component fifo_4kx8_ecp3 is
+port( 
+	Data    : in    std_logic_vector(7 downto 0);
+	WrClock : in    std_logic;
+	RdClock : in    std_logic;
+	WrEn    : in    std_logic;
+	RdEn    : in    std_logic;
+	Reset   : in    std_logic;
+	RPReset : in    std_logic;
+	Q       : out   std_logic_vector(7 downto 0);
+	Empty   : out   std_logic;
+	Full    : out   std_logic
+);
+end component;
+
 component statts_mem is
     port (
         WrAddress: in  std_logic_vector(7 downto 0); 
