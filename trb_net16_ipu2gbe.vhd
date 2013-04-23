@@ -1404,7 +1404,7 @@ end process CONSTR_EVENTS_CTR_PROC;
 --MONITOR_OUT(223 downto 192) <= found_empty_evt_ctr; -- gk 01.10.10
 
 -- Outputs
---FEE_READ_OUT             <= fee_read;
+FEE_READ_OUT             <= fee_read;
 CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
 CTS_DATA_OUT             <= cts_data;
 CTS_DATAREADY_OUT        <= cts_dataready;
