@@ -8,6 +8,7 @@ library work;
 use work.trb_net_std.all;
 use work.trb_net_components.all;
 use work.trb_net16_hub_func.all;
+use work.trb_net_gbe_components.all;
 
 entity trb_net16_gbe_packet_constr is
 port(
