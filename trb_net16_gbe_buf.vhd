@@ -920,7 +920,7 @@ port map(
 	GBE_MAX_PACKET_OUT        => max_packet,
 	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
 	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
-	GBE_USE_GBE_OUT           => use_gbe,
+	GBE_USE_GBE_OUT           => open, --use_gbe,
 	GBE_USE_TRBNET_OUT        => use_trbnet,
 	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
 	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
@@ -989,6 +989,8 @@ port map(
 	DBG_FIFO_Q_IN             => dbg_q
 	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
 );
+
+use_gbe <= '1';
 
 allow_rx <= '1';
 allow_large <= '0';
