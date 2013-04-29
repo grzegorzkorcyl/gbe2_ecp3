@@ -388,9 +388,14 @@ begin
 			end if;
 		
 		when LOAD =>
+			if (sf_eod = '1') then
+				load_next_state <= CLOSE;
+			else
+				load_next_state <= LOAD;
+			end if;
 			
 		
-		when DROP =>
+		--when DROP =>
 		
 		when CLOSE =>
 			load_next_state <= IDLE;
@@ -412,6 +417,17 @@ port map(
 	D_IN  => saved_events_ctr,
 	D_OUT => saved_events_ctr_gbe
 );
+
+SF_RD_EN_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = REMOVE or load_current_state = LOAD) then
+			sf_rd_en <= '1';
+		else
+			sf_rd_en <= '0';
+		end if;
+	end if;
+end process SF_RD_EN_PROC;
 
 --*****
 -- information extraction
