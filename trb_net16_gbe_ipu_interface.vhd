@@ -442,7 +442,7 @@ begin
 			trigger_number <= trigger_number;
 		end if;
 	end if;
-end process TRIGGER_RANDOM_PROC;
+end process TRIGGER_NUMBER_PROC;
 
 SUBEVENT_SIZE_PROC : process(CLK_GBE)
 begin
@@ -481,7 +481,7 @@ end process LOADED_EVENTS_CTR_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE or loaded_current_state = DECIDE) then
+		if (load_current_state = IDLE or load_current_state = DECIDE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
