@@ -437,7 +437,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
 			trigger_random <= (others => '0');
-		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0002") then
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0004") then
 			trigger_random <= pc_data;
 		else
 			trigger_random <= trigger_random;
@@ -450,9 +450,9 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
 			trigger_number <= (others => '0');
-		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0004") then
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0006") then
 			trigger_number(7 downto 0) <= pc_data;
-		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0003") then
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0005") then
 			trigger_number(15 downto 8) <= pc_data;
 		else
 			trigger_number <= trigger_number;
@@ -465,9 +465,9 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
 			subevent_size <= (others => '0');
-		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0006") then
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(9 downto 2) <= pc_data; 		
-		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0005") then
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0007") then
 			subevent_size(17 downto 10) <= pc_data;
 		else
 			subevent_size <= subevent_size;
