@@ -542,4 +542,50 @@ end process START_CONFIG_PROC;
 -- end of event builder selection
 --*****
 
+
+PC_WR_EN_PROC : process(CLK_GBE)
+begin
+	if (load_current_state = LOAD and sf_rd_en = '1') then
+		PC_WR_EN_OUT <= '1';
+	else
+		PC_WR_EN_OUT <= '0';
+	end if;
+end process PC_WR_EN_PROC;
+
+PC_SOS_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = DECIDE) then
+			PC_SOS_OUT <= '1';
+		else
+			PC_SOS_OUT <= '0';
+		end if; 
+	end if;
+end process PC_SOS_PROC;
+
+PC_EOD_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = CLOSE) then
+			PC_EOD_OUT <= '1';
+		else
+			PC_EOD_OUT <= '0';
+		end if;
+	end if;
+end process PC_EOD_PROC;
+
+PC_EOS_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		PC_EOS_OUT <= '0';
+	end if;
+end process PC_EOS_PROC;
+
+PC_DATA_OUT <= pc_data;
+
+PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
+
+DEBUG_OUT <= (others => '0');
+MONITOR_OUT <= (others => '0');
+
 end architecture RTL;
