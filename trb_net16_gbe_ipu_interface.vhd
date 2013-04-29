@@ -583,9 +583,10 @@ end process PC_EOS_PROC;
 
 PC_DATA_OUT <= pc_data;
 
+--TODO: register and put correct values
 PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
-PC_TRIG_NR_OUT <= b"0000_0000_0000_00" & trigger_number & trigger_random; 
+PC_TRIG_NR_OUT <= b"0000_0000" & trigger_number & trigger_random; 
 
 DEBUG_OUT <= (others => '0');
 MONITOR_OUT <= (others => '0');
