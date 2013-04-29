@@ -6,6 +6,9 @@ use IEEE.std_logic_arith.all;
 
 library work;
 
+use work.trb_net_gbe_components.all;
+use work.trb_net_gbe_protocols.all;
+
 entity trb_net16_gbe_ipu_interface is
 	port (
 	CLK_IPU                     : in    std_logic;
@@ -58,37 +61,25 @@ end entity trb_net16_gbe_ipu_interface;
 
 architecture RTL of trb_net16_gbe_ipu_interface is
 
-component fifo_32kx16x8_mb2
-port( 
-	Data            : in    std_logic_vector(17 downto 0); 
-	WrClock         : in    std_logic;
-	RdClock         : in    std_logic; 
-	WrEn            : in    std_logic;
-	RdEn            : in    std_logic;
-	Reset           : in    std_logic; 
-	RPReset         : in    std_logic; 
-	AmEmptyThresh   : in    std_logic_vector(15 downto 0); 
-	AmFullThresh    : in    std_logic_vector(14 downto 0); 
-	Q               : out   std_logic_vector(8 downto 0); 
-	WCNT            : out   std_logic_vector(15 downto 0); 
-	RCNT            : out   std_logic_vector(16 downto 0);
-	Empty           : out   std_logic;
-	AlmostEmpty     : out   std_logic;
-	Full            : out   std_logic;
-	AlmostFull      : out   std_logic
-);
-end component;
-
 type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO);
 signal save_current_state, save_next_state : saveStates;
 
+type loadStates is (IDLE, REMOVE, DECIDE, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
+signal load_current_state, load_next_state : loadStates;
+
 signal sf_data : std_Logic_vector(15 downto 0);
-signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_eod : std_logic;
-signal sf_q : std_logic_vector(7 downto 0);
+signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eod : std_logic;
+signal sf_q, pc_data : std_logic_vector(7 downto 0);
 
 signal cts_rnd, cts_trg : std_logic_vector(15 downto 0);
 signal save_ctr : std_logic_vector(15 downto 0);
 
+signal saved_events_ctr, loaded_events_ctr, saved_events_ctr_gbe : std_logic_vector(7 downto 0);
+signal loaded_bytes_ctr : std_Logic_vector(15 downto 0);
+
+signal trigger_random : std_logic_vector(7 downto 0);
+signal trigger_number : std_logic_vector(15 downto 0);
+signal subevent_size : std_logic_vector(17 downto 0);
 	
 begin
 
@@ -99,7 +90,7 @@ begin
 SAVE_MACHINE_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		if RESET = '1' then
+		if (RESET = '1') then
 			save_current_state <= IDLE;
 		else
 			save_current_state <= save_next_state;
@@ -144,12 +135,24 @@ begin
 			
 		when CLOSE => 
 			if (CTS_START_READOUT_IN = '0') then
-				save_next_state <= IDLE;
+				save_next_state <= ADD_SUBSUB1;
 			else
 				save_next_state <= CLOSE;
 			end if;
 		
-		--TODO: complete with add sub sub states
+		when ADD_SUBSUB1 =>
+			save_next_state <= ADDSUBSUB2;
+		
+		when ADD_SUBSUB2 =>
+			save_next_state <= ADDSUBSUB3;
+			
+		when ADD_SUBSUB3 =>
+			save_next_state <= ADDSUBSUB4;
+			
+		when ADD_SUBSUB4 =>
+			save_next_state <= IDLE;
+		
+		--TODO: complete with reset fifo state
 			
 		when others => save_next_state <= IDLE; 
 		 
@@ -159,17 +162,23 @@ end process SAVE_MACHINE;
 SF_WR_EN_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
-			sf_wr_en <= '1';
-		elsif (save_current_state = SAVE_EVT_ADDR) then
-			sf_wr_en <= '1';
+		if (sf_afull = '0') then
+			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
+				sf_wr_en <= '1';
+			elsif (save_current_state = SAVE_EVT_ADDR) then
+				sf_wr_en <= '1';
+			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADDSUBSUB4) then
+				sf_wr_en <= '1';
+			else
+				sf_wr_en <= '0';
+			end if;
 		else
 			sf_wr_en <= '0';
 		end if;
 	end if;
 end process SF_WR_EN_PROC;
 
-SF_DATA_PROC : process(CLK_IPU)
+SF_DATA_EOD_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
 		case (save_current_state) is
@@ -177,15 +186,45 @@ begin
 			when SAVE_EVT_ADDR =>
 				sf_data(3 downto 0)  <= CTS_INFORMATION_IN(3 downto 0);
 				sf_data(15 downto 4) <= x"abc";
+				save_eod <= '0';
 				
 			when SAVE_DATA =>
 				sf_data <= FEE_DATA_IN;
+				save_eod <= '0';
 				
-			when others => sf_data <= (others => '0');
+			when ADD_SUBSUB1 =>
+				sf_data <= x"0001";
+				save_eod <= '0';
+			
+			when ADD_SUBSUB2 =>
+				sf_data <= x"5555";
+				save_eod <= '0';
+			
+			when ADD_SUBSUB3 =>
+				sf_data <= FEE_STATUS_BITS_IN(31 downto 16);
+				save_eod <= '0';
+			
+			when ADD_SUBSUB4 =>
+				sf_data <= FEE_STATUS_BITS_IN(15 downto 0);
+				save_eod <= '1';
+				
+			when others => sf_data <= (others => '0'); save_eod <= '0';
 			
 		end case;
 	end if;
-end process SF_DATA_PROC;
+end process SF_DATA_EOD_PROC;
+
+SAVED_EVENTS_CTR_PROC : process(CLK_IPU)
+begin
+	if rising_edge(CLK_IPU) then
+		if (RESET = '1') then
+			saved_events_ctr <= (others => '0');
+		elsif (save_current_state = ADD_SUBSUB4) then
+			saved_events_ctr <= saved_events_ctr + x"1";
+		else
+			saved_events_ctr <= saved_events_ctr;
+		end if;
+end process SAVED_EVENTS_CTR_PROC;
 				
 CTS_DATAREADY_PROC : process(CLK_IPU)
 begin
@@ -253,9 +292,12 @@ end process SAVE_CTR_PROC;
 FEE_READ_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		if (save_current_state = IDLE or save_current_state = SAVE_EVT_ADDR or save_current_state = WAIT_FOR_DATA or save_current_state = SAVE_DATA) then
-			FEE_READ_OUT <= '1';
-		--TODO: when my fifo gets full I should halt a bit
+		if (sf_afull = '0') then
+			if (save_current_state = IDLE or save_current_state = SAVE_EVT_ADDR or save_current_state = WAIT_FOR_DATA or save_current_state = SAVE_DATA) then
+				FEE_READ_OUT <= '1';
+			else
+				FEE_READ_OUT <= '0';
+			end if;
 		else
 			FEE_READ_OUT <= '0';
 		end if;
@@ -285,7 +327,194 @@ port map(
 	Empty             => sf_empty,
 	AlmostEmpty       => open,
 	Full              => sf_full,
-	AlmostFull        => open
+	AlmostFull        => sf_afull
 );
+sf_reset <= RESET;
+
+--*********
+-- LOADING PART
+--*********
+
+PC_DATA_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		pc_data <= sf_q;
+	end if;
+end process PC_DATA_PROC;
+
+LOAD_MACHINE_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (RESET = '1') then
+			load_current_state <= IDLE;
+		else
+			load_current_state <= load_next_state;
+		end if;
+	end if;
+end process LOAD_MACHINE_PROC;
+
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN)
+begin
+	case (load_current_state) is
+
+		when IDLE =>
+			if (saved_events_ctr /= loaded_events_ctr) then
+				load_next_state <= REMOVE;
+			else
+				load_next_state <= IDLE;
+			end if;
+		
+		when REMOVE =>
+			if (loaded_bytes_ctr = x"0005") then
+				load_next_state <= DECIDE;
+			else
+				load_next_state <= REMOVE;
+			end if;
+		
+		when DECIDE =>
+			load_next_state <= LOAD;
+			
+		when WAIT_FOR_LOAD =>
+			if (PC_READY_IN = '1') then
+				load_next_state <= LOAD;
+			else
+				load_next_state <= WAIT_FOR_LOAD;
+			end if;
+		
+		when LOAD =>
+			
+		
+		when DROP =>
+		
+		when CLOSE =>
+			load_next_state <= IDLE;
+		
+		when others => load_next_state <= IDLE;
+
+	end case;
+end process LOAD_MACHINE;
+
+saved_ctr_sync : signal_sync
+generic map(
+	WIDTH => 8,
+	DEPTH => 2
+)
+port map(
+	RESET => RESET,
+	CLK0  => CLK_GBE,
+	CLK1  => CLK_GBE,
+	D_IN  => saved_events_ctr,
+	D_OUT => saved_events_ctr_gbe
+);
+
+--*****
+-- information extraction
+
+TRIGGER_RANDOM_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			trigger_random <= (others => '0');
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0002") then
+			trigger_random <= pc_data;
+		else
+			trigger_random <= trigger_random;
+		end if;
+	end if;
+end process TRIGGER_RANDOM_PROC;
+
+TRIGGER_NUMBER_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			trigger_number <= (others => '0');
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0004") then
+			trigger_number(7 downto 0) <= pc_data;
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0003") then
+			trigger_number(15 downto 8) <= pc_data;
+		else
+			trigger_number <= trigger_number;
+	end if;
+end process TRIGGER_RANDOM_PROC;
+
+SUBEVENT_SIZE_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			subevent_size <= (others => '0');
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0006") then
+			subevent_size(9 downto 2) <= pc_data; 		
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0005") then
+			subevent_size(17 downto 10) <= pc_data;
+		else
+			subevent_size <= subevent_size;
+		end if;
+	end if;
+end process SUBEVENT_SIZE_PROC;
+
+-- end of extraction
+--*****
+
+--*****
+-- counters
+
+LOADED_EVENTS_CTR_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (RESET = '1') then
+			loaded_events_ctr <= (others => '0');
+		elsif (load_current_state = CLOSE) then
+			loaded_events_ctr <= loaded_events_ctr + x"1";
+		else
+			loaded_events_ctr <= loaded_events_ctr;
+		end if;
+	end if;
+end process LOADED_EVENTS_CTR_PROC;
+
+LOADED_BYTES_CTR_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			loaded_bytes_ctr <= (others => '0');
+		elsif (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
+			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
+		else
+			loaded_bytes_ctr <= loaded_bytes_ctr;
+		end if;		
+	end if;
+end process LOADED_BYTES_CTR_PROC;
+
+-- end of counters
+--*****
+
+--*****
+-- event builder selection
+
+BANK_SELECT_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			bank_select <= x"0";
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0000") then
+			bank_select <= pc_data(3 downto 0);
+		else
+			bank_select <= bank_select;
+		end if;
+	end if;
+end process BANK_SELECT_PROC;
+
+START_CONFIG_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0000") then
+			start_config <= '1';
+		elsif (CONFIG_DONE_IN = '1') then
+			start_config <= '0';
+		end if;
+	end if;
+end process START_CONFIG_PROC;
+
+-- end of event builder selection
+--*****
 
 end architecture RTL;
