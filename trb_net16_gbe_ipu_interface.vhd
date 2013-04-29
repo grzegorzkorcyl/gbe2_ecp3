@@ -499,8 +499,12 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE or load_current_state = DECIDE) then
 			loaded_bytes_ctr <= (others => '0');
-		elsif (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
-			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
+		if (sf_rd_en = '1') then
+			elsif (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
+				loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
+			else
+				loaded_bytes_ctr <= loaded_bytes_ctr;
+			end if;
 		else
 			loaded_bytes_ctr <= loaded_bytes_ctr;
 		end if;		
