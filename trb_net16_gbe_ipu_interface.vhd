@@ -100,14 +100,14 @@ SAVE_MACHINE_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
 		if RESET = '1' then
-			save_current_state = IDLE;
+			save_current_state <= IDLE;
 		else
-			save_current_state = save_next_state;
+			save_current_state <= save_next_state;
 		end if;
 	end if;
 end process SAVE_MACHINE_PROC;
 
-SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN, )
+SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN)
 begin
 	case (save_current_state) is
 	
