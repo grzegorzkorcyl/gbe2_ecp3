@@ -159,7 +159,7 @@ end process SAVE_MACHINE;
 SF_WR_EN_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_READ_IN = '1') then
+		if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
 			sf_wr_en <= '1';
 		elsif (save_current_state = SAVE_EVT_ADDR) then
 			sf_wr_en <= '1';
@@ -247,6 +247,7 @@ begin
 		else
 			save_ctr <= save_ctr;
 		end if;
+	end if;
 end process SAVE_CTR_PROC;
 
 FEE_READ_PROC : process(CLK_IPU)
