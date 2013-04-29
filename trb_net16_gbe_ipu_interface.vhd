@@ -80,6 +80,8 @@ signal loaded_bytes_ctr : std_Logic_vector(15 downto 0);
 signal trigger_random : std_logic_vector(7 downto 0);
 signal trigger_number : std_logic_vector(15 downto 0);
 signal subevent_size : std_logic_vector(17 downto 0);
+
+signal bank_select : std_logic_vector(3 downto 0);
 	
 begin
 
@@ -141,13 +143,13 @@ begin
 			end if;
 		
 		when ADD_SUBSUB1 =>
-			save_next_state <= ADDSUBSUB2;
+			save_next_state <= ADD_SUBSUB2;
 		
 		when ADD_SUBSUB2 =>
-			save_next_state <= ADDSUBSUB3;
+			save_next_state <= ADD_SUBSUB3;
 			
 		when ADD_SUBSUB3 =>
-			save_next_state <= ADDSUBSUB4;
+			save_next_state <= ADD_SUBSUB4;
 			
 		when ADD_SUBSUB4 =>
 			save_next_state <= IDLE;
@@ -474,7 +476,7 @@ end process LOADED_EVENTS_CTR_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE) then
+		if (load_current_state = IDLE or loaded_current_state = DECIDE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
@@ -503,13 +505,15 @@ begin
 	end if;
 end process BANK_SELECT_PROC;
 
+BANK_SELECT_OUT <= bank_select;
+
 START_CONFIG_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0000") then
-			start_config <= '1';
+			START_CONFIG_OUT <= '1';
 		elsif (CONFIG_DONE_IN = '1') then
-			start_config <= '0';
+			START_CONFIG_OUT <= '0';
 		end if;
 	end if;
 end process START_CONFIG_PROC;
