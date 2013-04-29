@@ -5,6 +5,9 @@ USE IEEE.std_logic_UNSIGNED.ALL;
 use IEEE.std_logic_arith.all;
 
 library work;
+use work.trb_net_std.all;
+use work.trb_net_components.all;
+use work.trb_net16_hub_func.all;
 
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
@@ -169,7 +172,7 @@ begin
 				sf_wr_en <= '1';
 			elsif (save_current_state = SAVE_EVT_ADDR) then
 				sf_wr_en <= '1';
-			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADDSUBSUB4) then
+			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
 				sf_wr_en <= '1';
 			else
 				sf_wr_en <= '0';
@@ -226,6 +229,7 @@ begin
 		else
 			saved_events_ctr <= saved_events_ctr;
 		end if;
+	end if;
 end process SAVED_EVENTS_CTR_PROC;
 				
 CTS_DATAREADY_PROC : process(CLK_IPU)
@@ -436,6 +440,7 @@ begin
 			trigger_number(15 downto 8) <= pc_data;
 		else
 			trigger_number <= trigger_number;
+		end if;
 	end if;
 end process TRIGGER_RANDOM_PROC;
 
