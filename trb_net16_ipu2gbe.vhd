@@ -594,16 +594,16 @@ end process SAVED_EVT_CTR_PROC;
 
 
 -- gk 20.07.10
-INC_DATA_CTR_proc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (rst_saved_ctr = '1') then
-			inc_data_ctr <= (others => '0');
-		elsif (sf_wr_en = '1') and (data_req = '1') then
-			inc_data_ctr(31 downto 1) <= inc_data_ctr(31 downto 1) + x"1";
-		end if;
-	end if;
-end process INC_DATA_CTR_proc;
+--INC_DATA_CTR_proc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (rst_saved_ctr = '1') then
+--			inc_data_ctr <= (others => '0');
+--		elsif (sf_wr_en = '1') and (data_req = '1') then
+--			inc_data_ctr(31 downto 1) <= inc_data_ctr(31 downto 1) + x"1";
+--		end if;
+--	end if;
+--end process INC_DATA_CTR_proc;
 
 ------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
