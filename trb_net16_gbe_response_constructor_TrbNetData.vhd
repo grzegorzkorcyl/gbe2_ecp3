@@ -186,11 +186,10 @@ port map(
 	STAT            => open
 );
 
-THE_IPU_INTERFACE: trb_net16_ipu2gbe --trb_net16_gbe_ipu_interface --ipu2gbe
+THE_IPU_INTERFACE: trb_net16_gbe_ipu_interface --ipu2gbe
 port map( 
---	CLK_IPU 			     => CLK,
---	CLK_GBE					 => CLK,
-	CLK => CLK,
+	CLK_IPU 			     => CLK,
+	CLK_GBE					 => CLK,
 	RESET					 => RESET,
 	--Event information coming from CTS
 	CTS_NUMBER_IN			 => CTS_NUMBER_IN,
@@ -241,7 +240,7 @@ port map(
 	DEBUG_OUT                => open
 );
 
-PACKET_CONSTRUCTOR : trb_net16_gbe_packet_constr
+PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,

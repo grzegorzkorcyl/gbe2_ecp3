@@ -10,6 +10,42 @@ use work.trb_net_gbe_protocols.all;
 package trb_net_gbe_components is
 
 
+component trb_net16_gbe_event_constr is
+port(
+	RESET                   : in    std_logic;
+	CLK                     : in    std_logic;
+	MULT_EVT_ENABLE_IN      : in    std_logic;  -- gk 06.10.10
+	-- ports for user logic
+	PC_WR_EN_IN             : in    std_logic; -- write into queueConstr from userLogic
+	PC_DATA_IN              : in    std_logic_vector(7 downto 0);
+	PC_READY_OUT            : out   std_logic;
+	PC_START_OF_SUB_IN      : in    std_logic;
+	PC_END_OF_SUB_IN        : in    std_logic;  -- gk 07.10.10
+	PC_END_OF_DATA_IN       : in    std_logic;
+	PC_TRANSMIT_ON_OUT	: out	std_logic;
+	-- queue and subevent layer headers
+	PC_SUB_SIZE_IN          : in    std_logic_vector(31 downto 0); -- store and swap
+	PC_PADDING_IN           : in    std_logic;  -- gk 29.03.10
+	PC_DECODING_IN          : in    std_logic_vector(31 downto 0); -- swap
+	PC_EVENT_ID_IN          : in    std_logic_vector(31 downto 0); -- swap
+	PC_TRIG_NR_IN           : in    std_logic_vector(31 downto 0); -- store and swap!
+	PC_QUEUE_DEC_IN         : in    std_logic_vector(31 downto 0); -- swap
+	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
+	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
+	-- FrameConstructor ports
+	TC_WR_EN_OUT            : out   std_logic;
+	TC_DATA_OUT             : out   std_logic_vector(7 downto 0);
+	TC_H_READY_IN           : in    std_logic;
+	TC_READY_IN             : in    std_logic;
+	TC_IP_SIZE_OUT          : out   std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT         : out   std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT     : out   std_logic_vector(15 downto 0);
+	TC_SOD_OUT              : out   std_logic;
+	TC_EOD_OUT              : out   std_logic;
+	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
+);
+end component;
+
 component trb_net16_gbe_ipu_interface is
 	port (
 	CLK_IPU                     : in    std_logic;
