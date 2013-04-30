@@ -173,6 +173,8 @@ port map(
 	Full        =>  shf_full
 );
 
+shf_wr_en <= '1' when save_sub_hdr_current_state /= IDLE else '0';
+
 SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
