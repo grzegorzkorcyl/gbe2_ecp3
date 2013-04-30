@@ -458,6 +458,42 @@ begin
 end process TC_SOD_PROC;
 
 --*****
+-- read from fifos
+
+DATA_FIFO_RD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_DATA) then
+			df_rd_en <= '1';
+		else
+			df_rd_en <= '0';
+		end if;
+	end if;
+end process DATA_FIFO_RD_PROC;
+
+SUB_FIFO_RD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_SUB) then
+			shf_rd_en <= '1';
+		else
+			shf_rd_en <= '0';
+		end if;
+	end if;
+end process SUB_FIFO_RD_PROC;
+
+QUEUE_FIFO_RD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
+			qsf_rd_en <= '1';
+		else
+			qsf_rd_en <= '0';
+		end if;
+	end if;
+end process QUEUE_FIFO_RD_PROC;
+
+--*****
 -- outputs
 
 PC_TRANSMIT_ON_OUT <= '0';
