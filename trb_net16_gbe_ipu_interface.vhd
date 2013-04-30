@@ -64,7 +64,7 @@ end entity trb_net16_gbe_ipu_interface;
 
 architecture RTL of trb_net16_gbe_ipu_interface is
 
-type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO);
+type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
 type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
@@ -158,6 +158,9 @@ begin
 			save_next_state <= ADD_SUBSUB4;
 			
 		when ADD_SUBSUB4 =>
+			save_next_state <= CLEANUP;
+			
+		when CLEANUP =>
 			save_next_state <= IDLE;
 		
 		--TODO: complete with reset fifo state
@@ -430,7 +433,9 @@ port map(
 SF_RD_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = REMOVE or load_current_state = LOAD) then
+		if (load_current_state = REMOVE) then
+			sf_rd_en <= '1';
+		elsif (load_current_state = LOAD and sf_eod = '0') then
 			sf_rd_en <= '1';
 		else
 			sf_rd_en <= '0';
