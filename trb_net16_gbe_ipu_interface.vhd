@@ -600,7 +600,7 @@ end process PC_WR_EN_PROC;
 PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = DECIDE) then
+		if (load_current_state = CALC_PADDING) then
 			PC_SOS_OUT <= '1';
 		else
 			PC_SOS_OUT <= '0';
