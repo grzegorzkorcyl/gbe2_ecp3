@@ -212,7 +212,7 @@ begin
 			
 		when SAVE_ID =>
 			if (sub_hdr_ctr = x"3") then
-				save_sub_hdr_next_state <= SAVE_TRIG_NR;
+				save_sub_hdr_next_state <= SAVE_TRG_NR;
 			else
 				save_sub_hdr_next_state <= SAVE_ID;
 			end if;
@@ -221,7 +221,7 @@ begin
 			if (sub_hdr_ctr = x"3") then
 				save_sub_hdr_next_state <= IDLE;
 			else
-				save_sub_hdr_next_state <= SAVE_TRIG_NR;
+				save_sub_hdr_next_state <= SAVE_TRG_NR;
 			end if;
 			
 		when others => save_sub_hdr_next_state <= IDLE;
