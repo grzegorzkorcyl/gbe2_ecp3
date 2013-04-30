@@ -444,7 +444,18 @@ begin
 	end if;
 end process LOADED_EVENTS_CTR_PROC;
 
-
+TC_SOD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			TC_SOD_OUT <= '0';
+		elsif (load_current_state = WAIT_FOR_FC) and (TC_READY_IN = '1') then
+			TC_SOD_OUT <= '1';
+		else
+			TC_SOD_OUT <= '0';
+		end if;
+	end if;
+end process TC_SOD_PROC;
 
 --*****
 -- outputs
