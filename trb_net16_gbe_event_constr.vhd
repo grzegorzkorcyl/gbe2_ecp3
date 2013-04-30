@@ -423,7 +423,7 @@ begin
 			header_ctr <= 0;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 31) then
 			header_ctr <= 0;
-		elsif (load_current_state /= LOAD_DATA) then
+		elsif (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM) then
 			header_ctr <= header_ctr + 1;
 		else
 			header_ctr <= header_ctr;
