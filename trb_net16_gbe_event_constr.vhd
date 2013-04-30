@@ -391,7 +391,7 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod = '1')
+			if (load_eod = '1') then
 				load_next_state <= LOAD_TERM;
 			else
 				load_next_state <= LOAD_DATA;
