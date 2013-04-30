@@ -68,8 +68,14 @@ signal header_ctr : std_logic_vector(3 downto 0);
 signal shf_data, shf_q : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
 signal sub_int_ctr : integer range 0 to 3;
+signal sub_size_to_save : std_logic_vector(31 downto 0);
 
 signal fc_data : std_logic_vector(7 downto 0);
+
+signal qsf_data, qsf_q : std_logic_vector(31 downto 0);
+signal qsf_wr_en, qsf_rd_en : std_logic;
+
+signal queue_size : std_logic_vector(31 downto 0);
 
 begin
 
@@ -104,7 +110,7 @@ begin
 				save_next_state <= SAVE_LAST_ONE;
 			else
 				save_next_state <= SAVE_DATA;
-			end if;			
+			end if;
 			
 		when SAVE_LAST_ONE =>
 			save_next_state <= CLEANUP;
@@ -156,9 +162,23 @@ port map(
 	Full             =>  df_full
 );
 
+SAVED_EVENTS_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			saved_events_ctr <= (others => '0');
+		elsif (df_eod = '1') then
+			saved_events_ctr <= saved_events_ctr + x"1";
+		else
+			saved_events_ctr <= saved_events_ctr;
+		end if;
+	end if;
+end process SAVED_EVENTS_CTR_PROC;	
+
 --*****
 -- subevent headers
 
+--TODO: exchange to a smaller fifo
 SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
@@ -245,6 +265,17 @@ begin
 	end if;
 end process SUB_INT_CTR_PROC;
 
+SUB_SIZE_TO_SAVE_PROC : process (CLK) is
+begin
+	if rising_edge(CLK) then
+		if (PC_PADDING_IN = '0') then
+			sub_size_to_save <= PC_SUB_SIZE_IN + x"10";
+		else
+			sub_size_to_save <= PC_SUB_SIZE_IN + x"c";
+		end if;
+	end if;
+end process SUB_SIZE_TO_SAVE_PROC;
+
 SHF_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -254,7 +285,7 @@ begin
 				shf_data <= x"ac";
 			
 			when SAVE_SIZE =>
-				shf_data <= PC_SUB_SIZE_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
+				shf_data <= sub_size_to_save(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
 			
 			when SAVE_DECODING =>
 				shf_data <= PC_DECODING_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
@@ -270,6 +301,38 @@ begin
 		end case;
 	end if;
 end process SHF_DATA_PROC;
+
+--*******
+-- queue sizes
+
+QUEUE_SIZE_FIFO : fifo_512x32
+port map(
+	Data        =>  qsf_data,
+	WrClock     =>  CLK,
+	RdClock     =>  CLK,
+	WrEn        =>  qsf_wr_en,
+	RdEn        =>  qsf_rd_en,
+	Reset       =>  RESET,
+	RPReset     =>  RESET,
+	Q           =>  qsf_q,
+	Empty       =>  open,
+	Full        =>  open
+);
+
+qsf_wr_en <= '1' when (PC_END_OF_DATA_IN = '1') else '0';
+
+QUEUE_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (save_current_state = IDLE) then
+			queue_size <= x"0000_0028";
+		if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+			queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+		end if;
+	end if;
+end process QUEUE_SIZE_PROC;
+
+
 
 --*******
 -- LOADING PART
@@ -319,21 +382,7 @@ begin
 	end case;
 end process LOAD_MACHINE;
 
---*****
--- counters
 
-SAVED_EVENTS_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			saved_events_ctr <= (others => '0');
-		elsif (df_eod = '1') then
-			saved_events_ctr <= saved_events_ctr + x"1";
-		else
-			saved_events_ctr <= saved_events_ctr;
-		end if;
-	end if;
-end process SAVED_EVENTS_CTR_PROC;	
 
 LOADED_EVENTS_CTR_PROC : process(CLK)
 begin
@@ -348,8 +397,7 @@ begin
 	end if;
 end process LOADED_EVENTS_CTR_PROC;
 
--- end of counters
---*****
+
 
 --*****
 -- outputs
