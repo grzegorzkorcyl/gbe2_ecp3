@@ -493,7 +493,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then	
 			padding_needed <= '0';
-		elsif (load_current_state = WAIT_ONE and subevent_size(2) = '1') then
+		elsif (load_current_state = DECIDE and subevent_size(2) = '1') then
 			padding_needed <= '1';
 		end if;
 	end if;
