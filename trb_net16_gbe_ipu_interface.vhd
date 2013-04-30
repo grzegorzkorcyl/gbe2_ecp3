@@ -67,7 +67,7 @@ architecture RTL of trb_net16_gbe_ipu_interface is
 type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, REMOVE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
+type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
 signal load_current_state, load_next_state : loadStates;
 
 signal sf_data : std_Logic_vector(15 downto 0);
@@ -375,10 +375,13 @@ begin
 		
 		when REMOVE =>
 			if (loaded_bytes_ctr = x"0008") then
-				load_next_state <= DECIDE;
+				load_next_state <= WAIT_ONE;
 			else
 				load_next_state <= REMOVE;
 			end if;
+			
+		when WAIT_ONE =>
+			load_next_state <= DECIDE;
 		
 		when DECIDE =>
 			load_next_state <= CALC_PADDING;
