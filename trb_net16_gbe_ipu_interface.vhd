@@ -595,10 +595,12 @@ end process START_CONFIG_PROC;
 
 PC_WR_EN_PROC : process(CLK_GBE)
 begin
-	if (load_current_state = LOAD) then
-		PC_WR_EN_OUT <= '1';
-	else
-		PC_WR_EN_OUT <= '0';
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = LOAD) then
+			PC_WR_EN_OUT <= '1';
+		else
+			PC_WR_EN_OUT <= '0';
+		end if;
 	end if;
 end process PC_WR_EN_PROC;
 
