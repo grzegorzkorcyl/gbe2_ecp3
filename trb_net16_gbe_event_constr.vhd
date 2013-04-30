@@ -217,7 +217,7 @@ begin
 				save_sub_hdr_next_state <= SAVE_ID;
 			end if;
 			
-		when SAVE_TRIG_NR =>
+		when SAVE_TRG_NR =>
 			if (sub_hdr_ctr = x"3") then
 				save_sub_hdr_next_state <= IDLE;
 			else
@@ -263,7 +263,7 @@ begin
 			when SAVE_ID =>
 				shf_data <= PC_EVENT_ID_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
 			
-			when SAVE_TRIG_NR =>
+			when SAVE_TRG_NR =>
 				shf_data <= PC_TRIG_NR_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
 			
 			when others => shf_data <= x"00";
