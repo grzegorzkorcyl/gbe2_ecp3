@@ -595,7 +595,7 @@ end process START_CONFIG_PROC;
 
 PC_WR_EN_PROC : process(CLK_GBE)
 begin
-	if (load_current_state = LOAD and sf_rd_en = '1') then
+	if (load_current_state = LOAD) then
 		PC_WR_EN_OUT <= '1';
 	else
 		PC_WR_EN_OUT <= '0';
@@ -631,11 +631,16 @@ begin
 	end if;
 end process PC_EOS_PROC;
 
+--*******
+-- outputs
+
 PC_DATA_OUT <= pc_data;
 
 PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
 PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random; 
+
+PC_PADDING_OUT <= padding_needed;
 
 DEBUG_OUT <= (others => '0');
 MONITOR_OUT <= (others => '0');
