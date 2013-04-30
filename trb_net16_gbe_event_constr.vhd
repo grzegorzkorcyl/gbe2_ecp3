@@ -76,7 +76,7 @@ begin
 	end if;
 end process SAVE_MACHINE_PROC;
 
-SAVE_MACHINE : process(save_current_state)
+SAVE_MACHINE : process(save_current_state, PC_START_OF_SUB_IN, PC_END_OF_DATA_IN)
 begin
 	case (save_current_state) is
 
