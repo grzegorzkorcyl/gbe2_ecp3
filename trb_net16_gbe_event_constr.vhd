@@ -89,12 +89,12 @@ begin
 		
 		when SAVE_DATA =>
 			if (PC_END_OF_DATA_IN = '1') then
-				save_next_state <= CLOSE;
+				save_next_state <= CLEANUP;
 			else
 				save_next_state <= SAVE_DATA;
 			end if;			
 		
-		when CLOSE =>
+		when CLEANUP =>
 			save_next_state <= IDLE;
 		
 		when others => save_next_state <= IDLE;
@@ -176,6 +176,6 @@ end process LOAD_MACHINE;
 PC_TRANSMIT_ON_OUT <= '0';
 PC_READY_OUT <= '1' when save_current_state = IDLE else '0';
 
-DEBUG_OUT <= (others => '0)';
+DEBUG_OUT <= (others => '0');
 
 end architecture RTL;
