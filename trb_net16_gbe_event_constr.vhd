@@ -244,7 +244,7 @@ begin
 	end if;
 end process SUB_HDR_CTR_PROC;
 
-sub_int_ctr <= (3 - to_integer(to_unsigned(sub_int_ctr, 2)));
+sub_int_ctr <= (3 - to_integer(to_unsigned(sub_hdr_ctr, 2)));
 
 SHF_DATA_PROC : process(CLK)
 begin
