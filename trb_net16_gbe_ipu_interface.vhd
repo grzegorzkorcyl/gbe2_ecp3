@@ -85,6 +85,7 @@ signal trigger_number : std_logic_vector(15 downto 0);
 signal subevent_size : std_logic_vector(17 downto 0);
 
 signal bank_select : std_logic_vector(3 downto 0);
+signal readout_ctr : std_logic_vector(23 downto 0);
 	
 begin
 
@@ -511,6 +512,19 @@ begin
 	end if;
 end process LOADED_BYTES_CTR_PROC;
 
+READOUT_CTR_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (RESET = '1' or READOUT_CTR_VALID_IN = '1') then
+			readout_ctr <= READOUT_CTR_IN;
+		elsif (load_current_state = DECIDE) then
+			readout_ctr <= readout_ctr + x"1";
+		else
+			readout_ctr <= readout_ctr;
+		end if;			
+	end if;
+end process READOUT_CTR_PROC;
+
 -- end of counters
 --*****
 
@@ -538,6 +552,8 @@ begin
 		if (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0003") then
 			START_CONFIG_OUT <= '1';
 		elsif (CONFIG_DONE_IN = '1') then
+			START_CONFIG_OUT <= '0';
+		else
 			START_CONFIG_OUT <= '0';
 		end if;
 	end if;
@@ -590,7 +606,7 @@ PC_DATA_OUT <= pc_data;
 --TODO: register and put correct values
 PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
-PC_TRIG_NR_OUT <= b"0000_0000" & trigger_number & trigger_random; 
+PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random; 
 
 DEBUG_OUT <= (others => '0');
 MONITOR_OUT <= (others => '0');
