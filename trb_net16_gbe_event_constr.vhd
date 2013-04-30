@@ -423,8 +423,10 @@ begin
 			header_ctr <= 0;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 31) then
 			header_ctr <= 0;
-		else
+		elsif (load_current_state /= LOAD_DATA) then
 			header_ctr <= header_ctr + 1;
+		else
+			header_ctr <= header_ctr;
 		end if;
 	end if;
 end process HEADER_CTR_PROC;
