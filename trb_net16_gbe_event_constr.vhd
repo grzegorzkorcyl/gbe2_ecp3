@@ -67,8 +67,7 @@ signal header_ctr : std_logic_vector(3 downto 0);
 
 signal shf_data, shf_q : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
-signal sub_hdr_ctr : std_logic_vector(7 downto 0);
-signal sub_int_ctr : integer range 0 to 31;
+signal sub_int_ctr : integer range 0 to 3;
 
 signal fc_data : std_logic_vector(7 downto 0);
 
@@ -185,7 +184,7 @@ begin
 	end if;
 end process SAVE_SUB_HDR_MACHINE_PROC;
 
-SAVE_SUB_HDR_MACHINE : process(save_sub_hdr_current_state, PC_START_OF_SUB_IN, sub_hdr_ctr)
+SAVE_SUB_HDR_MACHINE : process(save_sub_hdr_current_state, PC_START_OF_SUB_IN, sub_int_ctr)
 begin
 	case (save_sub_hdr_current_state) is
 	
@@ -197,28 +196,28 @@ begin
 			end if;
 			
 		when SAVE_SIZE =>
-			if (sub_hdr_ctr = 3) then
+			if (sub_int_ctr = 0) then
 				save_sub_hdr_next_state <= SAVE_DECODING;
 			else
 				save_sub_hdr_next_state <= SAVE_SIZE;
 			end if;
 			
 		when SAVE_DECODING =>
-			if (sub_hdr_ctr = 3) then
+			if (sub_int_ctr = 0) then
 				save_sub_hdr_next_state <= SAVE_ID;
 			else
 				save_sub_hdr_next_state <= SAVE_DECODING;
 			end if;
 			
 		when SAVE_ID =>
-			if (sub_hdr_ctr = 3) then
+			if (sub_int_ctr = 0) then
 				save_sub_hdr_next_state <= SAVE_TRG_NR;
 			else
 				save_sub_hdr_next_state <= SAVE_ID;
 			end if;
 			
 		when SAVE_TRG_NR =>
-			if (sub_hdr_ctr = 3) then
+			if (sub_int_ctr = 0) then
 				save_sub_hdr_next_state <= IDLE;
 			else
 				save_sub_hdr_next_state <= SAVE_TRG_NR;
@@ -229,22 +228,20 @@ begin
 	end case;
 end process SAVE_SUB_HDR_MACHINE;
 
-SUB_HDR_CTR_PROC : process(CLK)
+SUB_INT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (save_sub_hdr_current_state = IDLE) then
-			sub_hdr_ctr <= 0;
+			sub_int_ctr <= 3;
 		else
-			if (sub_hdr_ctr = 3) then
-				sub_hdr_ctr <= 0;
+			if (sub_int_ctr = 0) then
+				sub_int_ctr <= 3;
 			else
-				sub_hdr_ctr <= sub_hdr_ctr + 1;
+				sub_int_ctr <= sub_int_ctr - 1;
 			end if;
 		end if;
 	end if;
-end process SUB_HDR_CTR_PROC;
-
-sub_int_ctr <= (3 - to_integer(to_unsigned(sub_hdr_ctr, 2)));
+end process SUB_INT_CTR_PROC;
 
 SHF_DATA_PROC : process(CLK)
 begin
