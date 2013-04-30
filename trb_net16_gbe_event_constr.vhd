@@ -53,7 +53,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, SAVE_LAST_ONE, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -63,7 +63,7 @@ signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
 signal df_q : std_logic_vector(7 downto 0);
 	
 signal saved_events_ctr, loaded_events_ctr : std_logic_vector(7 downto 0);
-signal header_ctr : std_logic_vector(3 downto 0);
+signal header_ctr : integer range 0 to 31;
 
 signal shf_data, shf_q : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
@@ -351,7 +351,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr, loaded_events_ctr, TC_H_READY_IN, header_ctr)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr, loaded_events_ctr, TC_H_READY_IN, header_ctr, load_eod)
 begin
 	case (load_current_state) is
 	
@@ -370,11 +370,39 @@ begin
 			end if;
 			
 		when PUT_Q_LEN =>
-			if (header_ctr = x"3") then
+			if (header_ctr = 3) then
 				load_next_state <= PUT_Q_DEC;
 			else
 				load_next_state <= PUT_Q_LEN;
 			end if;
+			
+		when PUT_Q_DEC =>
+			if (header_ctr = 3) then
+				load_next_state <= LOAD_SUB;
+			else
+				load_next_state <= PUT_Q_DEC;
+			end if;
+			
+		when LOAD_SUB =>
+			if (header_ctr = 15) then
+				load_next_state <= LOAD_DATA;
+			else
+				load_next_state <= LOAD_SUB;
+			end if;
+			
+		when LOAD_DATA =>
+			if (load_eod = '1')
+				load_next_state <= LOAD_TERM;
+			else
+				load_next_state <= LOAD_DATA;
+			end if;
+			
+		when LOAD_TERM =>
+			if (header_ctr = 31) then
+				load_next_state <= CLEANUP;
+			else
+				load_next_state <= LOAD_TERM;
+			end if;			
 		
 		when CLEANUP =>
 			load_next_state <= IDLE;
@@ -384,14 +412,27 @@ begin
 	end case;
 end process LOAD_MACHINE;
 
-
+HEADER_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			header_ctr <= 0;
+		elsif (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC) and (header_ctr = 3) then
+			header_ctr <= 0;
+		elsif (load_current_state = LOAD_SUB and header_ctr = 15) then
+			header_ctr <= 0;
+		else
+			header_ctr <= header_ctr + 1;		
+		end if;
+	end if;
+end process HEADER_CTR_PROC;
 
 LOADED_EVENTS_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			loaded_events_ctr <= (others => '0');
-		elsif (df_eod = '1') then
+		elsif (load_eod = '1') then
 			loaded_events_ctr <= loaded_events_ctr + x"1";
 		else
 			loaded_events_ctr <= loaded_events_ctr;
