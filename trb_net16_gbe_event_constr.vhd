@@ -326,7 +326,7 @@ begin
 	if rising_edge(CLK) then
 		if (save_current_state = IDLE) then
 			queue_size <= x"0000_0028";
-		if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 			queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
 		end if;
 	end if;
