@@ -121,8 +121,6 @@ begin
 	if rising_edge(CLK) then
 		if (save_current_state = SAVE_DATA) then
 			df_wr_en <= '1';
-		elsif (save_current_state = SAVE_LAST_ONE) then
-			df_wr_en <= '1';
 		else
 			df_wr_en <= '0';
 		end if;
