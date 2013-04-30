@@ -417,6 +417,8 @@ begin
 	end case;
 end process LOAD_MACHINE;
 
+--TODO: handle multiple event packets 
+
 saved_ctr_sync : signal_sync
 generic map(
 	WIDTH => 8,
@@ -474,6 +476,7 @@ begin
 	end if;
 end process TRIGGER_NUMBER_PROC;
 
+-- the subevent size is only transmitted to event constructor and contains the real header value
 SUBEVENT_SIZE_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
@@ -484,9 +487,9 @@ begin
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
 		elsif (load_current_state = CALC_PADDING and padding_needed = '1') then
-			subevent_size <= subevent_size + x"4"+ x"8";
+			subevent_size <= subevent_size + x"4"+ x"8" + x"c";
 		elsif (load_current_state = CALC_PADDING and padding_needed = '0') then
-			subevent_size <= subevent_size + x"8";
+			subevent_size <= subevent_size + x"8" + x"10";
 		else
 			subevent_size <= subevent_size;
 		end if;
@@ -560,6 +563,8 @@ end process READOUT_CTR_PROC;
 
 --*****
 -- event builder selection
+
+--TODO: close the currrent multievent packet in case event builder address changes
 
 BANK_SELECT_PROC : process(CLK_GBE)
 begin
