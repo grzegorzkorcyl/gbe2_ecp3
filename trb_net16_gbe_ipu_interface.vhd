@@ -67,7 +67,7 @@ architecture RTL of trb_net16_gbe_ipu_interface is
 type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, REMOVE, DECIDE, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
+type loadStates is (IDLE, REMOVE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
 signal load_current_state, load_next_state : loadStates;
 
 signal sf_data : std_Logic_vector(15 downto 0);
@@ -86,6 +86,8 @@ signal subevent_size : std_logic_vector(17 downto 0);
 
 signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
+
+signal padding_needed : std_logic;
 	
 begin
 
@@ -379,7 +381,10 @@ begin
 			end if;
 		
 		when DECIDE =>
-			load_next_state <= LOAD;
+			load_next_state <= CALC_PADDING;
+			
+		when CALC_PADDING =>
+			load_next_state <= WAIT_FOR_LOAD;
 			
 		when WAIT_FOR_LOAD =>
 			if (PC_READY_IN = '1') then
@@ -467,14 +472,31 @@ begin
 		if (load_current_state = IDLE) then
 			subevent_size <= (others => '0');
 		elsif (load_current_state = DECIDE and sf_rd_en = '1' and loaded_bytes_ctr = x"0009") then
-			subevent_size(9 downto 2) <= pc_data; 		
+			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
+		elsif (load_current_state = CALC_PADDING and padding_needed = '1') then
+			subevent_size <= subevent_size + x"4"+ x"8";
+		elsif (load_current_state = CALC_PADDING and padding_needed = '0') then
+			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
 		end if;
 	end if;
 end process SUBEVENT_SIZE_PROC;
+
+PADDING_NEEDED_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then	
+			padding_needed <= '0';
+		elsif (load_current_state = DECIDE and subevent_size(2) = '1') then
+			padding_needed <= '1';
+		end if;
+	end if;
+end process PADDING_NEEDED_PROC;
+			
+			
 
 -- end of extraction
 --*****
