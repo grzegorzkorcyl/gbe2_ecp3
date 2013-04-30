@@ -197,28 +197,28 @@ begin
 			end if;
 			
 		when SAVE_SIZE =>
-			if (sub_hdr_ctr = x"3") then
+			if (sub_hdr_ctr = 3) then
 				save_sub_hdr_next_state <= SAVE_DECODING;
 			else
 				save_sub_hdr_next_state <= SAVE_SIZE;
 			end if;
 			
 		when SAVE_DECODING =>
-			if (sub_hdr_ctr = x"3") then
+			if (sub_hdr_ctr = 3) then
 				save_sub_hdr_next_state <= SAVE_ID;
 			else
 				save_sub_hdr_next_state <= SAVE_DECODING;
 			end if;
 			
 		when SAVE_ID =>
-			if (sub_hdr_ctr = x"3") then
+			if (sub_hdr_ctr = 3) then
 				save_sub_hdr_next_state <= SAVE_TRG_NR;
 			else
 				save_sub_hdr_next_state <= SAVE_ID;
 			end if;
 			
 		when SAVE_TRG_NR =>
-			if (sub_hdr_ctr = x"3") then
+			if (sub_hdr_ctr = 3) then
 				save_sub_hdr_next_state <= IDLE;
 			else
 				save_sub_hdr_next_state <= SAVE_TRG_NR;
@@ -233,12 +233,12 @@ SUB_HDR_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (save_sub_hdr_current_state = IDLE) then
-			sub_hdr_ctr <= (others => '0');
+			sub_hdr_ctr <= 0;
 		else
-			if (sub_hdr_ctr = x"3") then
-				sub_hdr_ctr <= (others => '0');
+			if (sub_hdr_ctr = 3) then
+				sub_hdr_ctr <= 0;
 			else
-				sub_hdr_ctr <= sub_hdr_ctr + x"1";
+				sub_hdr_ctr <= sub_hdr_ctr + 1;
 			end if;
 		end if;
 	end if;
