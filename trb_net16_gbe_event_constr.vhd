@@ -520,7 +520,7 @@ begin
 	else
 		size_for_padding <= size_for_padding;
 	end if;
-end process SIZE_FOR_PADDING;
+end process SIZE_FOR_PADDING_PROC;
 
 TC_SOD_PROC : process(CLK)
 begin
