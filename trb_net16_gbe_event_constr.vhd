@@ -493,9 +493,9 @@ begin
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
-				header_ctr <= 31;
-			else
 				header_ctr <= 3;
+			else
+				header_ctr <= 31;
 			end if;
 		elsif (load_current_state = LOAD_PADDING and header_ctr = 0) then
 			header_ctr <= 31;
