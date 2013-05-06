@@ -523,8 +523,8 @@ end process TC_DATA_PROC;
 TC_PACKET_SIZES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_IP_SIZE_OUT  <= qsf_q;
-		TC_UDP_SIZE_OUT <= qsf_q;
+		TC_IP_SIZE_OUT  <= qsf_q(15 downto 0);
+		TC_UDP_SIZE_OUT <= qsf_q(15 downto 0);
 	end if;
 end process TC_PACKET_SIZES_PROC;
 
