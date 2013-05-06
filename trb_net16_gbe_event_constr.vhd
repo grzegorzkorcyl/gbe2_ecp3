@@ -603,7 +603,8 @@ TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (df_rd_en = '1' and load_current_state = LOAD_DATA and header_ctr /= 0) then
-			termination(255 downto 8) <= termination(247 downto 0) & df_qq;
+			termination(255 downto 8) <= termination(247 downto 0);
+			termination(7 downto 0)   <= df_qq;
 		else
 			termination <= termination;
 		end if;
