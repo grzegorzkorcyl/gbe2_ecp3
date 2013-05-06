@@ -71,7 +71,7 @@ type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD,
 signal load_current_state, load_next_state : loadStates;
 
 signal sf_data : std_Logic_vector(15 downto 0);
-signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eod : std_logic;
+signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eod, sf_eod_q, sf_eod_qq : std_logic;
 signal sf_q, pc_data : std_logic_vector(7 downto 0);
 
 signal cts_rnd, cts_trg : std_logic_vector(15 downto 0);
@@ -622,10 +622,12 @@ PC_EOD_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (sf_eod = '1') then
-			PC_EOD_OUT <= '1';
+			sf_eod_q <= '1';
 		else
-			PC_EOD_OUT <= '0';
+			sf_eod_q <= '0';
 		end if;
+		sf_eod_qq <= sf_eod_q;
+		PC_EOD_OUT <= sf_eod_qq;
 	end if;
 end process PC_EOD_PROC;
 
