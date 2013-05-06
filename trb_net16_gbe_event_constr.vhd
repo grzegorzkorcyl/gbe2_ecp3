@@ -196,7 +196,17 @@ port map(
 	Full        =>  shf_full
 );
 
-shf_wr_en <= '1' when save_sub_hdr_current_state /= IDLE else '0';
+SHF_WR_EN_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (save_sub_hdr_current_state = IDLE) then
+			shf_wr_en <= '0';
+		else
+			shf_wr_en <= '1';
+		end if;
+	end if;
+end process SHF_WR_EN_PROC;
+--shf_wr_en <= '1' when save_sub_hdr_current_state /= IDLE else '0';
 
 SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
 begin
@@ -533,6 +543,8 @@ SUB_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
+			shf_rd_en <= '1';
+		elsif (load_current_state = LOAD_Q_DEC and header_ctr = 0) then -- preload the first word
 			shf_rd_en <= '1';
 		else
 			shf_rd_en <= '0';
