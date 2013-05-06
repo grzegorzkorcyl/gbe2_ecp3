@@ -353,7 +353,7 @@ QUEUE_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (MULT_EVT_ENABLE_IN = '1') then
-			if (save_current_state = SAVE_DECODING and sub_int_ctr = 3) then
+			if (save_sub_hdr_next_state = SAVE_DECODING and sub_int_ctr = 3) then
 				queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_DECODING and sub_int_ctr = 2) then
 				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
