@@ -527,7 +527,6 @@ begin
 		TC_UDP_SIZE_OUT <= qsf_q;
 	end if;
 end process TC_PACKET_SIZES_PROC;
-PC_
 
 PC_TRANSMIT_ON_OUT <= '0';
 PC_READY_OUT <= '1' when save_current_state = IDLE else '0';
