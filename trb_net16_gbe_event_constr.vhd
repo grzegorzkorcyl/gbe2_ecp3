@@ -382,7 +382,7 @@ begin
 	if rising_edge(CLK) then
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_next_state = SAVE_DECODING and sub_int_ctr = 3) then
-				queue_size <= x"0000_0028";
+				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_DECODING and sub_int_ctr = 2) then
 				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
 			else
@@ -390,7 +390,7 @@ begin
 			end if;
 		else
 			if (save_current_state = IDLE) then
-				queue_size <= x"0000_0028";
+				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
 			end if;			
@@ -634,15 +634,10 @@ begin
 		case (load_current_state) is
 		
 			when PUT_Q_LEN => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			
 			when PUT_Q_DEC => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			
 			when LOAD_SUB  => TC_DATA_OUT <= shf_qq;
-			
 			when LOAD_DATA => TC_DATA_OUT <= df_qq;
-			
 			when LOAD_TERM => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			
 			when others    => TC_DATA_OUT <= (others => '0');
 		
 		end case;
@@ -655,8 +650,8 @@ end process TC_DATA_PROC;
 TC_PACKET_SIZES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_IP_SIZE_OUT  <= qsf_qq(15 downto 0);
-		TC_UDP_SIZE_OUT <= qsf_qq(15 downto 0);
+		TC_IP_SIZE_OUT  <= qsf_qq(15 downto 0) + x"28";
+		TC_UDP_SIZE_OUT <= qsf_qq(15 downto 0) + x"28";
 		TC_FLAGS_OFFSET_OUT <= (others => '0');
 	end if;
 end process TC_PACKET_SIZES_PROC;
