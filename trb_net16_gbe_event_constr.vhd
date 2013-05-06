@@ -559,7 +559,7 @@ begin
 		
 			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			
-			when PUT_Q_DEC => TC_DATA_OUT <= (others => '0');
+			when PUT_Q_DEC => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8));
 			
 			when LOAD_SUB => TC_DATA_OUT <= shf_q;
 			
