@@ -51,7 +51,7 @@ end entity trb_net16_gbe_event_constr;
 
 architecture RTL of trb_net16_gbe_event_constr is
 
-type saveStates is (IDLE, SAVE_DATA, SAVE_LAST_ONE, CLEANUP);
+type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
 type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_TERM, CLEANUP);
@@ -111,13 +111,10 @@ begin
 		
 		when SAVE_DATA =>
 			if (PC_END_OF_DATA_IN = '1') then
-				save_next_state <= SAVE_LAST_ONE;
+				save_next_state <= CLEANUP;
 			else
 				save_next_state <= SAVE_DATA;
 			end if;
-			
-		when SAVE_LAST_ONE =>
-			save_next_state <= CLEANUP;
 		
 		when CLEANUP =>
 			save_next_state <= IDLE;
@@ -142,8 +139,6 @@ DF_WR_EN_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (PC_WR_EN_IN = '1') then
-			df_wr_en <= '1';
-		elsif (save_current_state = SAVE_LAST_ONE) then
 			df_wr_en <= '1';
 		else
 			df_wr_en <= '0';

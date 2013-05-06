@@ -67,7 +67,7 @@ architecture RTL of trb_net16_gbe_ipu_interface is
 type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
+type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, LOAD_LAST_ONE, DROP, CLOSE);
 signal load_current_state, load_next_state : loadStates;
 
 signal sf_data : std_Logic_vector(15 downto 0);
@@ -402,12 +402,13 @@ begin
 		
 		when LOAD =>
 			if (sf_eod = '1') then
-				load_next_state <= CLOSE;
+				load_next_state <= LOAD_LAST_ONE;
 			else
 				load_next_state <= LOAD;
 			end if;
 			
-		
+		when LOAD_LAST_ONE =>
+			load_next_state <= CLOSE;
 		--when DROP =>
 		
 		when CLOSE =>
@@ -601,7 +602,7 @@ end process START_CONFIG_PROC;
 PC_WR_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = LOAD) then
+		if (load_current_state = LOAD or load_current_state = LOAD_LAST_ONE) then
 			PC_WR_EN_OUT <= '1';
 		else
 			PC_WR_EN_OUT <= '0';
