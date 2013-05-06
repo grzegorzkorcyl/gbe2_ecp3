@@ -186,10 +186,11 @@ port map(
 	STAT            => open
 );
 
-THE_IPU_INTERFACE: trb_net16_gbe_ipu_interface --ipu2gbe
+THE_IPU_INTERFACE: trb_net16_ipu2gbe --gbe_ipu_interface --ipu2gbe
 port map( 
-	CLK_IPU 			     => CLK,
-	CLK_GBE					 => CLK,
+--	CLK_IPU 			     => CLK,
+--	CLK_GBE					 => CLK,
+CLK => CLK,
 	RESET					 => RESET,
 	--Event information coming from CTS
 	CTS_NUMBER_IN			 => CTS_NUMBER_IN,
@@ -241,7 +242,7 @@ port map(
 );
 
 --TODO: add missing values from setup
-PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
+PACKET_CONSTRUCTOR : trb_net16_gbe_packet_constr --trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,
@@ -260,9 +261,10 @@ port map(
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => x"0578",
-	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
+	--PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
 	PC_DELAY_IN             => (others => '0'),
-	TC_RD_EN_IN				=> tc_rd_en,
+	--TC_RD_EN_IN				=> tc_rd_en,
+	TC_WR_EN_OUT			=> open,
 	TC_DATA_OUT				=> tc_data,
 	TC_H_READY_IN			=> tc_h_ready,
 	TC_READY_IN				=> tc_ready,
