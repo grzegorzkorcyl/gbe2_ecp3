@@ -73,7 +73,7 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data, qsf_q : std_logic_vector(31 downto 0);
-signal qsf_wr_en, qsf_rd_en : std_logic;
+signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
 
@@ -311,7 +311,7 @@ port map(
 	WrClock     =>  CLK,
 	RdClock     =>  CLK,
 	WrEn        =>  qsf_wr_en,
-	RdEn        =>  qsf_rd_en,
+	RdEn        =>  qsf_rd_en_q,
 	Reset       =>  RESET,
 	RPReset     =>  RESET,
 	Q           =>  qsf_q,
@@ -491,6 +491,8 @@ begin
 		else
 			qsf_rd_en <= '0';
 		end if;
+		
+		qsf_rd_en_q <= qsf_rd_en;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
 
