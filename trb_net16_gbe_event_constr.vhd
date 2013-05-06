@@ -496,7 +496,7 @@ end process QUEUE_FIFO_RD_PROC;
 
 TC_DATA_PROC : process(CLK)
 begin
-	if rising_edge(CLIK) then
+	if rising_edge(CLK) then
 		case (load_current_state) is
 		
 			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q(7 downto 0);
