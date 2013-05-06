@@ -501,7 +501,7 @@ begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
 		
-			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q(7 downto 0);
+			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q(header_ctr * 8 - 1  downto header_ctr);
 			
 			when PUT_Q_DEC => TC_DATA_OUT <= (others => '0');
 			
