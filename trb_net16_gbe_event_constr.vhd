@@ -165,7 +165,7 @@ port map(
 
 DF_QQ_PROC : process(CLK)
 begin
-	if risign_edge(CLK) then
+	if rising_edge(CLK) then
 		df_qq <= df_q;
 	end if;
 end process DF_QQ_PROC;
