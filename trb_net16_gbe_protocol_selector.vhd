@@ -537,10 +537,10 @@ port map (
 --***************
 -- DO NOT TOUCH,  response selection logic
 
-stat_data((c_MAX_PROTOCOLS + 1) * 32 - 1 downto c_MAX_PROTOCOLS * 32) <= STAT_DATA_IN;
-stat_addr((c_MAX_PROTOCOLS + 1) * 8 - 1 downto c_MAX_PROTOCOLS * 8)   <= STAT_ADDR_IN;
-stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
-STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
+--stat_data((c_MAX_PROTOCOLS + 1) * 32 - 1 downto c_MAX_PROTOCOLS * 32) <= STAT_DATA_IN;
+--stat_addr((c_MAX_PROTOCOLS + 1) * 8 - 1 downto c_MAX_PROTOCOLS * 8)   <= STAT_ADDR_IN;
+--stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
+--STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
 mult <= or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
 
