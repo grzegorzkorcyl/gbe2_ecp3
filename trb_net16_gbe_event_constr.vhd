@@ -80,7 +80,7 @@ signal queue_size : std_logic_vector(31 downto 0);
 
 signal termination : std_logic_vector(255 downto 0);
 signal term_ctr : integer range 0 to 32;
-
+signal temp : std_logic_vector(7 downto 0);
 begin
 
 --*******
@@ -601,16 +601,15 @@ begin
 		elsif (TC_RD_EN_IN = '1' and term_ctr /= 32) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
-			if load_current_state = PUT_Q_LEN then
-				termination(7 downto 0) <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			end if;
---			case (load_current_state) is
---				when PUT_Q_LEN => termination(7 downto 0) <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
---				when PUT_Q_DEC => termination(7 downto 0) <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
---				when LOAD_SUB  => termination(7 downto 0) <= shf_qq;
---				when LOAD_DATA => termination(7 downto 0) <= df_qq;
---				when others    => termination(7 downto 0) <= (others => '0');
---			end case;
+			for I in 0 to 7 loop
+				case (load_current_state) is
+					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I); --qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+					when PUT_Q_DEC => termination(I) <= PC_QUEUE_DEC_IN(header_ctr * 8 + 1); --PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+					when LOAD_SUB  => termination(I) <= shf_qq(I);
+					when LOAD_DATA => termination(I) <= df_qq(I);
+					when others    => termination(I) <= '0';
+				end case;
+			end loop;
 			
 		else
 			termination <= termination;
