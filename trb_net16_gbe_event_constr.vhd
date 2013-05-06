@@ -35,7 +35,7 @@ port(
 	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
 	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
 	-- FrameConstructor ports
-	TC_WR_EN_OUT            : out   std_logic;
+	TC_RD_EN_IN             : in    std_logic;
 	TC_DATA_OUT             : out   std_logic_vector(7 downto 0);
 	TC_H_READY_IN           : in    std_logic;
 	TC_READY_IN             : in    std_logic;
@@ -423,8 +423,12 @@ begin
 			header_ctr <= 0;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 31) then
 			header_ctr <= 0;
-		elsif (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM) then
-			header_ctr <= header_ctr + 1;
+		elsif (TC_RD_EN_IN = '1') then
+			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM) then
+				header_ctr <= header_ctr + 1;
+			else
+				header_ctr <= header_ctr;
+			end if;
 		else
 			header_ctr <= header_ctr;
 		end if;
@@ -460,11 +464,10 @@ end process TC_SOD_PROC;
 --*****
 -- read from fifos
 
---TODO: change all the rd_en and wr_en to real ack signals
 DATA_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = LOAD_DATA) then
+		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
 			df_rd_en <= '1';
 		else
 			df_rd_en <= '0';
@@ -475,7 +478,7 @@ end process DATA_FIFO_RD_PROC;
 SUB_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = LOAD_SUB) then
+		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
 			shf_rd_en <= '1';
 		else
 			shf_rd_en <= '0';

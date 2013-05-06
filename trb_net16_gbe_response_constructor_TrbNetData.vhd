@@ -125,7 +125,7 @@ signal pc_trig_nr				: std_logic_vector(31 downto 0);
 signal pc_eos                   : std_logic;
 signal pc_transmit_on           : std_logic;
 
-signal tc_wr_en					: std_logic;
+signal tc_rd_en					: std_logic;
 signal tc_data					: std_logic_vector(7 downto 0);
 signal tc_ip_size				: std_logic_vector(15 downto 0);
 signal tc_udp_size				: std_logic_vector(15 downto 0);
@@ -260,7 +260,7 @@ port map(
 	PC_QUEUE_DEC_IN			=> pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => pc_max_frame_size,
 	PC_DELAY_IN             => (others => '0'),
-	TC_WR_EN_OUT			=> tc_wr_en,
+	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
 	TC_H_READY_IN			=> tc_h_ready,
 	TC_READY_IN				=> tc_ready,
@@ -271,6 +271,8 @@ port map(
 	TC_EOD_OUT				=> tc_eod,
 	DEBUG_OUT				=> open
 );
+
+tc_rd_en <= '1' when PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1' else '0'; 
 
 DISSECT_MACHINE_PROC : process(CLK)
 begin
