@@ -66,14 +66,14 @@ signal df_q : std_logic_vector(7 downto 0);
 signal saved_events_ctr, loaded_events_ctr : std_logic_vector(7 downto 0);
 signal header_ctr : integer range 0 to 31;
 
-signal shf_data, shf_q : std_logic_vector(7 downto 0);
+signal shf_data, shf_q, shf_qq : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
 signal sub_int_ctr : integer range 0 to 3;
 signal sub_size_to_save : std_logic_vector(31 downto 0);
 
 signal fc_data : std_logic_vector(7 downto 0);
 
-signal qsf_data, qsf_q : std_logic_vector(31 downto 0);
+signal qsf_data, qsf_q, qsf_qq : std_logic_vector(31 downto 0);
 signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
@@ -206,7 +206,13 @@ begin
 		end if;
 	end if;
 end process SHF_WR_EN_PROC;
---shf_wr_en <= '1' when save_sub_hdr_current_state /= IDLE else '0';
+
+SHF_Q_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		shf_qq <= shf_q;
+	end if;
+end process SHF_Q_PROC;
 
 SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
 begin
@@ -332,9 +338,14 @@ port map(
 	Full        =>  open
 );
 
---qsf_wr_en <= '1' when (PC_END_OF_DATA_IN = '1') else '0';
-
 qsf_data <= queue_size;
+
+QSF_QQ_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		qsf_qq <= qsf_q;
+	end if;
+end process QSF_QQ_PROC;	
 
 QSF_WR_PROC : process(CLK)
 begin
@@ -555,7 +566,6 @@ end process SUB_FIFO_RD_PROC;
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		--if (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
 		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
 		else
@@ -571,11 +581,11 @@ begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
 		
-			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+			when PUT_Q_LEN => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			
 			when PUT_Q_DEC => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			
-			when LOAD_SUB => TC_DATA_OUT <= shf_q;
+			when LOAD_SUB => TC_DATA_OUT <= shf_qq;
 			
 			when LOAD_DATA => TC_DATA_OUT <= df_q;
 			
@@ -593,8 +603,8 @@ end process TC_DATA_PROC;
 TC_PACKET_SIZES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_IP_SIZE_OUT  <= qsf_q(15 downto 0);
-		TC_UDP_SIZE_OUT <= qsf_q(15 downto 0);
+		TC_IP_SIZE_OUT  <= qsf_qq(15 downto 0);
+		TC_UDP_SIZE_OUT <= qsf_qq(15 downto 0);
 		TC_FLAGS_OFFSET_OUT <= (others => '0');
 	end if;
 end process TC_PACKET_SIZES_PROC;
