@@ -444,8 +444,6 @@ begin
 			sf_rd_en <= '1';
 		elsif (load_current_state = LOAD) then
 			sf_rd_en <= '1';
-		elsif (load_current_state = LOAD_LAST_ONE or load_current_state = LOAD_LAST_TWO) then
-			sf_rd_en <= '1';
 		else
 			sf_rd_en <= '0';
 		end if;
@@ -632,10 +630,13 @@ PC_EOD_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (sf_eod = '1') then
-			PC_EOD_OUT <= '1';
+			sf_eod_q <= '1';
 		else
-			PC_EOD_OUT <= '0';
+			sf_eod_q <= '0';
 		end if;
+		
+		sf_eod_qq <= sf_eod_q;
+		PC_EOD_OUT <= sf_eod_qq;
 	end if;
 end process PC_EOD_PROC;
 
