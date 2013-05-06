@@ -407,21 +407,21 @@ begin
 			end if;
 			
 		when PUT_Q_LEN =>
-			if (header_ctr = 3) then
+			if (header_ctr = 0) then
 				load_next_state <= PUT_Q_DEC;
 			else
 				load_next_state <= PUT_Q_LEN;
 			end if;
 			
 		when PUT_Q_DEC =>
-			if (header_ctr = 3) then
+			if (header_ctr = 0) then
 				load_next_state <= LOAD_SUB;
 			else
 				load_next_state <= PUT_Q_DEC;
 			end if;
 			
 		when LOAD_SUB =>
-			if (header_ctr = 15) then
+			if (header_ctr = 0) then
 				load_next_state <= LOAD_DATA;
 			else
 				load_next_state <= LOAD_SUB;
@@ -435,7 +435,7 @@ begin
 			end if;
 			
 		when LOAD_TERM =>
-			if (header_ctr = 31) then
+			if (header_ctr = 0) then
 				load_next_state <= CLEANUP;
 			else
 				load_next_state <= LOAD_TERM;
@@ -453,16 +453,16 @@ HEADER_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
-			header_ctr <= 0;
-		elsif (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC) and (header_ctr = 3) then
-			header_ctr <= 0;
-		elsif (load_current_state = LOAD_SUB and header_ctr = 15) then
-			header_ctr <= 0;
-		elsif (load_current_state = LOAD_TERM and header_ctr = 31) then
-			header_ctr <= 0;
+			header_ctr <= 3;
+		elsif (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC) and (header_ctr = 0) then
+			header_ctr <= 15;
+		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
+			header_ctr <= 31;
+		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
+			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM) then
-				header_ctr <= header_ctr + 1;
+				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
 			end if;
