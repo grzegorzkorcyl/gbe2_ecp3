@@ -482,6 +482,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
 			df_rd_en <= '1';
+		or (load_current_state = LOAD_SUB and header_ctr = 15) then  -- preload the first word
+			df_rd_en <= '1';
 		else
 			df_rd_en <= '0';
 		end if;
