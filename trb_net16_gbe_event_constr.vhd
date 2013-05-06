@@ -141,7 +141,7 @@ end process DF_EOD_PROC;
 DF_WR_EN_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (save_current_state = SAVE_DATA) then
+		if (PC_WR_EN_IN = '1') then
 			df_wr_en <= '1';
 		else
 			df_wr_en <= '0';
