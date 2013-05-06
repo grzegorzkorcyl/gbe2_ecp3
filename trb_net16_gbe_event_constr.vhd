@@ -478,7 +478,7 @@ begin
 		elsif (load_current_state = PUT_Q_LEN and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
-			header_ctr <= 15;
+			header_ctr <= 13;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
