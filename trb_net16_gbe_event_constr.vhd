@@ -543,6 +543,7 @@ begin
 	if rising_edge(CLK) then
 		TC_IP_SIZE_OUT  <= qsf_q(15 downto 0);
 		TC_UDP_SIZE_OUT <= qsf_q(15 downto 0);
+		TC_FLAGS_OFFSET_OUT <= (others => '0');
 	end if;
 end process TC_PACKET_SIZES_PROC;
 
