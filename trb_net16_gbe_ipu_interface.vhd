@@ -89,7 +89,6 @@ signal readout_ctr : std_logic_vector(23 downto 0);
 
 signal padding_needed : std_logic;
 signal message_size : std_logic_vector(31 downto 0);
-signal pc_wr_q : std_logic;
 	
 begin
 
@@ -603,12 +602,10 @@ PC_WR_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = LOAD) then
-			pc_wr_q <= '1';
+			PC_WR_EN_OUT <= '1';
 		else
-			pc_wr_q <= '0';
+			PC_WR_EN_OUT <= '0';
 		end if;
-		
-		PC_WR_EN_OUT <= pc_wr_q;
 	end if;
 end process PC_WR_EN_PROC;
 
