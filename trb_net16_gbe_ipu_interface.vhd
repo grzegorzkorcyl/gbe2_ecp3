@@ -89,6 +89,7 @@ signal readout_ctr : std_logic_vector(23 downto 0);
 
 signal padding_needed : std_logic;
 signal message_size : std_logic_vector(31 downto 0);
+signal pc_wr_q : std_logic;
 	
 begin
 
@@ -378,7 +379,7 @@ begin
 			end if;
 		
 		when REMOVE =>
-			if (loaded_bytes_ctr = x"0009") then
+			if (loaded_bytes_ctr = x"0008") then
 				load_next_state <= WAIT_ONE;
 			else
 				load_next_state <= REMOVE;
@@ -602,10 +603,12 @@ PC_WR_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = LOAD) then
-			PC_WR_EN_OUT <= '1';
+			pc_wr_q <= '1';
 		else
-			PC_WR_EN_OUT <= '0';
+			pc_wr_q <= '0';
 		end if;
+		
+		PC_WR_EN_OUT <= pc_wr_q;
 	end if;
 end process PC_WR_EN_PROC;
 
