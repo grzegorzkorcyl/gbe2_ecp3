@@ -623,7 +623,7 @@ begin
 			
 			when LOAD_DATA => TC_DATA_OUT <= df_qq;
 			
-			when LOAD_TERM => TC_DATA_OUT <= (others => '0');
+			when LOAD_TERM => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
 			
 			when others    => TC_DATA_OUT <= (others => '0');
 		
