@@ -79,7 +79,7 @@ signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 signal queue_size : std_logic_vector(31 downto 0);
 
 signal termination : std_logic_vector(255 downto 0);
-signal term_ctr : integer range 0 to 31;
+signal term_ctr : integer range 0 to 32;
 
 begin
 
@@ -599,7 +599,7 @@ end process QUEUE_FIFO_RD_PROC;
 TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (TC_RD_EN_IN = '1' and term_ctr /= 31) then
+		if (TC_RD_EN_IN = '1' and term_ctr /= 32) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
 			case (load_current_state) is
@@ -621,7 +621,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			term_ctr <= 0;
-		elsif (TC_RD_EN_IN = '1' and term_ctr /= 31) then
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 32) then
 			term_ctr <= term_ctr + 1;
 		end if;
 	end if;
