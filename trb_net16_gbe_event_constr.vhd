@@ -555,6 +555,10 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
 			shf_rd_en <= '1';
+		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
+			shf_rd_en <= '1';
+		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
+			shf_rd_en <= '1';
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
 			shf_rd_en <= '1';
 		else
