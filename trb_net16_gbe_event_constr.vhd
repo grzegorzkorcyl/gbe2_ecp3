@@ -492,7 +492,7 @@ begin
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
-			if (shf_q(2) = '1') then
+			if (size_for_padding(2) = '1') then
 				header_ctr <= 31;
 			else
 				header_ctr <= 3;
@@ -515,7 +515,7 @@ end process HEADER_CTR_PROC;
 
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
-	if (load_current_state = LOAD_SUB and header_ctr = 0) then
+	if (load_current_state = LOAD_SUB and header_ctr = 13) then
 		size_for_padding <= shf_q;
 	else
 		size_for_padding <= size_for_padding;
