@@ -88,6 +88,7 @@ signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
 
 signal padding_needed : std_logic;
+signal message_size : std_logic_vector(31 downto 0);
 	
 begin
 
@@ -365,7 +366,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod, MULT_EVT_ENABLE_IN)
 begin
 	case (load_current_state) is
 
@@ -417,8 +418,6 @@ begin
 	end case;
 end process LOAD_MACHINE;
 
---TODO: handle multiple event packets 
-
 saved_ctr_sync : signal_sync
 generic map(
 	WIDTH => 8,
@@ -438,6 +437,7 @@ begin
 		if (load_current_state = REMOVE) then
 			sf_rd_en <= '1';
 		elsif (load_current_state = LOAD) then
+		--TODO: create a proper read signal here
 			sf_rd_en <= '1';
 		else
 			sf_rd_en <= '0';

@@ -73,7 +73,7 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data, qsf_q : std_logic_vector(31 downto 0);
-signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q : std_logic;
+signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
 
@@ -174,6 +174,8 @@ begin
 		end if;
 	end if;
 end process SAVED_EVENTS_CTR_PROC;	
+
+PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 
 --*****
 -- subevent headers
@@ -315,7 +317,7 @@ port map(
 	Reset       =>  RESET,
 	RPReset     =>  RESET,
 	Q           =>  qsf_q,
-	Empty       =>  open,
+	Empty       =>  qsf_empty,
 	Full        =>  open
 );
 
@@ -323,13 +325,46 @@ qsf_wr_en <= '1' when (PC_END_OF_DATA_IN = '1') else '0';
 
 qsf_data <= queue_size;
 
+QSF_WR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (MULT_EVT_ENABLE_IN = '1') then
+			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+				if (queue_size + x"10" + PC_SUB_SIZE_IN > MAX_MESSAGE_SIZE_IN) then
+					qsf_wr_en <= '1';
+				else
+					qsf_wr_en <= '0';
+				end if;
+			else
+				qsf_wr_en <= '0';
+			end if;
+		else
+			if (PC_END_OF_DATA_IN = '1') then
+				qsf_wr_en <= '1';
+			else
+				qsf_wr_en <= '0';
+			end if; 
+		end if;
+	end if;
+end process QSF_WR_PROC;
+
 QUEUE_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (save_current_state = IDLE) then
-			queue_size <= x"0000_0028";
-		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+		if (MULT_EVT_ENABLE_IN = '1') then
+			if (save_current_state = SAVE_DECODING and sub_int_ctr = 3) then
+				queue_size <= x"0000_0028";
+			elsif (save_sub_hdr_current_state = SAVE_DECODING and sub_int_ctr = 2) then
+				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+			else
+				queue_size <= queue_size;
+			end if;
+		else
+			if (save_current_state = IDLE) then
+				queue_size <= x"0000_0028";
+			elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+			end if;			
 		end if;
 	end if;
 end process QUEUE_SIZE_PROC;
@@ -351,12 +386,13 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr, loaded_events_ctr, TC_H_READY_IN, header_ctr, load_eod)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr, qsf_empty, loaded_events_ctr, TC_H_READY_IN, header_ctr, load_eod)
 begin
 	case (load_current_state) is
 	
 		when IDLE =>
-			if (saved_events_ctr /= loaded_events_ctr) then
+			--if (saved_events_ctr /= loaded_events_ctr) then
+			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
 				load_next_state <= WAIT_FOR_FC;
 			else
 				load_next_state <= IDLE;
@@ -548,7 +584,6 @@ begin
 end process TC_PACKET_SIZES_PROC;
 
 PC_TRANSMIT_ON_OUT <= '0';
-PC_READY_OUT <= '1' when save_current_state = IDLE else '0';
 
 DEBUG_OUT <= (others => '0');
 
