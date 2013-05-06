@@ -541,7 +541,8 @@ end process SUB_FIFO_RD_PROC;
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
+		--if (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
+		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
 		else
 			qsf_rd_en <= '0';
