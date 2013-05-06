@@ -520,6 +520,15 @@ end process TC_DATA_PROC;
 --*****
 -- outputs
 
+TC_PACKET_SIZES_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		TC_IP_SIZE_OUT  <= qsf_q;
+		TC_UDP_SIZE_OUT <= qsf_q;
+	end if;
+end process TC_PACKET_SIZES_PROC;
+PC_
+
 PC_TRANSMIT_ON_OUT <= '0';
 PC_READY_OUT <= '1' when save_current_state = IDLE else '0';
 
