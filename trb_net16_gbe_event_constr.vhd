@@ -322,7 +322,7 @@ port map(
 	Full        =>  open
 );
 
-qsf_wr_en <= '1' when (PC_END_OF_DATA_IN = '1') else '0';
+--qsf_wr_en <= '1' when (PC_END_OF_DATA_IN = '1') else '0';
 
 qsf_data <= queue_size;
 
