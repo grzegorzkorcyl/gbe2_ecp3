@@ -596,7 +596,9 @@ end process QUEUE_FIFO_RD_PROC;
 TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (TC_RD_EN_IN = '1' and term_ctr /= 32) then
+		if (load_current_state = IDLE) then
+			termination <= (others => '0');
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 32) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
 			case (load_current_state) is
