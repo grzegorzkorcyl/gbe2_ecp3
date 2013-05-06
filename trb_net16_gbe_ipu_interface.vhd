@@ -440,8 +440,6 @@ begin
 			sf_rd_en <= '1';
 		elsif (load_current_state = LOAD) then
 			sf_rd_en <= '1';
-		elsif (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
-			sf_rd_en <= '1';
 		else
 			sf_rd_en <= '0';
 		end if;
