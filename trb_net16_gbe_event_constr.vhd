@@ -460,6 +460,7 @@ end process TC_SOD_PROC;
 --*****
 -- read from fifos
 
+--TODO: change all the rd_en and wr_en to real ack signals
 DATA_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -492,6 +493,27 @@ begin
 		end if;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
+
+TC_DATA_PROC : process(CLK)
+begin
+	if rising_edge(CLIK) then
+		case (load_current_state) is
+		
+			when PUT_Q_LEN => TC_DATA_OUT <= qsf_q(7 downto 0);
+			
+			when PUT_Q_DEC => TC_DATA_OUT <= (others => '0');
+			
+			when LOAD_SUB => TC_DATA_OUT <= shf_q;
+			
+			when LOAD_DATA => TC_DATA_OUT <= df_q;
+			
+			when LOAD_TERM => TC_DATA_OUT <= (others => '0');
+			
+			when others => TC_DATA_OUT <= (others => '0');
+		
+		end case;
+	end if;
+end process TC_DATA_PROC;
 
 --*****
 -- outputs
