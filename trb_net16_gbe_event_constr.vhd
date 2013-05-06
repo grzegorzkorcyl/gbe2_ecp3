@@ -601,7 +601,20 @@ begin
 	if rising_edge(CLK) then
 		if (TC_RD_EN_IN = '1' and term_ctr /= 31) then
 			termination(255 downto 8) <= termination(247 downto 0);
-			termination(7 downto 0)   <= df_qq;
+			
+			case (load_current_state) is
+		
+				when PUT_Q_LEN => termination(7 downto 0) <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+				
+				when PUT_Q_DEC => termination(7 downto 0) <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+				
+				when LOAD_SUB  => termination(7 downto 0) <= shf_qq;
+				
+				when LOAD_DATA => termination(7 downto 0) <= df_qq;
+				
+				when others    => TC_DATA_OUT <= (others => '0');
+		
+			end case;
 		else
 			termination <= termination;
 		end if;
