@@ -431,13 +431,16 @@ port map(
 	D_OUT => saved_events_ctr_gbe
 );
 
+
+--TODO: create a proper read signal here
 SF_RD_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = REMOVE) then
 			sf_rd_en <= '1';
 		elsif (load_current_state = LOAD) then
-		--TODO: create a proper read signal here
+			sf_rd_en <= '1';
+		elsif (load_current_state = IDLE and saved_events_ctr /= loaded_events_ctr) then
 			sf_rd_en <= '1';
 		else
 			sf_rd_en <= '0';
