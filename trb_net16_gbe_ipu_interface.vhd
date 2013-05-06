@@ -388,10 +388,10 @@ begin
 			load_next_state <= DECIDE;
 		
 		when DECIDE =>
-			load_next_state <= CALC_PADDING;
+			load_next_state <= WAIT_FOR_LOAD; --CALC_PADDING;
 			
-		when CALC_PADDING =>
-			load_next_state <= WAIT_FOR_LOAD;
+--		when CALC_PADDING =>
+--			load_next_state <= WAIT_FOR_LOAD;
 			
 		when WAIT_FOR_LOAD =>
 			if (PC_READY_IN = '1') then
@@ -490,9 +490,11 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
-		elsif (load_current_state = CALC_PADDING and padding_needed = '1') then
-			subevent_size <= subevent_size + x"4"+ x"8";
-		elsif (load_current_state = CALC_PADDING and padding_needed = '0') then
+--		elsif (load_current_state = CALC_PADDING and padding_needed = '1') then
+--			subevent_size <= subevent_size + x"4"+ x"8";
+--		elsif (load_current_state = CALC_PADDING and padding_needed = '0') then
+--			subevent_size <= subevent_size + x"8";
+		elsif (load_current_state = DECIDE) then
 			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
@@ -500,16 +502,16 @@ begin
 	end if;
 end process SUBEVENT_SIZE_PROC;
 
-PADDING_NEEDED_PROC : process(CLK_GBE)
-begin
-	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE) then	
-			padding_needed <= '0';
-		elsif (load_current_state = DECIDE and subevent_size(2) = '1') then
-			padding_needed <= '1';
-		end if;
-	end if;
-end process PADDING_NEEDED_PROC;
+--PADDING_NEEDED_PROC : process(CLK_GBE)
+--begin
+--	if rising_edge(CLK_GBE) then
+--		if (load_current_state = IDLE) then	
+--			padding_needed <= '0';
+--		elsif (load_current_state = DECIDE and subevent_size(2) = '1') then
+--			padding_needed <= '1';
+--		end if;
+--	end if;
+--end process PADDING_NEEDED_PROC;
 			
 			
 
@@ -618,7 +620,8 @@ end process PC_WR_EN_PROC;
 PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = CALC_PADDING) then
+		--if (load_current_state = CALC_PADDING) then
+		if (load_current_state = DECIDE) then
 			PC_SOS_OUT <= '1';
 		else
 			PC_SOS_OUT <= '0';
@@ -656,7 +659,7 @@ PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
 PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random; 
 
-PC_PADDING_OUT <= padding_needed;
+PC_PADDING_OUT <= '0'; --padding_needed; not used anymore
 
 DEBUG_OUT <= (others => '0');
 MONITOR_OUT <= (others => '0');
