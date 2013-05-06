@@ -436,7 +436,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			loaded_events_ctr <= (others => '0');
-		elsif (load_eod = '1') then
+		elsif (load_current_state = LOAD_DATA and load_eod = '1') then
 			loaded_events_ctr <= loaded_events_ctr + x"1";
 		else
 			loaded_events_ctr <= loaded_events_ctr;
