@@ -144,13 +144,13 @@ signal tc_src_udp               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 down
 signal tc_ip_proto              : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0); 
 
 -- plus 1 is for the outside
-signal stat_data                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 32 - 1 downto 0);
-signal stat_addr                : std_logic_vector((c_MAX_PROTOCOLS + 1) * 8 - 1 downto 0);
-signal stat_rdy                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
-signal stat_ack                 : std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
-signal tc_ip_size               : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
-signal tc_udp_size              : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
-signal tc_flags_size            : std_logic_vector((c_MAX_PROTOCOLS + 1) * 16 - 1 downto 0);
+signal stat_data                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal stat_addr                : std_logic_vector(c_MAX_PROTOCOLS * 8 - 1 downto 0);
+signal stat_rdy                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+signal stat_ack                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+signal tc_ip_size               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+signal tc_udp_size              : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+signal tc_flags_size            : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 
 
 type select_states is (IDLE, LOOP_OVER, SELECT_ONE, PROCESS_REQUEST, CLEANUP);
