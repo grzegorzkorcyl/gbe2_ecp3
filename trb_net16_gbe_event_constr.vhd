@@ -33,6 +33,7 @@ port(
 	PC_TRIG_NR_IN           : in    std_logic_vector(31 downto 0); -- store and swap!
 	PC_QUEUE_DEC_IN         : in    std_logic_vector(31 downto 0); -- swap
 	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
+	PC_MAX_QUEUE_SIZE_IN    : in    std_logic_vector(31 downto 0);
 	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
@@ -330,7 +331,7 @@ begin
 	if rising_edge(CLK) then
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-				if (queue_size + x"10" + PC_SUB_SIZE_IN > MAX_MESSAGE_SIZE_IN) then
+				if (queue_size + x"10" + PC_SUB_SIZE_IN > PC_MAX_QUEUE_SIZE_IN) then
 					qsf_wr_en <= '1';
 				else
 					qsf_wr_en <= '0';

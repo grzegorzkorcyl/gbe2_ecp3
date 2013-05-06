@@ -240,6 +240,7 @@ port map(
 	DEBUG_OUT                => open
 );
 
+--TODO: add missing values from setup
 PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
@@ -254,11 +255,12 @@ port map(
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	PC_SUB_SIZE_IN			=> pc_sub_size,
 	PC_PADDING_IN			=> pc_padding,
-	PC_DECODING_IN			=> pc_decoding,
+	PC_DECODING_IN			=> x"0002_0001", --pc_decoding,
 	PC_EVENT_ID_IN			=> pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
-	PC_QUEUE_DEC_IN			=> pc_queue_dec,
-	PC_MAX_FRAME_SIZE_IN    => pc_max_frame_size,
+	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
+	PC_MAX_FRAME_SIZE_IN    => x"0000_0578",
+	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
 	PC_DELAY_IN             => (others => '0'),
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
