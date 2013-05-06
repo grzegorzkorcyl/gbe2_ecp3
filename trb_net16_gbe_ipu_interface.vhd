@@ -477,7 +477,6 @@ begin
 	end if;
 end process TRIGGER_NUMBER_PROC;
 
--- the subevent size is only transmitted to event constructor and contains the real header value
 SUBEVENT_SIZE_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then

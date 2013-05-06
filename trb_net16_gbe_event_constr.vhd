@@ -78,6 +78,8 @@ signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
 
+signal termination : std_logic_vector(255 downto 0);
+
 begin
 
 --*******
@@ -488,10 +490,14 @@ begin
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			header_ctr <= 31;
+		elsif (load_current_state = LOAD_DATA and header_ctr = 0) then
+			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM) then
+				header_ctr <= header_ctr - 1;
+			elsif (load_current_state = LOAD_DATA and header_ctr /= 0) then
 				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
@@ -592,6 +598,17 @@ begin
 		qsf_rd_en_q <= qsf_rd_en;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
+
+TERMINATION_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (df_rd_en = '1' and load_current_state = LOAD_DATA and header_ctr /= 0) then
+			termination(255 downto 8) <= termination(247 downto 0) & df_qq;
+		else
+			termination <= termination;
+		end if;
+	end if;
+end process TERMINATION_PROC;
 
 TC_DATA_PROC : process(CLK)
 begin
