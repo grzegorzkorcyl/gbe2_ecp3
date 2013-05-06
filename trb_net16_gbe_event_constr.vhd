@@ -461,6 +461,19 @@ begin
 	end if;
 end process TC_SOD_PROC;
 
+TC_EOD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			TC_EOD_OUT <= '0';
+		elsif (load_current_state = LOAD_DATA) and (load_eod = '1') then
+			TC_EOD_OUT <= '1';
+		else
+			TC_EOD_OUT <= '0';
+		end if;
+	end if;
+end process TC_EOD_PROC;
+
 --*****
 -- read from fifos
 
