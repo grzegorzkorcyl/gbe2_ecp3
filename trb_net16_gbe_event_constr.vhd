@@ -61,7 +61,7 @@ type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
 
 signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
-signal df_q : std_logic_vector(7 downto 0);
+signal df_q, df_qq : std_logic_vector(7 downto 0);
 	
 signal saved_events_ctr, loaded_events_ctr : std_logic_vector(7 downto 0);
 signal header_ctr : integer range 0 to 31;
@@ -162,6 +162,13 @@ port map(
 	Empty            =>  df_empty,
 	Full             =>  df_full
 );
+
+DF_QQ_PROC : process(CLK)
+begin
+	if risign_edge(CLK) then
+		df_qq <= df_q;
+	end if;
+end process DF_QQ_PROC;
 
 SAVED_EVENTS_CTR_PROC : process(CLK)
 begin
@@ -478,7 +485,7 @@ begin
 		elsif (load_current_state = PUT_Q_LEN and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
-			header_ctr <= 13;
+			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
@@ -542,6 +549,10 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
 			df_rd_en <= '1';
+		elsif (load_current_state = LOAD_SUB and header_ctr = 12) then  -- preload the first word
+			df_rd_en <= '1';
+		elsif (load_current_state = LOAD_SUB and header_ctr = 13) then  -- preload the first word
+			df_rd_en <= '1';
 		elsif (load_current_state = LOAD_SUB and header_ctr = 14) then  -- preload the first word
 			df_rd_en <= '1';
 		else
@@ -589,13 +600,13 @@ begin
 			
 			when PUT_Q_DEC => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			
-			when LOAD_SUB => TC_DATA_OUT <= shf_qq;
+			when LOAD_SUB  => TC_DATA_OUT <= shf_qq;
 			
-			when LOAD_DATA => TC_DATA_OUT <= df_q;
+			when LOAD_DATA => TC_DATA_OUT <= df_qq;
 			
 			when LOAD_TERM => TC_DATA_OUT <= (others => '0');
 			
-			when others => TC_DATA_OUT <= (others => '0');
+			when others    => TC_DATA_OUT <= (others => '0');
 		
 		end case;
 	end if;
