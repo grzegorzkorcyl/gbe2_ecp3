@@ -54,7 +54,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, DIVIDE, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -446,7 +446,7 @@ begin
 			
 		when LOAD_SUB =>
 			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= DIVIDE;
+				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
 					load_next_state <= LOAD_DATA;
@@ -457,7 +457,7 @@ begin
 			
 		when LOAD_DATA =>
 			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= DIVIDE;
+				load_next_state <= CLOSE_FRAME;
 			else
 				if (load_eod = '1') then
 					if (size_for_padding(2) = '1') then
@@ -472,7 +472,7 @@ begin
 			
 		when LOAD_PADDING =>
 			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= DIVIDE;
+				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
 					load_next_state <= LOAD_TERM;
@@ -484,7 +484,7 @@ begin
 			
 		when LOAD_TERM =>
 			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= DIVIDE;
+				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
 					load_next_state <= CLEANUP;
@@ -492,6 +492,9 @@ begin
 					load_next_state <= LOAD_TERM;
 				end if;
 			end if;			
+			
+		when CLOSE_FRAME =>
+			load_next_state <= DIVIDE;
 		
 		when DIVIDE =>
 			if (TC_H_READY_IN = '1') then
@@ -505,7 +508,7 @@ begin
 					load_next_state <= LOAD_TERM;
 				end if;				
 			else
-				load_Next_state <= DIVIDE;
+				load_next_state <= DIVIDE;
 			end if;
 		
 		when CLEANUP =>
@@ -623,7 +626,7 @@ begin
 			TC_EOD_OUT <= '0';
 		elsif (load_current_state = LOAD_DATA) and (load_eod = '1') then
 			TC_EOD_OUT <= '1';
-		elsif (load_current_state = DIVIDE) then
+		elsif (load_current_state = CLOSE_FRAME) then
 			TC_EOD_OUT <= '1';
 		else
 			TC_EOD_OUT <= '0';
