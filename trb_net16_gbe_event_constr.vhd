@@ -770,7 +770,7 @@ begin
 	if rising_edge(CLK) then
 		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
 			if (qsf_qq + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
-				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN - x"4";
+				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
 				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
 			end if;		
