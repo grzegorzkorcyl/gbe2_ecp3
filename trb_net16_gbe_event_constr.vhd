@@ -733,7 +733,7 @@ begin
 			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
 			when LOAD_TERM    => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when others       => TC_DATA_OUT <= (others => '0');
+			when others       => TC_DATA_OUT <= df_qq; --(others => '0');
 		end case;
 	end if;
 end process TC_DATA_PROC;
