@@ -611,7 +611,7 @@ begin
 			for I in 0 to 7 loop
 				case (load_current_state) is
 					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I);
-					when PUT_Q_DEC => termination(I) <= PC_QUEUE_DEC_IN(header_ctr * 8 + 1);
+					when PUT_Q_DEC => termination(I) <= PC_QUEUE_DEC_IN(header_ctr * 8 + I);
 					when LOAD_SUB  => termination(I) <= shf_qq(I);
 					when LOAD_DATA => termination(I) <= df_qq(I);
 					when others    => termination(I) <= '0';
