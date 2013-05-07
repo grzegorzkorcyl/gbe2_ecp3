@@ -54,7 +54,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -80,6 +80,8 @@ signal queue_size : std_logic_vector(31 downto 0);
 signal termination : std_logic_vector(255 downto 0);
 signal term_ctr : integer range 0 to 32;
 signal size_for_padding : std_logic_vector(7 downto 0);
+signal loaded_bytes_frame, loaded_bytes_packet : std_logic_vector(15 downto 0);
+signal divide_position : std_logic_vector(1 downto 0);
 
 begin
 
@@ -339,7 +341,7 @@ begin
 	if rising_edge(CLK) then
 		qsf_qq <= qsf_q;
 	end if;
-end process QSF_QQ_PROC;	
+end process QSF_QQ_PROC;
 
 QSF_WR_PROC : process(CLK)
 begin
@@ -410,7 +412,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, size_for_padding, qsf_empty, TC_H_READY_IN, header_ctr, load_eod)
+LOAD_MACHINE : process(load_current_state, size_for_padding, qsf_empty, TC_H_READY_IN, header_ctr, load_eod, loaded_bytes, PC_MAX_FRAME_SIZE_IN)
 begin
 	case (load_current_state) is
 	
@@ -443,36 +445,68 @@ begin
 			end if;
 			
 		when LOAD_SUB =>
-			if (header_ctr = 0) then
-				load_next_state <= LOAD_DATA;
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+				load_next_state <= DIVIDE;
 			else
-				load_next_state <= LOAD_SUB;
+				if (header_ctr = 0) then
+					load_next_state <= LOAD_DATA;
+				else
+					load_next_state <= LOAD_SUB;
+				end if;
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod = '1') then
-				if (size_for_padding(2) = '1') then
-					load_next_state <= LOAD_PADDING;
-				else
-					load_next_state <= LOAD_TERM;
-				end if;
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+				load_next_state <= DIVIDE;
 			else
-				load_next_state <= LOAD_DATA;
+				if (load_eod = '1') then
+					if (size_for_padding(2) = '1') then
+						load_next_state <= LOAD_PADDING;
+					else
+						load_next_state <= LOAD_TERM;
+					end if;
+				else
+					load_next_state <= LOAD_DATA;
+				end if;
 			end if;
 			
 		when LOAD_PADDING =>
-			if (header_ctr = 0) then
-				load_next_state <= LOAD_TERM;
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+				load_next_state <= DIVIDE;
 			else
-				load_next_state <= LOAD_PADDING;
+				if (header_ctr = 0) then
+					load_next_state <= LOAD_TERM;
+				else
+					load_next_state <= LOAD_PADDING;
+				end if;
 			end if;
 			
+			
 		when LOAD_TERM =>
-			if (header_ctr = 0) then
-				load_next_state <= CLEANUP;
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+				load_next_state <= DIVIDE;
 			else
-				load_next_state <= LOAD_TERM;
+				if (header_ctr = 0) then
+					load_next_state <= CLEANUP;
+				else
+					load_next_state <= LOAD_TERM;
+				end if;
 			end if;			
+		
+		when DIVIDE =>
+			if (TC_H_READY_IN = '1') then
+				if (divide_position = "00") then
+					load_next_state <= LOAD_SUB;
+				elsif (divide_position = "01") then
+					load_next_state <= LOAD_DATA;
+				elsif (divide_position = "10") then
+					load_next_state <= LOAD_PADDING;
+				elsif (divide_position = "11") then
+					load_next_state <= LOAD_TERM;
+				end if;				
+			else
+				load_Next_state <= WAIT_FOR_FC;
+			end if;
 		
 		when CLEANUP =>
 			load_next_state <= IDLE;
@@ -481,6 +515,51 @@ begin
 		
 	end case;
 end process LOAD_MACHINE;
+
+DIVIDE_POSITION_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			case (load_current_state) is
+				when LOAD_SUB     => divide_position <= "00";
+				when LOAD_DATA    => divide_position <= "01";
+				when LOAD_PADDING => divide_position <= "10";
+				when LOAD_TERM    => divide_position <= "11";
+				when others       => divide_position <= "00";
+			end case;
+		else
+			divide_position <= divide_position;
+		end if;
+	end if;
+end process DIVIDE_POSITION_PROC;
+
+LOADED_BYTES_FRAME_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			loaded_bytes_frame <= (others => '0');
+		elsif (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			loaded_bytes_frame <= (others => '0');
+		elsif (TC_RD_EN_IN = '1') then
+			loaded_bytes_frame <= loaded_bytes_frame + x"1";
+		else
+			loaded_bytes_frame <= loaded_bytes_frame;
+		end if;
+	end if;
+end process LOADED_BYTES_FRAME_PROC;
+
+LOADED_BYTES_PACKET_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			loaded_bytes_packet <= (others => '0');
+		elsif (TC_RD_EN_IN = '1') then
+			loaded_bytes_packet <= loaded_bytes_packet + x"1";
+		else
+			loaded_bytes_packet <= loaded_bytes_packet;
+		end if;
+	end if;
+end process LOADED_BYTES_PACKET_PROC;
 
 HEADER_CTR_PROC : process(CLK)
 begin
@@ -639,7 +718,6 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-		
 			when PUT_Q_LEN    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			when PUT_Q_DEC    => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			when LOAD_SUB     => TC_DATA_OUT <= shf_qq;
@@ -647,7 +725,6 @@ begin
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
 			when LOAD_TERM    => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
 			when others       => TC_DATA_OUT <= (others => '0');
-		
 		end case;
 	end if;
 end process TC_DATA_PROC;
@@ -658,11 +735,40 @@ end process TC_DATA_PROC;
 TC_PACKET_SIZES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_IP_SIZE_OUT      <= qsf_qq(15 downto 0) + x"20";
+		--TC_IP_SIZE_OUT      <= qsf_qq(15 downto 0) + x"20";
 		TC_UDP_SIZE_OUT     <= qsf_qq(15 downto 0) + x"20";
-		TC_FLAGS_OFFSET_OUT <= (others => '0');
 	end if;
 end process TC_PACKET_SIZES_PROC;
+
+TC_FLAGS_OFFSET_PROC : process(CLK)
+begin
+	TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
+
+	if rising_edge(CLK) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC) and TC_READY_IN = '1') then
+			if ((qsf_qq - loaded_bytes_packet) < PC_MAX_QUEUE_SIZE_IN) then
+				TC_FLAGS_OFFSET_OUT(13) = '0';
+			else
+				TC_FLAGS_OFFSET_OUT(13) = '1';
+			end if;
+			
+			TC_FLAGS_OFFSET_OUT(12 downto 0) <= loaded_bytes_packet(15 downto 3);
+		end if;
+	end if;
+end process TC_FLAGS_OFFSET_PROC;
+
+TC_IP_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC) and TC_READY_IN = '1') then
+			if (qsf_qq - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
+				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
+			else
+				TC_IP_SIZE_OUT <= qsf_qq - loaded_bytes_packet;
+			end if;		
+		end if;
+	end if;
+end process TC_IP_SIZE_PROC;
 
 PC_TRANSMIT_ON_OUT <= '0';
 
