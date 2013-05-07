@@ -652,8 +652,6 @@ begin
 			df_rd_en <= '1';
 		elsif (load_current_state = LOAD_SUB and header_ctr = 3) then  -- preload the first word
 			df_rd_en <= '1';
-		elsif (load_current_state = DIVIDE and divide_position = "01" and TC_H_READY_IN = '1') then -- preload the first bytes after dividing
-			df_rd_en <= '1';
 		else
 			df_rd_en <= '0';
 		end if;
