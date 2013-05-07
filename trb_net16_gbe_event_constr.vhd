@@ -626,6 +626,8 @@ begin
 			TC_EOD_OUT <= '0';
 --		elsif (load_current_state = LOAD_DATA) and (load_eod = '1') then
 --			TC_EOD_OUT <= '1';
+		elsif (load_current_state = LOAD_TERM) and (header_ctr = 0) then
+			TC_EOD_OUT <= '1';
 		elsif (load_current_state = CLOSE_FRAME) then
 			TC_EOD_OUT <= '1';
 		else
