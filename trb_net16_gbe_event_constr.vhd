@@ -505,7 +505,7 @@ begin
 					load_next_state <= LOAD_TERM;
 				end if;				
 			else
-				load_Next_state <= WAIT_FOR_FC;
+				load_Next_state <= DIVIDE;
 			end if;
 		
 		when CLEANUP =>
