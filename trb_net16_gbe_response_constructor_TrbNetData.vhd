@@ -318,6 +318,7 @@ begin
 	end case;
 end process DISSECT_MACHINE;
 
+--TODO: change this to real "ready" signals 
 tc_ready <= not TC_BUSY_IN;
 tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
 
