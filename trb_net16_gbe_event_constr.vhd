@@ -764,7 +764,7 @@ begin
 			if (qsf_qq - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
-				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) - loaded_bytes_packet;
+				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
 			end if;		
 		end if;
 	end if;
