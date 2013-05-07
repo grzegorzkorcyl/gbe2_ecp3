@@ -608,6 +608,8 @@ begin
 			TC_SOD_OUT <= '0';
 		elsif (load_current_state = WAIT_FOR_FC) and (TC_READY_IN = '1') then
 			TC_SOD_OUT <= '1';
+		elsif (load_current_state = DIVIDE) and (TC_READY_IN = '1') then
+			TC_SOD_OUT <= '1';
 		else
 			TC_SOD_OUT <= '0';
 		end if;
