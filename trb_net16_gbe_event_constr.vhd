@@ -621,6 +621,8 @@ begin
 			TC_EOD_OUT <= '0';
 		elsif (load_current_state = LOAD_DATA) and (load_eod = '1') then
 			TC_EOD_OUT <= '1';
+		elsif (load_current_state = DIVIDE) then
+			TC_EOD_OUT <= '1';
 		else
 			TC_EOD_OUT <= '0';
 		end if;
