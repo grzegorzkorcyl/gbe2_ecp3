@@ -445,7 +445,7 @@ begin
 			end if;
 			
 		when LOAD_SUB =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN - x"4") then
 				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
@@ -456,7 +456,7 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN - x"4") then
 				load_next_state <= CLOSE_FRAME;
 			else
 				if (load_eod = '1') then
@@ -471,7 +471,7 @@ begin
 			end if;
 			
 		when LOAD_PADDING =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN - x"4") then
 				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
@@ -483,7 +483,7 @@ begin
 			
 			
 		when LOAD_TERM =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
+			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN - x"4") then
 				load_next_state <= CLOSE_FRAME;
 			else
 				if (header_ctr = 0) then
