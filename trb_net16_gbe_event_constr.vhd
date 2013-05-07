@@ -745,7 +745,7 @@ begin
 	TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN)) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
 			if ((qsf_qq - loaded_bytes_packet) < PC_MAX_QUEUE_SIZE_IN) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';
 			else
@@ -760,7 +760,7 @@ end process TC_FLAGS_OFFSET_PROC;
 TC_IP_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN)) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
 			if (qsf_qq - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
