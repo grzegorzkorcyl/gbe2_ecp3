@@ -360,7 +360,7 @@ begin
 -- Loop the transmissions
 -------------------------------------------------------------------------------
 	trigger_counter := x"4710";
-	trigger_loop    := 1;
+	trigger_loop    := 0;
 	
 	wait until rising_edge(test_clk);
 
