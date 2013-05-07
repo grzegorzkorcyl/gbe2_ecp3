@@ -372,9 +372,9 @@ begin
 				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_DECODING and sub_int_ctr = 2) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
-					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4";
+					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
 				else
-					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
 				end if;
 			else
 				queue_size <= queue_size;
@@ -384,9 +384,9 @@ begin
 				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
-					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4";
+					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
 				else
-					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN;
+					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
 				end if;
 			end if;			
 		end if;
