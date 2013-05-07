@@ -54,7 +54,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, LOAD_Q_SIZE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, DIVIDE, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -418,13 +418,10 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= LOAD_Q_SIZE; --WAIT_FOR_FC;
+				load_next_state <= WAIT_FOR_FC;
 			else
 				load_next_state <= IDLE;
 			end if;
-			
-		when LOAD_Q_SIZE =>
-			load_next_state <= WAIT_FOR_FC;
 			
 		when WAIT_FOR_FC =>
 			if (TC_H_READY_IN = '1') then
@@ -672,8 +669,7 @@ end process SUB_FIFO_RD_PROC;
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		--if (load_current_state = IDLE and qsf_empty = '0') then
-		if (load_current_state = LOAD_Q_SIZE) then
+		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
 		else
 			qsf_rd_en <= '0';
@@ -749,7 +745,7 @@ begin
 	TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC)) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN)) then
 			if ((qsf_qq - loaded_bytes_packet) < PC_MAX_QUEUE_SIZE_IN) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';
 			else
@@ -764,7 +760,7 @@ end process TC_FLAGS_OFFSET_PROC;
 TC_IP_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC)) then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN)) then
 			if (qsf_qq - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
