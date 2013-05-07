@@ -412,7 +412,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, size_for_padding, qsf_empty, TC_H_READY_IN, header_ctr, load_eod, loaded_bytes, PC_MAX_FRAME_SIZE_IN)
+LOAD_MACHINE : process(load_current_state, size_for_padding, qsf_empty, TC_H_READY_IN, header_ctr, load_eod, loaded_bytes_frame, PC_MAX_FRAME_SIZE_IN)
 begin
 	case (load_current_state) is
 	
@@ -747,9 +747,9 @@ begin
 	if rising_edge(CLK) then
 		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC) and TC_READY_IN = '1') then
 			if ((qsf_qq - loaded_bytes_packet) < PC_MAX_QUEUE_SIZE_IN) then
-				TC_FLAGS_OFFSET_OUT(13) = '0';
+				TC_FLAGS_OFFSET_OUT(13) <= '0';
 			else
-				TC_FLAGS_OFFSET_OUT(13) = '1';
+				TC_FLAGS_OFFSET_OUT(13) <= '1';
 			end if;
 			
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= loaded_bytes_packet(15 downto 3);
