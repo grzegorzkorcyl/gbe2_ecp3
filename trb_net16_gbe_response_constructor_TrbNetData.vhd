@@ -302,7 +302,7 @@ begin
 			end if;
 			
 		when WAIT_FOR_LOAD =>
-			if (TC_BUSY_IN = '0') then
+			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD;
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;
@@ -322,7 +322,7 @@ begin
 end process DISSECT_MACHINE;
 
 --TODO: change this to real "ready" signals 
-tc_ready <= '1' when TC_BUSY_IN = '0' and PS_SELECTED_IN = '1' else '0'; --not TC_BUSY_IN);
+tc_ready <= '1' when TC_BUSY_IN = '0' else '0'; --not TC_BUSY_IN);
 tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
 
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
