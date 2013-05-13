@@ -580,7 +580,7 @@ begin
 			header_ctr <= 3;
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
 			header_ctr <= 15;
-		elsif (load_current_state = LOAD_DATA and header_ctr = 0) then
+		elsif ((load_current_state = LOAD_SUB or load_current_state = LOAD_DATA) and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
 			else
