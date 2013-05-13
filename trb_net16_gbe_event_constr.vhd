@@ -655,6 +655,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = DIVIDE and divide_position = "01") then
 			not_valid_ctr <= 0;
+		elsif (load_current_state = LOAD_SUB) then
+			not_valid_ctr <= 3;
 		elsif (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
 			not_valid_ctr <= not_valid_ctr + 1;
 		else
