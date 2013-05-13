@@ -626,7 +626,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			TC_DATA_OUT           <= (others => '0');
-			TC_DATA_NOT_VALID_OUT <= '0;
+			TC_DATA_NOT_VALID_OUT <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
