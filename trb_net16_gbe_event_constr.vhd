@@ -501,7 +501,7 @@ begin
 				if (divide_position = "00") then
 					load_next_state <= LOAD_SUB;
 				elsif (divide_position = "01") then
-					load_next_state <= PREP_DATA; --LOAD_DATA;
+					load_next_state <= LOAD_DATA;
 				elsif (divide_position = "10") then
 					load_next_state <= LOAD_PADDING;
 				elsif (divide_position = "11") then
@@ -511,12 +511,12 @@ begin
 				load_next_state <= DIVIDE;
 			end if;
 			
-		when PREP_DATA =>
-			if (header_ctr = 0) then
-				load_next_state <= LOAD_DATA;
-			else
-				load_next_state <= PREP_DATA;
-			end if;
+--		when PREP_DATA =>
+--			if (header_ctr = 0) then
+--				load_next_state <= LOAD_DATA;
+--			else
+--				load_next_state <= PREP_DATA;
+--			end if;
 		
 		when CLEANUP =>
 			load_next_state <= IDLE;
