@@ -587,6 +587,8 @@ signal dummy_pause : std_logic_vector(31 downto 0);
 signal make_reset    : std_logic;
 signal idle_too_long : std_logic;
 
+signal tc_data_not_valid : std_logic;
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -630,6 +632,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_TRANSMIT_DATA_OUT  => mc_transmit_data,
 	  TC_DATA_OUT		=> mc_data,
 	  TC_RD_EN_IN		=> mc_rd_en,
+	  TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
 	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
 	  TC_FRAME_TYPE_OUT	=> mc_type,
 	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
@@ -754,6 +757,7 @@ port map(
 	MC_TRANSMIT_DATA_IN	=> mc_transmit_data,
 	MC_DATA_IN		=> mc_data,
 	MC_RD_EN_OUT		=> mc_rd_en,
+	MC_DATA_NOT_VALID_IN => tc_data_not_valid,
 	MC_FRAME_SIZE_IN	=> mc_frame_size,
 	MC_FRAME_TYPE_IN	=> mc_type,
 	MC_IP_PROTOCOL_IN	=> mc_ip_proto,
