@@ -54,7 +54,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, PREP_DATA, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -510,13 +510,6 @@ begin
 			else
 				load_next_state <= DIVIDE;
 			end if;
-			
---		when PREP_DATA =>
---			if (header_ctr = 0) then
---				load_next_state <= LOAD_DATA;
---			else
---				load_next_state <= PREP_DATA;
---			end if;
 		
 		when CLEANUP =>
 			load_next_state <= IDLE;
@@ -580,7 +573,7 @@ begin
 			header_ctr <= 3;
 		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
 			header_ctr <= 15;
-		elsif ((load_current_state = LOAD_SUB or load_current_state = LOAD_DATA) and header_ctr = 0) then
+		elsif ((load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
 			else
@@ -590,16 +583,12 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		elsif (load_current_state = DIVIDE and divide_position = "01") then
-			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
 			end if;
-		elsif (load_current_state = PREP_DATA and header_ctr /= 0) then
-			header_ctr <= header_ctr - 1;
 		else
 			header_ctr <= header_ctr;
 		end if;
@@ -662,8 +651,6 @@ begin
 		elsif (load_current_state = LOAD_SUB and header_ctr = 2) then  -- preload the first word
 			df_rd_en <= '1';
 		elsif (load_current_state = LOAD_SUB and header_ctr = 3) then  -- preload the first word
-			df_rd_en <= '1';
-		elsif (load_current_state = PREP_DATA) then  -- preload word after dividing
 			df_rd_en <= '1';
 		else
 			df_rd_en <= '0';
@@ -746,7 +733,6 @@ begin
 			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
 			when LOAD_TERM    => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when PREP_DATA    => TC_DATA_OUT <= df_qq;
 			when others       => TC_DATA_OUT <= df_qq; --(others => '0');
 		end case;
 	end if;
