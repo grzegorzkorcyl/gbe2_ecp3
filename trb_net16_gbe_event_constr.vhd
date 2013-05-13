@@ -598,7 +598,7 @@ begin
 			else
 				header_ctr <= header_ctr;
 			end if;
-		elsif (load_current_state = PREP_DATA) then
+		elsif (load_current_state = PREP_DATA and header_ctr /= 0) then
 			header_ctr <= header_ctr - 1;
 		else
 			header_ctr <= header_ctr;
