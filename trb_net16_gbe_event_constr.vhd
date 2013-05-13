@@ -593,11 +593,13 @@ begin
 		elsif (load_current_state = DIVIDE and divide_position = "01") then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
-			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING or load_current_state = PREP_DATA) then
+			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
 			end if;
+		elsif (load_current_state = PREP_DATA) then
+			header_ctr <= header_ctr - 1;
 		else
 			header_ctr <= header_ctr;
 		end if;
@@ -744,6 +746,7 @@ begin
 			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
 			when LOAD_TERM    => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when PREP_DATA    => TC_DATA_OUT <= df_qq;
 			when others       => TC_DATA_OUT <= df_qq; --(others => '0');
 		end case;
 	end if;
