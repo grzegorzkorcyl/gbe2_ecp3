@@ -48,6 +48,7 @@ port (
 	TC_TRANSMIT_DATA_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
+	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	
@@ -253,6 +254,7 @@ port map(
 	
 	TC_DATA_OUT		=> TC_DATA_OUT,
 	TC_RD_EN_IN		=> TC_RD_EN_IN,
+	TC_DATA_NOT_VALID_OUT => TC_DATA_NOT_VALID_OUT,
 	TC_FRAME_SIZE_OUT	=> TC_FRAME_SIZE_OUT,
 	TC_FRAME_TYPE_OUT	=> frame_type, --TC_FRAME_TYPE_OUT,
 	TC_IP_PROTOCOL_OUT	=> TC_IP_PROTOCOL_OUT,

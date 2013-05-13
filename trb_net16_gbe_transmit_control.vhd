@@ -45,6 +45,7 @@ port (
 	MC_TRANSMIT_DATA_IN	: in	std_logic;
 	MC_DATA_IN		: in	std_logic_vector(8 downto 0);
 	MC_RD_EN_OUT		: out	std_logic;
+	MC_DATA_NOT_VALID_IN : in std_logic;
 	MC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
 	MC_FRAME_TYPE_IN	: in	std_logic_vector(15 downto 0);
 	
@@ -297,7 +298,11 @@ begin
 --      when TRANSMIT_DATA =>
 --	FC_WR_EN_OUT <= PC_WR_EN_IN;
       when TRANSMIT_CTRL =>
-	FC_WR_EN_OUT <= delayed_wr_en_q;
+      	if (MC_DATA_NOT_VALID_IN = '0') then
+			FC_WR_EN_OUT <= delayed_wr_en_q;
+		else
+			FC_WR_EN_OUT <= '0';
+		end if;
       when  others =>
 	FC_WR_EN_OUT <= '0';
     end case;

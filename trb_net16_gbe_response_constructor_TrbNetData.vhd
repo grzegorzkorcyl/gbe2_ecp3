@@ -32,6 +32,7 @@ port (
 	
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
+	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
@@ -135,6 +136,7 @@ signal tc_sod					: std_logic;
 signal tc_eod					: std_logic;
 signal tc_h_ready				: std_logic;
 signal tc_ready					: std_logic;
+signal tc_not_valid             : std_logic;
 
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
@@ -271,6 +273,7 @@ port map(
 	TC_FLAGS_OFFSET_OUT		=> tc_flags_offset,
 	TC_SOD_OUT				=> tc_sod,
 	TC_EOD_OUT				=> tc_eod,
+	TC_DATA_NOT_VALID_OUT   => tc_not_valid,
 	DEBUG_OUT				=> open
 );
 

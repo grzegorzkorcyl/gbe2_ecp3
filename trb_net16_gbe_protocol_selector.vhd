@@ -40,6 +40,7 @@ port (
 -- singals to/from transmit controller with constructed response
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
+	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
@@ -152,6 +153,7 @@ signal tc_ip_size               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 down
 signal tc_udp_size              : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal tc_flags_size            : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 
+signal tc_data_not_valid        : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
 type select_states is (IDLE, LOOP_OVER, SELECT_ONE, PROCESS_REQUEST, CLEANUP);
 signal select_current_state, select_next_state : select_states;
@@ -416,6 +418,7 @@ port map (
 	
 	TC_RD_EN_IN					=> TC_RD_EN_IN,
 	TC_DATA_OUT					=> tc_data(5 * 9 - 1 downto 4 * 9),
+	TC_DATA_NOT_VALID_OUT       => tc_data_not_valid(4),
 	TC_FRAME_SIZE_OUT			=> tc_size(5 * 16 - 1 downto 4 * 16),
 	TC_FRAME_TYPE_OUT			=> tc_type(5 * 16 - 1 downto 4 * 16),
 	TC_IP_PROTOCOL_OUT			=> tc_ip_proto(5 * 8 - 1 downto 4 * 8),
@@ -623,6 +626,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			TC_DATA_OUT           <= (others => '0');
+			TC_DATA_NOT_VALID_OUT <= '0;
 			TC_FRAME_SIZE_OUT     <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
@@ -639,6 +643,7 @@ begin
 			selected              <= (others => '0');
 		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
 			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
+			TC_DATA_NOT_VALID_OUT <= tc_data_not_valid(index);
 			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
 			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
 			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
@@ -659,6 +664,7 @@ begin
 			selected(index)       <= '1';
 		else
 			TC_DATA_OUT           <= (others => '0');
+			TC_DATA_NOT_VALID_OUT <= '0;
 			TC_FRAME_SIZE_OUT     <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');

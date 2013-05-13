@@ -43,6 +43,7 @@ port(
 	TC_FLAGS_OFFSET_OUT     : out   std_logic_vector(15 downto 0);
 	TC_SOD_OUT              : out   std_logic;
 	TC_EOD_OUT              : out   std_logic;
+	TC_DATA_NOT_VALID_OUT   : out   std_logic;
 	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
 );
 end component;
@@ -253,6 +254,7 @@ port (
 -- singals to/from transmi controller with constructed response
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
+	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
@@ -391,6 +393,7 @@ port (
 	TC_TRANSMIT_DATA_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
+	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	
@@ -516,6 +519,7 @@ port (
 	MC_TRANSMIT_CTRL_IN	: in	std_logic;  -- slow control frame is waiting to be built and sent
 	MC_TRANSMIT_DATA_IN	: in	std_logic;
 	MC_DATA_IN		: in	std_logic_vector(8 downto 0);
+	MC_DATA_NOT_VALID_IN : in std_logic;
 	MC_RD_EN_OUT		: out	std_logic;
 	MC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
 	MC_FRAME_TYPE_IN	: in	std_logic_vector(15 downto 0);

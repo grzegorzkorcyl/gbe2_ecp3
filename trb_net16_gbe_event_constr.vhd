@@ -45,6 +45,7 @@ port(
 	TC_FLAGS_OFFSET_OUT     : out   std_logic_vector(15 downto 0);
 	TC_SOD_OUT              : out   std_logic;
 	TC_EOD_OUT              : out   std_logic;
+	TC_DATA_NOT_VALID_OUT   : out   std_logic;
 	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
 );
 end entity trb_net16_gbe_event_constr;
@@ -82,6 +83,8 @@ signal term_ctr : integer range 0 to 32;
 signal size_for_padding : std_logic_vector(7 downto 0);
 signal loaded_bytes_frame, loaded_bytes_packet : std_logic_vector(15 downto 0);
 signal divide_position : std_logic_vector(1 downto 0);
+
+signal not_valid_ctr : integer range 0 to 7;
 
 begin
 
@@ -635,6 +638,30 @@ begin
 		end if;
 	end if;
 end process TC_EOD_PROC;
+
+TC_DATA_NOT_VALID_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
+			TC_DATA_NOT_VALID_OUT <= '1';
+		else
+			TC_DATA_NOT_VALID_OUT <= '0';
+		end if;
+	end if;
+end process TC_DATA_NOT_VALID_PROC;
+
+NOT_VALID_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = DIVIDE and divide_position = "01") then
+			not_valid_ctr <= 0;
+		elsif (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
+			not_valid_ctr <= not_valid_ctr + 1;
+		else
+			not_valid_ctr <= not_valid_ctr;
+		end if;
+	end if;
+end process NOT_VALID_CTR_PROC;
 
 --*****
 -- read from fifos
