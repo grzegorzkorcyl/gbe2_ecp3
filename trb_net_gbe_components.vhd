@@ -270,8 +270,12 @@ port (
 	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	
-	TC_BUSY_IN		: in	std_logic;
-	MC_BUSY_IN      : in	std_logic;
+	TC_FC_H_READY_IN    : in std_logic;
+	TC_FC_READY_IN      : in std_logic;
+	TC_FC_WR_EN_OUT     : out std_logic;
+	
+	TC_BUSY_IN		    : in	std_logic;
+	MC_BUSY_IN          : in	std_logic;
 	
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
@@ -410,6 +414,10 @@ port (
 	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);	
 	
+	TC_FC_H_READY_IN : in std_logic;
+	TC_FC_READY_IN : in std_logic;
+	TC_FC_WR_EN_OUT : out std_logic;
+	
 	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
 
@@ -536,6 +544,10 @@ port (
 	MC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
 	MC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
 	MC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
+	
+	MC_FC_H_READY_OUT : out std_logic;
+	MC_FC_READY_OUT : out std_logic;
+	MC_FC_WR_EN_IN : in std_logic;
 	
 	MC_BUSY_OUT		: out	std_logic;
 	MC_TRANSMIT_DONE_OUT	: out	std_logic;

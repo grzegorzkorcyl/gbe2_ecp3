@@ -512,6 +512,10 @@ port (
 	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+
+	TC_FC_H_READY_IN : in std_logic;
+	TC_FC_READY_IN : in std_logic;
+	TC_FC_WR_EN_OUT : out std_logic;
 		
 	TC_BUSY_IN		: in	std_logic;
 	

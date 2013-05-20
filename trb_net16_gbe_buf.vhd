@@ -589,6 +589,8 @@ signal idle_too_long : std_logic;
 
 signal tc_data_not_valid : std_logic;
 
+signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -647,6 +649,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_IP_SIZE_OUT		=> mc_ip_size,
 	  TC_UDP_SIZE_OUT		=> mc_udp_size,
 	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
+	  
+	  TC_FC_H_READY_IN => mc_fc_h_ready,
+	  TC_FC_READY_IN  => mc_fc_ready,
+	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
 	  
 	  TC_BUSY_IN		=> mc_busy,
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
@@ -772,6 +778,10 @@ port map(
 	MC_IP_SIZE_IN		=> mc_ip_size,
 	MC_UDP_SIZE_IN		=> mc_udp_size,
 	MC_FLAGS_OFFSET_IN	=> mc_flags,
+	
+	MC_FC_H_READY_OUT   => mc_fc_h_ready,
+	MC_FC_READY_OUT     => mc_fc_ready,
+	MC_FC_WR_EN_IN      => mc_fc_wr_en,
 		
 	MC_BUSY_OUT		=> mc_busy,
 	MC_TRANSMIT_DONE_OUT    => mc_transmit_done,

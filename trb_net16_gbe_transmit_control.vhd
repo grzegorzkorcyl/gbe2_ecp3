@@ -62,6 +62,10 @@ port (
 	MC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
 	MC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
 	
+	MC_FC_H_READY_OUT : out std_logic;
+	MC_FC_READY_OUT : out std_logic;
+	MC_FC_WR_EN_IN : in std_logic;
+	
 	MC_BUSY_OUT		: out	std_logic;
 	MC_TRANSMIT_DONE_OUT	: out	std_logic;
 
@@ -138,6 +142,10 @@ MC_BUSY_OUT <= '0' when (tx_current_state = IDLE)
 	    else '1';
 
 MC_TRANSMIT_DONE_OUT <= '1' when (tx_current_state = CLEANUP) else '0';
+
+MC_FC_H_READY_OUT <= FC_H_READY_IN;
+MC_FC_READY_OUT   <= FC_READY_IN;
+	
 
 TX_MACHINE_PROC : process(CLK)
 begin
@@ -296,7 +304,7 @@ begin
 
     case tx_current_state is
 --      when TRANSMIT_DATA =>
---	FC_WR_EN_OUT <= PC_WR_EN_IN;
+--	FC_WR_EN_OUT <= PC_WR_EN_IN; 
       when TRANSMIT_CTRL =>
       	if (MC_DATA_NOT_VALID_IN = '0') then
 			FC_WR_EN_OUT <= delayed_wr_en_q;
@@ -308,7 +316,6 @@ begin
     end case;
   end if;
 end process FC_WR_EN_PROC;
-
 
 CTRL_CONSTRUCT_MACHINE_PROC : process(CLK)
 begin
