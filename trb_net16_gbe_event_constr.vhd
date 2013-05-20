@@ -653,12 +653,16 @@ end process TC_DATA_NOT_VALID_PROC;
 NOT_VALID_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = DIVIDE and divide_position = "01") then
-			not_valid_ctr <= 0;
-		elsif (load_current_state = LOAD_SUB) then
-			not_valid_ctr <= 3;
-		elsif (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
-			not_valid_ctr <= not_valid_ctr + 1;
+		if (TC_RD_EN_IN = '1') then
+			if (load_current_state = DIVIDE and divide_position = "01") then
+				not_valid_ctr <= 0;
+			elsif (load_current_state = LOAD_SUB) then
+				not_valid_ctr <= 3;
+			elsif (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
+				not_valid_ctr <= not_valid_ctr + 1;
+			else
+				not_valid_ctr <= not_valid_ctr;
+			end if;
 		else
 			not_valid_ctr <= not_valid_ctr;
 		end if;
