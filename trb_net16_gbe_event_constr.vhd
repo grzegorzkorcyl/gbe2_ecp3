@@ -85,6 +85,7 @@ signal loaded_bytes_frame, loaded_bytes_packet : std_logic_vector(15 downto 0);
 signal divide_position : std_logic_vector(1 downto 0);
 
 signal not_valid_ctr : integer range 0 to 7;
+signal data_not_valid : std_logic;
 
 begin
 
@@ -561,7 +562,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			loaded_bytes_packet <= (others => '0');
-		elsif (TC_RD_EN_IN = '1') then
+		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
 			loaded_bytes_packet <= loaded_bytes_packet + x"1";
 		else
 			loaded_bytes_packet <= loaded_bytes_packet;
@@ -645,12 +646,14 @@ TC_DATA_NOT_VALID_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
-			TC_DATA_NOT_VALID_OUT <= '1';
+			data_not_valid <= '1';
 		else
-			TC_DATA_NOT_VALID_OUT <= '0';
+			data_not_valid <= '0';
 		end if;
 	end if;
 end process TC_DATA_NOT_VALID_PROC;
+
+TC_DATA_NOT_VALID_OUT <= data_not_valid;
 
 NOT_VALID_CTR_PROC : process(CLK)
 begin
