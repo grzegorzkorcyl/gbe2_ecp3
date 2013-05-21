@@ -334,7 +334,7 @@ PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_cur
 
 TC_DATA_OUT           <= "0" & tc_data;
 TC_DATA_NOT_VALID_OUT <= tc_not_valid;
-TC_FRAME_SIZE_OUT 	  <= tc_ip_size + x"4";
+TC_FRAME_SIZE_OUT 	  <= tc_ip_size + x"4" when tc_flags_offset(12 downto 0) = "0000000000000" else tc_ip_size;
 TC_IP_SIZE_OUT		  <= tc_ip_size;
 TC_UDP_SIZE_OUT		  <= tc_udp_size;
 
