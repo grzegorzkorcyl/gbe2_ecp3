@@ -808,7 +808,7 @@ begin
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
 				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
-			end if;		
+			end if;
 		end if;
 	end if;
 end process TC_IP_SIZE_PROC;
