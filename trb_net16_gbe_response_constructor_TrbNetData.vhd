@@ -145,6 +145,8 @@ signal tc_not_valid             : std_logic;
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 
+signal frame_size              : std_logic_vector(15 downto 0);
+
 begin
 
 
@@ -334,7 +336,22 @@ PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_cur
 
 TC_DATA_OUT           <= "0" & tc_data;
 TC_DATA_NOT_VALID_OUT <= tc_not_valid;
-TC_FRAME_SIZE_OUT 	  <= tc_ip_size + x"4" when tc_flags_offset(12 downto 0) = "0000000000000" else tc_ip_size;
+
+FRAME_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if tc_sod = '1' then
+			if (tc_flags_offset(12 downto 0) = "0000000000000") then
+				frame_size <= tc_ip_size + x"4";
+			else
+				frame_size <= tc_ip_size;
+			end if;
+		else
+			frame_size <= frame_size;
+		end if; 	
+	end if;
+end process;
+TC_FRAME_SIZE_OUT 	  <= frame_size; --tc_ip_size + x"4" when tc_flags_offset(12 downto 0) = "0000000000000" else tc_ip_size;
 TC_IP_SIZE_OUT		  <= tc_ip_size;
 TC_UDP_SIZE_OUT		  <= tc_udp_size;
 
