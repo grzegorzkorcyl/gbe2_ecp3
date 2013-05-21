@@ -145,7 +145,7 @@ signal tc_not_valid             : std_logic;
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 
-signal frame_size              : std_logic_vector(15 downto 0);
+signal frame_size              : std_logic_vector(15 downto 0) := x"0000";
 
 begin
 
