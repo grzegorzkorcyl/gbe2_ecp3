@@ -546,6 +546,8 @@ begin
 			loaded_bytes_frame <= (others => '0');
 		elsif (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
 			loaded_bytes_frame <= (others => '0');
+		elsif (load_current_state = CLOSE_FRAME or load_current_state = DIVIDE) then
+			loaded_bytes_frame <= (others => '0');
 		elsif (TC_RD_EN_IN = '1') then
 			loaded_bytes_frame <= loaded_bytes_frame + x"1";
 		else
