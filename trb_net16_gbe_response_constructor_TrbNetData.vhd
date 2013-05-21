@@ -340,7 +340,7 @@ TC_DATA_NOT_VALID_OUT <= tc_not_valid;
 FRAME_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if tc_flags_offset'event then
+		if dissect_current_state = WAIT_FOR_LOAD then
 			if (tc_flags_offset(12 downto 0) = "0000000000000") then
 				frame_size <= tc_ip_size + x"4";
 			else
