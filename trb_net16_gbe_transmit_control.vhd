@@ -301,6 +301,9 @@ FC_WR_EN_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
     delayed_wr_en_q <= delayed_wr_en;
+    --delayed_wr_en_qq <= delayed_wr_en_q;
+    --delayed_wr_en_qqq <= delayed_wr_en_qq;
+    --delayed_wr_en_qqqq <= delayed_wr_en_qqq;
 
     case tx_current_state is
 --      when TRANSMIT_DATA =>

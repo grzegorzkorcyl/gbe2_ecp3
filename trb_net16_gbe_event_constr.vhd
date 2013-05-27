@@ -74,7 +74,7 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data, qsf_q, qsf_qq : std_logic_vector(31 downto 0);
-signal qsf_wr_en, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
+signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
 
@@ -329,7 +329,7 @@ port map(
 	Data        =>  qsf_data,
 	WrClock     =>  CLK,
 	RdClock     =>  CLK,
-	WrEn        =>  qsf_wr_en,
+	WrEn        =>  qsf_wr,
 	RdEn        =>  qsf_rd_en_q,
 	Reset       =>  RESET,
 	RPReset     =>  RESET,
@@ -338,7 +338,18 @@ port map(
 	Full        =>  open
 );
 
-qsf_data <= queue_size;
+qsf_wr <= qsf_wr_en or qsf_wr_en_q;
+
+QSF_DATA_PROC : process(qsf_wr_en, qsf_wr_en_q)
+begin
+	if (qsf_wr_en = '1') then
+		qsf_data <= queue_size;
+	elsif (qsf_wr_en_q = '1') then
+		qsf_data <= PC_QUEUE_DEC_IN;
+	else
+		qsf_data <= (others => "1");
+	end if;
+end process QSF_DATA_PROC;
 
 QSF_QQ_PROC : process(CLK)
 begin
@@ -350,6 +361,9 @@ end process QSF_QQ_PROC;
 QSF_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
+	
+		qsf_wr_en_q <= qsf_wr_en;
+	
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (queue_size + x"10" + PC_SUB_SIZE_IN > PC_MAX_QUEUE_SIZE_IN) then
@@ -429,23 +443,16 @@ begin
 			
 		when WAIT_FOR_FC =>
 			if (TC_H_READY_IN = '1') then
-				load_next_state <= PUT_Q_LEN;
+				load_next_state <= PUT_Q_HEADERS;
 			else
 				load_Next_state <= WAIT_FOR_FC;
 			end if;
 			
-		when PUT_Q_LEN =>
-			if (header_ctr = 0) then
-				load_next_state <= PUT_Q_DEC;
-			else
-				load_next_state <= PUT_Q_LEN;
-			end if;
-			
-		when PUT_Q_DEC =>
+		when PUT_Q_HEADERS =>
 			if (header_ctr = 0) then
 				load_next_state <= LOAD_SUB;
 			else
-				load_next_state <= PUT_Q_DEC;
+				load_next_state <= PUT_Q_HEADERS;
 			end if;
 			
 		when LOAD_SUB =>
@@ -718,6 +725,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
+		elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
+			qsf_rd_en <= '1';
 		else
 			qsf_rd_en <= '0';
 		end if;
@@ -737,7 +746,7 @@ begin
 			for I in 0 to 7 loop
 				case (load_current_state) is
 					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I);
-					when PUT_Q_DEC => termination(I) <= PC_QUEUE_DEC_IN(header_ctr * 8 + I);
+					when PUT_Q_DEC => termination(I) <= qsf_qq(header_ctr * 8 + I);
 					when LOAD_SUB  => termination(I) <= shf_qq(I);
 					when LOAD_DATA => termination(I) <= df_qq(I);
 					when others    => termination(I) <= '0';
@@ -766,7 +775,7 @@ begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
 			when PUT_Q_LEN    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			when PUT_Q_DEC    => TC_DATA_OUT <= PC_QUEUE_DEC_IN((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+			when PUT_Q_DEC    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			when LOAD_SUB     => TC_DATA_OUT <= shf_qq;
 			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
