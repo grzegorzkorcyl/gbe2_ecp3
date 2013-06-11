@@ -749,9 +749,9 @@ ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = PUT_Q_HEADERS) then
-			if (headers_ctr = 1) then
+			if (header_ctr = 1) then
 				actual_q_size(15 downto 0) <= qsf_q;
-			elsif (headers_ctr = 0) then
+			elsif (header_ctr = 0) then
 				actual_q_size(7 downto 0)  <= qsf_q;
 			end if;
 		end if;
