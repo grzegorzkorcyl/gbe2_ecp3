@@ -750,7 +750,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = PUT_Q_HEADERS) then
 			if (header_ctr = 1) then
-				actual_q_size(15 downto 0) <= qsf_q;
+				actual_q_size(15 downto 8) <= qsf_q;
 			elsif (header_ctr = 0) then
 				actual_q_size(7 downto 0)  <= qsf_q;
 			end if;
@@ -817,7 +817,8 @@ end process TC_DATA_PROC;
 TC_PACKET_SIZES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_UDP_SIZE_OUT     <= qsf_qq(15 downto 0) + x"20";
+		--TC_UDP_SIZE_OUT     <= qsf_qq(15 downto 0) + x"20";
+		TC_UDP_SIZE_OUT     <= actual_q_size + x"20";
 	end if;
 end process TC_PACKET_SIZES_PROC;
 
@@ -849,7 +850,8 @@ begin
 			if (actual_q_size + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
-				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
+				--TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
+				TC_IP_SIZE_OUT <= actual_q_size + x"20" - loaded_bytes_packet;
 			end if;
 		end if;
 	end if;
