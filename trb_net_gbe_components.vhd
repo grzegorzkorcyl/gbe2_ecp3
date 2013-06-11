@@ -1218,4 +1218,17 @@ port (
 );
 end component;
 
+component fifo_512x8
+port (
+	Data        : in  std_logic_vector(7 downto 0);
+	Clock       : in  std_logic; 
+	WrEn        : in  std_logic; 
+	RdEn        : in  std_logic; 
+	Reset       : in  std_logic; 
+	Q           : out  std_logic_vector(7 downto 0); 
+	Empty       : out  std_logic; 
+	Full        : out  std_logic
+);
+end component;
+
 end package;
