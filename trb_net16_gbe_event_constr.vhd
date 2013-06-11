@@ -362,7 +362,9 @@ QSF_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		qsf_wr_en_q <= qsf_wr_en;
+		qsf_wr_en_q  <= qsf_wr_en;
+		qsf_wr_en_qq <= qsf_wr_en_q;
+		
 	
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
