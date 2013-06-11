@@ -88,6 +88,8 @@ signal divide_position : std_logic_vector(1 downto 0);
 signal not_valid_ctr : integer range 0 to 7;
 signal data_not_valid : std_logic;
 
+signal actual_q_size : std_logic_vector(15 downto 0);
+
 begin
 
 --*******
@@ -345,7 +347,7 @@ begin
 	elsif (qsf_wr_en_q = '1') then
 		qsf_data <= PC_QUEUE_DEC_IN;
 	else
-		qsf_data <= (others => "1");
+		qsf_data <= (others => '1');
 	end if;
 end process QSF_DATA_PROC;
 
@@ -743,6 +745,20 @@ begin
 	end if;
 end process QUEUE_FIFO_RD_PROC;
 
+ACTUAL_Q_SIZE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_Q_HEADERS) then
+			if (headers_ctr = 1) then
+				actual_q_size(15 downto 0) <= qsf_q;
+			elsif (headers_ctr = 0) then
+				actual_q_size(7 downto 0)  <= qsf_q;
+			end if;
+		end if;
+	end if;
+end process ACTUAL_Q_SIZE_PROC;
+
+--TODO: przerobic terminacje na zapisywana do qsf
 TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -812,7 +828,8 @@ begin
 	if rising_edge(CLK) then
 		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
 		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
-			if ((qsf_qq + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
+			--if ((qsf_qq + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
+			if ((actual_q_size + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';
 			else
 				TC_FLAGS_OFFSET_OUT(13) <= '1';
@@ -828,7 +845,8 @@ begin
 	if rising_edge(CLK) then
 		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
 		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
-			if (qsf_qq + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
+			--if (qsf_qq + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
+			if (actual_q_size + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
 				TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
