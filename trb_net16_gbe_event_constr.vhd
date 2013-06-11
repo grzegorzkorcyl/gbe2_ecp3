@@ -55,7 +55,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_LEN, PUT_Q_DEC, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
+type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
