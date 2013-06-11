@@ -73,7 +73,8 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 
 signal fc_data : std_logic_vector(7 downto 0);
 
-signal qsf_data, qsf_q, qsf_qq : std_logic_vector(31 downto 0);
+signal qsf_data : std_logic_vector(31 downto 0);
+signal qsf_q, qsf_qq : std_logic_vector(7 downto 0);
 signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
@@ -181,8 +182,7 @@ PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 --*****
 -- subevent headers
 
---TODO: exchange to a smaller fifo
-SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_512x32x8 --fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
 	WrClock     =>  CLK,
@@ -324,7 +324,7 @@ end process SHF_DATA_PROC;
 --*******
 -- queue sizes
 
-QUEUE_SIZE_FIFO : fifo_512x32
+QUEUE_SIZE_FIFO : fifo_512x32x8
 port map(
 	Data        =>  qsf_data,
 	WrClock     =>  CLK,
@@ -581,11 +581,13 @@ HEADER_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
-			header_ctr <= 3;
-		elsif (load_current_state = PUT_Q_LEN and header_ctr = 0) then
-			header_ctr <= 3;
-		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
+			header_ctr <= 7;
+		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
+--		elsif (load_current_state = PUT_Q_LEN and header_ctr = 0) then
+--			header_ctr <= 3;
+--		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
+--			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
@@ -597,7 +599,8 @@ begin
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
-			if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
+			--if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
+			if (load_current_state = PUT_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
@@ -708,12 +711,18 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
 			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
+		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 2) then -- preload the first word
 			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
+		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 1) then -- preload the first word
 			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
+		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then -- preload the first word
 			shf_rd_en <= '1';
+--		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
+--			shf_rd_en <= '1';
+--		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
+--			shf_rd_en <= '1';
+--		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
+--			shf_rd_en <= '1';
 		else
 			shf_rd_en <= '0';
 		end if;
@@ -725,7 +734,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
+		--elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
+		elsif (load_current_state = PUT_Q_HEADERS and header_ctr > 0) then
 			qsf_rd_en <= '1';
 		else
 			qsf_rd_en <= '0';
@@ -745,8 +755,9 @@ begin
 			
 			for I in 0 to 7 loop
 				case (load_current_state) is
-					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I);
-					when PUT_Q_DEC => termination(I) <= qsf_qq(header_ctr * 8 + I);
+					when PUT_Q_HEADERS => termination(I) <= qsf_qq(I);
+--					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I);
+--					when PUT_Q_DEC => termination(I) <= qsf_qq(header_ctr * 8 + I);
 					when LOAD_SUB  => termination(I) <= shf_qq(I);
 					when LOAD_DATA => termination(I) <= df_qq(I);
 					when others    => termination(I) <= '0';
@@ -774,8 +785,9 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-			when PUT_Q_LEN    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			when PUT_Q_DEC    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+			when PUT_Q_HEADERS => TC_DATA_OUT <= qsf_qq; 
+--			when PUT_Q_LEN    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
+--			when PUT_Q_DEC    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
 			when LOAD_SUB     => TC_DATA_OUT <= shf_qq;
 			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
 			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
@@ -800,7 +812,8 @@ begin
 	TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
+		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
 			if ((qsf_qq + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';
 			else
@@ -815,7 +828,8 @@ end process TC_FLAGS_OFFSET_PROC;
 TC_IP_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
+		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
+		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
 			if (qsf_qq + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
 				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
 			else
