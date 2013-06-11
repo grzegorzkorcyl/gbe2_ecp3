@@ -55,7 +55,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, WAIT_FOR_FC, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
+type loadStates is (IDLE, PRELOAD_Q, WAIT_FOR_FC, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -436,16 +436,23 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= WAIT_FOR_FC;
+				load_next_state <= PRELOAD_Q; --WAIT_FOR_FC;
 			else
 				load_next_state <= IDLE;
 			end if;
+			
+		when PRELOAD_Q =>
+			if (header_ctr = 3) then
+				load_next_state <= WAIT_FOR_FC;
+			else
+				load_next_state <= PRELOAD_Q;
+			end if; 
 			
 		when WAIT_FOR_FC =>
 			if (TC_H_READY_IN = '1') then
 				load_next_state <= PUT_Q_HEADERS;
 			else
-				load_Next_state <= WAIT_FOR_FC;
+				load_next_state <= WAIT_FOR_FC;
 			end if;
 			
 		when PUT_Q_HEADERS =>
@@ -598,6 +605,8 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
+		elsif (load_current_state = PRELOAD_Q) then
+			header_ctr <= header_ctr - 1;
 		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
 			--if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 			if (load_current_state = PUT_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
@@ -734,6 +743,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en <= '1';
+		elsif (load_current_state = PRELOAD_Q) then
+			qsf_rd_en <= '1';
 		--elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
 		elsif (load_current_state = PUT_Q_HEADERS and header_ctr > 0) then
 			qsf_rd_en <= '1';
@@ -748,10 +759,10 @@ end process QUEUE_FIFO_RD_PROC;
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = PUT_Q_HEADERS) then
-			if (header_ctr = 1) then
+		if (load_current_state = PRELOAD_Q) then
+			if (header_ctr = 5) then
 				actual_q_size(15 downto 8) <= qsf_q;
-			elsif (header_ctr = 0) then
+			elsif (header_ctr = 4) then
 				actual_q_size(7 downto 0)  <= qsf_q;
 			end if;
 		end if;
