@@ -338,7 +338,7 @@ port map(
 	Full        =>  open
 );
 
-qsf_wr <= qsf_wr_en or qsf_wr_en_q;
+qsf_wr <= qsf_wr_en or qsf_wr_en_q or qsf_wr_en_qq;
 
 QSF_DATA_PROC : process(qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq)
 begin
