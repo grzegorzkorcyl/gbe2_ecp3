@@ -746,7 +746,7 @@ begin
 		elsif (load_current_state = PRELOAD_Q) then
 			qsf_rd_en <= '1';
 		--elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
-		elsif (load_current_state = PUT_Q_HEADERS and header_ctr > 0) then
+		elsif (TC_RD_EN_IN = '1' and load_current_state = PUT_Q_HEADERS and header_ctr > 0) then
 			qsf_rd_en <= '1';
 		else
 			qsf_rd_en <= '0';
