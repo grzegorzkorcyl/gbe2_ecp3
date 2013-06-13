@@ -343,9 +343,15 @@ qsf_wr <= qsf_wr_en or qsf_wr_en_q or qsf_wr_en_qq;
 QSF_DATA_PROC : process(qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq)
 begin
 	if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
-		qsf_data <= queue_size;
+		qsf_data(7 downto 0)   <= queue_size(31 downto 24);
+		qsf_data(15 downto 8)  <= queue_size(23 downto 16);
+		qsf_data(23 downto 16) <= queue_size(15 downto 8);
+		qsf_data(31 downto 24) <= queue_size(7 downto 0);
 	elsif (qsf_wr_en_qq = '1') then
-		qsf_data <= PC_QUEUE_DEC_IN;
+		qsf_data(7 downto 0)   <= PC_QUEUE_DEC_IN(31 downto 234;
+		qsf_data(15 downto 8)  <= PC_QUEUE_DEC_IN(23 downto 16);
+		qsf_data(23 downto 16) <= PC_QUEUE_DEC_IN(15 downto 8);
+		qsf_data(31 downto 24) <= PC_QUEUE_DEC_IN(7 downto 0);
 	else
 		qsf_data <= (others => '1');
 	end if;
