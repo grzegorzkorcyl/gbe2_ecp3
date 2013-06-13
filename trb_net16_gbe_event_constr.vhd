@@ -348,7 +348,7 @@ begin
 		qsf_data(23 downto 16) <= queue_size(15 downto 8);
 		qsf_data(31 downto 24) <= queue_size(7 downto 0);
 	elsif (qsf_wr_en_qq = '1') then
-		qsf_data(7 downto 0)   <= PC_QUEUE_DEC_IN(31 downto 234;
+		qsf_data(7 downto 0)   <= PC_QUEUE_DEC_IN(31 downto 24);
 		qsf_data(15 downto 8)  <= PC_QUEUE_DEC_IN(23 downto 16);
 		qsf_data(23 downto 16) <= PC_QUEUE_DEC_IN(15 downto 8);
 		qsf_data(31 downto 24) <= PC_QUEUE_DEC_IN(7 downto 0);
