@@ -450,7 +450,7 @@ begin
 			end if;
 			
 		when PRELOAD_Q =>
-			if (header_ctr = 8) then
+			if (header_ctr = 7) then
 				load_next_state <= WAIT_FOR_FC;
 			else
 				load_next_state <= PRELOAD_Q;
