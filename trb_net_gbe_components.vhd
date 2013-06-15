@@ -253,7 +253,7 @@ port (
 	
 -- singals to/from transmi controller with constructed response
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -393,10 +393,9 @@ port (
 	RC_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 
 -- signals to/from transmit controller
-	TC_TRANSMIT_CTRL_OUT	: out	std_logic;  -- slow control frame is waiting to be built and sent
-	TC_TRANSMIT_DATA_OUT	: out	std_logic;
+	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -420,11 +419,6 @@ port (
 	
 	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
-
--- signals to/from packet constructor
-	PC_READY_IN		: in	std_logic;
-	PC_TRANSMIT_ON_IN	: in	std_logic;
-	PC_SOD_IN		: in	std_logic;
 
 -- signals to/from sgmii/gbe pcs_an_complete
 	PCS_AN_COMPLETE_IN	: in	std_logic;
@@ -502,33 +496,11 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
 
--- signals to/from packet constructor
-	PC_READY_IN		: in	std_logic;
-	PC_DATA_IN		: in	std_logic_vector(7 downto 0);
-	PC_WR_EN_IN		: in	std_logic;
-	PC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	PC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	PC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
-	PC_SOD_IN		: in	std_logic;
-	PC_EOD_IN		: in	std_logic;
-	PC_FC_READY_OUT		: out	std_logic;
-	PC_FC_H_READY_OUT	: out	std_logic;
-	PC_TRANSMIT_ON_IN	: in	std_logic;
-
-      -- signals from ip_configurator used by packet constructor
-	IC_DEST_MAC_ADDRESS_IN     : in    std_logic_vector(47 downto 0);
-	IC_DEST_IP_ADDRESS_IN      : in    std_logic_vector(31 downto 0);
-	IC_DEST_UDP_PORT_IN        : in    std_logic_vector(15 downto 0);
-	IC_SRC_MAC_ADDRESS_IN      : in    std_logic_vector(47 downto 0);
-	IC_SRC_IP_ADDRESS_IN       : in    std_logic_vector(31 downto 0);
-	IC_SRC_UDP_PORT_IN         : in    std_logic_vector(15 downto 0);
-
 -- signal to/from main controller
 	MC_TRANSMIT_CTRL_IN	: in	std_logic;  -- slow control frame is waiting to be built and sent
-	MC_TRANSMIT_DATA_IN	: in	std_logic;
 	MC_DATA_IN		: in	std_logic_vector(8 downto 0);
 	MC_DATA_NOT_VALID_IN : in std_logic;
-	MC_RD_EN_OUT		: out	std_logic;
+	MC_WR_EN_IN   		 : in	std_logic;
 	MC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
 	MC_FRAME_TYPE_IN	: in	std_logic_vector(15 downto 0);
 	

@@ -11,88 +11,64 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_protocols.all;
 
 --********
--- multiplexes the output stream between data and slow control frames
--- creates slow control frames
+-- doing shit right now
 
 entity trb_net16_gbe_transmit_control is
 port (
-	CLK			: in	std_logic;  -- system clock
-	RESET			: in	std_logic;
-
--- signals to/from packet constructor
-	PC_READY_IN		: in	std_logic;
-	PC_DATA_IN		: in	std_logic_vector(7 downto 0);
-	PC_WR_EN_IN		: in	std_logic;
-	PC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	PC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	PC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
-	PC_SOD_IN		: in	std_logic;
-	PC_EOD_IN		: in	std_logic;
-	PC_FC_READY_OUT		: out	std_logic;
-	PC_FC_H_READY_OUT	: out	std_logic;
-	PC_TRANSMIT_ON_IN	: in	std_logic;
-
-      -- signals from ip_configurator used by packet constructor
-	IC_DEST_MAC_ADDRESS_IN     : in    std_logic_vector(47 downto 0);
-	IC_DEST_IP_ADDRESS_IN      : in    std_logic_vector(31 downto 0);
-	IC_DEST_UDP_PORT_IN        : in    std_logic_vector(15 downto 0);
-	IC_SRC_MAC_ADDRESS_IN      : in    std_logic_vector(47 downto 0);
-	IC_SRC_IP_ADDRESS_IN       : in    std_logic_vector(31 downto 0);
-	IC_SRC_UDP_PORT_IN         : in    std_logic_vector(15 downto 0);
+	CLK			         : in	std_logic;
+	RESET			     : in	std_logic;
 
 -- signal to/from main controller
-	MC_TRANSMIT_CTRL_IN	: in	std_logic;  -- slow control frame is waiting to be built and sent
-	MC_TRANSMIT_DATA_IN	: in	std_logic;
-	MC_DATA_IN		: in	std_logic_vector(8 downto 0);
-	MC_RD_EN_OUT		: out	std_logic;
-	MC_DATA_NOT_VALID_IN : in std_logic;
-	MC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
-	MC_FRAME_TYPE_IN	: in	std_logic_vector(15 downto 0);
+	MC_TRANSMIT_CTRL_IN	 : in	std_logic;
+	MC_DATA_IN		     : in	std_logic_vector(8 downto 0);
+	MC_WR_EN_IN   		 : in	std_logic;
+	MC_DATA_NOT_VALID_IN : in   std_logic;
+	MC_FRAME_SIZE_IN	 : in	std_logic_vector(15 downto 0);
+	MC_FRAME_TYPE_IN	 : in	std_logic_vector(15 downto 0);
 	
-	MC_DEST_MAC_IN		: in	std_logic_vector(47 downto 0);
-	MC_DEST_IP_IN		: in	std_logic_vector(31 downto 0);
-	MC_DEST_UDP_IN		: in	std_logic_vector(15 downto 0);
-	MC_SRC_MAC_IN		: in	std_logic_vector(47 downto 0);
-	MC_SRC_IP_IN		: in	std_logic_vector(31 downto 0);
-	MC_SRC_UDP_IN		: in	std_logic_vector(15 downto 0);
+	MC_DEST_MAC_IN		 : in	std_logic_vector(47 downto 0);
+	MC_DEST_IP_IN		 : in	std_logic_vector(31 downto 0);
+	MC_DEST_UDP_IN		 : in	std_logic_vector(15 downto 0);
+	MC_SRC_MAC_IN		 : in	std_logic_vector(47 downto 0);
+	MC_SRC_IP_IN		 : in	std_logic_vector(31 downto 0);
+	MC_SRC_UDP_IN		 : in	std_logic_vector(15 downto 0);
 	
-	MC_IP_PROTOCOL_IN	: in	std_logic_vector(7 downto 0);
+	MC_IP_PROTOCOL_IN	 : in	std_logic_vector(7 downto 0);
 	
-	MC_IP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	MC_UDP_SIZE_IN		: in	std_logic_vector(15 downto 0);
-	MC_FLAGS_OFFSET_IN	: in	std_logic_vector(15 downto 0);
+	MC_IP_SIZE_IN		 : in	std_logic_vector(15 downto 0);
+	MC_UDP_SIZE_IN		 : in	std_logic_vector(15 downto 0);
+	MC_FLAGS_OFFSET_IN	 : in	std_logic_vector(15 downto 0);
 	
-	MC_FC_H_READY_OUT : out std_logic;
-	MC_FC_READY_OUT : out std_logic;
-	MC_FC_WR_EN_IN : in std_logic;
+	MC_FC_H_READY_OUT    : out std_logic;
+	MC_FC_READY_OUT      : out std_logic;
+	MC_FC_WR_EN_IN       : in std_logic;
 	
-	MC_BUSY_OUT		: out	std_logic;
-	MC_TRANSMIT_DONE_OUT	: out	std_logic;
+	MC_BUSY_OUT	         : out	std_logic;
+	MC_TRANSMIT_DONE_OUT : out	std_logic;
 
 -- signal to/from frame constructor
-	FC_DATA_OUT		: out	std_logic_vector(7 downto 0);
-	FC_WR_EN_OUT		: out	std_logic;
-	FC_READY_IN		: in	std_logic;
-	FC_H_READY_IN		: in	std_logic;
-	FC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	FC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	FC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	FC_IDENT_OUT		: out	std_logic_vector(15 downto 0);  -- internal packet counter
-	FC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	FC_SOD_OUT		: out	std_logic;
-	FC_EOD_OUT		: out	std_logic;
-	FC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	FC_DATA_OUT		     : out	std_logic_vector(7 downto 0);
+	FC_WR_EN_OUT		 : out	std_logic;
+	FC_READY_IN		     : in	std_logic;
+	FC_H_READY_IN		 : in	std_logic;
+	FC_FRAME_TYPE_OUT	 : out	std_logic_vector(15 downto 0);
+	FC_IP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
+	FC_UDP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
+	FC_IDENT_OUT		 : out	std_logic_vector(15 downto 0);  -- internal packet counter
+	FC_FLAGS_OFFSET_OUT	 : out	std_logic_vector(15 downto 0);
+	FC_SOD_OUT		     : out	std_logic;
+	FC_EOD_OUT		     : out	std_logic;
+	FC_IP_PROTOCOL_OUT	 : out	std_logic_vector(7 downto 0);
 
-	DEST_MAC_ADDRESS_OUT    : out    std_logic_vector(47 downto 0);
-	DEST_IP_ADDRESS_OUT     : out    std_logic_vector(31 downto 0);
-	DEST_UDP_PORT_OUT       : out    std_logic_vector(15 downto 0);
-	SRC_MAC_ADDRESS_OUT     : out    std_logic_vector(47 downto 0);
-	SRC_IP_ADDRESS_OUT      : out    std_logic_vector(31 downto 0);
-	SRC_UDP_PORT_OUT        : out    std_logic_vector(15 downto 0);
-
+	DEST_MAC_ADDRESS_OUT : out    std_logic_vector(47 downto 0);
+	DEST_IP_ADDRESS_OUT  : out    std_logic_vector(31 downto 0);
+	DEST_UDP_PORT_OUT    : out    std_logic_vector(15 downto 0);
+	SRC_MAC_ADDRESS_OUT  : out    std_logic_vector(47 downto 0);
+	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
+	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
 );
 end trb_net16_gbe_transmit_control;
 
@@ -102,179 +78,51 @@ architecture trb_net16_gbe_transmit_control of trb_net16_gbe_transmit_control is
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_transmit_control : architecture is "GBE_BUF_group";
 
-attribute syn_encoding	: string;
-
-type tx_states is (IDLE, TRANSMIT_CTRL, CLEANUP);
-signal tx_current_state, tx_next_state : tx_states;
-attribute syn_encoding of tx_current_state: signal is "safe,gray";
-
-type ctrl_construct_states is (IDLE, WAIT_FOR_FC, LOAD_DATA, CLOSE, CLEANUP);
-signal ctrl_construct_current_state, ctrl_construct_next_state : ctrl_construct_states;
-attribute syn_encoding of ctrl_construct_current_state: signal is "safe,gray";
-
-signal ctrl_sod                                 : std_logic;
-signal delayed_wr_en                            : std_logic;
-signal delayed_wr_en_q                          : std_logic;
-signal sent_bytes_ctr                           : std_logic_vector(15 downto 0);
-signal sent_packets_ctr                         : std_logic_vector(15 downto 0);
-
-signal state                                    : std_logic_vector(3 downto 0);
-signal state2                                   : std_logic_vector(3 downto 0);
-signal temp_frame_size                          : std_logic_vector(15 downto 0);
-signal temp_ip_size                             : std_logic_vector(15 downto 0);
-
-attribute syn_preserve : boolean;
-attribute syn_keep : boolean;
-attribute syn_keep of temp_frame_size, temp_ip_size : signal is true;
-attribute syn_preserve of temp_frame_size, temp_ip_size : signal is true;
+signal sent_packets_ctr : std_logic_vector(15 downto 0) := x"0000";
 
 
 begin
 
-temp_frame_size <= MC_FRAME_SIZE_IN;
-temp_ip_size    <= MC_IP_SIZE_IN;
-
-DEBUG_OUT(3 downto 0) <= state;
-DEBUG_OUT(7 downto 4) <= state2;
-DEBUG_OUT(31 downto 8) <= (others => '0');
-
-MC_BUSY_OUT <= '0' when (tx_current_state = IDLE)
-	    else '1';
-
-MC_TRANSMIT_DONE_OUT <= '1' when (tx_current_state = CLEANUP) else '0';
-
-MC_FC_H_READY_OUT <= FC_H_READY_IN;
-MC_FC_READY_OUT   <= FC_READY_IN;
-	
-
-TX_MACHINE_PROC : process(CLK)
+SYNC_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
-    if (RESET = '1') then
-      tx_current_state <= IDLE;
-    else
-      tx_current_state <= tx_next_state;
-    end if;
-  end if;
-end process TX_MACHINE_PROC;
+  
+  	MC_FC_H_READY_OUT <= FC_H_READY_IN;
+	MC_FC_READY_OUT   <= FC_READY_IN;
 
-TX_MACHINE : process(tx_current_state, MC_TRANSMIT_CTRL_IN, MC_TRANSMIT_DATA_IN, FC_READY_IN, PC_EOD_IN, ctrl_construct_current_state)
-begin
-  case tx_current_state is
+	FC_FRAME_TYPE_OUT <= MC_FRAME_TYPE_IN;
 
-	when IDLE =>
-		state <= x"1";
-		if (FC_READY_IN = '1') then
---			if (MC_TRANSMIT_DATA_IN = '1') then
---		  		tx_next_state <= TRANSMIT_DATA;
---		  	elsif (MC_TRANSMIT_CTRL_IN = '1') then
---		  		tx_next_state <= TRANSMIT_CTRL;
-			if (MC_TRANSMIT_CTRL_IN = '1') then
-		  		tx_next_state <= TRANSMIT_CTRL;
---			elsif (MC_TRANSMIT_DATA_IN = '1') then
---		  		tx_next_state <= TRANSMIT_DATA;
-			else
-		  		tx_next_state <= IDLE;
-			end if;
-	  	else
-			tx_next_state <= IDLE;
-	  end if;
-
---    when TRANSMIT_DATA =>
---      state <= x"2";
---      if (PC_EOD_IN = '1') then
---	tx_next_state <= CLEANUP;
---      else
---	tx_next_state <= TRANSMIT_DATA;
---      end if;
-      
-    when TRANSMIT_CTRL =>
-      state <= x"3";
-      if (ctrl_construct_current_state = CLOSE) then
-	tx_next_state <= CLEANUP;
-      else
-	tx_next_state <= TRANSMIT_CTRL;
-      end if;
-
-    when CLEANUP =>
-      state <= x"4";
-      tx_next_state <= IDLE;
-
-  end case;
-end process TX_MACHINE;
-
--- in case of data from packet constructor use always IP
-FC_FRAME_TYPE_OUT <= MC_FRAME_TYPE_IN when tx_current_state = TRANSMIT_CTRL else x"0008";
-
-SELECTOR : process(CLK)
-begin
-  if rising_edge(CLK) then
-
-    case tx_current_state is
-      
---      when TRANSMIT_DATA =>
---      -- CHANGED FOR SIMPLE FRAME SENDER
---	FC_DATA_OUT          <= PC_DATA_IN;
---	FC_SOD_OUT           <= PC_SOD_IN;
---	FC_EOD_OUT           <= PC_EOD_IN;
---	FC_IP_SIZE_OUT       <= PC_IP_SIZE_IN;
---	FC_UDP_SIZE_OUT      <= PC_UDP_SIZE_IN;
---	FC_FLAGS_OFFSET_OUT  <= PC_FLAGS_OFFSET_IN;
---	FC_IDENT_OUT         <= sent_packets_ctr;
---
---	DEST_MAC_ADDRESS_OUT <= IC_DEST_MAC_ADDRESS_IN;
---	DEST_IP_ADDRESS_OUT  <= IC_DEST_IP_ADDRESS_IN;
---	DEST_UDP_PORT_OUT    <= x"cb20"; --IC_DEST_UDP_PORT_IN;
---	SRC_MAC_ADDRESS_OUT  <= g_MY_MAC; --IC_SRC_MAC_ADDRESS_IN;
---	SRC_IP_ADDRESS_OUT   <= g_MY_IP; --IC_SRC_IP_ADDRESS_IN;
---	SRC_UDP_PORT_OUT     <= x"cb20"; --IC_SRC_UDP_PORT_IN;
---	
---	FC_IP_PROTOCOL_OUT   <= x"11";
-	
-
-      when TRANSMIT_CTRL =>
 	FC_DATA_OUT         <= MC_DATA_IN(7 downto 0);
 	FC_IP_PROTOCOL_OUT  <= MC_IP_PROTOCOL_IN; 
 
-	if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_READY_IN = '1') then
+	if (MC_TRANSMIT_CTRL_IN = '1') then
 	  FC_SOD_OUT        <= '1';
 	else
 	  FC_SOD_OUT        <= '0';
 	end if;
 
-	--if (ctrl_construct_current_state = CLOSE) then
-	if (ctrl_construct_current_state = LOAD_DATA and sent_bytes_ctr = MC_FRAME_SIZE_IN - x"1") then
+	if (MC_DATA_IN(8) = '1') then
 	  FC_EOD_OUT        <= '1';
 	else
 	  FC_EOD_OUT        <= '0';
 	end if;
 
-	if (MC_FRAME_TYPE_IN = x"0008") then  -- in case of ip
+	if (MC_FRAME_TYPE_IN = x"0008") then
 		FC_IP_SIZE_OUT  <= MC_IP_SIZE_IN;
-		--if (MC_UDP_SIZE_IN > g_MAX_FRAME_SIZE) then
-		--	FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN; -- - x"1";
-		--else
-			FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;
-		--end if;		
+		FC_UDP_SIZE_OUT <= MC_UDP_SIZE_IN;		
 	else
-		FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
-		FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+		FC_IP_SIZE_OUT <= MC_FRAME_SIZE_IN;
+		FC_UDP_SIZE_OUT <= MC_FRAME_SIZE_IN;
 	end if;
 	
---	FC_IP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
---	FC_UDP_SIZE_OUT <= temp_frame_size; --MC_FRAME_SIZE_IN;
+	
+  	if (MC_DATA_NOT_VALID_IN = '0' and MC_WR_EN_IN = '1') then
+  		FC_WR_EN_OUT <= '1';
+  	else
+  		FC_WR_EN_OUT <= '0';
+  	end if;
+	
 	FC_FLAGS_OFFSET_OUT <= MC_FLAGS_OFFSET_IN;
-
-	if (ctrl_construct_current_state = WAIT_FOR_FC) and (FC_H_READY_IN = '1') then
-	  MC_RD_EN_OUT  <= '1';
-	  delayed_wr_en <= '0'; --'1';
-	elsif (ctrl_construct_current_state = LOAD_DATA) and (sent_bytes_ctr < MC_FRAME_SIZE_IN - x"2") then -- (sent_bytes_ctr /= MC_FRAME_SIZE_IN) then
-	  MC_RD_EN_OUT  <= '1';
-	  delayed_wr_en <= '1';
-	else
-	  MC_RD_EN_OUT  <= '0';
-	  delayed_wr_en <= '0';
-	end if;
 
 	DEST_MAC_ADDRESS_OUT <= MC_DEST_MAC_IN;
 	DEST_IP_ADDRESS_OUT  <= MC_DEST_IP_IN;
@@ -284,126 +132,19 @@ begin
 	SRC_UDP_PORT_OUT     <= MC_SRC_UDP_IN;
 	
 	FC_IDENT_OUT         <= sent_packets_ctr;
-
-      when others =>
-	MC_RD_EN_OUT        <= '0';
-	FC_DATA_OUT         <= (others => '0');
-	delayed_wr_en       <= '0';
-	FC_SOD_OUT          <= '0';
-	FC_EOD_OUT          <= '0';
-
-    end case;
-
   end if;
-end process SELECTOR;
+end process SYNC_PROC;
 
-FC_WR_EN_PROC : process(CLK)
-begin
-  if rising_edge(CLK) then
-    delayed_wr_en_q <= delayed_wr_en;
-    --delayed_wr_en_qq <= delayed_wr_en_q;
-    --delayed_wr_en_qqq <= delayed_wr_en_qq;
-    --delayed_wr_en_qqqq <= delayed_wr_en_qqq;
-
-    case tx_current_state is
---      when TRANSMIT_DATA =>
---	FC_WR_EN_OUT <= PC_WR_EN_IN; 
-      when TRANSMIT_CTRL =>
-      	if (MC_DATA_NOT_VALID_IN = '0') then
-			FC_WR_EN_OUT <= delayed_wr_en_q;
-		else
-			FC_WR_EN_OUT <= '0';
-		end if;
-      when  others =>
-	FC_WR_EN_OUT <= '0';
-    end case;
-  end if;
-end process FC_WR_EN_PROC;
-
-CTRL_CONSTRUCT_MACHINE_PROC : process(CLK)
-begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      ctrl_construct_current_state <= IDLE;
-    else
-      ctrl_construct_current_state <= ctrl_construct_next_state;
-    end if;
-  end if;
-end process CTRL_CONSTRUCT_MACHINE_PROC;
-
-CTRL_CONSTRUCT_MACHINE : process(ctrl_construct_current_state, tx_current_state, FC_H_READY_IN, sent_bytes_ctr, MC_FRAME_SIZE_IN)
-begin
-
-  case ctrl_construct_current_state is
-
-    when IDLE =>
-      state2 <= x"1";
-      if (tx_current_state = TRANSMIT_CTRL) then
-	ctrl_construct_next_state <= WAIT_FOR_FC;
-      else
-	ctrl_construct_next_state <= IDLE;
-      end if;
-
-    when WAIT_FOR_FC =>
-      state2 <= x"2";
-      if (FC_H_READY_IN = '1') then
-	ctrl_construct_next_state <= LOAD_DATA;
-      else
-	ctrl_construct_next_state <= WAIT_FOR_FC;
-      end if;
-
-    when LOAD_DATA =>
-      state2 <= x"3";
-      if (sent_bytes_ctr = MC_FRAME_SIZE_IN - x"1") then
-			ctrl_construct_next_state <= CLOSE;
-      else
-			ctrl_construct_next_state <= LOAD_DATA; 
-      end if;
-
-    when CLOSE =>
-      state2 <= x"4";
-      ctrl_construct_next_state <= CLEANUP;
-
-    when CLEANUP =>
-      state2 <= x"5";
-      ctrl_construct_next_state <= IDLE;
-
-  end case;
-
-end process CTRL_CONSTRUCT_MACHINE;
-
-SENT_BYTES_CTR_PROC : process(CLK)
-begin
-  if rising_edge(CLK) then
-    if (RESET = '1') or (ctrl_construct_current_state = IDLE) then
-      sent_bytes_ctr <= (others => '0');
-    elsif (delayed_wr_en_q = '1' and MC_DATA_NOT_VALID_IN = '0') then
-      sent_bytes_ctr <= sent_bytes_ctr + x"1";
-    end if;
-  end if;
-end process SENT_BYTES_CTR_PROC;
-
---PC_FC_H_READY_OUT   <= FC_H_READY_IN when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
---		      else '0';
---
---PC_FC_READY_OUT     <= FC_READY_IN   when ((tx_current_state = IDLE) or (tx_current_state = TRANSMIT_DATA))
---		      else '0';
-
-SENT_PACKETS_CTR_PROC : process(CLK)
+SENT_PACKETS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			sent_packets_ctr <= (others => '0');
-		--elsif (tx_current_state = CLEANUP and MC_FLAGS_OFFSET_IN(13) = '0') then
---		elsif (tx_current_state = TRANSMIT_DATA and PC_EOD_IN = '1' and PC_FLAGS_OFFSET_IN(13) = '0') then
---			sent_packets_ctr <= sent_packets_ctr + x"1";
-		elsif (tx_current_state = TRANSMIT_CTRL and ctrl_construct_current_state = CLOSE and MC_FLAGS_OFFSET_IN(13) = '0') then
+		if (MC_DATA_IN(8) = '1' and MC_FLAGS_OFFSET_IN(13) = '0') then
 			sent_packets_ctr <= sent_packets_ctr + x"1";
-		end if;
+		else
+			sent_packets_ctr <= sent_packets_ctr;
+		end if;			
 	end if;
-end process SENT_PACKETS_CTR_PROC;
-
-
+end process SENT_PACKETS_PROC;
 
 end trb_net16_gbe_transmit_control;
 

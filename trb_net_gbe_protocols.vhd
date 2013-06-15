@@ -56,7 +56,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -99,7 +99,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -148,7 +148,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -189,7 +189,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -232,7 +232,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -285,7 +285,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -334,7 +334,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -378,7 +378,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 			
-		TC_RD_EN_IN		: in	std_logic;
+		TC_WR_EN_OUT : out std_logic;
 		TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 		TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 		TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -443,7 +443,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -497,7 +497,7 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT : out std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);

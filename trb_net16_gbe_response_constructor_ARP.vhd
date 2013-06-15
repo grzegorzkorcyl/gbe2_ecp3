@@ -22,21 +22,21 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
-	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
-	PS_WR_EN_IN		: in	std_logic;
-	PS_ACTIVATE_IN		: in	std_logic;
-	PS_RESPONSE_READY_OUT	: out	std_logic;
-	PS_BUSY_OUT		: out	std_logic;
-	PS_SELECTED_IN		: in	std_logic;
-	PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
-	PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
-	PS_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+	PS_DATA_IN		       : in	std_logic_vector(8 downto 0);
+	PS_WR_EN_IN		       : in	std_logic;
+	PS_ACTIVATE_IN		   : in	std_logic;
+	PS_RESPONSE_READY_OUT  : out	std_logic;
+	PS_BUSY_OUT		       : out	std_logic;
+	PS_SELECTED_IN		   : in	std_logic;
+	PS_SRC_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
+	PS_DEST_MAC_ADDRESS_IN : in	std_logic_vector(47 downto 0);
+	PS_SRC_IP_ADDRESS_IN   : in	std_logic_vector(31 downto 0);
+	PS_DEST_IP_ADDRESS_IN  : in	std_logic_vector(31 downto 0);
+	PS_SRC_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
+	PS_DEST_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
-	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
+	TC_WR_EN_OUT		   : out	std_logic;
+	TC_DATA_OUT		       : out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
@@ -91,6 +91,8 @@ signal state                    : std_logic_vector(3 downto 0);
 signal rec_frames               : std_logic_vector(15 downto 0);
 signal sent_frames              : std_logic_vector(15 downto 0);
 signal stat_data_temp           : std_logic_vector(31 downto 0);
+
+signal tc_wr                    : std_logic;
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -181,11 +183,22 @@ begin
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
 			data_ctr <= data_ctr + 1;
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then  -- in case of constructing response
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then  -- in case of constructing response
 			data_ctr <= data_ctr + 1;
 		end if;
 	end if;
 end process DATA_CTR_PROC;
+
+TC_WR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
+			tc_wr <= '1';
+		else
+			tc_wr <= '0';
+		end if;
+	end if;
+end process TC_WR_PROC;
 
 SAVE_VALUES_PROC : process(CLK)
 begin
@@ -248,12 +261,10 @@ end process TC_DATA_PROC;
 TC_DATA_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_DATA_OUT <= tc_data;
+		TC_DATA_OUT  <= tc_data;
+		TC_WR_EN_OUT <= tc_wr;
 	end if;
 end process TC_DATA_SYNC;
-
---PS_BUSY_OUT <= '0' when (dissect_current_state = IDLE) else '1';
---PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP) else '0';
 
 PS_RESPONSE_SYNC : process(CLK)
 begin

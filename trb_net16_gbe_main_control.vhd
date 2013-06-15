@@ -44,10 +44,9 @@ port (
 	RC_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 
 -- signals to/from transmit controller
-	TC_TRANSMIT_CTRL_OUT	: out	std_logic;  -- slow control frame is waiting to be built and sent
-	TC_TRANSMIT_DATA_OUT	: out	std_logic;
+	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -70,11 +69,6 @@ port (
 	
 	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
-
--- signals to/from packet constructor
-	PC_READY_IN		: in	std_logic;
-	PC_TRANSMIT_ON_IN	: in	std_logic;
-	PC_SOD_IN		: in	std_logic;
 
 -- signals to/from sgmii/gbe pcs_an_complete
 	PCS_AN_COMPLETE_IN	: in	std_logic;
@@ -170,7 +164,7 @@ signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
 
 signal mac_control_debug             : std_logic_vector(63 downto 0);
 
-type flow_states is (IDLE, TRANSMIT_CTRL, CLEANUP);
+type flow_states is (IDLE, WAIT_FOR_H, TRANSMIT_CTRL, CLEANUP);
 signal flow_current_state, flow_next_state : flow_states;
 
 signal state                        : std_logic_vector(3 downto 0);
@@ -201,7 +195,6 @@ signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downt
 type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
 
-signal frame_type                   : std_logic_vector(15 downto 0);
 signal disable_redirect, ps_wr_en_q : std_logic;
 
 type stats_states is (IDLE, LOAD_VECTOR, CLEANUP);
@@ -224,6 +217,8 @@ signal nothing_sent                 : std_logic;
 signal nothing_sent_ctr             : std_logic_vector(31 downto 0);
 
 signal dbg_ps                       : std_Logic_vector(63 downto 0);
+
+signal tc_data                      : std_logic_vector(8 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -255,11 +250,11 @@ port map(
 	PS_SRC_UDP_PORT_IN	=> RC_SRC_UDP_PORT_IN,
 	PS_DEST_UDP_PORT_IN	=> RC_DEST_UDP_PORT_IN,
 	
-	TC_DATA_OUT		=> TC_DATA_OUT,
-	TC_RD_EN_IN		=> TC_RD_EN_IN,
+	TC_DATA_OUT		    => tc_data,
+	TC_WR_EN_OUT		=> TC_WR_EN_OUT,
 	TC_DATA_NOT_VALID_OUT => TC_DATA_NOT_VALID_OUT,
 	TC_FRAME_SIZE_OUT	=> TC_FRAME_SIZE_OUT,
-	TC_FRAME_TYPE_OUT	=> frame_type, --TC_FRAME_TYPE_OUT,
+	TC_FRAME_TYPE_OUT	=> TC_FRAME_TYPE_OUT,
 	TC_IP_PROTOCOL_OUT	=> TC_IP_PROTOCOL_OUT,
 	
 	TC_DEST_MAC_OUT		=> TC_DEST_MAC_OUT,
@@ -341,7 +336,7 @@ port map(
 	DEBUG_OUT		=> dbg_ps
 );
 
-TC_FRAME_TYPE_OUT <= frame_type; -- when flow_current_state = TRANSMIT_CTRL else x"0008";
+TC_DATA_OUT <= tc_data;
 
 -- gk 07.11.11
 -- do not select any response constructors when dropping a frame
@@ -503,6 +498,7 @@ end process FIRST_BYTE_PROC;
 --*********************
 --	DATA FLOW CONTROL
 
+--TODO: do I really need this crap?
 FLOW_MACHINE_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
@@ -514,71 +510,41 @@ begin
   end if;
 end process FLOW_MACHINE_PROC;
 
-FLOW_MACHINE : process(flow_current_state, PC_TRANSMIT_ON_IN, PC_SOD_IN, TC_TRANSMIT_DONE_IN, ps_response_ready)
+FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, ps_response_ready)
 begin
-  case flow_current_state is
+	case flow_current_state is
 
-	when IDLE =>
-	  state <= x"1";
-	  if (ps_response_ready = '1') and (PC_TRANSMIT_ON_IN = '0') then
-		flow_next_state <= TRANSMIT_CTRL;
---	  elsif (PC_SOD_IN = '1') then  -- pottential loss of frames
---		flow_next_state <= TRANSMIT_DATA;
-	  else
-		flow_next_state <= IDLE;
-	  end if;
-	
---	when TRANSMIT_DATA =>
---	  state <= x"2";
---	  if (TC_TRANSMIT_DONE_IN = '1') then
---		flow_next_state <= CLEANUP;
---	  else
---		flow_next_state <= TRANSMIT_DATA;
---	  end if;
-	
-	when TRANSMIT_CTRL =>
-	  state <= x"3";
-	  if (TC_TRANSMIT_DONE_IN = '1') then
-		flow_next_state <= CLEANUP;
-	  else
-		flow_next_state <= TRANSMIT_CTRL;
-	  end if;
-	
-	when CLEANUP =>
-	  state <= x"4";
-	  flow_next_state <= IDLE;
+		when IDLE =>
+			if (ps_response_ready = '1')  then
+				flow_next_state <= WAIT_FOR_H; --TRANSMIT_CTRL;
+			else
+				flow_next_state <= IDLE;
+			end if;
+			
+		when WAIT_FOR_H =>
+			if (TC_FC_H_READY_IN = '1') then
+				flow_next_state <= TRANSMIT_CTRL;
+			else
+				flow_next_state <= WAIT_FOR_H;
+			end if;
+			
+		when TRANSMIT_CTRL =>
+			if (tc_data(8) = '1') then
+				flow_next_state <= CLEANUP;
+			else
+				flow_next_state <= TRANSMIT_CTRL;
+			end if;
 
-  end case;
+		when CLEANUP =>
+			flow_next_state <= IDLE;
+
+	end case;
 end process FLOW_MACHINE;
 
-TC_TRANSMIT_DATA_OUT <= '0'; --'1' when (flow_current_state = TRANSMIT_DATA) else '0';
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
 
-mc_busy <= '0' when flow_current_state = IDLE else '1';  
-
---NOTHING_SENT_CTR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1' or flow_current_state = IDLE or flow_current_state = CLEANUP) then
---			nothing_sent_ctr <= (others => '0');
---		else
---			nothing_sent_ctr <= nothing_sent_ctr + x"1";
---		end if;
---	end if;
---end process NOTHING_SENT_CTR_PROC;
---
---NOTHING_SENT_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			nothing_sent <= '0';
---		elsif (nothing_sent_ctr = x"0fff_ffff") then
---			nothing_sent <= '1';
---		end if;
---	end if;
---end process NOTHING_SENT_PROC;
---
---MC_IDLE_TOO_LONG_OUT <= nothing_sent;
+--mc_busy <= '0' when flow_current_state = IDLE else '1';
+mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL else '0';
 
 --***********************
 --	LINK STATE CONTROL
@@ -598,7 +564,7 @@ begin
 	end if;
 end process;
 
-LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr, PC_READY_IN)
+LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr)
 begin
 	case link_current_state is
 
@@ -645,11 +611,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				if (PC_READY_IN = '1') then
-					link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
-				else
-					link_next_state <= FINALIZE;
-				end if;
+				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
 			end if;
 			
 		when WAIT_FOR_BOOT =>

@@ -485,7 +485,7 @@ signal tc_pc_ready                   : std_logic;
 signal tc_pc_h_ready                 : std_logic;
 signal mc_ctrl_frame_req             : std_logic;
 signal mc_data                       : std_logic_vector(8 downto 0);
-signal mc_rd_en                      : std_logic;
+signal mc_wr_en                      : std_logic;
 signal fc_wr_en                      : std_logic;
 signal fc_data                       : std_logic_vector(7 downto 0);
 signal fc_ip_size                    : std_logic_vector(15 downto 0);
@@ -631,9 +631,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 
   -- signals to/from transmit controller
 	  TC_TRANSMIT_CTRL_OUT	=> mc_transmit_ctrl,
-	  TC_TRANSMIT_DATA_OUT  => mc_transmit_data,
 	  TC_DATA_OUT		=> mc_data,
-	  TC_RD_EN_IN		=> mc_rd_en,
+	  TC_WR_EN_OUT		=> mc_wr_en,
 	  TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
 	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
 	  TC_FRAME_TYPE_OUT	=> mc_type,
@@ -656,11 +655,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  
 	  TC_BUSY_IN		=> mc_busy,
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
-
-  -- signals to/from packet constructor
-	  PC_READY_IN		=> '1', --pc_ready,
-	  PC_TRANSMIT_ON_IN	=> '0', --pc_transmit_on,
-	  PC_SOD_IN		=> '0', --tc_sod,
 
   -- signals to/from sgmii/gbe pcs_an_complete
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
@@ -737,32 +731,10 @@ port map(
 	CLK			=> CLK,
 	RESET			=> RESET,
 
--- signals to/from packet constructor
-	PC_READY_IN		=> '1', --pc_ready,
-	PC_DATA_IN		=> tc_data,
-	PC_WR_EN_IN		=> tc_wr_en,
-	PC_IP_SIZE_IN		=> tc_ip_size,
-	PC_UDP_SIZE_IN		=> tc_udp_size,
-	PC_FLAGS_OFFSET_IN	=> tc_flags_offset,
-	PC_SOD_IN		=> '0', --tc_sod,
-	PC_EOD_IN		=> '0', --tc_eod,
-	PC_FC_READY_OUT		=> tc_pc_ready,
-	PC_FC_H_READY_OUT	=> tc_pc_h_ready,
-	PC_TRANSMIT_ON_IN	=> '0', --pc_transmit_on,
-
-      -- signals from ip_configurator used by packet constructor
-	IC_DEST_MAC_ADDRESS_IN  => ic_dest_mac,
-	IC_DEST_IP_ADDRESS_IN   => ic_dest_ip,
-	IC_DEST_UDP_PORT_IN     => ic_dest_udp,
-	IC_SRC_MAC_ADDRESS_IN   => ic_src_mac,
-	IC_SRC_IP_ADDRESS_IN    => ic_src_ip,
-	IC_SRC_UDP_PORT_IN      => ic_src_udp,
-
 -- signal to/from main controller
 	MC_TRANSMIT_CTRL_IN	=> mc_transmit_ctrl,
-	MC_TRANSMIT_DATA_IN	=> mc_transmit_data,
 	MC_DATA_IN		=> mc_data,
-	MC_RD_EN_OUT		=> mc_rd_en,
+	MC_WR_EN_IN		=> mc_wr_en,
 	MC_DATA_NOT_VALID_IN => tc_data_not_valid,
 	MC_FRAME_SIZE_IN	=> mc_frame_size,
 	MC_FRAME_TYPE_IN	=> mc_type,
