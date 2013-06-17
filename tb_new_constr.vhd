@@ -473,7 +473,7 @@ begin
 	
 	wait for 400 ns;
 	
-	wait;
+	wait for 5 us;
 	
 	-- FIRST FRAME UDP - DHCP Offer
 	wait until rising_edge(RX_MAC_CLK);
