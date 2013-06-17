@@ -556,8 +556,6 @@ port map (
 
 mult <= or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
 
-TC_WR_EN_OUT <= or_all(tc_wr);
-
 PS_BUSY_OUT <= busy;
 
 SELECT_MACHINE_PROC : process(CLK)
@@ -637,6 +635,7 @@ begin
 		if (RESET = '1') then
 			TC_DATA_OUT           <= (others => '0');
 			TC_DATA_NOT_VALID_OUT <= '0';
+			TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
@@ -654,6 +653,7 @@ begin
 		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
 			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
 			TC_DATA_NOT_VALID_OUT <= tc_data_not_valid(index);
+			TC_WR_EN_OUT          <= or_all(tc_wr);
 			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
 			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
 			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
@@ -676,6 +676,7 @@ begin
 		else
 			TC_DATA_OUT           <= (others => '0');
 			TC_DATA_NOT_VALID_OUT <= '0';
+			TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
