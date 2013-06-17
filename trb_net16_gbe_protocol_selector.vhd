@@ -554,7 +554,7 @@ port map (
 --stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
 --STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
-mult <= or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
+mult <= or_all(resp_ready(1 downto 0)); --or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
 
 PS_BUSY_OUT <= busy;
 

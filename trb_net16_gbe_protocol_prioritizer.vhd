@@ -56,15 +56,15 @@ begin
 						if (UDP_PROTOCOL_IN = x"0044") then  -- DHCP Client
 							CODE_OUT(1) <= '1';
 						-- No. 4 = SCTRL
-						elsif (UDP_PROTOCOL_IN = x"61a8") then -- SCTRL module
-							CODE_OUT(3) <= '1';
+--						elsif (UDP_PROTOCOL_IN = x"61a8") then -- SCTRL module
+--							CODE_OUT(3) <= '1';
 						else
 							-- branch for pure IPv4
 							CODE_OUT <= (others => '0');
 						end if;
 					-- No. 3 = ICMP 
-					elsif (PROTOCOL_CODE_IN = x"01") then -- ICMP
-						CODE_OUT(2) <= '1';
+--					elsif (PROTOCOL_CODE_IN = x"01") then -- ICMP
+--						CODE_OUT(2) <= '1';
 					else
 						CODE_OUT <= (others => '0');
 					end if;
