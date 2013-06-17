@@ -541,7 +541,8 @@ begin
 	end case;
 end process FLOW_MACHINE;
 
-TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
+--TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
+TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = IDLE and ps_response_ready = '1') else '0';
 
 --mc_busy <= '0' when flow_current_state = IDLE else '1';
 mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL else '0';
