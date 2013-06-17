@@ -377,7 +377,7 @@ begin
 	end if;
 end process putUdpHeadersProc;
 
-
+--TODO: sync with clock
 fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
 begin
 	if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
