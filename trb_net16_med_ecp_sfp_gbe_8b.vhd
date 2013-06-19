@@ -231,7 +231,7 @@ end component;
 -- 	);
 -- end component;
 
-component sgmii_gbe_pcs35
+component sgmii_gbe_pcs36 -- sgmii_gbe_pcs35
 port( rst_n                  : in	std_logic;
 	  signal_detect          : in	std_logic;
 	  gbe_mode               : in	std_logic;
@@ -742,7 +742,7 @@ buf_stat_debug(11 downto 0)  <= sd_rx_debug(11 downto 0);
    
 
  
- SGMII_GBE_PCS : sgmii_gbe_pcs35
+ SGMII_GBE_PCS : sgmii_gbe_pcs36 --sgmii_gbe_pcs35
  port map(
  	rst_n				=> GSR_N,
  	signal_detect			=> signal_detected,
