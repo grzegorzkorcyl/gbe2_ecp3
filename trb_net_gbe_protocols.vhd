@@ -7,7 +7,7 @@ use work.trb_net_std.all;
 
 package trb_net_gbe_protocols is
 
-signal g_SIMULATE             : integer range 0 to 1 := 1;
+signal g_SIMULATE             : integer range 0 to 1 := 0;
 
 -- g_MY_IP is being set by DHCP Response Constructor
 signal g_MY_IP                : std_logic_vector(31 downto 0);
@@ -20,7 +20,7 @@ signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0); -- set up in main c
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
-constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 2; --5;
+constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 3; --5;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
 constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 4;
 
