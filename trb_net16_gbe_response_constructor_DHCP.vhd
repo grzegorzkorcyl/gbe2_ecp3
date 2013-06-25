@@ -460,7 +460,7 @@ begin
 		when IDLE =>
 			state <= x"1";
 			if (main_current_state = SENDING_DISCOVER) or (main_current_state = SENDING_REQUEST) then
-				construct_next_state <= WAIT_FOR_LOAD; -- BOOTP_HEADERS;
+				construct_next_state <= WAIT_FOR_LOAD;
 			else
 				construct_next_state <= IDLE;
 			end if;
@@ -580,78 +580,69 @@ end process TC_WR_PROC;
 
 TC_DATA_PROC : process(CLK, construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
 begin
-
 	if rising_edge(CLK) then
-
-	case (construct_current_state) is
-
-		when BOOTP_HEADERS =>
-			for i in 0 to 7 loop
-				tc_data(i) <= bootp_hdr(load_ctr * 8 + i);
-			end loop;
-			tc_data(8) <= '0';
-			
-		when CLIENT_IP =>
-			if (main_current_state = SENDING_DISCOVER) then
-				tc_data(7 downto 0) <= x"00";
-			elsif (main_current_state = SENDING_REQUEST) then
+		case (construct_current_state) is
+	
+			when BOOTP_HEADERS =>
 				for i in 0 to 7 loop
-					tc_data(i) <= saved_proposed_ip((load_ctr - 12) * 8 + i);
+					tc_data(i) <= bootp_hdr(load_ctr * 8 + i);
 				end loop;
-			end if;
-			tc_data(8) <= '0';
-		
-		when YOUR_IP =>
-			tc_data(7 downto 0) <= x"00";
-			tc_data(8) <= '0';
-		
-		when ZEROS1 =>
-			tc_data(7 downto 0) <= x"00";
-			tc_data(8) <= '0';
-		
-		when MY_MAC =>
-			for i in 0 to 7 loop
-				tc_data(i) <= g_MY_MAC((load_ctr - 28) * 8 + i);
-			end loop;
-			tc_data(8) <= '0';
-		
-		when ZEROS2 =>
-			tc_data(7 downto 0) <= x"00";
-			tc_data(8) <= '0';
+				tc_data(8) <= '0';
+				
+			when CLIENT_IP =>
+				if (main_current_state = SENDING_DISCOVER) then
+					tc_data(7 downto 0) <= x"00";
+				elsif (main_current_state = SENDING_REQUEST) then
+					for i in 0 to 7 loop
+						tc_data(i) <= saved_proposed_ip((load_ctr - 12) * 8 + i);
+					end loop;
+				end if;
+				tc_data(8) <= '0';
 			
-		when VENDOR_VALS =>
-			for i in 0 to 7 loop
-				tc_data(i) <= vendor_values((load_ctr - 236) * 8 + i);
-			end loop;
-			tc_data(8) <= '0';
+			when YOUR_IP =>
+				tc_data(7 downto 0) <= x"00";
+				tc_data(8) <= '0';
 			
-		-- needed only for DHCP Request message
-		when VENDOR_VALS2 =>
-			for i in 0 to 7 loop
-				tc_data(i) <= vendor_values2((load_ctr - 258) * 8 + i);
-			end loop;
-			tc_data(8) <= '0';
+			when ZEROS1 =>
+				tc_data(7 downto 0) <= x"00";
+				tc_data(8) <= '0';
 			
-		when TERMINATION =>
-			tc_data(7 downto 0) <= x"ff";
-			tc_data(8)          <= '1';
+			when MY_MAC =>
+				for i in 0 to 7 loop
+					tc_data(i) <= g_MY_MAC((load_ctr - 28) * 8 + i);
+				end loop;
+				tc_data(8) <= '0';
+			
+			when ZEROS2 =>
+				tc_data(7 downto 0) <= x"00";
+				tc_data(8) <= '0';
+				
+			when VENDOR_VALS =>
+				for i in 0 to 7 loop
+					tc_data(i) <= vendor_values((load_ctr - 236) * 8 + i);
+				end loop;
+				tc_data(8) <= '0';
+				
+			-- needed only for DHCP Request message
+			when VENDOR_VALS2 =>
+				for i in 0 to 7 loop
+					tc_data(i) <= vendor_values2((load_ctr - 258) * 8 + i);
+				end loop;
+				tc_data(8) <= '0';
+				
+			when TERMINATION =>
+				tc_data(7 downto 0) <= x"ff";
+				tc_data(8)          <= '1';
+			
+			when others => 
+				tc_data(7 downto 0) <= x"00";
+				tc_data(8) <= '0';
 		
-		when others => 
-			tc_data(7 downto 0) <= x"00";
-			tc_data(8) <= '0';
-	
-	end case;
-	
+		end case;
 	end if;
-	
 end process;
 
---TC_DATA_SYNC : process(CLK)
---begin
-	--if rising_edge(CLK) then
-		TC_DATA_OUT <= tc_data;
-	--end if;
---end process TC_DATA_SYNC;
+TC_DATA_OUT <= tc_data;
 
 PS_RESPONSE_SYNC : process(CLK)
 begin
@@ -801,22 +792,22 @@ TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 
 
 -- **** debug
-DEBUG_OUT(3 downto 0)   <= state;
-DEBUG_OUT(7 downto 4)   <= state2;
-DEBUG_OUT(11 downto 8)  <= state3;
-DEBUG_OUT(15 downto 12) <= (others => '0');
-DEBUG_OUT(31 downto 16) <= discarded_ctr;
-
-DISCARDED_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			discarded_ctr <= (others => '0');
-		elsif (receive_current_state = DISCARD and PS_DATA_IN(8) = '1') then
-			discarded_ctr <= discarded_ctr + x"1";
-		end if;
-	end if;
-end process DISCARDED_CTR_PROC;
+--DEBUG_OUT(3 downto 0)   <= state;
+--DEBUG_OUT(7 downto 4)   <= state2;
+--DEBUG_OUT(11 downto 8)  <= state3;
+--DEBUG_OUT(15 downto 12) <= (others => '0');
+--DEBUG_OUT(31 downto 16) <= discarded_ctr;
+--
+--DISCARDED_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			discarded_ctr <= (others => '0');
+--		elsif (receive_current_state = DISCARD and PS_DATA_IN(8) = '1') then
+--			discarded_ctr <= discarded_ctr + x"1";
+--		end if;
+--	end if;
+--end process DISCARDED_CTR_PROC;
 -- ****
 
 end trb_net16_gbe_response_constructor_DHCP;

@@ -122,7 +122,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, g_MY_IP, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, saved_target_ip)
+DISSECT_MACHINE : process(dissect_current_state, g_MY_IP, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, PS_SELECTED_IN, saved_target_ip)
 begin
 	case dissect_current_state is
 	
@@ -153,7 +153,7 @@ begin
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"4";
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;
@@ -177,8 +177,10 @@ end process DISSECT_MACHINE;
 DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE and PS_WR_EN_IN = '0') or (dissect_current_state = WAIT_FOR_LOAD) then
+		if (RESET = '1') or (dissect_current_state = IDLE and PS_WR_EN_IN = '0') then
 			data_ctr <= 1;
+		elsif (dissect_current_state = WAIT_FOR_LOAD) then
+			data_ctr <= 0;
 		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
@@ -242,29 +244,25 @@ end process SAVE_VALUES_PROC;
 
 TC_DATA_PROC : process(dissect_current_state, data_ctr, values)
 begin
-	tc_data(8) <= '0';
-	
-	if (dissect_current_state = LOAD_FRAME) then
-		for i in 0 to 7 loop
-			tc_data(i) <= values((data_ctr - 1) * 8 + i);
-		end loop;
-		-- mark the last byte
-		if (data_ctr = 28) then
-			tc_data(8) <= '1';
+	if rising_edge(CLK) then
+		tc_data(8) <= '0';
+		
+		if (dissect_current_state = LOAD_FRAME) then
+			for i in 0 to 7 loop
+				tc_data(i) <= values((data_ctr - 1) * 8 + i);
+			end loop;
+			-- mark the last byte
+			if (data_ctr = 28) then
+				tc_data(8) <= '1';
+			end if;
+		else
+			tc_data(7 downto 0) <= (others => '0');	
 		end if;
-	else
-		tc_data(7 downto 0) <= (others => '0');	
-	end if;
-	
+	end if;	
 end process TC_DATA_PROC;
 
-TC_DATA_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		TC_DATA_OUT  <= tc_data;
-		TC_WR_EN_OUT <= tc_wr;
-	end if;
-end process TC_DATA_SYNC;
+TC_WR_EN_OUT <= tc_wr;
+TC_DATA_OUT  <= tc_data;
 
 PS_RESPONSE_SYNC : process(CLK)
 begin
