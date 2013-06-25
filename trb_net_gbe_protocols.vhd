@@ -7,7 +7,7 @@ use work.trb_net_std.all;
 
 package trb_net_gbe_protocols is
 
-signal g_SIMULATE             : integer range 0 to 1 := 0;
+signal g_SIMULATE             : integer range 0 to 1 := 1;
 
 -- g_MY_IP is being set by DHCP Response Constructor
 signal g_MY_IP                : std_logic_vector(31 downto 0);
