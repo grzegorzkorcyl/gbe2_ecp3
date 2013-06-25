@@ -180,7 +180,7 @@ begin
 		if (RESET = '1') or (dissect_current_state = IDLE and PS_WR_EN_IN = '0') then
 			data_ctr <= 1;
 		elsif (dissect_current_state = WAIT_FOR_LOAD) then
-			data_ctr <= 0;
+			data_ctr <= 1;
 		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
