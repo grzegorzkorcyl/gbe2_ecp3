@@ -335,71 +335,71 @@ port map (
 -- END OF INTERFACE
 );
 
---SCTRL : trb_net16_gbe_response_constructor_SCTRL
---generic map( STAT_ADDRESS_BASE => 8
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET,
---	
----- INTERFACE	
---	PS_DATA_IN		        => PS_DATA_IN,
---	PS_WR_EN_IN		        => PS_WR_EN_IN,
---	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(3),
---	PS_RESPONSE_READY_OUT	=> resp_ready(3),
---	PS_BUSY_OUT		        => busy(3),
---	PS_SELECTED_IN		    => selected(3),
---	
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
---	
---	TC_WR_EN_OUT            => tc_wr(3),
---	TC_DATA_OUT		        => tc_data(4 * 9 - 1 downto 3 * 9),
---	TC_FRAME_SIZE_OUT	    => tc_size(4 * 16 - 1 downto 3 * 16),
---	TC_FRAME_TYPE_OUT	    => tc_type(4 * 16 - 1 downto 3 * 16),
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(4 * 8 - 1 downto 3 * 8),
---	
---	TC_DEST_MAC_OUT		    => tc_mac(4 * 48 - 1 downto 3 * 48),
---	TC_DEST_IP_OUT		    => tc_ip(4 * 32 - 1 downto 3 * 32),
---	TC_DEST_UDP_OUT		    => tc_udp(4 * 16 - 1 downto 3 * 16),
---	TC_SRC_MAC_OUT		    => tc_src_mac(4 * 48 - 1 downto 3 * 48),
---	TC_SRC_IP_OUT		    => tc_src_ip(4 * 32 - 1 downto 3 * 32),
---	TC_SRC_UDP_OUT		    => tc_src_udp(4 * 16 - 1 downto 3 * 16),
---	
---	TC_IP_SIZE_OUT	    	=> tc_ip_size(4 * 16 - 1 downto 3 * 16),
---	TC_UDP_SIZE_OUT		    => tc_udp_size(4 * 16 - 1 downto 3 * 16),
---	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(4 * 16 - 1 downto 3 * 16),
---	
---	TC_BUSY_IN		        => TC_BUSY_IN,
---	
---	STAT_DATA_OUT           => stat_data(4 * 32 - 1 downto 3 * 32),
---	STAT_ADDR_OUT           => stat_addr(4 * 8 - 1 downto 3 * 8),
---	STAT_DATA_RDY_OUT       => stat_rdy(3),
---	STAT_DATA_ACK_IN        => stat_ack(3),
---	RECEIVED_FRAMES_OUT	    => RECEIVED_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
---	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
---	-- END OF INTERFACE
---	
---	GSC_CLK_IN              => GSC_CLK_IN,
---	GSC_INIT_DATAREADY_OUT  => GSC_INIT_DATAREADY_OUT,
---	GSC_INIT_DATA_OUT       => GSC_INIT_DATA_OUT,
---	GSC_INIT_PACKET_NUM_OUT => GSC_INIT_PACKET_NUM_OUT,
---	GSC_INIT_READ_IN        => GSC_INIT_READ_IN,
---	GSC_REPLY_DATAREADY_IN  => GSC_REPLY_DATAREADY_IN,
---	GSC_REPLY_DATA_IN       => GSC_REPLY_DATA_IN,
---	GSC_REPLY_PACKET_NUM_IN => GSC_REPLY_PACKET_NUM_IN,
---	GSC_REPLY_READ_OUT      => GSC_REPLY_READ_OUT,
---	GSC_BUSY_IN             => GSC_BUSY_IN,
---	
---	MAKE_RESET_OUT          => MAKE_RESET_OUT,
---	
---	
---	DEBUG_OUT		        => PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
---);
+SCTRL : trb_net16_gbe_response_constructor_SCTRL
+generic map( STAT_ADDRESS_BASE => 8
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN		        => PS_DATA_IN,
+	PS_WR_EN_IN		        => PS_WR_EN_IN,
+	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(3),
+	PS_RESPONSE_READY_OUT	=> resp_ready(3),
+	PS_BUSY_OUT		        => busy(3),
+	PS_SELECTED_IN		    => selected(3),
+	
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
+	
+	TC_WR_EN_OUT            => tc_wr(3),
+	TC_DATA_OUT		        => tc_data(4 * 9 - 1 downto 3 * 9),
+	TC_FRAME_SIZE_OUT	    => tc_size(4 * 16 - 1 downto 3 * 16),
+	TC_FRAME_TYPE_OUT	    => tc_type(4 * 16 - 1 downto 3 * 16),
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(4 * 8 - 1 downto 3 * 8),
+	
+	TC_DEST_MAC_OUT		    => tc_mac(4 * 48 - 1 downto 3 * 48),
+	TC_DEST_IP_OUT		    => tc_ip(4 * 32 - 1 downto 3 * 32),
+	TC_DEST_UDP_OUT		    => tc_udp(4 * 16 - 1 downto 3 * 16),
+	TC_SRC_MAC_OUT		    => tc_src_mac(4 * 48 - 1 downto 3 * 48),
+	TC_SRC_IP_OUT		    => tc_src_ip(4 * 32 - 1 downto 3 * 32),
+	TC_SRC_UDP_OUT		    => tc_src_udp(4 * 16 - 1 downto 3 * 16),
+	
+	TC_IP_SIZE_OUT	    	=> tc_ip_size(4 * 16 - 1 downto 3 * 16),
+	TC_UDP_SIZE_OUT		    => tc_udp_size(4 * 16 - 1 downto 3 * 16),
+	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(4 * 16 - 1 downto 3 * 16),
+	
+	TC_BUSY_IN		        => TC_BUSY_IN,
+	
+	STAT_DATA_OUT           => stat_data(4 * 32 - 1 downto 3 * 32),
+	STAT_ADDR_OUT           => stat_addr(4 * 8 - 1 downto 3 * 8),
+	STAT_DATA_RDY_OUT       => stat_rdy(3),
+	STAT_DATA_ACK_IN        => stat_ack(3),
+	RECEIVED_FRAMES_OUT	    => RECEIVED_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
+	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
+	-- END OF INTERFACE
+	
+	GSC_CLK_IN              => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT  => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT       => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN        => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN  => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN       => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT      => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN             => GSC_BUSY_IN,
+	
+	MAKE_RESET_OUT          => MAKE_RESET_OUT,
+	
+	
+	DEBUG_OUT		        => PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
+);
 --
 --TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 --port map (
@@ -554,7 +554,7 @@ port map (
 --stat_rdy(c_MAX_PROTOCOLS) <= STAT_DATA_RDY_IN;
 --STAT_DATA_ACK_OUT <= stat_ack(c_MAX_PROTOCOLS);
 
-mult <= or_all(resp_ready(2 downto 0)); --or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
+--mult <= or_all(resp_ready(2 downto 0)); --or_all(resp_ready(2 downto 0)) and or_all(resp_ready(4 downto 3));
 
 PS_BUSY_OUT <= busy;
 
@@ -623,7 +623,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (select_current_state = IDLE) then
 			index <= 0;
-		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0' and (or_all(resp_ready) = '1' or mult = '1')) then
+		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0') then -- and (or_all(resp_ready) = '1' or mult = '1')) then
 			index <= index + 1;
 		end if;
 	end if;

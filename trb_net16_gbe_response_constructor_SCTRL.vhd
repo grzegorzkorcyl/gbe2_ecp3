@@ -33,7 +33,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 			
-		TC_RD_EN_IN		: in	std_logic;
+		TC_WR_EN_OUT		: out	std_logic;
 		TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 		TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 		TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -140,6 +140,8 @@ signal too_much_data           : std_logic;
 signal rx_fifo_data            : std_logic_vector(8 downto 0);
 signal tx_fifo_data            : std_logic_vector(17 downto 0);
 
+signal tc_wr                   : std_logic;
+
 begin
 
 MAKE_RESET_OUT <= make_reset;
@@ -158,6 +160,7 @@ receive_fifo : fifo_2048x8x16
     Empty            => rx_empty
   );
 
+--TODO: change it to synchronous
 --rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
 								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
@@ -173,25 +176,6 @@ begin
 		else
 			rx_fifo_wr <= '0';
 		end if;
-		
---		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
---			rx_fifo_rd <= '1';
---		elsif (gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
---			rx_fifo_rd <= '1';
---		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
---			rx_fifo_rd <= '1';
---		else
---			rx_fifo_rd <= '0';
---		end if;
-
---		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
---		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
---		
---		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or (dissect_current_state = WAIT_FOR_HUB) then
---			gsc_init_dataready <= '1';
---		else
---			gsc_init_dataready <= '0';
---		end if;
 		
 		rx_fifo_data <= PS_DATA_IN;
 	end if;
@@ -239,11 +223,18 @@ tx_fifo_data(17)          <= '0';
 
 tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
 tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
-tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
+--tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
+tx_fifo_rd              <= '1' when dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1' else '0';
 
 --TX_FIFO_SYNC_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
+--		if (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) then
+--			tx_fifo_reset <= '1';
+--		else
+--			tx_fifo_reset <= '0';
+--		end if;
+--		
 --		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
 --			tx_fifo_wr <= '1';
 --		else
@@ -251,6 +242,19 @@ tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state 
 --		end if;		
 --	end if;
 --end process TX_FIFO_SYNC_PROC;
+
+TC_WR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1') then
+			tc_wr <= '1';
+		else
+			tc_wr <= '0';
+		end if;
+	end if;
+end process TC_WR_PROC;
+
+TC_WR_EN_OUT <= tc_wr;
 
 TC_DATA_PROC : process(dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
@@ -310,9 +314,9 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE or dissect_current_state = WAIT_FOR_HUB) then
 			tx_loaded_ctr <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
-		elsif (dissect_current_state = LOAD_ACK and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+		elsif (dissect_current_state = LOAD_ACK and PS_SELECTED_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
 	end if;
@@ -349,8 +353,8 @@ end process PS_RESPONSE_SYNC;
 TC_FRAME_TYPE_OUT  <= x"0008";
 TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
-TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8); --x"a861";
-TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0); --x"a861";
+TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8);
+TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0);
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
@@ -379,14 +383,13 @@ end process FRAME_SIZE_PROC;
 
 TC_UDP_SIZE_OUT     <= tx_data_ctr;
 
-
 TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
 MORE_FRAGMENTS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(13) <= '0';
-		elsif ((dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
+		elsif ((dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
 			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
 				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
 			else
@@ -401,7 +404,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= (others => '0');
-		elsif (dissect_current_state = DIVIDE and TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+		elsif (dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') then
 			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3) + x"1";
 		end if;
 	end if;
@@ -504,7 +507,7 @@ begin
 			
 		when WAIT_FOR_LOAD =>
 			state <= x"7";
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;
@@ -522,7 +525,7 @@ begin
 
 		when DIVIDE =>
 			state <= x"c";
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
 				dissect_next_state <= DIVIDE;
@@ -546,7 +549,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = DIVIDE or dissect_current_state = IDLE) then
 			tx_frame_loaded <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
 			tx_frame_loaded <= tx_frame_loaded + x"1";
 		end if;
 	end if;
@@ -560,7 +563,7 @@ begin
 			size_left <= (others => '0');
 		elsif (dissect_current_state = WAIT_FOR_LOAD) then
 			size_left <= tx_data_ctr;
-		elsif (dissect_current_state = LOAD_FRAME and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			size_left <= size_left - x"1";
 		end if;
 	end if;
@@ -600,120 +603,120 @@ end process MAKE_RESET_PROC;
 
 
 -- statistics
-REC_FRAMES_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			rec_frames <= (others => '0');
-		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-			rec_frames <= rec_frames + x"1";
-		end if;
-	end if;
-end process REC_FRAMES_PROC;
-
-REPLY_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			reply_ctr <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
-			reply_ctr <= reply_ctr + x"1";
-		end if;
-	end if;
-end process REPLY_CTR_PROC;
-
-
-STATS_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			stats_current_state <= IDLE;
-		else
-			stats_current_state <= stats_next_state;
-		end if;
-	end if;
-end process STATS_MACHINE_PROC;
-
-STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state, tx_loaded_ctr, tx_data_ctr)
-begin
-
-	case (stats_current_state) is
-	
-		when IDLE =>
-			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr)) then
-				stats_next_state <= LOAD_RECEIVED;
-			else
-				stats_next_state <= IDLE;
-			end if;
-		
-		when LOAD_RECEIVED =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_REPLY;
-			else
-				stats_next_state <= LOAD_RECEIVED;
-			end if;
-			
-		when LOAD_REPLY =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= CLEANUP;
-			else
-				stats_next_state <= LOAD_REPLY;
-			end if;		
-		
-		when CLEANUP =>
-			stats_next_state <= IDLE;
-	
-	end case;
-
-end process STATS_MACHINE;
-
-SELECTOR : process(CLK)
-begin
-	if rising_edge(CLK) then
-		case(stats_current_state) is
-			
-			when LOAD_RECEIVED =>
-				stat_data_temp <= x"0502" & rec_frames;
-				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
-			
-			when LOAD_REPLY =>
-				stat_data_temp <= x"0503" & reply_ctr;
-				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
-				
-			when others =>
-				stat_data_temp <= (others => '0');
-				STAT_ADDR_OUT  <= (others => '0');
-		
-		end case;
-	end if;	
-end process SELECTOR;
-
-STAT_DATA_OUT(7 downto 0)   <= stat_data_temp(31 downto 24);
-STAT_DATA_OUT(15 downto 8)  <= stat_data_temp(23 downto 16);
-STAT_DATA_OUT(23 downto 16) <= stat_data_temp(15 downto 8);
-STAT_DATA_OUT(31 downto 24) <= stat_data_temp(7 downto 0);
-
-STAT_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
-			STAT_DATA_RDY_OUT <= '1';
-		else
-			STAT_DATA_RDY_OUT <= '0';
-		end if;
-	end if;
-end process STAT_SYNC;
---STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
-
--- end of statistics
-
--- **** debug
-DEBUG_OUT(3 downto 0)   <= state;
-DEBUG_OUT(4)            <= '0';
-DEBUG_OUT(7 downto 5)   <= "000";
-DEBUG_OUT(8)            <= '0';
-DEBUG_OUT(11 downto 9)  <= "000";
-DEBUG_OUT(31 downto 12) <= (others => '0');
--- ****
+--REC_FRAMES_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			rec_frames <= (others => '0');
+--		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+--			rec_frames <= rec_frames + x"1";
+--		end if;
+--	end if;
+--end process REC_FRAMES_PROC;
+--
+--REPLY_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			reply_ctr <= (others => '0');
+--		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
+--			reply_ctr <= reply_ctr + x"1";
+--		end if;
+--	end if;
+--end process REPLY_CTR_PROC;
+--
+--
+--STATS_MACHINE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			stats_current_state <= IDLE;
+--		else
+--			stats_current_state <= stats_next_state;
+--		end if;
+--	end if;
+--end process STATS_MACHINE_PROC;
+--
+--STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state, tx_loaded_ctr, tx_data_ctr)
+--begin
+--
+--	case (stats_current_state) is
+--	
+--		when IDLE =>
+--			if ((dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr)) then
+--				stats_next_state <= LOAD_RECEIVED;
+--			else
+--				stats_next_state <= IDLE;
+--			end if;
+--		
+--		when LOAD_RECEIVED =>
+--			if (STAT_DATA_ACK_IN = '1') then
+--				stats_next_state <= LOAD_REPLY;
+--			else
+--				stats_next_state <= LOAD_RECEIVED;
+--			end if;
+--			
+--		when LOAD_REPLY =>
+--			if (STAT_DATA_ACK_IN = '1') then
+--				stats_next_state <= CLEANUP;
+--			else
+--				stats_next_state <= LOAD_REPLY;
+--			end if;		
+--		
+--		when CLEANUP =>
+--			stats_next_state <= IDLE;
+--	
+--	end case;
+--
+--end process STATS_MACHINE;
+--
+--SELECTOR : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		case(stats_current_state) is
+--			
+--			when LOAD_RECEIVED =>
+--				stat_data_temp <= x"0502" & rec_frames;
+--				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
+--			
+--			when LOAD_REPLY =>
+--				stat_data_temp <= x"0503" & reply_ctr;
+--				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+--				
+--			when others =>
+--				stat_data_temp <= (others => '0');
+--				STAT_ADDR_OUT  <= (others => '0');
+--		
+--		end case;
+--	end if;	
+--end process SELECTOR;
+--
+--STAT_DATA_OUT(7 downto 0)   <= stat_data_temp(31 downto 24);
+--STAT_DATA_OUT(15 downto 8)  <= stat_data_temp(23 downto 16);
+--STAT_DATA_OUT(23 downto 16) <= stat_data_temp(15 downto 8);
+--STAT_DATA_OUT(31 downto 24) <= stat_data_temp(7 downto 0);
+--
+--STAT_SYNC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
+--			STAT_DATA_RDY_OUT <= '1';
+--		else
+--			STAT_DATA_RDY_OUT <= '0';
+--		end if;
+--	end if;
+--end process STAT_SYNC;
+----STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
+--
+---- end of statistics
+--
+---- **** debug
+--DEBUG_OUT(3 downto 0)   <= state;
+--DEBUG_OUT(4)            <= '0';
+--DEBUG_OUT(7 downto 5)   <= "000";
+--DEBUG_OUT(8)            <= '0';
+--DEBUG_OUT(11 downto 9)  <= "000";
+--DEBUG_OUT(31 downto 12) <= (others => '0');
+---- ****
 
 end architecture RTL;

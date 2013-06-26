@@ -213,6 +213,7 @@ begin
 	end if;
 end process SAVE_VALUES_PROC;
 
+--TODO: change it to one register 64B
 fifo : fifo_2048x8
   PORT map(
     Reset   => RESET,
@@ -227,6 +228,7 @@ fifo : fifo_2048x8
     Empty   => open
   );
   
+--TODO: change it to synchronous
 fifo_wr_en <= '1' when (dissect_current_state = READ_FRAME and data_ctr > 8) else '0';
 fifo_rd_en <= '1' when (dissect_current_state = LOAD_FRAME and data_ctr > 8) else '0';
 
@@ -242,10 +244,8 @@ begin
 			checksum_rrr(15 downto 0)  <= (others => '0');
 		elsif (dissect_current_state = READ_FRAME and data_ctr > 4) then
 			if (std_logic_vector(to_unsigned(data_ctr, 1)) = "0") then
-				--checksum(7 downto 0) <= checksum(7 downto 0) + PS_DATA_IN(7 downto 0);
 				checksum_l <= checksum_l + PS_DATA_IN(7 downto 0);
 			else
-				--checksum(15 downto 8) <= checksum(15 downto 8) + PS_DATA_IN(7 downto 0);
 				checksum_r <= checksum_r + PS_DATA_IN(7 downto 0);
 			end if;
 		elsif (dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0') then
@@ -272,7 +272,7 @@ begin
 				end loop;
 			else  -- data
 				for i in 0 to 7 loop
-					tc_data(i) <= fifo_q(i); --saved_data((data_ctr - 10) * 8 + i);
+					tc_data(i) <= fifo_q(i);
 				end loop;
 			
 				-- mark the last byte
