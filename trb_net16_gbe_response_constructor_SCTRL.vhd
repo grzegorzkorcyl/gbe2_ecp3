@@ -188,7 +188,13 @@ begin
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 		
-		GSC_INIT_DATAREADY_OUT <= rx_fifo_rd;
+		if (dissect_current_state = WAIT_FOR_HUB) then
+			GSC_INIT_DATAREADY_OUT <= '1';
+		elsif (dissect_current_state = LOAD_TO_HUB) then
+			GSC_INIT_DATAREADY_OUT <= rx_fifo_rd;
+		else
+			GSC_INIT_DATAREADY_OUT <= '0';
+		end if;
 		
 	end if;
 end process RX_FIFO_RD_SYNC;	
