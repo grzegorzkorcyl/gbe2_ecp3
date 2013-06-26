@@ -163,12 +163,12 @@ receive_fifo : fifo_2048x8x16
 
 --TODO: change it to synchronous
 --rx_fifo_wr              <= '1' when PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' else '0';
-rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
-								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
-								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
-								else '0';  -- preload first word
+--rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
+--								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+--								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
+--								else '0';  -- preload first word
 								
-RX_FIFO_SYNC : process(CLK)
+RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
@@ -180,22 +180,41 @@ begin
 		
 		rx_fifo_data <= PS_DATA_IN;
 	end if;
-end process RX_FIFO_SYNC;
+end process RX_FIFO_WR_SYNC;
 
-GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);	
+RX_FIFO_RD_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+		
+		GSC_INIT_DATAREADY_OUT <= rx_fifo_rd;
+		
+	end if;
+end process RX_FIFO_RD_SYNC;	
+
+RX_FIFO_RD_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) then
+			rx_fifo_rd <= '1';
+		else
+			rx_fifo_rd <= '0';		
+		end if;
+	end if;
+end process RX_FIFO_RD_PROC;
 
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
-GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
-gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
-							   (dissect_current_state = WAIT_FOR_HUB) else '0';
+--GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
+--gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
+--							   (dissect_current_state = WAIT_FOR_HUB) else '0';
 								
 PACKET_NUM_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (dissect_current_state = IDLE) then
 			packet_num <= "100";
-		elsif (GSC_INIT_READ_IN = '1' and gsc_init_dataready = '1' and packet_num = "100") then
+		elsif (GSC_INIT_READ_IN = '1' and rx_fifo_rd = '1' and packet_num = "100") then
 			packet_num <= "000";
 		elsif (rx_fifo_rd = '1' and packet_num /= "100") then
 			packet_num <= packet_num + "1";
@@ -203,6 +222,7 @@ begin
 	end if;
 end process PACKET_NUM_PROC;
 
+--temporairly changed to a smaller fifo
 transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
   PORT map(
     Reset             => tx_fifo_reset,
@@ -322,13 +342,6 @@ begin
 		end if;
 	end if;
 end process TX_LOADED_CTR_PROC;
-
---PS_BUSY_OUT <= '0' when (dissect_current_state = IDLE) else '1';
---
---PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or 
---									dissect_current_state = CLEANUP or dissect_current_state = WAIT_FOR_LOAD_ACK or
---									dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) and (too_much_data = '0')
---						else '0';
 						
 PS_RESPONSE_SYNC : process(CLK)
 begin
@@ -445,7 +458,7 @@ begin
 				--if (reset_detected = '1') then  -- send ack only if reset command came
 				--	dissect_next_state <= WAIT_FOR_LOAD_ACK;
 				--else
-					dissect_next_state <= WAIT_FOR_HUB;
+					dissect_next_state <= LOAD_TO_HUB; --WAIT_FOR_HUB;
 				--end if;
 			else
 				dissect_next_state <= READ_FRAME;
@@ -467,13 +480,13 @@ begin
 --				dissect_next_state <= LOAD_ACK;
 --			end if;
 			
-		when WAIT_FOR_HUB =>
-			state <= x"3";
-			if (GSC_INIT_READ_IN = '1') then
-				dissect_next_state <= LOAD_TO_HUB;
-			else
-				dissect_next_state <= WAIT_FOR_HUB;
-			end if;						
+--		when WAIT_FOR_HUB =>
+--			state <= x"3";
+--			if (GSC_INIT_READ_IN = '1') then
+--				dissect_next_state <= LOAD_TO_HUB;
+--			else
+--				dissect_next_state <= WAIT_FOR_HUB;
+--			end if;						
 		
 		when LOAD_TO_HUB =>
 			state <= x"4";
