@@ -41,6 +41,7 @@ port (
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
@@ -107,6 +108,8 @@ signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 signal tc_wr                    : std_logic;
 
+signal data_reg                 : std_logic_vector(511 downto 0);
+
 begin
 
 DISSECT_MACHINE_PROC : process(CLK)
@@ -161,7 +164,7 @@ end process DISSECT_MACHINE;
 DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = WAIT_FOR_LOAD) then
+		if (RESET = '1') or (dissect_current_state = IDLE) then --or (dissect_current_state = WAIT_FOR_LOAD) then
 			data_ctr <= 2;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
 			data_ctr <= data_ctr + 1;
@@ -204,6 +207,8 @@ begin
 		elsif (dissect_current_state = READ_FRAME) then
 			if (data_ctr < 9) then  -- headers
 				saved_headers(data_ctr * 8 - 1 downto (data_ctr - 1) * 8) <= PS_DATA_IN(7 downto 0);
+			elsif (data_ctr > 8) then -- data
+				saved_data((data_ctr - 8) * 8 - 1 downto (data_ctr - 8 - 1) * 8) <= PS_DATA_IN(7 downto 0);
 			end if;
 		elsif (dissect_current_state = LOAD_FRAME) then
 			saved_headers(7 downto 0)   <= x"00";
@@ -213,24 +218,24 @@ begin
 	end if;
 end process SAVE_VALUES_PROC;
 
---TODO: change it to one register 64B
-fifo : fifo_2048x8
-  PORT map(
-    Reset   => RESET,
-	RPReset => RESET,
-    WrClock => CLK,
-	RdClock => CLK,
-    Data    => PS_DATA_IN(7 downto 0),
-    WrEn    => fifo_wr_en,
-    RdEn    => fifo_rd_en,
-    Q       => fifo_q,
-    Full    => open,
-    Empty   => open
-  );
+----TODO: change it to one register 64B
+--fifo : fifo_2048x8
+--  PORT map(
+--    Reset   => RESET,
+--	RPReset => RESET,
+--    WrClock => CLK,
+--	RdClock => CLK,
+--    Data    => PS_DATA_IN(7 downto 0),
+--    WrEn    => fifo_wr_en,
+--    RdEn    => fifo_rd_en,
+--    Q       => fifo_q,
+--    Full    => open,
+--    Empty   => open
+--  );
   
---TODO: change it to synchronous
-fifo_wr_en <= '1' when (dissect_current_state = READ_FRAME and data_ctr > 8) else '0';
-fifo_rd_en <= '1' when (dissect_current_state = LOAD_FRAME and data_ctr > 8) else '0';
+----TODO: change it to synchronous
+--fifo_wr_en <= '1' when (dissect_current_state = READ_FRAME and data_ctr > 8) else '0';
+--fifo_rd_en <= '1' when (dissect_current_state = LOAD_FRAME and data_ctr > 8) else '0';
 
 CS_PROC : process(CLK)
 begin
@@ -272,7 +277,7 @@ begin
 				end loop;
 			else  -- data
 				for i in 0 to 7 loop
-					tc_data(i) <= fifo_q(i);
+					tc_data(i) <= saved_data((data_ctr - 8 - 2) * 8 + i); --fifo_q(i);
 				end loop;
 			
 				-- mark the last byte
@@ -306,17 +311,18 @@ begin
 	end if;	
 end process PS_RESPONSE_SYNC;
 
-TC_FRAME_SIZE_OUT <= std_logic_vector(to_unsigned(data_length, 16));
-TC_IP_SIZE_OUT    <= std_logic_vector(to_unsigned(data_length, 16));
-TC_UDP_SIZE_OUT   <= std_logic_vector(to_unsigned(data_length, 16));
+TC_FRAME_SIZE_OUT   <= std_logic_vector(to_unsigned(data_length, 16));
+TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
+TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
 
-TC_FRAME_TYPE_OUT <= x"0008";
-TC_DEST_UDP_OUT   <= x"0000";  -- not used
-TC_SRC_MAC_OUT    <= g_MY_MAC;
-TC_SRC_IP_OUT     <= g_MY_IP;
-TC_SRC_UDP_OUT    <= x"0000";  -- not used
-TC_IP_PROTOCOL_OUT <= X"01"; -- ICMP
+TC_FRAME_TYPE_OUT   <= x"0008";
+TC_DEST_UDP_OUT     <= x"0000";  -- not used
+TC_SRC_MAC_OUT      <= g_MY_MAC;
+TC_SRC_IP_OUT       <= g_MY_IP;
+TC_SRC_UDP_OUT      <= x"0000";  -- not used
+TC_IP_PROTOCOL_OUT  <= X"01"; -- ICMP
 TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
+TC_IDENT_OUT        <= x"2" & sent_frames(11 downto 0);
 
 ADDR_PROC : process(CLK)
 begin
@@ -341,16 +347,17 @@ end process ADDR_PROC;
 --	end if;
 --end process REC_FRAMES_PROC;
 --
---SENT_FRAMES_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			sent_frames <= (others => '0');
---		elsif (dissect_current_state = CLEANUP) then
---			sent_frames <= sent_frames + x"1";
---		end if;
---	end if;
---end process SENT_FRAMES_PROC;
+-- needed for identification
+SENT_FRAMES_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			sent_frames <= (others => '0');
+		elsif (dissect_current_state = CLEANUP) then
+			sent_frames <= sent_frames + x"1";
+		end if;
+	end if;
+end process SENT_FRAMES_PROC;
 --
 --RECEIVED_FRAMES_OUT <= rec_frames;
 --SENT_FRAMES_OUT     <= sent_frames;

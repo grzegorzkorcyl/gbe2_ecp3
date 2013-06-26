@@ -44,6 +44,7 @@ port (
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
 	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
@@ -168,6 +169,8 @@ signal index                    : integer range 0 to c_MAX_PROTOCOLS - 1;
 
 signal mult                     : std_logic;
 
+signal tc_ident                 : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
 attribute syn_keep of state, mult : signal is true;
@@ -203,6 +206,7 @@ port map (
 	TC_FRAME_SIZE_OUT		=> tc_size(1 * 16 - 1 downto 0 * 16),
 	TC_FRAME_TYPE_OUT		=> tc_type(1 * 16 - 1 downto 0 * 16),
 	TC_IP_PROTOCOL_OUT		=> tc_ip_proto(1 * 8 - 1 downto 0 * 8),
+	TC_IDENT_OUT            => tc_ident(1 * 16 - 1 downto 0 * 16),
 	
 	TC_DEST_MAC_OUT			=> tc_mac(1 * 48 - 1 downto 0 * 48),
 	TC_DEST_IP_OUT			=> tc_ip(1 * 32 - 1 downto 0 * 32),
@@ -255,6 +259,7 @@ port map (
 	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(2 * 8 - 1 downto 1 * 8),
+	TC_IDENT_OUT            => tc_ident(2 * 16 - 1 downto 1 * 16),
 	 
 	TC_DEST_MAC_OUT		    => tc_mac(2 * 48 - 1 downto 1 * 48),
 	TC_DEST_IP_OUT		    => tc_ip(2 * 32 - 1 downto 1 * 32),
@@ -311,6 +316,7 @@ port map (
 	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
+	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
 	
 	TC_DEST_MAC_OUT		    => tc_mac(3 * 48 - 1 downto 2 * 48),
 	TC_DEST_IP_OUT	     	=> tc_ip(3 * 32 - 1 downto 2 * 32),
@@ -362,6 +368,7 @@ port map (
 	TC_FRAME_SIZE_OUT	    => tc_size(4 * 16 - 1 downto 3 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(4 * 16 - 1 downto 3 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(4 * 8 - 1 downto 3 * 8),
+	TC_IDENT_OUT            => tc_ident(4 * 16 - 1 downto 3 * 16),
 	
 	TC_DEST_MAC_OUT		    => tc_mac(4 * 48 - 1 downto 3 * 48),
 	TC_DEST_IP_OUT		    => tc_ip(4 * 32 - 1 downto 3 * 32),
@@ -645,6 +652,7 @@ begin
 			TC_SRC_IP_OUT         <= (others => '0');
 			TC_SRC_UDP_OUT        <= (others => '0');
 			TC_IP_PROTOCOL_OUT    <= (others => '0');
+			TC_IDENT_OUT          <= (others => '0');
 			TC_IP_SIZE_OUT        <= (others => '0');
 			TC_UDP_SIZE_OUT       <= (others => '0');
 			TC_FLAGS_OFFSET_OUT   <= (others => '0');
@@ -663,6 +671,7 @@ begin
 			TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
 			TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
 			TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
+			TC_IDENT_OUT          <= tc_ident((index + 1) * 16 - 1 downto index * 16);
 			TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
 			TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
 			TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
@@ -686,6 +695,7 @@ begin
 			TC_SRC_IP_OUT         <= (others => '0');
 			TC_SRC_UDP_OUT        <= (others => '0');
 			TC_IP_PROTOCOL_OUT    <= (others => '0');
+			TC_IDENT_OUT          <= (others => '0');
 			TC_IP_SIZE_OUT        <= (others => '0');
 			TC_UDP_SIZE_OUT       <= (others => '0');
 			TC_FLAGS_OFFSET_OUT   <= (others => '0');

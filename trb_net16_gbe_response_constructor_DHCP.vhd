@@ -40,6 +40,7 @@ port (
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
@@ -662,13 +663,16 @@ begin
 end process PS_RESPONSE_SYNC;
 
 -- fixed sizes for discover and request messages
-TC_FRAME_SIZE_OUT <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
-TC_IP_SIZE_OUT <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
-TC_UDP_SIZE_OUT <=  x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
+TC_FRAME_SIZE_OUT   <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
+TC_IP_SIZE_OUT      <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
+TC_UDP_SIZE_OUT     <=  x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
 
-TC_FRAME_TYPE_OUT <= x"0008";  -- frame type: ip
+TC_FRAME_TYPE_OUT   <= x"0008";  -- frame type: ip
 
-TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter 
+TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
+
+TC_IDENT_OUT        <= x"1" & sent_frames(11 downto 0);
+
 
 -- **** statistics
 --REC_FRAMES_PROC : process(CLK)
@@ -682,16 +686,17 @@ TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 --	end if;
 --end process REC_FRAMES_PROC;
 --
---SENT_FRAMES_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			sent_frames <= (others => '0');
---		elsif (construct_current_state = CLEANUP) then
---			sent_frames <= sent_frames + x"1";
---		end if;
---	end if;
---end process SENT_FRAMES_PROC;
+-- needed for identification
+SENT_FRAMES_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			sent_frames <= (others => '0');
+		elsif (construct_current_state = CLEANUP) then
+			sent_frames <= sent_frames + x"1";
+		end if;
+	end if;
+end process SENT_FRAMES_PROC;
 --
 --RECEIVED_FRAMES_OUT <= rec_frames;
 --SENT_FRAMES_OUT     <= sent_frames;

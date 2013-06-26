@@ -590,6 +590,7 @@ signal idle_too_long : std_logic;
 signal tc_data_not_valid : std_logic;
 
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
+signal mc_ident : std_logic_vector(15 downto 0);
 
 begin
 
@@ -637,6 +638,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
 	  TC_FRAME_TYPE_OUT	=> mc_type,
 	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
+	  TC_IDENT_OUT          => mc_ident,
 	  
 	  TC_DEST_MAC_OUT	=> mc_dest_mac,
 	  TC_DEST_IP_OUT	=> mc_dest_ip,
@@ -739,6 +741,7 @@ port map(
 	MC_FRAME_SIZE_IN	=> mc_frame_size,
 	MC_FRAME_TYPE_IN	=> mc_type,
 	MC_IP_PROTOCOL_IN	=> mc_ip_proto,
+	MC_IDENT_IN         => mc_ident,
 	
 	MC_DEST_MAC_IN		=> mc_dest_mac,
 	MC_DEST_IP_IN		=> mc_dest_ip,

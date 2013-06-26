@@ -38,6 +38,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 		TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 		TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+		TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
 		TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 		TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 		TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
@@ -359,6 +360,7 @@ TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
 TC_SRC_UDP_OUT     <= x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
+TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
 FRAME_SIZE_PROC : process(CLK)
 begin
@@ -614,16 +616,17 @@ end process MAKE_RESET_PROC;
 --	end if;
 --end process REC_FRAMES_PROC;
 --
---REPLY_CTR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			reply_ctr <= (others => '0');
---		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
---			reply_ctr <= reply_ctr + x"1";
---		end if;
---	end if;
---end process REPLY_CTR_PROC;
+-- needed for identification
+REPLY_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			reply_ctr <= (others => '0');
+		elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr) then
+			reply_ctr <= reply_ctr + x"1";
+		end if;
+	end if;
+end process REPLY_CTR_PROC;
 --
 --
 --STATS_MACHINE_PROC : process(CLK)

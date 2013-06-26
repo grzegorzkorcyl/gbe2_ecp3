@@ -34,6 +34,7 @@ port (
 	MC_SRC_UDP_IN		 : in	std_logic_vector(15 downto 0);
 	
 	MC_IP_PROTOCOL_IN	 : in	std_logic_vector(7 downto 0);
+	MC_IDENT_IN          : in   std_logic_vector(15 downto 0);
 	
 	MC_IP_SIZE_IN		 : in	std_logic_vector(15 downto 0);
 	MC_UDP_SIZE_IN		 : in	std_logic_vector(15 downto 0);
@@ -74,12 +75,6 @@ end trb_net16_gbe_transmit_control;
 
 
 architecture trb_net16_gbe_transmit_control of trb_net16_gbe_transmit_control is
-
---attribute HGROUP : string;
---attribute HGROUP of trb_net16_gbe_transmit_control : architecture is "GBE_BUF_group";
-
-signal sent_packets_ctr : std_logic_vector(15 downto 0) := x"0000";
-
 
 begin
 
@@ -131,20 +126,9 @@ begin
 	SRC_IP_ADDRESS_OUT   <= MC_SRC_IP_IN;
 	SRC_UDP_PORT_OUT     <= MC_SRC_UDP_IN;
 	
-	FC_IDENT_OUT         <= sent_packets_ctr;
+	FC_IDENT_OUT         <= MC_IDENT_IN;
   end if;
 end process SYNC_PROC;
-
-SENT_PACKETS_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (MC_DATA_IN(8) = '1' and MC_FLAGS_OFFSET_IN(13) = '0') then
-			sent_packets_ctr <= sent_packets_ctr + x"1";
-		else
-			sent_packets_ctr <= sent_packets_ctr;
-		end if;			
-	end if;
-end process SENT_PACKETS_PROC;
 
 end trb_net16_gbe_transmit_control;
 

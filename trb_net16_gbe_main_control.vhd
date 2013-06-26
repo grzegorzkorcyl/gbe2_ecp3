@@ -62,6 +62,7 @@ port (
 	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
 	
 	TC_FC_H_READY_IN : in std_logic;
 	TC_FC_READY_IN : in std_logic;
@@ -256,6 +257,7 @@ port map(
 	TC_FRAME_SIZE_OUT	=> TC_FRAME_SIZE_OUT,
 	TC_FRAME_TYPE_OUT	=> TC_FRAME_TYPE_OUT,
 	TC_IP_PROTOCOL_OUT	=> TC_IP_PROTOCOL_OUT,
+	TC_IDENT_OUT        => TC_IDENT_OUT,
 	
 	TC_DEST_MAC_OUT		=> TC_DEST_MAC_OUT,
 	TC_DEST_IP_OUT		=> TC_DEST_IP_OUT,

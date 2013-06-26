@@ -40,6 +40,7 @@ port (
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
@@ -283,136 +284,137 @@ end process PS_RESPONSE_SYNC;
 
 
 
-TC_FRAME_SIZE_OUT <= x"001c";  -- fixed frame size
+TC_FRAME_SIZE_OUT   <= x"001c";  -- fixed frame size
 
-TC_FRAME_TYPE_OUT <= x"0608";
-TC_DEST_MAC_OUT   <= PS_SRC_MAC_ADDRESS_IN;
-TC_DEST_IP_OUT    <= x"00000000";  -- doesnt matter
-TC_DEST_UDP_OUT   <= x"0000";  -- doesnt matter
-TC_SRC_MAC_OUT    <= g_MY_MAC;
-TC_SRC_IP_OUT     <= x"00000000";  -- doesnt matter
-TC_SRC_UDP_OUT    <= x"0000";  -- doesnt matter
-TC_IP_PROTOCOL_OUT <= x"00"; -- doesnt matter
-TC_IP_SIZE_OUT    <= (others => '0');  -- doesn't matter
-TC_UDP_SIZE_OUT   <= (others => '0'); -- doesn't matter
+TC_FRAME_TYPE_OUT   <= x"0608";
+TC_DEST_MAC_OUT     <= PS_SRC_MAC_ADDRESS_IN;
+TC_DEST_IP_OUT      <= x"00000000";  -- doesnt matter
+TC_DEST_UDP_OUT     <= x"0000";  -- doesnt matter
+TC_SRC_MAC_OUT      <= g_MY_MAC;
+TC_SRC_IP_OUT       <= x"00000000";  -- doesnt matter
+TC_SRC_UDP_OUT      <= x"0000";  -- doesnt matter
+TC_IP_PROTOCOL_OUT  <= x"00"; -- doesnt matter
+TC_IP_SIZE_OUT      <= (others => '0');  -- doesn't matter
+TC_UDP_SIZE_OUT     <= (others => '0'); -- doesn't matter
 TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
+TC_IDENT_OUT        <= (others => '0');  -- doesn't matter
 
 
 -- **** statistice
-REC_FRAMES_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			rec_frames <= (others => '0');
-		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-			rec_frames <= rec_frames + x"1";
-		end if;
-	end if;
-end process REC_FRAMES_PROC;
-
-SENT_FRAMES_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			sent_frames <= (others => '0');
-		elsif (dissect_current_state = CLEANUP) then
-			sent_frames <= sent_frames + x"1";
-		end if;
-	end if;
-end process SENT_FRAMES_PROC;
-
-RECEIVED_FRAMES_OUT <= rec_frames;
-SENT_FRAMES_OUT     <= sent_frames;
-STATS_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			stats_current_state <= IDLE;
-		else
-			stats_current_state <= stats_next_state;
-		end if;
-	end if;
-end process STATS_MACHINE_PROC;
-
-STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state)
-begin
-
-	case (stats_current_state) is
-	
-		when IDLE =>
-			if (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = CLEANUP) then
-				stats_next_state <= LOAD_SENT;
-			else
-				stats_next_state <= IDLE;
-			end if;
-			
-		when LOAD_SENT =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= LOAD_RECEIVED;
-			else
-				stats_next_state <= LOAD_SENT;
-			end if;
-		
-		when LOAD_RECEIVED =>
-			if (STAT_DATA_ACK_IN = '1') then
-				stats_next_state <= CLEANUP;
-			else
-				stats_next_state <= LOAD_RECEIVED;
-			end if;
-			
-		when CLEANUP =>
-			stats_next_state <= IDLE;
-	
-	end case;
-
-end process STATS_MACHINE;
-
-SELECTOR : process(CLK)
-begin
-	if rising_edge(CLK) then
-		case(stats_current_state) is
-			
-			when LOAD_SENT =>
-				stat_data_temp <= x"0601" & sent_frames;
-				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
-				
-			when LOAD_RECEIVED =>
-				stat_data_temp <= x"0602" & rec_frames;
-				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
-			
-			when others =>
-				stat_data_temp <= (others => '0');
-				STAT_ADDR_OUT  <= (others => '0');
-		
-		end case;
-	end if;	
-end process SELECTOR;
-
-STAT_DATA_OUT(7 downto 0)   <= stat_data_temp(31 downto 24);
-STAT_DATA_OUT(15 downto 8)  <= stat_data_temp(23 downto 16);
-STAT_DATA_OUT(23 downto 16) <= stat_data_temp(15 downto 8);
-STAT_DATA_OUT(31 downto 24) <= stat_data_temp(7 downto 0);
-
-STAT_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
-			STAT_DATA_RDY_OUT <= '1';
-		else
-			STAT_DATA_RDY_OUT <= '0';
-		end if;
-	end if;
-end process STAT_SYNC;
---STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
-
--- **** debug
-DEBUG_OUT(3 downto 0)   <= state;
-DEBUG_OUT(4)            <= '0';
-DEBUG_OUT(7 downto 5)   <= "000";
-DEBUG_OUT(8)            <= '0';
-DEBUG_OUT(11 downto 9)  <= "000";
-DEBUG_OUT(31 downto 12) <= (others => '0');
--- ****
+--REC_FRAMES_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			rec_frames <= (others => '0');
+--		elsif (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+--			rec_frames <= rec_frames + x"1";
+--		end if;
+--	end if;
+--end process REC_FRAMES_PROC;
+--
+--SENT_FRAMES_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			sent_frames <= (others => '0');
+--		elsif (dissect_current_state = CLEANUP) then
+--			sent_frames <= sent_frames + x"1";
+--		end if;
+--	end if;
+--end process SENT_FRAMES_PROC;
+--
+--RECEIVED_FRAMES_OUT <= rec_frames;
+--SENT_FRAMES_OUT     <= sent_frames;
+--STATS_MACHINE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			stats_current_state <= IDLE;
+--		else
+--			stats_current_state <= stats_next_state;
+--		end if;
+--	end if;
+--end process STATS_MACHINE_PROC;
+--
+--STATS_MACHINE : process(stats_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, dissect_current_state)
+--begin
+--
+--	case (stats_current_state) is
+--	
+--		when IDLE =>
+--			if (dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') or (dissect_current_state = CLEANUP) then
+--				stats_next_state <= LOAD_SENT;
+--			else
+--				stats_next_state <= IDLE;
+--			end if;
+--			
+--		when LOAD_SENT =>
+--			if (STAT_DATA_ACK_IN = '1') then
+--				stats_next_state <= LOAD_RECEIVED;
+--			else
+--				stats_next_state <= LOAD_SENT;
+--			end if;
+--		
+--		when LOAD_RECEIVED =>
+--			if (STAT_DATA_ACK_IN = '1') then
+--				stats_next_state <= CLEANUP;
+--			else
+--				stats_next_state <= LOAD_RECEIVED;
+--			end if;
+--			
+--		when CLEANUP =>
+--			stats_next_state <= IDLE;
+--	
+--	end case;
+--
+--end process STATS_MACHINE;
+--
+--SELECTOR : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		case(stats_current_state) is
+--			
+--			when LOAD_SENT =>
+--				stat_data_temp <= x"0601" & sent_frames;
+--				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE, 8));
+--				
+--			when LOAD_RECEIVED =>
+--				stat_data_temp <= x"0602" & rec_frames;
+--				STAT_ADDR_OUT  <= std_logic_vector(to_unsigned(STAT_ADDRESS_BASE + 1, 8));
+--			
+--			when others =>
+--				stat_data_temp <= (others => '0');
+--				STAT_ADDR_OUT  <= (others => '0');
+--		
+--		end case;
+--	end if;	
+--end process SELECTOR;
+--
+--STAT_DATA_OUT(7 downto 0)   <= stat_data_temp(31 downto 24);
+--STAT_DATA_OUT(15 downto 8)  <= stat_data_temp(23 downto 16);
+--STAT_DATA_OUT(23 downto 16) <= stat_data_temp(15 downto 8);
+--STAT_DATA_OUT(31 downto 24) <= stat_data_temp(7 downto 0);
+--
+--STAT_SYNC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (stats_current_state /= IDLE and stats_current_state /= CLEANUP) then
+--			STAT_DATA_RDY_OUT <= '1';
+--		else
+--			STAT_DATA_RDY_OUT <= '0';
+--		end if;
+--	end if;
+--end process STAT_SYNC;
+----STAT_DATA_RDY_OUT <= '1' when stats_current_state /= IDLE and stats_current_state /= CLEANUP else '0';
+--
+---- **** debug
+--DEBUG_OUT(3 downto 0)   <= state;
+--DEBUG_OUT(4)            <= '0';
+--DEBUG_OUT(7 downto 5)   <= "000";
+--DEBUG_OUT(8)            <= '0';
+--DEBUG_OUT(11 downto 9)  <= "000";
+--DEBUG_OUT(31 downto 12) <= (others => '0');
+---- ****
 
 end trb_net16_gbe_response_constructor_ARP;
 
