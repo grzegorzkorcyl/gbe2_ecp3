@@ -164,7 +164,7 @@ end process DISSECT_MACHINE;
 DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then --or (dissect_current_state = WAIT_FOR_LOAD) then
+		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = WAIT_FOR_LOAD) then
 			data_ctr <= 2;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
 			data_ctr <= data_ctr + 1;
