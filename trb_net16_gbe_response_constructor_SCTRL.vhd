@@ -203,7 +203,7 @@ begin
 	end if;
 end process PACKET_NUM_PROC;
 
-transmit_fifo : fifo_65536x18x9
+transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
   PORT map(
     Reset             => tx_fifo_reset,
 	RPReset           => tx_fifo_reset,
