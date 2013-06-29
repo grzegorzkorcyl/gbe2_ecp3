@@ -128,8 +128,8 @@ signal make_reset               : std_logic := '0';
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of tx_data_ctr, tx_loaded_ctr, state : signal is true;
-attribute syn_preserve of tx_data_ctr, tx_loaded_ctr, state : signal is true;
+attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
+attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
 
 signal temp_ctr                : std_logic_vector(7 downto 0);
 
@@ -465,7 +465,7 @@ begin
 				--if (reset_detected = '1') then  -- send ack only if reset command came
 				--	dissect_next_state <= WAIT_FOR_LOAD_ACK;
 				--else
-					dissect_next_state <= LOAD_TO_HUB; --WAIT_FOR_HUB;
+					dissect_next_state <= WAIT_FOR_HUB;
 				--end if;
 			else
 				dissect_next_state <= READ_FRAME;
@@ -487,13 +487,13 @@ begin
 --				dissect_next_state <= LOAD_ACK;
 --			end if;
 			
---		when WAIT_FOR_HUB =>
---			state <= x"3";
---			if (GSC_INIT_READ_IN = '1') then
---				dissect_next_state <= LOAD_TO_HUB;
---			else
---				dissect_next_state <= WAIT_FOR_HUB;
---			end if;						
+		when WAIT_FOR_HUB =>
+			state <= x"3";
+			if (GSC_INIT_READ_IN = '1') then
+				dissect_next_state <= LOAD_TO_HUB;
+			else
+				dissect_next_state <= WAIT_FOR_HUB;
+			end if;						
 		
 		when LOAD_TO_HUB =>
 			state <= x"4";
