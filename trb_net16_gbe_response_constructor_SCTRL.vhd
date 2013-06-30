@@ -290,10 +290,10 @@ begin
 --			tc_wr <= '0';
 --		end if;
 		tc_wr <= tx_fifo_rd;
+		
+		TC_WR_EN_OUT <= tc_wr;
 	end if;
 end process TC_WR_PROC;
-
-TC_WR_EN_OUT <= tc_wr;
 
 TC_DATA_PROC : process(CLK) --dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
