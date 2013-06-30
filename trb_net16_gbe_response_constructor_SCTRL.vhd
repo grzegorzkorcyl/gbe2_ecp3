@@ -284,11 +284,12 @@ end process TX_FIFO_SYNC_PROC;
 TC_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1') then
-			tc_wr <= '1';
-		else
-			tc_wr <= '0';
-		end if;
+--		if (dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1') then
+--			tc_wr <= '1';
+--		else
+--			tc_wr <= '0';
+--		end if;
+		tc_wr <= tx_fifo_rd;
 	end if;
 end process TC_WR_PROC;
 
