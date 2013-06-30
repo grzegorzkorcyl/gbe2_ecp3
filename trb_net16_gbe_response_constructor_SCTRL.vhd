@@ -297,7 +297,7 @@ TC_WR_EN_OUT <= tc_wr;
 TC_DATA_PROC : process(CLK) --dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	if rising_edge(CLK) then
-		if (dissect_current_state = LOAD_FRAME) then
+		--if (dissect_current_state = LOAD_FRAME) then
 		
 			TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 			
@@ -307,18 +307,18 @@ begin
 				TC_DATA_OUT(8) <= '0';
 			end if;
 			
-		elsif (dissect_current_state = LOAD_ACK) then
-		
-			TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
-			
-			if (tx_loaded_ctr = x"0010" + x"1") then
-				TC_DATA_OUT(8) <= '1';
-			else
-				TC_DATA_OUT(8) <= '0';
-			end if;
-		else
-			TC_DATA_OUT <= (others => '0');
-		end if;
+--		elsif (dissect_current_state = LOAD_ACK) then
+--		
+--			TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
+--			
+--			if (tx_loaded_ctr = x"0010" + x"1") then
+--				TC_DATA_OUT(8) <= '1';
+--			else
+--				TC_DATA_OUT(8) <= '0';
+--			end if;
+--		else
+--			TC_DATA_OUT <= (others => '0');
+--		end if;
 	end if;
 end process TC_DATA_PROC;
 
