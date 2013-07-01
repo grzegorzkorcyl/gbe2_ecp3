@@ -302,7 +302,7 @@ begin
 		
 			TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 			
-			if (tx_loaded_ctr = tx_data_ctr - x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+			if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
 				TC_DATA_OUT(8) <= '1';
 			else
 				TC_DATA_OUT(8) <= '0';
@@ -550,7 +550,7 @@ begin
 		
 		when LOAD_FRAME =>
 			state <= x"8";
-			if (tx_loaded_ctr = tx_data_ctr - x"1") then
+			if (tx_loaded_ctr = tx_data_ctr + x"1") then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
 				dissect_next_state <= DIVIDE;
