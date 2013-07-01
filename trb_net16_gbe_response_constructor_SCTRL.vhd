@@ -83,7 +83,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP, WAIT_FOR_LOAD_ACK, LOAD_ACK);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -93,7 +93,6 @@ attribute syn_encoding of stats_current_state : signal is "safe,gray";
 
 signal saved_target_ip          : std_logic_vector(31 downto 0);
 signal data_ctr                 : integer range 0 to 30;
-signal state                    : std_logic_vector(3 downto 0);
 
 
 signal stat_data_temp           : std_logic_vector(31 downto 0);
@@ -161,6 +160,7 @@ receive_fifo : fifo_2048x8x16
     Empty            => rx_empty
   );
 
+--TODO: change to synchronous
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
 								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
 								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
@@ -180,29 +180,8 @@ begin
 	end if;
 end process RX_FIFO_WR_SYNC;
 
---RX_FIFO_RD_SYNC : process(CLK)
---begin
---	if rising_edge(CLK) then
-		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);		
---	end if;
---end process RX_FIFO_RD_SYNC;	
-
---RX_FIFO_RD_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) then
---			rx_fifo_rd <= '1';
---			GSC_INIT_DATAREADY_OUT <= rx_fifo_rd;
-----		elsif (dissect_current_state = WAIT_FOR_HUB) then
-----			GSC_INIT_DATAREADY_OUT <= '1';
-----			rx_fifo_rd <= '0';
---		else
---			rx_fifo_rd <= '0';
---			GSC_INIT_DATAREADY_OUT <= '0';		
---		end if;
---	end if;
---end process RX_FIFO_RD_PROC;
+GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
@@ -237,10 +216,8 @@ transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
     Empty             => tx_empty
   );
 
+--TODO: change to synchronous
 tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
---tx_fifo_reset           <= '1' when (RESET = '1') or (too_much_data = '1' and dissect_current_state = CLEANUP) else '0';
---tx_fifo_rd              <= '1' when TC_RD_EN_IN = '1' and dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) else '0';
---tx_fifo_rd              <= '1' when dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1' else '0';
 		
 tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
 tx_fifo_data(8)           <= '0';
@@ -266,60 +243,28 @@ begin
 		else
 			tx_fifo_reset <= '0';
 		end if;
-		
---		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
---			tx_fifo_wr <= '1';
---		else
---			tx_fifo_wr <= '0';
---		end if;		
-		
---		if (dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1') then
---			tx_fifo_rd <= '1';
---		else
---			tx_fifo_rd <= '0';
---		end if;	
 	end if;
 end process TX_FIFO_SYNC_PROC;
 
 TC_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
---		if (dissect_current_state = LOAD_FRAME and (tx_frame_loaded /= g_MAX_FRAME_SIZE) and PS_SELECTED_IN = '1') then
---			tc_wr <= '1';
---		else
---			tc_wr <= '0';
---		end if;
 		tc_wr <= tx_fifo_rd;
 		
 		TC_WR_EN_OUT <= tc_wr;
 	end if;
 end process TC_WR_PROC;
 
-TC_DATA_PROC : process(CLK) --dissect_current_state, tx_loaded_ctr, tx_data_ctr, tx_frame_loaded, g_MAX_FRAME_SIZE)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		--if (dissect_current_state = LOAD_FRAME) then
+		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 		
-			TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
-			
-			if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				TC_DATA_OUT(8) <= '1';
-			else
-				TC_DATA_OUT(8) <= '0';
-			end if;
-			
---		elsif (dissect_current_state = LOAD_ACK) then
---		
---			TC_DATA_OUT(7 downto 0) <= tx_loaded_ctr(7 downto 0);
---			
---			if (tx_loaded_ctr = x"0010" + x"1") then
---				TC_DATA_OUT(8) <= '1';
---			else
---				TC_DATA_OUT(8) <= '0';
---			end if;
---		else
---			TC_DATA_OUT <= (others => '0');
---		end if;
+		if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE) then
+			TC_DATA_OUT(8) <= '1';
+		else
+			TC_DATA_OUT(8) <= '0';
+		end if;
 	end if;
 end process TC_DATA_PROC;
 
@@ -357,8 +302,6 @@ begin
 			tx_loaded_ctr <= (others => '1');
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
---		elsif (dissect_current_state = LOAD_ACK and PS_SELECTED_IN = '1') then
---			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
 	end if;
 end process TX_LOADED_CTR_PROC;
@@ -369,8 +312,6 @@ begin
 		if (too_much_data = '0') then
 			if (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP) then
 				PS_RESPONSE_READY_OUT <= '1';
---			elsif (dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) then
---				PS_RESPONSE_READY_OUT <= '1';
 			else
 				PS_RESPONSE_READY_OUT <= '0';
 			end if;
@@ -409,9 +350,6 @@ begin
 				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
 				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
 			end if;
---		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
---			TC_FRAME_SIZE_OUT <= x"0010";
---			TC_IP_SIZE_OUT    <= x"0010";
 		end if;
 	end if;
 end process FRAME_SIZE_PROC;
@@ -465,7 +403,6 @@ begin
 	case dissect_current_state is
 	
 		when IDLE =>
-			state <= x"1";
 			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 				dissect_next_state <= READ_FRAME;
 			else
@@ -473,35 +410,13 @@ begin
 			end if;
 		
 		when READ_FRAME =>
-			state <= x"2";
 			if (PS_DATA_IN(8) = '1') then
-				--if (reset_detected = '1') then  -- send ack only if reset command came
-				--	dissect_next_state <= WAIT_FOR_LOAD_ACK;
-				--else
-					dissect_next_state <= WAIT_FOR_HUB;
-				--end if;
+				dissect_next_state <= WAIT_FOR_HUB;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
 			
---		when WAIT_FOR_LOAD_ACK =>
---			state <= x"a";
---			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
---				dissect_next_state <= LOAD_ACK;
---			else
---				dissect_next_state <= WAIT_FOR_LOAD_ACK;
---			end if;
---			
---		when LOAD_ACK =>
---			state <= x"b";
---			if (tx_loaded_ctr = x"0010") then
---				dissect_next_state <= WAIT_FOR_HUB; --CLEANUP;
---			else
---				dissect_next_state <= LOAD_ACK;
---			end if;
-			
 		when WAIT_FOR_HUB =>
-			state <= x"3";
 			if (GSC_INIT_READ_IN = '1') then
 				dissect_next_state <= LOAD_TO_HUB;
 			else
@@ -509,7 +424,6 @@ begin
 			end if;						
 		
 		when LOAD_TO_HUB =>
-			state <= x"4";
 			if (rx_fifo_q(17) = '1') then
 				if (reset_detected = '1') then
 					dissect_next_state <= CLEANUP;
@@ -521,7 +435,6 @@ begin
 			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
-			state <= x"5";
 			if (GSC_REPLY_DATAREADY_IN = '1') then
 				dissect_next_state <= SAVE_RESPONSE;
 			else
@@ -529,7 +442,6 @@ begin
 			end if;
 			
 		when SAVE_RESPONSE =>
-			state <= x"6";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
 				if (too_much_data = '0') then
 					dissect_next_state <= WAIT_FOR_LOAD;
@@ -541,7 +453,6 @@ begin
 			end if;			
 			
 		when WAIT_FOR_LOAD =>
-			state <= x"7";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -549,7 +460,6 @@ begin
 			end if;
 		
 		when LOAD_FRAME =>
-			state <= x"8";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE + x"1") then
@@ -559,7 +469,6 @@ begin
 			end if;
 
 		when DIVIDE =>
-			state <= x"c";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -567,11 +476,9 @@ begin
 			end if;
 		
 		when CLEANUP =>
-			state <= x"9";
 			dissect_next_state <= IDLE;
 			
 		when others =>
-			state <= x"1"; 
 			dissect_next_state <= IDLE;
 	
 	end case;
