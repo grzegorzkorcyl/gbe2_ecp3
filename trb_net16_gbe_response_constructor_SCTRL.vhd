@@ -302,7 +302,7 @@ begin
 		
 			TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 			
-			if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+			if (tx_loaded_ctr = tx_data_ctr or tx_frame_loaded = g_MAX_FRAME_SIZE) then
 				TC_DATA_OUT(8) <= '1';
 			else
 				TC_DATA_OUT(8) <= '0';
@@ -357,8 +357,8 @@ begin
 			tx_loaded_ctr <= (others => '1');
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
-		elsif (dissect_current_state = LOAD_ACK and PS_SELECTED_IN = '1') then
-			tx_loaded_ctr <= tx_loaded_ctr + x"1";
+--		elsif (dissect_current_state = LOAD_ACK and PS_SELECTED_IN = '1') then
+--			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
 	end if;
 end process TX_LOADED_CTR_PROC;
@@ -369,8 +369,8 @@ begin
 		if (too_much_data = '0') then
 			if (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = LOAD_FRAME or dissect_current_state = CLEANUP) then
 				PS_RESPONSE_READY_OUT <= '1';
-			elsif (dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) then
-				PS_RESPONSE_READY_OUT <= '1';
+--			elsif (dissect_current_state = WAIT_FOR_LOAD_ACK or dissect_current_state = LOAD_ACK or dissect_current_state = DIVIDE) then
+--				PS_RESPONSE_READY_OUT <= '1';
 			else
 				PS_RESPONSE_READY_OUT <= '0';
 			end if;
@@ -409,9 +409,9 @@ begin
 				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
 				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
 			end if;
-		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
-			TC_FRAME_SIZE_OUT <= x"0010";
-			TC_IP_SIZE_OUT    <= x"0010";
+--		elsif (dissect_current_state = WAIT_FOR_LOAD_ACK) then
+--			TC_FRAME_SIZE_OUT <= x"0010";
+--			TC_IP_SIZE_OUT    <= x"0010";
 		end if;
 	end if;
 end process FRAME_SIZE_PROC;
@@ -552,7 +552,7 @@ begin
 			state <= x"8";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
-			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
+			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE + x"1") then
 				dissect_next_state <= DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
