@@ -181,17 +181,17 @@ RX_FIFO_RD_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		
-		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
+		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1') then
 			rx_fifo_rd <= '1';
-		elsif (gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
 			rx_fifo_rd <= '1';
-		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
+		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then -- preload the first byte
 			rx_fifo_rd <= '1';
 		else
 			rx_fifo_rd <= '0';
 		end if;
 		
-		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) then
+		if (dissect_current_state = LOAD_TO_HUB) then
 			gsc_init_dataready <= '1';
 		elsif (dissect_current_state = WAIT_FOR_HUB) then
 			gsc_init_dataready <= '1';
