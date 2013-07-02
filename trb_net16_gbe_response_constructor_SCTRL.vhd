@@ -219,13 +219,28 @@ transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
   );
 
 --TODO: change to synchronous
-tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
+TX_FIFO_WR_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
+			tx_fifo_wr <= '1';
+		else
+			tx_fifo_wr <= '0';
+		end if;
+		
+		tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
+		tx_fifo_data(8)           <= '0';
+		tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
+		tx_fifo_data(17)          <= '0';
+	end if;
+end process TX_FIFO_WR_SYNC;
+--tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
 		
 --TODO: add a register
-tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
-tx_fifo_data(8)           <= '0';
-tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
-tx_fifo_data(17)          <= '0';
+--tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
+--tx_fifo_data(8)           <= '0';
+--tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
+--tx_fifo_data(17)          <= '0';
 
 TX_FIFO_RD_SYNC : process(CLK)
 begin
@@ -272,8 +287,18 @@ begin
 end process TC_DATA_PROC;
 
 --TODO: change it to synchronous
+GSC_REPLY_READ_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE) then
+			gsc_reply_read <= '1';
+		else
+			gsc_reply_read <= '0';
+		end if;
+	end if;
+end process GSC_REPLY_READ_PROC;
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
-gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
+--gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
 -- counter of data received from TRBNet hub
 TX_DATA_CTR_PROC : process(CLK)
