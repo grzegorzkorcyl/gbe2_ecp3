@@ -180,9 +180,11 @@ begin
 	end if;
 end process RX_FIFO_WR_SYNC;
 
+--TODO: add a register
 GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 
+-- TODO: change it to synchronous
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
@@ -219,6 +221,7 @@ transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
 --TODO: change to synchronous
 tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
 		
+--TODO: add a register
 tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
 tx_fifo_data(8)           <= '0';
 tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
@@ -268,6 +271,7 @@ begin
 	end if;
 end process TC_DATA_PROC;
 
+--TODO: change it to synchronous
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
 gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
