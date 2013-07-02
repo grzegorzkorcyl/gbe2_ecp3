@@ -130,9 +130,6 @@ attribute syn_keep : boolean;
 attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
 attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
 
-signal temp_ctr                : std_logic_vector(7 downto 0);
-
-signal gsc_init_read_q         : std_logic;
 signal fifo_rd_q               : std_logic;
 
 signal too_much_data           : std_logic;
@@ -161,10 +158,10 @@ receive_fifo : fifo_2048x8x16
   );
 
 --TODO: change to synchronous
-rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
-								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
-								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
-								else '0';  -- preload first word
+--rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
+--								(gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') or
+--								(dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1')
+--								else '0';  -- preload first word
 								
 RX_FIFO_WR_SYNC : process(CLK)
 begin
@@ -180,15 +177,42 @@ begin
 	end if;
 end process RX_FIFO_WR_SYNC;
 
+RX_FIFO_RD_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		
+		if (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) then
+			rx_fifo_rd <= '1';
+		elsif (gsc_init_dataready = '1' and dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+			rx_fifo_rd <= '1';
+		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
+			rx_fifo_rd <= '1';
+		else
+			rx_fifo_rd <= '0';
+		end if;
+		
+		if (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) then
+			gsc_init_dataready <= '1';
+		elsif (dissect_current_state = WAIT_FOR_HUB) then
+			gsc_init_dataready <= '1';
+		else
+			gsc_init_dataready <= '0';
+		end if;
+		
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+	end if;
+end process RX_FIFO_RD_SYNC;
+
 --TODO: add a register
-GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+--GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+--GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 
 -- TODO: change it to synchronous
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
-gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
-							   (dissect_current_state = WAIT_FOR_HUB) else '0';
+--gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
+--							   (dissect_current_state = WAIT_FOR_HUB) else '0';
 								
 PACKET_NUM_PROC : process(CLK)
 begin
@@ -218,7 +242,6 @@ transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
     Empty             => tx_empty
   );
 
---TODO: change to synchronous
 TX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -234,13 +257,6 @@ begin
 		tx_fifo_data(17)          <= '0';
 	end if;
 end process TX_FIFO_WR_SYNC;
---tx_fifo_wr              <= '1' when (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') else '0';
-		
---TODO: add a register
---tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
---tx_fifo_data(8)           <= '0';
---tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
---tx_fifo_data(17)          <= '0';
 
 TX_FIFO_RD_SYNC : process(CLK)
 begin
@@ -286,7 +302,6 @@ begin
 	end if;
 end process TC_DATA_PROC;
 
---TODO: change it to synchronous
 GSC_REPLY_READ_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -298,7 +313,6 @@ begin
 	end if;
 end process GSC_REPLY_READ_PROC;
 GSC_REPLY_READ_OUT      <= gsc_reply_read;
---gsc_reply_read          <= '1' when dissect_current_state = WAIT_FOR_RESPONSE or dissect_current_state = SAVE_RESPONSE else '0';
 
 -- counter of data received from TRBNet hub
 TX_DATA_CTR_PROC : process(CLK)
