@@ -181,7 +181,7 @@ RX_FIFO_RD_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		
-		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1') then
+		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0') then
 			rx_fifo_rd <= '1';
 		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
 			rx_fifo_rd <= '1';
@@ -218,7 +218,7 @@ GSC_INIT_PACKET_NUM_OUT <= packet_num;
 PACKET_NUM_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
+		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
 			packet_num <= "100";
 		elsif (GSC_INIT_READ_IN = '1' and rx_fifo_rd = '1' and packet_num = "100") then
 			packet_num <= "000";
