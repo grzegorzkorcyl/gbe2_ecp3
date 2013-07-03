@@ -99,6 +99,7 @@ signal stat_data_temp           : std_logic_vector(31 downto 0);
 signal rec_frames               : std_logic_vector(15 downto 0);
 
 signal rx_fifo_q                : std_logic_vector(17 downto 0);
+signal rx_fifo_qq                : std_logic_vector(17 downto 0);
 signal rx_fifo_wr, rx_fifo_rd   : std_logic;
 signal tx_eod, rx_eod           : std_logic;
 
@@ -200,8 +201,10 @@ begin
 			gsc_init_dataready <= '0';
 		end if;
 		
-		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+		rx_fifo_qq <= rx_fifo_q;
+		
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_qq(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_qq(7 downto 0);
 		
 		gsc_init_dataready_q  <= gsc_init_dataready;
 	end if;
@@ -231,7 +234,6 @@ GSC_INIT_PACKET_NUM_OUT <= packet_num;
 --		end if;
 --	end if;
 --end process PACKET_NUM_PROC;
-
 
 PACKET_NUM_PROC : process(CLK)
 begin
