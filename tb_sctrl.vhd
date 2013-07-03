@@ -180,6 +180,12 @@ begin
 	wait until rising_edge(dataready);
 	wait until rising_edge(clk);
 	read <= '1';
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	read <= '0';
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	read <= '1';
 	
 	wait;
 
