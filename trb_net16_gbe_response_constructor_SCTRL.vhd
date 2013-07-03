@@ -219,8 +219,8 @@ end process RX_FIFO_RD_SYNC;
 -- TODO: change it to synchronous
 GSC_INIT_PACKET_NUM_OUT <= packet_num;
 GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
-gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB) or
-							   (dissect_current_state = WAIT_FOR_HUB) else '0';
+gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_rd = '1') or
+							   (dissect_current_state = WAIT_FOR_HUB and rx_fifo_rd = '1') else '0';
 
 --PACKET_NUM_PROC : process(CLK)
 --begin
