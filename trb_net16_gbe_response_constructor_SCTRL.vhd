@@ -107,6 +107,7 @@ signal tx_fifo_wr, tx_fifo_rd   : std_logic;
 signal tx_fifo_reset            : std_logic;
 signal gsc_reply_read           : std_logic;
 signal gsc_init_dataready       : std_logic;
+signal gsc_init_dataready_q       : std_logic;
 
 signal tx_data_ctr              : std_logic_vector(15 downto 0);
 signal tx_loaded_ctr            : std_logic_vector(15 downto 0);
@@ -202,9 +203,11 @@ begin
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 		
-		GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
+		gsc_init_dataready_q  <= gsc_init_dataready;
 	end if;
 end process RX_FIFO_RD_SYNC;
+
+GSC_INIT_DATAREADY_OUT <= gsc_init_dataready_q;
 
 --TODO: add a register
 --GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
@@ -221,9 +224,9 @@ begin
 		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
 			packet_num <= "100";
 		elsif (dissect_current_state = LOAD_TO_HUB) then
-			if (gsc_init_dataready = '1' and packet_num = "100") then
+			if (gsc_init_dataready_q = '1' and packet_num = "100") then
 				packet_num <= "000";
-			elsif (gsc_init_dataready = '1' and packet_num /= "100") then
+			elsif (gsc_init_dataready_q = '1' and packet_num /= "100") then
 				packet_num <= packet_num + "1";
 			else
 				packet_num <= packet_num;
