@@ -201,10 +201,10 @@ begin
 			gsc_init_dataready <= '0';
 		end if;
 		
-		rx_fifo_qq <= rx_fifo_q;
+		--rx_fifo_qq <= rx_fifo_q;
 		
-		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_qq(16 downto 9);
-		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_qq(7 downto 0);
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 		
 		gsc_init_dataready_q  <= gsc_init_dataready;
 	end if;
