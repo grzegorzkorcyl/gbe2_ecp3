@@ -205,9 +205,16 @@ begin
 		else
 			packet_num <= packet_num;
 		end if;
+		
+		
+		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 	
 	end if;
 end process RX_FIFO_RD_SYNC;
+
+GSC_INIT_PACKET_NUM_OUT <= packet_num;
+GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 
 --RX_FIFO_RD_SYNC : process(CLK)
 --begin
