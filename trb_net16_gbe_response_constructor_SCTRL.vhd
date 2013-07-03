@@ -195,7 +195,7 @@ begin
 		
 		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0') then
 			gsc_init_dataready <= '1';
-		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num = "100") then
+		elsif (dissect_current_state = WAIT_FOR_HUB) then
 			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
