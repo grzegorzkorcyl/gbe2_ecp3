@@ -190,7 +190,7 @@ begin
 			rx_fifo_rd <= '0';
 		end if;
 		
-		if (dissect_current_state = WAIT_FOR_HUB) then
+		if (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '0') then
 			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
