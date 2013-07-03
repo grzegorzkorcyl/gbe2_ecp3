@@ -83,7 +83,8 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+--type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -182,42 +183,71 @@ end process RX_FIFO_WR_SYNC;
 RX_FIFO_RD_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		
-		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0') then
-			rx_fifo_rd <= '1';
-		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
-			rx_fifo_rd <= '1';
-		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then -- preload the first byte
+	
+		if (dissect_current_state = LOAD_A_WORD) then
 			rx_fifo_rd <= '1';
 		else
 			rx_fifo_rd <= '0';
 		end if;
 		
-		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0' and rx_fifo_rd = '1') then
-			gsc_init_dataready <= '1';
-		elsif (dissect_current_state = WAIT_FOR_HUB) then
+		if (dissect_current_state = WAIT_FOR_HUB) then
 			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
 		end if;
 		
-		--rx_fifo_qq <= rx_fifo_q;
-		
-		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
-		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
-		
-		gsc_init_dataready_q  <= gsc_init_dataready;
+		if (dissect_current_state = IDLE) then
+			packet_num <= "100";
+		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num /= "100") then
+			packet_num <= packet_num + "1";
+		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num = "100") then
+			packet_num <= "000";
+		else
+			packet_num <= packet_num;
+		end if;
+	
 	end if;
 end process RX_FIFO_RD_SYNC;
 
-GSC_INIT_DATAREADY_OUT <= gsc_init_dataready_q;
+--RX_FIFO_RD_SYNC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		
+--		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0') then
+--			rx_fifo_rd <= '1';
+--		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+--			rx_fifo_rd <= '1';
+--		elsif (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then -- preload the first byte
+--			rx_fifo_rd <= '1';
+--		else
+--			rx_fifo_rd <= '0';
+--		end if;
+--		
+--		if (dissect_current_state = LOAD_TO_HUB and GSC_INIT_READ_IN = '1' and rx_fifo_q(17) = '0' and rx_fifo_rd = '1') then
+--			gsc_init_dataready <= '1';
+--		elsif (dissect_current_state = WAIT_FOR_HUB) then
+--			gsc_init_dataready <= '1';
+--		else
+--			gsc_init_dataready <= '0';
+--		end if;
+--		
+--		--rx_fifo_qq <= rx_fifo_q;
+--		
+--		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
+--		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
+--		
+--		gsc_init_dataready_q  <= gsc_init_dataready;
+--	end if;
+--end process RX_FIFO_RD_SYNC;
+--
+--GSC_INIT_DATAREADY_OUT <= gsc_init_dataready_q;
 
 --TODO: add a register
 --GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 --GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 
 -- TODO: change it to synchronous
-GSC_INIT_PACKET_NUM_OUT <= packet_num;
+--GSC_INIT_PACKET_NUM_OUT <= packet_num;
 --GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
 --gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state = LOAD_TO_HUB and rx_fifo_rd = '1') or
 --							   (dissect_current_state = WAIT_FOR_HUB and rx_fifo_rd = '1') else '0';
@@ -235,24 +265,24 @@ GSC_INIT_PACKET_NUM_OUT <= packet_num;
 --	end if;
 --end process PACKET_NUM_PROC;
 
-PACKET_NUM_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
-			packet_num <= "100";
-		elsif (dissect_current_state = LOAD_TO_HUB) then
-			if (gsc_init_dataready = '1' and packet_num = "100") then
-				packet_num <= "000";
-			elsif (gsc_init_dataready = '1' and packet_num /= "100") then
-				packet_num <= packet_num + "1";
-			else
-				packet_num <= packet_num;
-			end if;
-		else
-			packet_num <= packet_num;
-		end if;
-	end if;
-end process PACKET_NUM_PROC;
+--PACKET_NUM_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
+--			packet_num <= "100";
+--		elsif (dissect_current_state = LOAD_TO_HUB) then
+--			if (gsc_init_dataready = '1' and packet_num = "100") then
+--				packet_num <= "000";
+--			elsif (gsc_init_dataready = '1' and packet_num /= "100") then
+--				packet_num <= packet_num + "1";
+--			else
+--				packet_num <= packet_num;
+--			end if;
+--		else
+--			packet_num <= packet_num;
+--		end if;
+--	end if;
+--end process PACKET_NUM_PROC;
 
 --temporairly changed to a smaller fifo
 transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
@@ -481,28 +511,39 @@ begin
 		
 		when READ_FRAME =>
 			if (PS_DATA_IN(8) = '1') then
-				dissect_next_state <= WAIT_FOR_HUB;
+				dissect_next_state <= LOAD_A_WORD; --WAIT_FOR_HUB;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
 			
+		when LOAD_A_WORD =>
+			dissect_next_state <= WAIT_FOR_HUB;
+			
 		when WAIT_FOR_HUB =>
 			if (GSC_INIT_READ_IN = '1') then
-				dissect_next_state <= LOAD_TO_HUB;
+				if (rx_fifo_q(17) = '1') then
+					if (reset_detected = '0') then
+						dissect_next_state <= WAIT_FOR_RESPONSE;
+					else
+						dissect_next_state <= CLEANUP;
+					end if;
+				else
+					dissect_next_state <= LOAD_A_WORD;
+				end if;
 			else
 				dissect_next_state <= WAIT_FOR_HUB;
 			end if;						
 		
-		when LOAD_TO_HUB =>
-			if (rx_fifo_q(17) = '1') then
-				if (reset_detected = '1') then
-					dissect_next_state <= CLEANUP;
-				else
-					dissect_next_state <= WAIT_FOR_RESPONSE;
-				end if;
-			else
-				dissect_next_state <= LOAD_TO_HUB;
-			end if;	
+--		when LOAD_TO_HUB =>
+--			if (rx_fifo_q(17) = '1') then
+--				if (reset_detected = '1') then
+--					dissect_next_state <= CLEANUP;
+--				else
+--					dissect_next_state <= WAIT_FOR_RESPONSE;
+--				end if;
+--			else
+--				dissect_next_state <= LOAD_TO_HUB;
+--			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
 			if (GSC_REPLY_DATAREADY_IN = '1') then
