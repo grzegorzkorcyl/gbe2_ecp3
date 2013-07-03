@@ -239,9 +239,9 @@ begin
 		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
 			packet_num <= "100";
 		elsif (dissect_current_state = LOAD_TO_HUB) then
-			if (gsc_init_dataready_q = '1' and packet_num = "100") then
+			if (gsc_init_dataready = '1' and packet_num = "100") then
 				packet_num <= "000";
-			elsif (gsc_init_dataready_q = '1' and packet_num /= "100") then
+			elsif (gsc_init_dataready = '1' and packet_num /= "100") then
 				packet_num <= packet_num + "1";
 			else
 				packet_num <= packet_num;
