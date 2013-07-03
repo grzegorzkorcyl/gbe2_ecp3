@@ -206,11 +206,11 @@ begin
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 		
-		--gsc_init_dataready_q  <= gsc_init_dataready;
+		gsc_init_dataready_q  <= gsc_init_dataready;
 	end if;
 end process RX_FIFO_RD_SYNC;
 
-GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
+GSC_INIT_DATAREADY_OUT <= gsc_init_dataready_q;
 
 --TODO: add a register
 --GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
