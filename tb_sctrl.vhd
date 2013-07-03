@@ -16,7 +16,7 @@ END testbench_sctrl;
 
 ARCHITECTURE behavior OF testbench_sctrl IS
 
-signal clk, reset, wr_en, activate, read : std_logic;
+signal clk, reset, wr_en, activate, read, dataready : std_logic;
 signal data : std_logic_vector(8 downto 0);
 
 begin
@@ -72,7 +72,7 @@ port map (
 	-- END OF INTERFACE
 	
 	GSC_CLK_IN              => clk,
-	GSC_INIT_DATAREADY_OUT  => open,
+	GSC_INIT_DATAREADY_OUT  => dataready,
 	GSC_INIT_DATA_OUT       => open,
 	GSC_INIT_PACKET_NUM_OUT => open,
 	GSC_INIT_READ_IN        => read,
@@ -102,7 +102,7 @@ begin
 	
 	wait for 100 ns;
 	reset <= '1';
-	read <= '1';
+	read <= '0';
 	data <= (others => '0');
 	wr_en <= '0';
 	activate <= '0';
@@ -177,6 +177,9 @@ begin
 	wr_en <= '0';
 	activate <= '0';
 	
+	wait until rising_edge(dataready);
+	wait until rising_edge(clk);
+	read <= '1';
 	
 	wait;
 
