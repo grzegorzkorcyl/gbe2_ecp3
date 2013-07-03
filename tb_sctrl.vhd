@@ -172,7 +172,7 @@ begin
 	wait until rising_edge(clk);
 	data <= '0' & x"00";
 	wait until rising_edge(clk);
-	data <= '0' & x"08";
+	data <= '1' & x"08";
 	wait until rising_edge(clk);
 	wr_en <= '0';
 	activate <= '0';
