@@ -84,7 +84,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 attribute syn_encoding	: string;
 
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -409,7 +409,7 @@ end process TOO_MUCH_DATA_PROC;
 TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE or dissect_current_state = WAIT_FOR_HUB) then
+		if (RESET = '1' or dissect_current_state = IDLE) then
 			tx_loaded_ctr <= (others => '0');
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then  -- TODO: change this to real wr signal
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
@@ -528,6 +528,9 @@ begin
 			end if;
 			
 		when LOAD_A_WORD =>
+			dissect_next_state <= WAIT_ONE; --WAIT_FOR_HUB;
+			
+		when WAIT_ONE =>
 			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
