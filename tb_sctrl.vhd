@@ -102,7 +102,7 @@ begin
 	
 	wait for 100 ns;
 	reset <= '1';
-	read <= '0';
+	read <= '1';
 	data <= (others => '0');
 	wr_en <= '0';
 	activate <= '0';
@@ -177,30 +177,30 @@ begin
 	wr_en <= '0';
 	activate <= '0';
 	
-	wait until rising_edge(dataready);
+--	wait until rising_edge(dataready);
+----	wait until rising_edge(clk);
+----	read <= '1';
+--	wait until rising_edge(clk);
+--	read <= '0';
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
 --	wait until rising_edge(clk);
 --	read <= '1';
-	wait until rising_edge(clk);
-	read <= '0';
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	read <= '1';
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	read <= '0';
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	read <= '1';
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	read <= '0';
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	read <= '1';
 	
 	wait;
 
