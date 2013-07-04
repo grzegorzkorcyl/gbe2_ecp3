@@ -220,7 +220,8 @@ begin
 	end if;
 end process RX_FIFO_RD_SYNC;
 
-GSC_INIT_DATAREADY_OUT <= '1' when dissect_current_state = WAIT_FOR_HUB else '0';
+gsc_init_dataready <= '1' when dissect_current_state = WAIT_FOR_HUB else '0';
+GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
 
 --RX_FIFO_RD_SYNC : process(CLK)
 --begin
