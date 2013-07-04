@@ -199,7 +199,7 @@ begin
 		end if;
 		
 		if (dissect_current_state = IDLE) then
-			packet_num <= "011";
+			packet_num <= "100";
 		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num /= "100") then
 			packet_num <= packet_num + "1";
 		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num = "100") then
