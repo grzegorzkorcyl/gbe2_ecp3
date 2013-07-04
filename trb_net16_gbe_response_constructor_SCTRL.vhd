@@ -511,7 +511,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, reset_detected, gsc_init_dataready, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	
@@ -539,7 +539,7 @@ begin
 			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
-			if (GSC_INIT_READ_IN = '1' and gsc_init_dataready = '1') then
+			if (GSC_INIT_READ_IN = '1') then
 				if (rx_fifo_q(17) = '1') then
 					if (reset_detected = '0') then
 						dissect_next_state <= WAIT_FOR_RESPONSE;
