@@ -211,11 +211,11 @@ begin
 		
 		GSC_INIT_PACKET_NUM_OUT <= packet_num;
 		
-		if (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
-			GSC_INIT_DATAREADY_OUT <= '0';
-		else
+--		if (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
+--			GSC_INIT_DATAREADY_OUT <= '0';
+--		else
 			GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
-		end if;
+--		end if;
 	
 	end if;
 end process RX_FIFO_RD_SYNC;
