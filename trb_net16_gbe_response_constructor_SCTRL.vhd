@@ -190,11 +190,11 @@ begin
 			rx_fifo_rd <= '0';
 		end if;
 		
-		if (dissect_current_state = WAIT_FOR_HUB and rx_fifo_q(17) = '0') then
-			gsc_init_dataready <= '1';
-		else
-			gsc_init_dataready <= '0';
-		end if;
+--		if (dissect_current_state = WAIT_FOR_HUB and rx_fifo_q(17) = '0') then
+--			gsc_init_dataready <= '1';
+--		else
+--			gsc_init_dataready <= '0';
+--		end if;
 		
 		if (dissect_current_state = IDLE) then
 			packet_num <= "100";
@@ -214,11 +214,13 @@ begin
 --		if (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1') then
 --			GSC_INIT_DATAREADY_OUT <= '0';
 --		else
-			GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
+--			GSC_INIT_DATAREADY_OUT <= gsc_init_dataready;
 --		end if;
 	
 	end if;
 end process RX_FIFO_RD_SYNC;
+
+GSC_INIT_DATAREADY_OUT <= '1' when dissect_current_state = WAIT_FOR_HUB else '0';
 
 --RX_FIFO_RD_SYNC : process(CLK)
 --begin
