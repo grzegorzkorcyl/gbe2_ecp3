@@ -192,6 +192,8 @@ begin
 		
 		if (dissect_current_state = WAIT_FOR_HUB and rx_fifo_q(17) = '0') then
 			gsc_init_dataready <= '1';
+		elsif (dissect_current_state = WAIT_TWO) then
+			gsc_init_dataready <= '1';
 		else
 			gsc_init_dataready <= '0';
 		end if;
