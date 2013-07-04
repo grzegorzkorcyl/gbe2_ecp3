@@ -84,7 +84,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 attribute syn_encoding	: string;
 
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_TWO, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
 
@@ -531,6 +531,9 @@ begin
 			dissect_next_state <= WAIT_ONE; --WAIT_FOR_HUB;
 			
 		when WAIT_ONE =>
+			dissect_next_state <= WAIT_TWO; --WAIT_FOR_HUB;
+			
+		when WAIT_TWO =>
 			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
