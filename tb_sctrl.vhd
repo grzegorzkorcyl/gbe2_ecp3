@@ -102,7 +102,7 @@ begin
 	
 	wait for 100 ns;
 	reset <= '1';
-	read <= '1';
+	read <= '0';
 	data <= (others => '0');
 	wr_en <= '0';
 	activate <= '0';
