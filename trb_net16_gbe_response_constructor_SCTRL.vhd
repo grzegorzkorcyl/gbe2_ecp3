@@ -142,6 +142,7 @@ signal rx_fifo_data            : std_logic_vector(8 downto 0);
 signal tx_fifo_data            : std_logic_vector(17 downto 0);
 
 signal tc_wr                   : std_logic;
+signal state                   : std_logic_vector(3 downto 0);
 
 begin
 
@@ -191,7 +192,7 @@ begin
 --			rx_fifo_rd <= '0';
 --		end if;
 
-		if (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then
+		if (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then  -- preload the first byte
 			rx_fifo_rd <= '1';
 		elsif (dissect_current_state = LOAD_TO_HUB) then
 			rx_fifo_rd <= '1';
@@ -209,15 +210,29 @@ begin
 			gsc_init_dataready <= '0';
 		end if;
 		
-		if (dissect_current_state = IDLE) then
+		if (RESET = '1') or (dissect_current_state = WAIT_FOR_HUB) then
 			packet_num <= "100";
-		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num /= "100") then
-			packet_num <= packet_num + "1";
-		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num = "100") then
-			packet_num <= "000";
+		elsif (dissect_current_state = LOAD_TO_HUB) then
+			if (gsc_init_dataready = '1' and packet_num = "100") then
+				packet_num <= "000";
+			elsif (gsc_init_dataready = '1' and packet_num /= "100") then
+				packet_num <= packet_num + "1";
+			else
+				packet_num <= packet_num;
+			end if;
 		else
 			packet_num <= packet_num;
 		end if;
+		
+--		if (dissect_current_state = IDLE) then
+--			packet_num <= "100";
+--		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num /= "100") then
+--			packet_num <= packet_num + "1";
+--		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '1' and packet_num = "100") then
+--			packet_num <= "000";
+--		else
+--			packet_num <= packet_num;
+--		end if;
 		
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
@@ -532,6 +547,7 @@ begin
 	case dissect_current_state is
 	
 		when IDLE =>
+			state <= x"0";
 			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 				dissect_next_state <= READ_FRAME;
 			else
@@ -539,6 +555,7 @@ begin
 			end if;
 		
 		when READ_FRAME =>
+			state <= x"1";
 			if (PS_DATA_IN(8) = '1') then
 				dissect_next_state <= WAIT_FOR_HUB;
 			else
@@ -555,6 +572,7 @@ begin
 --			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
+			state <= x"2";
 			if (GSC_INIT_READ_IN = '1') then
 --				if (rx_fifo_q(17) = '1') then
 --					if (reset_detected = '0') then
@@ -571,6 +589,7 @@ begin
 			end if;						
 		
 		when LOAD_TO_HUB =>
+			state <= x"3";
 			if (rx_fifo_q(17) = '1') then
 				if (reset_detected = '1') then
 					dissect_next_state <= CLEANUP;
@@ -582,6 +601,7 @@ begin
 			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
+			state <= x"4";
 			if (GSC_REPLY_DATAREADY_IN = '1') then
 				dissect_next_state <= SAVE_RESPONSE;
 			else
@@ -589,6 +609,7 @@ begin
 			end if;
 			
 		when SAVE_RESPONSE =>
+			state <= x"5";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
 				if (too_much_data = '0') then
 					dissect_next_state <= WAIT_FOR_LOAD;
@@ -600,6 +621,7 @@ begin
 			end if;			
 			
 		when WAIT_FOR_LOAD =>
+			state <= x"6";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -607,6 +629,7 @@ begin
 			end if;
 		
 		when LOAD_FRAME =>
+			state <= x"7";
 			if (tx_loaded_ctr = tx_data_ctr + x"1") then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
@@ -616,6 +639,7 @@ begin
 			end if;
 
 		when DIVIDE =>
+			state <= x"8";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -623,9 +647,11 @@ begin
 			end if;
 		
 		when CLEANUP =>
+			state <= x"9";
 			dissect_next_state <= IDLE;
 			
 		when others =>
+			state <= x"f";
 			dissect_next_state <= IDLE;
 	
 	end case;
@@ -801,7 +827,7 @@ end process REPLY_CTR_PROC;
 ---- end of statistics
 --
 ---- **** debug
---DEBUG_OUT(3 downto 0)   <= state;
+DEBUG_OUT(3 downto 0)   <= state;
 --DEBUG_OUT(4)            <= '0';
 --DEBUG_OUT(7 downto 5)   <= "000";
 --DEBUG_OUT(8)            <= '0';

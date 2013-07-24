@@ -1712,7 +1712,8 @@ discfrm_sync : signal_sync
 --***************
 --	LOGIC ANALYZER SIGNALS
 --***************
-ANALYZER_DEBUG_OUT <= dbg_mc or dbg_tc or (dbg_fc1 & dbg_fc2) or rc_debug or dbg_ft or dbg_fr(63 downto 0) or (dbg_fr(95 downto 64) & x"00000000");
+--ANALYZER_DEBUG_OUT <= dbg_mc or dbg_tc or (dbg_fc1 & dbg_fc2) or rc_debug or dbg_ft or dbg_fr(63 downto 0) or (dbg_fr(95 downto 64) & x"00000000");
+ANALYZER_DEBUG_OUT <= dbg_select_protos(99 downto 96);
 
 -- Outputs
 --FEE_READ_OUT             <= fee_read;
