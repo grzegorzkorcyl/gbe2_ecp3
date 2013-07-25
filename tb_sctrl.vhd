@@ -184,15 +184,7 @@ begin
 --	read <= '0';
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
 	read <= '1';
-	wait until falling_edge(dataready);
-	read <= '0';
 --	wait until rising_edge(clk);
 --	wait until rising_edge(clk);
 --	wait until rising_edge(clk);
