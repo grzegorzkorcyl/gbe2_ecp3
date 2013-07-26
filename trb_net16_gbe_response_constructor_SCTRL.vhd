@@ -84,7 +84,7 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 attribute syn_encoding	: string;
 
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_TWO, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 attribute syn_encoding of dissect_current_state: signal is "safe,gray";
@@ -192,13 +192,13 @@ begin
 			rx_fifo_rd <= '0';
 		end if;
 		
-		if (dissect_current_state = WAIT_ONE) then
-			gsc_init_dataready <= '1';
-		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '0') then
-			gsc_init_dataready <= '1';
-		else
-			gsc_init_dataready <= '0';
-		end if;
+--		if (dissect_current_state = WAIT_ONE) then
+--			gsc_init_dataready <= '1';
+--		elsif (dissect_current_state = WAIT_FOR_HUB and GSC_INIT_READ_IN = '0') then
+--			gsc_init_dataready <= '1';
+--		else
+--			gsc_init_dataready <= '0';
+--		end if;
 
 --		if (dissect_current_state = READ_FRAME and PS_DATA_IN(8) = '1') then  -- preload the first byte
 --			rx_fifo_rd <= '1';
@@ -247,12 +247,14 @@ begin
 		GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
 		GSC_INIT_DATA_OUT(15 downto 8) <= rx_fifo_q(7 downto 0);
 		
-		GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
+		--GSC_INIT_DATAREADY_OUT  <= gsc_init_dataready;
 		
 --		GSC_INIT_PACKET_NUM_OUT <= packet_num;
 	
 	end if;
 end process RX_FIFO_RD_SYNC;
+
+GSC_INIT_DATAREADY_OUT <= '1' when dissect_current_state = WAIT_FOR_HUB else '0';
 
 ----TODO: add a register
 --GSC_INIT_DATA_OUT(7 downto 0)  <= rx_fifo_q(16 downto 9);
@@ -517,10 +519,10 @@ begin
 			
 		when WAIT_ONE =>
 			state <= x"3";
-			dissect_next_state <= WAIT_FOR_HUB;
+			dissect_next_state <= WAIT_TWO; --WAIT_FOR_HUB;
 			
---		when WAIT_TWO =>
---			dissect_next_state <= WAIT_FOR_HUB;
+		when WAIT_TWO =>
+			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
 			state <= x"4";
