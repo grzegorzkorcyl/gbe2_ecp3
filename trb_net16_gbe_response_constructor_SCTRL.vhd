@@ -522,10 +522,11 @@ begin
 			dissect_next_state <= WAIT_TWO; --WAIT_FOR_HUB;
 			
 		when WAIT_TWO =>
+			state <= x"4";
 			dissect_next_state <= WAIT_FOR_HUB;
 			
 		when WAIT_FOR_HUB =>
-			state <= x"4";
+			state <= x"5";
 			if (GSC_INIT_READ_IN = '1') then
 				if (rx_fifo_q(17) = '1') then
 					if (reset_detected = '0') then
@@ -554,7 +555,7 @@ begin
 --			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
-			state <= x"5";
+			state <= x"6";
 			if (GSC_REPLY_DATAREADY_IN = '1') then
 				dissect_next_state <= SAVE_RESPONSE;
 			else
@@ -562,7 +563,7 @@ begin
 			end if;
 			
 		when SAVE_RESPONSE =>
-			state <= x"6";
+			state <= x"7";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
 				if (too_much_data = '0') then
 					dissect_next_state <= WAIT_FOR_LOAD;
@@ -574,7 +575,7 @@ begin
 			end if;			
 			
 		when WAIT_FOR_LOAD =>
-			state <= x"7";
+			state <= x"8";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -582,7 +583,7 @@ begin
 			end if;
 		
 		when LOAD_FRAME =>
-			state <= x"8";
+			state <= x"9";
 			if (tx_loaded_ctr = tx_data_ctr + x"1") then
 				dissect_next_state <= CLEANUP;
 			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
@@ -592,7 +593,7 @@ begin
 			end if;
 
 		when DIVIDE =>
-			state <= x"9";
+			state <= x"a";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -600,7 +601,7 @@ begin
 			end if;
 		
 		when CLEANUP =>
-			state <= x"a";
+			state <= x"b";
 			dissect_next_state <= IDLE;
 			
 		when others =>
