@@ -122,7 +122,7 @@ begin
 		wait until rising_edge(clk);
 		reply_dataready <= '1';
 		reply_busy <= '1';
-		reply_data <= std_logic_vector(to_unsigned(15, i));
+		reply_data <= std_logic_vector(to_unsigned(16, i));
 			
 	end loop;
 	wait until rising_edge(clk);
