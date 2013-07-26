@@ -21,7 +21,7 @@ signal data : std_logic_vector(8 downto 0);
 
 signal reply_dataready, reply_busy  :std_logic;
 signal reply_data : std_logic_vector(15 downto 0);
-signal reply_packet_num : std_logic_vector(3 downto 0);
+signal reply_packet_num : std_logic_vector(2 downto 0);
 
 begin
 
