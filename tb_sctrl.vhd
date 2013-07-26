@@ -19,6 +19,10 @@ ARCHITECTURE behavior OF testbench_sctrl IS
 signal clk, reset, wr_en, activate, read, dataready : std_logic;
 signal data : std_logic_vector(8 downto 0);
 
+signal reply_dataready, reply_busy  :std_logic;
+signal reply_data : std_logic_vector(15 downto 0);
+signal reply_packet_num : std_logic_vector(3 downto 0);
+
 begin
 
 SCTRL : trb_net16_gbe_response_constructor_SCTRL
@@ -76,11 +80,11 @@ port map (
 	GSC_INIT_DATA_OUT       => open,
 	GSC_INIT_PACKET_NUM_OUT => open,
 	GSC_INIT_READ_IN        => read,
-	GSC_REPLY_DATAREADY_IN  => '0',
-	GSC_REPLY_DATA_IN       => (others => '0'),
-	GSC_REPLY_PACKET_NUM_IN => (others => '0'),
+	GSC_REPLY_DATAREADY_IN  => reply_dataready,
+	GSC_REPLY_DATA_IN       => reply_data,
+	GSC_REPLY_PACKET_NUM_IN => reply_packet_num,
 	GSC_REPLY_READ_OUT      => open,
-	GSC_BUSY_IN             => '0',
+	GSC_BUSY_IN             => reply_busy,
 	
 	MAKE_RESET_OUT          => open,
 	
@@ -110,95 +114,112 @@ begin
 	reset <= '0';
 	
 	wait for 100 ns;
+
+-- REPLY TESTBENCH
 	
-	activate <= '1';
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wr_en <= '1';
-	wait until rising_edge(clk);
-	data <= '0' & x"31";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"08";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"30";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"50";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"33";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '1' & x"08";
-	wait until rising_edge(clk);
-	wr_en <= '0';
-	activate <= '0';
+	for i in 0 to 10 loop
 	
-	wait until rising_edge(dataready);
+		wait until rising_edge(clk);
+		reply_dataready <= '1';
+		reply_busy <= '1';
+		reply_data <= std_logic_vector(to_unsigned(15, i));
+			
+	end loop;
+	wait until rising_edge(clk);
+	reply_dataready <= '0';
+	reply_busy <= '0';
+	
+	wait;
+	
+-- REQUEST TESTBENCH
+--	activate <= '1';
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wr_en <= '1';
+--	wait until rising_edge(clk);
+--	data <= '0' & x"31";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"08";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"30";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"50";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"33";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '1' & x"08";
+--	wait until rising_edge(clk);
+--	wr_en <= '0';
+--	activate <= '0';
+--	
+--	wait until rising_edge(dataready);
+------	wait until rising_edge(clk);
+------	read <= '1';
 ----	wait until rising_edge(clk);
-----	read <= '1';
---	wait until rising_edge(clk);
---	read <= '0';
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	read <= '1';
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	read <= '0';
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
+----	read <= '0';
 --	wait until rising_edge(clk);
 --	wait until rising_edge(clk);
 --	read <= '1';
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	read <= '0';
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	wait until rising_edge(clk);
+----	read <= '1';
 	
 	wait;
 
