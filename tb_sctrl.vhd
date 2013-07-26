@@ -23,6 +23,7 @@ signal data : std_logic_vector(8 downto 0);
 signal reply_dataready, reply_busy  :std_logic;
 signal reply_data : std_logic_vector(15 downto 0);
 signal reply_packet_num : std_logic_vector(2 downto 0);
+signal selected : std_logic;
 
 begin
 
@@ -39,7 +40,7 @@ port map (
 	PS_ACTIVATE_IN		    => activate,
 	PS_RESPONSE_READY_OUT	=> open,
 	PS_BUSY_OUT		        => open,
-	PS_SELECTED_IN		    => '0',
+	PS_SELECTED_IN		    => selected,
 	
 	PS_SRC_MAC_ADDRESS_IN	=> (others => '0'),
 	PS_DEST_MAC_ADDRESS_IN  => (others => '0'),
@@ -111,6 +112,10 @@ begin
 	data <= (others => '0');
 	wr_en <= '0';
 	activate <= '0';
+	selected <= '0';
+	reply_dataready <= '0';
+	reply_busy <= '0';
+	reply_data <= (others => '0');
 	wait for 100 ns;
 	reset <= '0';
 	
@@ -129,6 +134,9 @@ begin
 	wait until rising_edge(clk);
 	reply_dataready <= '0';
 	reply_busy <= '0';
+	
+	wait for 100 ns;
+	selected <= '1';
 	
 	wait;
 	
