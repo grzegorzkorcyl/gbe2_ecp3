@@ -15,7 +15,7 @@ signal g_MY_IP                : std_logic_vector(31 downto 0);
 signal g_MY_MAC               : std_logic_vector(47 downto 0);
 
 -- size of ethernet frame use for fragmentation of outgoing packets
-signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0); -- set up in main controller
+signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0020"; -- set up in main controller
 
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
