@@ -123,7 +123,7 @@ begin
 
 -- REPLY TESTBENCH
 	
-	for i in 0 to 10 loop
+	for i in 0 to 100 loop
 	
 		wait until rising_edge(clk);
 		reply_dataready <= '1';
