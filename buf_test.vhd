@@ -812,7 +812,7 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 
-MAIN_CONTROL : trb_net16_gbe_main_control_test
+MAIN_CONTROL_FUCK : trb_net16_gbe_main_control_test
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,

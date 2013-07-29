@@ -18,6 +18,8 @@ use work.trb_net_gbe_protocols.all;
 -- 
 
 
+
+
 entity trb_net16_gbe_main_control_test is
 port (
 	CLK			: in	std_logic;  -- system clock
