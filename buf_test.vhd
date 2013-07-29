@@ -688,6 +688,126 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 
+MAIN_CONTROL : trb_net16_gbe_main_control
+  port map(
+	  CLK			=> CLK,
+	  CLK_125		=> serdes_clk_125,
+	  RESET			=> RESET,
+
+	  MC_LINK_OK_OUT	=> link_ok,
+	  MC_RESET_LINK_IN	=> MR_RESTART_IN,
+	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
+
+  -- signals to/from receive controller
+	  RC_FRAME_WAITING_IN	=> rc_frame_ready,
+	  RC_LOADING_DONE_OUT	=> rc_loading_done,
+	  RC_DATA_IN		=> rc_q,
+	  RC_RD_EN_OUT		=> rc_rd_en,
+	  RC_FRAME_SIZE_IN	=> rc_frame_size,
+	  RC_FRAME_PROTO_IN	=> rc_frame_proto,
+
+	  RC_SRC_MAC_ADDRESS_IN	=> rc_src_mac,
+	  RC_DEST_MAC_ADDRESS_IN  => rc_dest_mac,
+	  RC_SRC_IP_ADDRESS_IN	=> rc_src_ip,
+	  RC_DEST_IP_ADDRESS_IN	=> rc_dest_ip,
+	  RC_SRC_UDP_PORT_IN	=> rc_src_udp,
+	  RC_DEST_UDP_PORT_IN	=> rc_dest_udp,
+
+  -- signals to/from transmit controller
+	  TC_TRANSMIT_CTRL_OUT	=> mc_transmit_ctrl,
+	  TC_DATA_OUT		=> mc_data,
+	  TC_WR_EN_OUT		=> mc_wr_en,
+	  TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
+	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
+	  TC_FRAME_TYPE_OUT	=> mc_type,
+	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
+	  TC_IDENT_OUT          => mc_ident,
+	  
+	  TC_DEST_MAC_OUT	=> mc_dest_mac,
+	  TC_DEST_IP_OUT	=> mc_dest_ip,
+	  TC_DEST_UDP_OUT	=> mc_dest_udp,
+	  TC_SRC_MAC_OUT	=> mc_src_mac,
+	  TC_SRC_IP_OUT		=> mc_src_ip,
+	  TC_SRC_UDP_OUT	=> mc_src_udp,
+	  
+	  TC_IP_SIZE_OUT		=> mc_ip_size,
+	  TC_UDP_SIZE_OUT		=> mc_udp_size,
+	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
+	  
+	  TC_FC_H_READY_IN => mc_fc_h_ready,
+	  TC_FC_READY_IN  => mc_fc_ready,
+	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
+	  
+	  TC_BUSY_IN		=> mc_busy,
+	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
+
+  -- signals to/from sgmii/gbe pcs_an_complete
+	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
+
+  -- signals to/from hub
+	  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
+	GSC_CLK_IN               => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => GSC_BUSY_IN,
+
+	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
+	
+		-- CTS interface
+	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+	CTS_CODE_IN					=> CTS_CODE_IN,
+	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+	CTS_DATA_OUT				=> CTS_DATA_OUT,
+	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+	CTS_READ_IN					=> CTS_READ_IN,
+	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+	-- Data payload interface
+	FEE_DATA_IN					=> FEE_DATA_IN,
+	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+	FEE_READ_OUT				=> FEE_READ_OUT,
+	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	-- ip configurator
+	SLV_ADDR_IN                 => SLV_ADDR_IN,
+	SLV_READ_IN                 => SLV_READ_IN,
+	SLV_WRITE_IN                => SLV_WRITE_IN,
+	SLV_BUSY_OUT                => SLV_BUSY_OUT,
+	SLV_ACK_OUT                 => SLV_ACK_OUT,
+	SLV_DATA_IN                 => SLV_DATA_IN,
+	SLV_DATA_OUT                => SLV_DATA_OUT,
+	
+	CFG_GBE_ENABLE_IN           => use_gbe,
+	CFG_IPU_ENABLE_IN           => use_trbnet,
+	CFG_MULT_ENABLE_IN          => use_multievents,
+
+  -- signal to/from Host interface of TriSpeed MAC
+	  TSM_HADDR_OUT		=> mac_haddr,
+	  TSM_HDATA_OUT		=> mac_hdataout,
+	  TSM_HCS_N_OUT		=> mac_hcs,
+	  TSM_HWRITE_N_OUT	=> mac_hwrite,
+	  TSM_HREAD_N_OUT	=> mac_hread,
+	  TSM_HREADY_N_IN	=> mac_hready,
+	  TSM_HDATA_EN_N_IN	=> mac_hdata_en,
+	  TSM_RX_STAT_VEC_IN  => mac_rx_stat_vec,
+	  TSM_RX_STAT_EN_IN   => mac_rx_stat_en,
+	  
+	  SELECT_REC_FRAMES_OUT		=> dbg_select_rec,
+	  SELECT_SENT_FRAMES_OUT	=> dbg_select_sent,
+	  SELECT_PROTOS_DEBUG_OUT	=> dbg_select_protos,
+
+	  DEBUG_OUT		=> dbg_mc
+  );
+
 data_src : test_data_source
 port map(
 	CLK			            => CLK,
