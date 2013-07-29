@@ -664,6 +664,129 @@ port (
 );
 end component;
 
+component trb_net16_gbe_main_control_test is
+port (
+	CLK			: in	std_logic;  -- system clock
+	CLK_125			: in	std_logic;
+	RESET			: in	std_logic;
+
+	MC_LINK_OK_OUT		: out	std_logic;
+	MC_RESET_LINK_IN	: in	std_logic;
+	MC_IDLE_TOO_LONG_OUT : out std_logic;
+
+-- signals to/from receive controller
+	RC_FRAME_WAITING_IN	: in	std_logic;
+	RC_LOADING_DONE_OUT	: out	std_logic;
+	RC_DATA_IN		: in	std_logic_vector(8 downto 0);
+	RC_RD_EN_OUT		: out	std_logic;
+	RC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
+	RC_FRAME_PROTO_IN	: in	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+
+	RC_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
+	RC_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
+	RC_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	RC_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	RC_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+	RC_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+
+-- signals to/from transmit controller
+	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
+	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
+	TC_WR_EN_OUT		: out	std_logic;
+	TC_DATA_NOT_VALID_OUT : out std_logic;
+	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
+	
+	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
+	
+	TC_FC_H_READY_IN : in std_logic;
+	TC_FC_READY_IN : in std_logic;
+	TC_FC_WR_EN_OUT : out std_logic;
+	
+	TC_BUSY_IN		: in	std_logic;
+	TC_TRANSMIT_DONE_IN	: in	std_logic;
+
+-- signals to/from sgmii/gbe pcs_an_complete
+	PCS_AN_COMPLETE_IN	: in	std_logic;
+
+-- signals to/from hub
+	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
+	
+	GSC_CLK_IN               : in std_logic;
+	GSC_INIT_DATAREADY_OUT   : out std_logic;
+	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
+	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+	GSC_INIT_READ_IN         : in std_logic;
+	GSC_REPLY_DATAREADY_IN   : in std_logic;
+	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
+	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
+	GSC_REPLY_READ_OUT       : out std_logic;
+	GSC_BUSY_IN              : in std_logic;
+	
+	-- signal for data readout
+	-- CTS interface
+	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
+	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
+	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
+	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
+	CTS_START_READOUT_IN		: in	std_logic;
+	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
+	CTS_DATAREADY_OUT			: out	std_logic;
+	CTS_READOUT_FINISHED_OUT	: out	std_logic;
+	CTS_READ_IN					: in	std_logic;
+	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
+	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
+	-- Data payload interface
+	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
+	FEE_DATAREADY_IN			: in	std_logic;
+	FEE_READ_OUT				: out	std_logic;
+	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
+	FEE_BUSY_IN					: in	std_logic;
+	-- ip configurator
+	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
+	SLV_READ_IN                  : in std_logic;
+	SLV_WRITE_IN                 : in std_logic;
+	SLV_BUSY_OUT                 : out std_logic;
+	SLV_ACK_OUT                  : out std_logic;
+	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
+	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
+	
+	CFG_GBE_ENABLE_IN            : in std_logic;
+	CFG_IPU_ENABLE_IN            : in std_logic;
+	CFG_MULT_ENABLE_IN           : in std_logic;
+	
+	MAKE_RESET_OUT           : out std_logic;
+
+-- signal to/from Host interface of TriSpeed MAC
+	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
+	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);
+	TSM_HCS_N_OUT		: out	std_logic;
+	TSM_HWRITE_N_OUT	: out	std_logic;
+	TSM_HREAD_N_OUT		: out	std_logic;
+	TSM_HREADY_N_IN		: in	std_logic;
+	TSM_HDATA_EN_N_IN	: in	std_logic;
+	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
+	TSM_RX_STAT_EN_IN   : in	std_logic;
+
+	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+);
+end component;
+
 signal fc_flags                  : std_logic_vector(15 downto 0);
 signal fc_proto                  : std_logic_vector(7 downto 0);
 signal tc_src_mac                : std_logic_vector(47 downto 0);
@@ -688,7 +811,7 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 
-MAIN_CONTROL : trb_net16_gbe_main_control
+MAIN_CONTROL : trb_net16_gbe_main_control_test
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
