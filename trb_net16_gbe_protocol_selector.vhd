@@ -680,7 +680,11 @@ begin
 				selected(index)       <= '0';
 			else
 				PS_RESPONSE_READY_OUT <= '0';
-				selected(index)       <= '1';
+				if (TC_FC_H_READY_IN = '1') then
+					selected(index)       <= '1';
+				else
+					selected(index)       <= '1';
+				end if;
 			end if;
 		else
 			TC_DATA_OUT           <= (others => '0');
