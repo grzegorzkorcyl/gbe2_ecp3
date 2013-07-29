@@ -165,7 +165,7 @@ signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
 
 signal mac_control_debug             : std_logic_vector(63 downto 0);
 
-type flow_states is (IDLE, WAIT_FOR_H, TRANSMIT_CTRL, CLEANUP);
+type flow_states is (IDLE, WAIT_FOR_H, TRANSMIT_CTRL, WAIT_FOR_FC, CLEANUP);
 signal flow_current_state, flow_next_state : flow_states;
 
 signal state                        : std_logic_vector(3 downto 0);
@@ -531,10 +531,17 @@ begin
 			end if;
 			
 		when TRANSMIT_CTRL =>
-			if (TC_FC_READY_IN = '1') then --tc_data(8) = '1') then
-				flow_next_state <= CLEANUP;
+			if (tc_data(8) = '1') then
+				flow_next_state <= WAIT_FOR_FC; --CLEANUP;
 			else
 				flow_next_state <= TRANSMIT_CTRL;
+			end if;
+			
+		when WAIT_FOR_FC =>
+			if (TC_FC_READY_IN = '1') then
+				flow_next_state <= CLEANUP;
+			else
+				flow_next_state <= WAIT_FOR_FC;
 			end if;
 
 		when CLEANUP =>
