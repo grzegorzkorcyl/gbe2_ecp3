@@ -164,6 +164,8 @@ end process;
 
 full_size <= x"0100";
 
+TC_DATAREADY_OUT <= '1' when (current_state = GENERATE_DATA and gen_data_ctr = x"1000") else '0';
+
 TC_FRAME_SIZE_OUT	<= full_size;
 TC_SIZE_LEFT_OUT    <= size_left;
 TC_FRAME_TYPE_OUT	<= x"0008";
