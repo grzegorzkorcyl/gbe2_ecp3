@@ -390,9 +390,6 @@ TSM_HDATA_OUT     <= tsm_hdata;
 TSM_HREAD_N_OUT   <= tsm_hread_n;
 TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 
-
-
-
 end main_crap;
 
 

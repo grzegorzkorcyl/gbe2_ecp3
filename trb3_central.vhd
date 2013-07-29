@@ -546,7 +546,7 @@ THE_RESET_HANDLER : trb_net_reset_handler
   );
 
 trb_reset_in <= '0'; -- reset_via_gbe or MED_STAT_OP(4*16+13); --_delayed(2)
-reset_i <= reset_i_temp; -- or trb_reset_in;
+reset_i <= '0'; --reset_i_temp; -- or trb_reset_in;
 
 
 
