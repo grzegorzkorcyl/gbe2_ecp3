@@ -114,7 +114,7 @@ signal gsc_reply_read, gsc_reply_dataready : std_logic;
 signal gsc_reply_data, gsc_init_data : std_logic_vector(15 downto 0);
 signal gsc_busy : std_logic;
 signal gsc_init_packet_num, gsc_reply_packet_num : std_logic_vector(2 downto 0);
-signal mc_flags, mc_ip_size, mc_udp_size : std_logic_vector(15 downto 0);
+signal mc_flags, mc_ip_size, mc_udp_size, mc_ident : std_logic_vector(15 downto 0);
 
 signal mc_fc_wr_en, mc_fc_ready, mc_fc_h_ready, data_not_valid : std_logic;
 
@@ -245,6 +245,7 @@ port map (
 	TC_IP_SIZE_OUT		=> mc_ip_size,
 	TC_UDP_SIZE_OUT		=> mc_udp_size,
 	TC_FLAGS_OFFSET_OUT	=> mc_flags,
+	TC_IDENT_OUT        => mc_ident,
 	
 	TC_FC_H_READY_IN => mc_fc_h_ready,
 	TC_FC_READY_IN => mc_fc_ready,
@@ -346,6 +347,7 @@ port map(
 	MC_IP_SIZE_IN		=> mc_ip_size,
 	MC_UDP_SIZE_IN		=> mc_udp_size,
 	MC_FLAGS_OFFSET_IN	=> mc_flags,
+	MC_IDENT_IN         => mc_ident,
 	
 	MC_BUSY_OUT		=> MC_BUSY_IN,
 	MC_TRANSMIT_DONE_OUT	=> MC_TRANSMIT_DONE_IN,
@@ -421,6 +423,8 @@ port map(
 	DEBUG_OUT               => open
 );
 
+g_MAX_FRAME_SIZE <= x"0020";
+
 -- 100 MHz system clock
 CLOCK_GEN_PROC: process
 begin
@@ -460,10 +464,10 @@ begin
 	fr_allowed_udp          <= x"0000_000f";
 	additional_rand_pause   <= '0';
 	pc_sos                  <= '0';
---	gsc_init_read           <= '0';
---	gsc_busy                <= '0';
---	gsc_reply_data          <= (others => '0');
---	gsc_reply_dataready     <= '0';
+	gsc_init_read           <= '0';
+	gsc_busy                <= '0';
+	gsc_reply_data          <= (others => '0');
+	gsc_reply_dataready     <= '0';
 --	
 	wait for 10 ns;
 	RESET <= '0';
@@ -475,158 +479,173 @@ begin
 	
 	wait for 5 us;
 	
-	-- FIRST FRAME UDP - DHCP Offer
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RX_EN_IN <= '1';
--- dest mac
-	MAC_RXD_IN		<= x"02";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"be";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
--- src mac
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"aa";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"bb";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"cc";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"dd";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ee";
-	wait until rising_edge(RX_MAC_CLK);
--- frame type
-	MAC_RXD_IN		<= x"08";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
--- ip headers
-	MAC_RXD_IN		<= x"45";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"10";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"01";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"5a";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"49";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ff";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"11";  -- udp
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"cc";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"cc";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"c0";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"a8";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"01";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"c0";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"a8";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"02";
--- udp headers
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"43";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"44";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"02";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"2c";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"aa";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"bb";
--- dhcp data
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"02";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"01";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"06";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"de";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ad";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"fa";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ce";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"c0";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"a8";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"10";
+	for i in 0 to 100 loop
 	
-	for i in 0 to 219 loop
-		wait until rising_edge(RX_MAC_CLK);
-		MAC_RXD_IN		<= x"00";
+		wait until rising_edge(clk);
+		gsc_reply_dataready <= '1';
+		gsc_busy <= '1';
+		gsc_busy <= std_logic_vector(to_unsigned(i, 16));
+			
 	end loop;
+	wait until rising_edge(clk);
+	gsc_busy <= '0';
+	gsc_busy <= '0';
 	
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"35";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"01";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"02";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-		MAC_RX_EOF_IN <= '1';
+	wait;
 	
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RX_EN_IN <='0';
-	MAC_RX_EOF_IN <= '0';
+	
+--	-- FIRST FRAME UDP - DHCP Offer
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RX_EN_IN <= '1';
+---- dest mac
+--	MAC_RXD_IN		<= x"02";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"be";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+---- src mac
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"aa";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"bb";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"cc";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"dd";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"ee";
+--	wait until rising_edge(RX_MAC_CLK);
+---- frame type
+--	MAC_RXD_IN		<= x"08";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+---- ip headers
+--	MAC_RXD_IN		<= x"45";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"10";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"01";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"5a";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"49";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"ff";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"11";  -- udp
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"cc";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"cc";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"c0";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"a8";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"01";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"c0";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"a8";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"02";
+---- udp headers
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"43";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"44";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"02";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"2c";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"aa";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"bb";
+---- dhcp data
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"02";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"01";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"06";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"de";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"ad";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"fa";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"ce";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"c0";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"a8";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"10";
+--	
+--	for i in 0 to 219 loop
+--		wait until rising_edge(RX_MAC_CLK);
+--		MAC_RXD_IN		<= x"00";
+--	end loop;
+--	
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"35";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"01";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"02";
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RXD_IN		<= x"00";
+--	wait until rising_edge(RX_MAC_CLK);
+--		MAC_RX_EOF_IN <= '1';
+--	
+--	wait until rising_edge(RX_MAC_CLK);
+--	MAC_RX_EN_IN <='0';
+--	MAC_RX_EOF_IN <= '0';
 	
 	wait for 1 us;
 end process testbench_proc;
