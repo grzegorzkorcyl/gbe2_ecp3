@@ -484,7 +484,7 @@ begin
 		wait until rising_edge(clk);
 		gsc_reply_dataready <= '1';
 		gsc_busy <= '1';
-		gsc_busy <= std_logic_vector(to_unsigned(i, 16));
+		gsc_reply_data <= std_logic_vector(to_unsigned(i, 16));
 			
 	end loop;
 	wait until rising_edge(clk);
