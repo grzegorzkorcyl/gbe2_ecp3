@@ -665,7 +665,7 @@ port (
 end component;
 
 
-component trb_net16_gbe_main_control_test is
+component main_crap is
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
@@ -812,7 +812,7 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 
-MAIN_CONTROL_FUCK : trb_net16_gbe_main_control_test
+MAIN_CONTROL_FUCK : main_crap
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,

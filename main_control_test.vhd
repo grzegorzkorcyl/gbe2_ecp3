@@ -20,7 +20,7 @@ use work.trb_net_gbe_protocols.all;
 
 
 
-entity trb_net16_gbe_main_control_test is
+entity main_crap is
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
@@ -141,10 +141,10 @@ port (
 	
 	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
-end trb_net16_gbe_main_control_test;
+end main_crap;
 
 
-architecture trb_net16_gbe_main_control_test of trb_net16_gbe_main_control_test is
+architecture main_crap of main_crap is
 
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_main_control : architecture is "GBE_MAIN_group";
@@ -540,6 +540,6 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 
 
 
-end trb_net16_gbe_main_control_test;
+end main_crap;
 
 
