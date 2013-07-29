@@ -545,17 +545,17 @@ begin
 				dissect_next_state <= WAIT_FOR_HUB;
 			end if;						
 		
---		when LOAD_TO_HUB =>
---			state <= x"3";
---			if (rx_fifo_q(17) = '1') then
---				if (reset_detected = '1') then
---					dissect_next_state <= CLEANUP;
---				else
---					dissect_next_state <= WAIT_FOR_RESPONSE;
---				end if;
---			else
---				dissect_next_state <= LOAD_TO_HUB;
---			end if;	
+		when LOAD_TO_HUB =>
+			state <= x"3";
+			if (rx_fifo_q(17) = '1') then
+				if (reset_detected = '1') then
+					dissect_next_state <= CLEANUP;
+				else
+					dissect_next_state <= WAIT_FOR_RESPONSE;
+				end if;
+			else
+				dissect_next_state <= LOAD_TO_HUB;
+			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
 			state <= x"6";
