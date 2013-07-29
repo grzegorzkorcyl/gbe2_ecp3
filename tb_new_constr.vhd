@@ -11,10 +11,10 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
-ENTITY testbench IS
-END testbench;
+ENTITY testbench_new_constr IS
+END testbench_new_constr;
 
-ARCHITECTURE behavior OF testbench IS 
+ARCHITECTURE behavior OF testbench_new_constr IS 
 
 
 signal CLK			: std_logic;
