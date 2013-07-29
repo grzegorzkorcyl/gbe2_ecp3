@@ -664,6 +664,7 @@ port (
 );
 end component;
 
+
 component trb_net16_gbe_main_control_test is
 port (
 	CLK			: in	std_logic;  -- system clock
