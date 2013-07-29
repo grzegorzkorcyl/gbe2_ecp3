@@ -80,12 +80,19 @@ begin
 	end if;
 end process STATE_MACHINE_PROC;
 
-STATE_MACHINE : process(gen_data_ctr, TC_TRANSMISSION_DONE_IN)
+STATE_MACHINE : process(gen_data_ctr, TC_TRANSMISSION_DONE_IN, wait_ctr)
 begin
 	case current_state is
 		when IDLE =>
-			next_state <= GENERATE_DATA;
+			next_state <= WAIT_A_SEC;
 			
+		when WAIT_A_SEC =>
+			if (wait_ctr = x"100000") then
+				next_state <= CLEANUP;
+			else
+				next_state <= WAIT_A_SEC;
+			end if;
+
 		when GENERATE_DATA =>
 			if (gen_data_ctr = x"1000") then
 				next_state <= TRANSMIT_DATA;
@@ -95,18 +102,11 @@ begin
 			
 		when TRANSMIT_DATA =>
 			if (TC_TRANSMISSION_DONE_IN = '1') then
-				next_state <= WAIT_A_SEC;
+				next_state <= CLEANUP;
 			else
 				next_state <= TRANSMIT_DATA;
 			end if;
 			
-		when WAIT_A_SEC =>
-			if (wait_ctr = x"100000") then
-				next_state <= CLEANUP;
-			else
-				next_state <= WAIT_A_SEC;
-			end if;
-		
 		when CLEANUP =>
 			next_state <= IDLE;
 			

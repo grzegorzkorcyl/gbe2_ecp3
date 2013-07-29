@@ -548,14 +548,6 @@ THE_RESET_HANDLER : trb_net_reset_handler
 trb_reset_in <= '0'; -- reset_via_gbe or MED_STAT_OP(4*16+13); --_delayed(2)
 reset_i <= reset_i_temp; -- or trb_reset_in;
 
-process begin
-  wait until rising_edge(clk_100_i);
-    if reset_i = '1' then
-      reset_via_gbe_delayed <= "000";
-    elsif timer_ticks(0) = '1' then
-      reset_via_gbe_delayed <= reset_via_gbe_delayed(1 downto 0) & reset_via_gbe;
-    end if;
-  end process;
 
 
 ---------------------------------------------------------------------------
@@ -679,18 +671,6 @@ THE_CALIBRATION_PLL : pll_in125_out20
 
 	  ANALYZER_DEBUG_OUT          => debug
   );
-
-PROC_TDC_CTRL_REG : process 
-  variable pos : integer;
-begin
-  wait until rising_edge(clk_100_i);
-  pos := to_integer(unsigned(tdc_ctrl_addr))*32;
-  tdc_ctrl_data_out <= tdc_ctrl_reg(pos+31 downto pos);
-  last_tdc_ctrl_read <= tdc_ctrl_read;
-  if tdc_ctrl_write = '1' then
-    tdc_ctrl_reg(pos+31 downto pos) <= tdc_ctrl_data_in;
-  end if;
-end process;
     
 ---------------------------------------------------------------------------
 -- SPI / Flash
@@ -742,48 +722,11 @@ THE_SPI_MEMORY: spi_databus_memory
     -- Status lines
     STAT          => open
     );
-    
----------------------------------------------------------------------------
--- Reboot FPGA
----------------------------------------------------------------------------
-THE_FPGA_REBOOT : fpga_reboot
-  port map(
-    CLK       => clk_100_i,
-    RESET     => reset_i,
-    DO_REBOOT => common_ctrl_regs(15),
-    PROGRAMN  => PROGRAMN
-    );
-
-
----------------------------------------------------------------------------
--- Clock and Trigger Configuration
----------------------------------------------------------------------------
-
-process begin
-  wait until rising_edge(clk_100_i);
-  if reset_i = '1' then
-    select_tc <= x"00000001"; --always internal trigger source
-  elsif select_tc_write = '1' then
-    select_tc <= select_tc_data_in;
-  end if;
-  select_tc_ack <= select_tc_read or select_tc_write;
-end process;
 
   TRIGGER_SELECT <= select_tc(0);
   CLOCK_SELECT   <= select_tc(8); --use on-board oscillator
   CLK_MNGR1_USER <= select_tc(19 downto 16);
   CLK_MNGR2_USER <= select_tc(27 downto 24); 
-
-   
-  cts_rdo_trigger <= cts_trigger_out;
-
-process begin
-  -- output time reference synchronously to the 200MHz clock
-  -- in order to reduce jitter
-  wait until rising_edge(clk_200_i);
-  TRIGGER_OUT    <= cts_trigger_out;
-  TRIGGER_OUT2   <= cts_trigger_out;
-end process;
   
   
 ---------------------------------------------------------------------------
@@ -806,7 +749,7 @@ end process;
 
 
 ---------------------------------------------------------------------------
--- AddOn Connector
+-- AddOn Connecto
 ---------------------------------------------------------------------------
     PWM_OUT                        <= "00";
     
