@@ -512,7 +512,7 @@ begin
   end if;
 end process FLOW_MACHINE_PROC;
 
-FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, ps_response_ready, tc_data)
+FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, TC_FC_READY_IN, ps_response_ready, tc_data)
 begin
 	case flow_current_state is
 
@@ -531,7 +531,7 @@ begin
 			end if;
 			
 		when TRANSMIT_CTRL =>
-			if (tc_data(8) = '1') then
+			if (TC_FC_READY_IN = '1') then --tc_data(8) = '1') then
 				flow_next_state <= CLEANUP;
 			else
 				flow_next_state <= TRANSMIT_CTRL;
@@ -547,7 +547,7 @@ end process FLOW_MACHINE;
 TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = IDLE and ps_response_ready = '1') else '0';
 
 --mc_busy <= '0' when flow_current_state = IDLE else '1';
-mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL else '0';
+mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL or flow_current_state = WAIT_FOR_H else '0';
 
 --***********************
 --	LINK STATE CONTROL
