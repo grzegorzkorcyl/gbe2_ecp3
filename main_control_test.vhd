@@ -243,7 +243,7 @@ begin
 			if (g_SIMULATE = 0) then
 				link_current_state <= INACTIVE;
 			else
-				link_current_state <= GET_ADDRESS; --ACTIVE;
+				link_current_state <= ACTIVE;
 			end if;
 		else
 			link_current_state <= link_next_state;
@@ -296,9 +296,9 @@ begin
 		when FINALIZE =>
 			link_state <= x"5";
 			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= ACTIVE;
+				link_next_state <= INACTIVE;
 			else
-				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
+				link_next_state <= ACTIVE; --ACTIVE;
 			end if;
 			
 
