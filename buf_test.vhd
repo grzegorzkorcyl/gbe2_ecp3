@@ -819,7 +819,7 @@ MAIN_CONTROL_FUCK : main_crap
 	  RESET			=> RESET,
 
 	  MC_LINK_OK_OUT	=> link_ok,
-	  MC_RESET_LINK_IN	=> MR_RESTART_IN,
+	  MC_RESET_LINK_IN	=> '0',
 	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
 
   -- signals to/from receive controller
@@ -881,7 +881,7 @@ MAIN_CONTROL_FUCK : main_crap
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 
-	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
+	MAKE_RESET_OUT           => open, --MAKE_RESET_OUT,
 	
 		-- CTS interface
 	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
@@ -910,9 +910,9 @@ MAIN_CONTROL_FUCK : main_crap
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => use_gbe,
-	CFG_IPU_ENABLE_IN           => use_trbnet,
-	CFG_MULT_ENABLE_IN          => use_multievents,
+	CFG_GBE_ENABLE_IN           => '1',
+	CFG_IPU_ENABLE_IN           => '0',
+	CFG_MULT_ENABLE_IN          => '0',
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
