@@ -489,7 +489,7 @@ begin
 	end loop;
 	wait until rising_edge(clk);
 	gsc_busy <= '0';
-	gsc_busy <= '0';
+	gsc_reply_dataready <= '0';
 	
 	wait;
 	
