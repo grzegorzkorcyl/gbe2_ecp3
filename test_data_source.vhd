@@ -162,7 +162,7 @@ begin
 	end if; 
 end process;
 
-full_size <= x"100";
+full_size <= x"0100";
 
 TC_FRAME_SIZE_OUT	<= full_size;
 TC_SIZE_LEFT_OUT    <= size_left;
@@ -172,8 +172,8 @@ TC_DEST_MAC_OUT		<= x"001122334455";
 TC_DEST_IP_OUT	    <= x"99887766";
 TC_DEST_UDP_OUT		<= x"1234";
 TC_SRC_MAC_OUT		<= x"001122334455";
-TC_SRC_IP_OUT		<= x"001122334455";
-TC_SRC_UDP_OUT		<= x"99887766";
+TC_SRC_IP_OUT		<= x"99887766";
+TC_SRC_UDP_OUT		<= x"1234";
 TC_FLAGS_OFFSET_OUT	<= (others => '0');
 TC_IDENT_OUT        <= x"abcd";
 

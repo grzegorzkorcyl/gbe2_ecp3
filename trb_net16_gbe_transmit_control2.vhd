@@ -13,7 +13,7 @@ use work.trb_net_gbe_protocols.all;
 --********
 -- doing shit right now
 
-entity trb_net16_gbe_transmit_control is
+entity trb_net16_gbe_transmit_control2 is
 port (
 	CLK			         : in	std_logic;
 	RESET			     : in	std_logic;
@@ -60,10 +60,10 @@ port (
 -- debug
 	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
 );
-end trb_net16_gbe_transmit_control;
+end trb_net16_gbe_transmit_control2;
 
 
-architecture trb_net16_gbe_transmit_control of trb_net16_gbe_transmit_control is
+architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
 type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, DIVIDE, WAIT_FOR_TRANS, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
@@ -166,6 +166,6 @@ SRC_IP_ADDRESS_OUT   <= TC_SRC_IP_IN;
 SRC_UDP_PORT_OUT     <= TC_SRC_UDP_IN;
 FC_IDENT_OUT         <= TC_IDENT_IN;
 
-end trb_net16_gbe_transmit_control;
+end trb_net16_gbe_transmit_control2;
 
 
