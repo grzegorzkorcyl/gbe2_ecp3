@@ -512,7 +512,7 @@ begin
   end if;
 end process FLOW_MACHINE_PROC;
 
-FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, ps_response_ready)
+FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, ps_response_ready, tc_data)
 begin
 	case flow_current_state is
 
