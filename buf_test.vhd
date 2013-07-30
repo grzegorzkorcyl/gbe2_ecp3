@@ -487,7 +487,7 @@ signal mc_ctrl_frame_req             : std_logic;
 signal mc_data                       : std_logic_vector(8 downto 0);
 signal mc_wr_en                      : std_logic;
 signal fc_wr_en                      : std_logic;
-signal fc_data                       : std_logic_vector(7 downto 0);
+signal fc_data                       : std_logic_vector(8 downto 0);
 signal fc_ip_size                    : std_logic_vector(15 downto 0);
 signal fc_udp_size                   : std_logic_vector(15 downto 0);
 signal fc_ident                      : std_logic_vector(15 downto 0);
@@ -842,7 +842,7 @@ port map(
 -- signal to/from main controller
 	TC_DATAREADY_IN        => tc_dataready,
 	TC_RD_EN_OUT		        => tc_rd_en,
-	TC_DATA_IN		        => tc_data,
+	TC_DATA_IN		        => tc_data(7 downto 0),
 	TC_FRAME_SIZE_IN	    => tc_frame_size,
 	TC_SIZE_LEFT_IN        => tc_size_left,
 	TC_FRAME_TYPE_IN	    => tc_frame_type,
