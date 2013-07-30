@@ -230,8 +230,8 @@ begin
 	end if;	
 end process PS_RESPONSE_SYNC;
 
-TC_FRAME_SIZE_OUT   <= x"200";
-TC_SIZE_LEFT_OUT    <= x"200";
+TC_FRAME_SIZE_OUT   <= x"0200";
+TC_SIZE_LEFT_OUT    <= x"0200";
 TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
 TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
 
