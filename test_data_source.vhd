@@ -68,7 +68,7 @@ port map(
 df_reset <= '1' when RESET = '1' or current_state = CLEANUP else '0';
 df_wr_en <= '1' when current_state = GENERATE_DATA else '0';
 df_data  <= gen_data_ctr(7 downto 0);
-df_eod <= '0';
+df_eod <= '0' when current_state /= FUCK else '1';
 
 STATE_MACHINE_PROC : process(CLK)
 begin
