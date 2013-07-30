@@ -289,7 +289,7 @@ signal tc_dataready, tc_rd_en, tc_done : std_logic;
 signal tc_ip_proto : std_logic_vector(7 downto 0);
 signal tc_data : std_logic_vector(8 downto 0);
 signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logic_vector(15 downto 0);
-signal response_ready, selected, dhcp_start : std_logic;
+signal response_ready, selected, dhcp_start, mc_busy : std_logic;
 
 begin
 
@@ -419,7 +419,7 @@ port map(
 	TC_FC_WR_EN_OUT => open,
 	
 	TC_BUSY_IN		=> '0',
-	MC_BUSY_IN      => '0',
+	MC_BUSY_IN      => mc_busy,
 	
 	-- counters from response constructors
 	RECEIVED_FRAMES_OUT	=> open,
@@ -605,6 +605,19 @@ begin
 	dhcp_start <= '1';
 	wait for 100 ns;
 	dhcp_start <= '0';
+	
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	mc_busy <= '1';
+	
+	wait until rising_edge(tc_done);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	mc_busy <= '0';
 	
 	wait;
 
