@@ -420,108 +420,11 @@ architecture trb3_central_arch of trb3_central is
   signal tdc_ctrl_data_out  : std_logic_vector(31 downto 0);
   signal tdc_ctrl_reg   : std_logic_vector(5*32-1 downto 0);
   signal tdc_debug      : std_logic_vector(15 downto 0);  
-  
-  component buf_test is
-generic( 
-	DO_SIMULATION		: integer range 0 to 1 := 1;
-	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
-);
-port(
-	CLK							: in	std_logic;
-	TEST_CLK					: in	std_logic; -- only for simulation!
-	CLK_125_IN				: in std_logic;  -- gk 28.04.01 used only in internal 125MHz clock mode
-	RESET						: in	std_logic;
-	GSR_N						: in	std_logic;
-	-- Debug
-	STAGE_STAT_REGS_OUT			: out	std_logic_vector(31 downto 0);
-	STAGE_CTRL_REGS_IN			: in	std_logic_vector(31 downto 0);
-	-- configuration interface
-	IP_CFG_START_IN				: in 	std_logic;
-	IP_CFG_BANK_SEL_IN			: in	std_logic_vector(3 downto 0);
-	IP_CFG_DONE_OUT				: out	std_logic;
-	IP_CFG_MEM_ADDR_OUT			: out	std_logic_vector(7 downto 0);
-	IP_CFG_MEM_DATA_IN			: in	std_logic_vector(31 downto 0);
-	IP_CFG_MEM_CLK_OUT			: out	std_logic;
-	MR_RESET_IN					: in	std_logic;
-	MR_MODE_IN					: in	std_logic;
-	MR_RESTART_IN				: in	std_logic;
-	-- gk 29.03.10
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	-- gk 22.04.10
-	-- registers setup interface
-	BUS_ADDR_IN               : in std_logic_vector(7 downto 0);
-	BUS_DATA_IN               : in std_logic_vector(31 downto 0);
-	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);  -- gk 26.04.10
-	BUS_WRITE_EN_IN           : in std_logic;  -- gk 26.04.10
-	BUS_READ_EN_IN            : in std_logic;  -- gk 26.04.10
-	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
-	-- gk 23.04.10
-	LED_PACKET_SENT_OUT          : out std_logic;
-	LED_AN_DONE_N_OUT            : out std_logic;
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	--SFP Connection
-	SFP_RXD_P_IN				: in	std_logic;
-	SFP_RXD_N_IN				: in	std_logic;
-	SFP_TXD_P_OUT				: out	std_logic;
-	SFP_TXD_N_OUT				: out	std_logic;
-	SFP_REFCLK_P_IN				: in	std_logic;
-	SFP_REFCLK_N_IN				: in	std_logic;
-	SFP_PRSNT_N_IN				: in	std_logic; -- SFP Present ('0' = SFP in place, '1' = no SFP mounted)
-	SFP_LOS_IN					: in	std_logic; -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
-	SFP_TXDIS_OUT				: out	std_logic; -- SFP disable
-	
-	-- interface between main_controller and hub logic
-	MC_UNIQUE_ID_IN          : in std_logic_vector(63 downto 0);		
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	MAKE_RESET_OUT           : out std_logic;
-
-	-- for simulation of receiving part only
-	MAC_RX_EOF_IN		: in	std_logic;
-	MAC_RXD_IN		: in	std_logic_vector(7 downto 0);
-	MAC_RX_EN_IN		: in	std_logic;
 
 
-	-- debug ports
-	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
-);
-end component;
-
-
-begin
-
+begin  
+--    cts_rdo_trg_status_bits <= cts_rdo_trg_status_bits_cts OR cts_rdo_trg_status_bits_additional;
+   
 ---------------------------------------------------------------------------
 -- Reset Generation
 ---------------------------------------------------------------------------
@@ -545,9 +448,17 @@ THE_RESET_HANDLER : trb_net_reset_handler
     DEBUG_OUT       => open
   );
 
-trb_reset_in <= '0'; -- reset_via_gbe or MED_STAT_OP(4*16+13); --_delayed(2)
-reset_i <= '0'; --reset_i_temp; -- or trb_reset_in;
+trb_reset_in <= reset_via_gbe or MED_STAT_OP(4*16+13); --_delayed(2)
+reset_i <= reset_i_temp; -- or trb_reset_in;
 
+process begin
+  wait until rising_edge(clk_100_i);
+    if reset_i = '1' then
+      reset_via_gbe_delayed <= "000";
+    elsif timer_ticks(0) = '1' then
+      reset_via_gbe_delayed <= reset_via_gbe_delayed(1 downto 0) & reset_via_gbe;
+    end if;
+  end process;
 
 
 ---------------------------------------------------------------------------
@@ -570,11 +481,175 @@ THE_CALIBRATION_PLL : pll_in125_out20
 		CLKOK => clk_125_i,
 		LOCK  => open);
 
+ 
+
+
+---------------------------------------------------------------------------
+-- The TrbNet Hub
+---------------------------------------------------------------------------
+
+
+  THE_HUB: trb_net16_hub_streaming_port_sctrl_cts
+  generic map( 
+	  INIT_ADDRESS        => x"F3C0",
+	  MII_NUMBER           => INTERFACE_NUM,
+    MII_IS_UPLINK        => IS_UPLINK,
+    MII_IS_DOWNLINK      => IS_DOWNLINK,
+    MII_IS_UPLINK_ONLY   => IS_UPLINK_ONLY,	
+    COMPILE_VERSION                  => x"0001",
+    HARDWARE_VERSION                 => HARDWARE_INFO,
+    INIT_ENDPOINT_ID                 => x"0005",
+    BROADCAST_BITMASK                => x"7E",
+    CLOCK_FREQUENCY                  => 100,
+    USE_ONEWIRE                      => c_YES,
+    BROADCAST_SPECIAL_ADDR           => x"35",
+    RDO_ADDITIONAL_PORT              => cts_rdo_additional_ports,
+    RDO_DATA_BUFFER_DEPTH            => 9,
+    RDO_DATA_BUFFER_FULL_THRESH      => 2**9-128,
+    RDO_HEADER_BUFFER_DEPTH          => 9,
+    RDO_HEADER_BUFFER_FULL_THRESH    => 2**9-16  
+    )
+  port map( 
+	  CLK                     => clk_100_i,
+	  RESET                   => reset_i,
+	  CLK_EN                  => '1',
+ 
+-- Media interfacces ---------------------------------------------------------------
+	  MED_DATAREADY_OUT(INTERFACE_NUM*1-1 downto 0)   => med_dataready_out,
+	  MED_DATA_OUT(INTERFACE_NUM*16-1 downto 0)       => med_data_out,
+	  MED_PACKET_NUM_OUT(INTERFACE_NUM*3-1 downto 0)  => med_packet_num_out,
+	  MED_READ_IN(INTERFACE_NUM*1-1 downto 0)         => med_read_in,
+	  MED_DATAREADY_IN(INTERFACE_NUM*1-1 downto 0)    => med_dataready_in,
+	  MED_DATA_IN(INTERFACE_NUM*16-1 downto 0)        => med_data_in,
+	  MED_PACKET_NUM_IN(INTERFACE_NUM*3-1 downto 0)   => med_packet_num_in,
+	  MED_READ_OUT(INTERFACE_NUM*1-1 downto 0)        => med_read_out,
+	  MED_STAT_OP(INTERFACE_NUM*16-1 downto 0)        => med_stat_op,
+	  MED_CTRL_OP(INTERFACE_NUM*16-1 downto 0)        => med_ctrl_op,
+
+-- Gbe Read-out Path ---------------------------------------------------------------
+    --Event information coming from CTS for GbE
+    GBE_CTS_NUMBER_OUT             => gbe_cts_number,
+    GBE_CTS_CODE_OUT               => gbe_cts_code,
+    GBE_CTS_INFORMATION_OUT        => gbe_cts_information,
+    GBE_CTS_READOUT_TYPE_OUT       => gbe_cts_readout_type,
+    GBE_CTS_START_READOUT_OUT      => gbe_cts_start_readout,
+    --Information sent to CTS
+    GBE_CTS_READOUT_FINISHED_IN    => gbe_cts_readout_finished,
+    GBE_CTS_STATUS_BITS_IN         => gbe_cts_status_bits,
+    -- Data from Frontends
+    GBE_FEE_DATA_OUT               => gbe_fee_data,
+    GBE_FEE_DATAREADY_OUT          => gbe_fee_dataready,
+    GBE_FEE_READ_IN                => gbe_fee_read,
+    GBE_FEE_STATUS_BITS_OUT        => gbe_fee_status_bits,
+    GBE_FEE_BUSY_OUT               => gbe_fee_busy,
+
+-- CTS Request Sending -------------------------------------------------------------
+    --LVL1 trigger
+    CTS_TRG_SEND_IN                => cts_trg_send,
+    CTS_TRG_TYPE_IN                => cts_trg_type,
+    CTS_TRG_NUMBER_IN              => cts_trg_number,
+    CTS_TRG_INFORMATION_IN         => cts_trg_information,
+    CTS_TRG_RND_CODE_IN            => cts_trg_code,
+    CTS_TRG_STATUS_BITS_OUT        => cts_trg_status_bits,
+    CTS_TRG_BUSY_OUT               => cts_trg_busy,
+    --IPU Channel
+    CTS_IPU_SEND_IN                => cts_ipu_send,
+    CTS_IPU_TYPE_IN                => cts_ipu_type,
+    CTS_IPU_NUMBER_IN              => cts_ipu_number,
+    CTS_IPU_INFORMATION_IN         => cts_ipu_information,
+    CTS_IPU_RND_CODE_IN            => cts_ipu_code,
+    -- Receiver port
+    CTS_IPU_STATUS_BITS_OUT        => cts_ipu_status_bits,
+    CTS_IPU_BUSY_OUT               => cts_ipu_busy,
+    
+-- CTS Data Readout ----------------------------------------------------------------
+    --Trigger to CTS out
+    RDO_TRIGGER_IN                 => cts_rdo_trigger,
+    RDO_TRG_DATA_VALID_OUT         => cts_rdo_trg_data_valid,
+    RDO_VALID_TIMING_TRG_OUT       => cts_rdo_valid_timing_trg,
+    RDO_VALID_NOTIMING_TRG_OUT     => cts_rdo_valid_notiming_trg,
+    RDO_INVALID_TRG_OUT            => cts_rdo_invalid_trg,
+    RDO_TRG_TYPE_OUT               => cts_rdo_trg_type,
+    RDO_TRG_CODE_OUT               => cts_rdo_trg_code,
+    RDO_TRG_INFORMATION_OUT        => cts_rdo_trg_information,
+    RDO_TRG_NUMBER_OUT             => cts_rdo_trg_number,
+          
+    --Data from CTS in
+    RDO_TRG_STATUSBITS_IN          => cts_rdo_trg_status_bits_cts,
+    RDO_DATA_IN                    => cts_rdo_data,
+    RDO_DATA_WRITE_IN              => cts_rdo_write,
+    RDO_DATA_FINISHED_IN           => cts_rdo_finished,
+    --Data from additional modules
+    RDO_ADDITIONAL_STATUSBITS_IN   => cts_rdo_trg_status_bits_additional,
+    RDO_ADDITIONAL_DATA            => cts_rdo_additional_data,
+    RDO_ADDITIONAL_WRITE           => cts_rdo_additional_write,
+    RDO_ADDITIONAL_FINISHED        => cts_rdo_additional_finished,
+    
+-- Slow Control --------------------------------------------------------------------
+	  COMMON_STAT_REGS        => common_stat_regs, --open,
+	  COMMON_CTRL_REGS        => common_ctrl_regs, --open,
+	  ONEWIRE                 => TEMPSENS,
+	  ONEWIRE_MONITOR_IN      => open,
+	  MY_ADDRESS_OUT          => my_address,
+    UNIQUE_ID_OUT           => mc_unique_id,
+    TIMER_TICKS_OUT         => timer_ticks,
+    EXTERNAL_SEND_RESET     => reset_via_gbe,
+
+	  REGIO_ADDR_OUT          => regio_addr_out,
+	  REGIO_READ_ENABLE_OUT   => regio_read_enable_out,
+	  REGIO_WRITE_ENABLE_OUT  => regio_write_enable_out,
+	  REGIO_DATA_OUT          => regio_data_out,
+	  REGIO_DATA_IN           => regio_data_in,
+	  REGIO_DATAREADY_IN      => regio_dataready_in,
+	  REGIO_NO_MORE_DATA_IN   => regio_no_more_data_in,
+	  REGIO_WRITE_ACK_IN      => regio_write_ack_in,
+	  REGIO_UNKNOWN_ADDR_IN   => regio_unknown_addr_in,
+	  REGIO_TIMEOUT_OUT       => regio_timeout_out,
+
+    --Gbe Sctrl Input
+    GSC_INIT_DATAREADY_IN        => gsc_init_dataready,
+    GSC_INIT_DATA_IN             => gsc_init_data,
+    GSC_INIT_PACKET_NUM_IN       => gsc_init_packet_num,
+    GSC_INIT_READ_OUT            => gsc_init_read,
+    GSC_REPLY_DATAREADY_OUT      => gsc_reply_dataready,
+    GSC_REPLY_DATA_OUT           => gsc_reply_data,
+    GSC_REPLY_PACKET_NUM_OUT     => gsc_reply_packet_num,
+    GSC_REPLY_READ_IN            => gsc_reply_read,
+    GSC_BUSY_OUT                 => gsc_busy,
+
+  --status and control ports
+    HUB_STAT_CHANNEL             => open,
+    HUB_STAT_GEN                 => open,
+    MPLEX_CTRL                   => (others => '0'),
+    MPLEX_STAT                   => open,
+    STAT_REGS                    => open,
+    STAT_CTRL_REGS               => open,
+
+	  --Fixed status and control ports
+	  STAT_DEBUG              => open,
+	  CTRL_DEBUG              => (others => '0')
+  );
+
+process(clk_100_i)
+begin
+	if rising_edge(clk_100_i) then
+	TEST_LINE(15 downto 0) <= gsc_init_data;
+	TEST_LINE(18 downto 16) <= gsc_init_packet_num;
+	TEST_LINE(19) <= gsc_init_dataready;
+	TEST_LINE(20) <= gsc_init_read;
+	TEST_LINE(24 downto 21) <= debug(3 downto 0);
+	end if;
+end process;
+
+TEST_LINE(25) <= clk_100_i;
+TEST_LINE(31 downto 26) <= (others => '1');
+
+
   ---------------------------------------------------------------------
   -- The GbE machine for blasting out data from TRBnet
   ---------------------------------------------------------------------
 
-  GBE: buf_test
+  GBE: trb_net16_gbe_buf
   generic map( 
 	  DO_SIMULATION               => c_NO,
 	  USE_125MHZ_EXTCLK           => c_NO
@@ -671,6 +746,9 @@ THE_CALIBRATION_PLL : pll_in125_out20
 
 	  ANALYZER_DEBUG_OUT          => debug
   );
+
+
+
     
 ---------------------------------------------------------------------------
 -- SPI / Flash
@@ -722,11 +800,39 @@ THE_SPI_MEMORY: spi_databus_memory
     -- Status lines
     STAT          => open
     );
+    
+
+
+
+---------------------------------------------------------------------------
+-- Clock and Trigger Configuration
+---------------------------------------------------------------------------
+
+process begin
+  wait until rising_edge(clk_100_i);
+  if reset_i = '1' then
+    select_tc <= x"00000001"; --always internal trigger source
+  elsif select_tc_write = '1' then
+    select_tc <= select_tc_data_in;
+  end if;
+  select_tc_ack <= select_tc_read or select_tc_write;
+end process;
 
   TRIGGER_SELECT <= select_tc(0);
   CLOCK_SELECT   <= select_tc(8); --use on-board oscillator
   CLK_MNGR1_USER <= select_tc(19 downto 16);
   CLK_MNGR2_USER <= select_tc(27 downto 24); 
+
+   
+  cts_rdo_trigger <= cts_trigger_out;
+
+process begin
+  -- output time reference synchronously to the 200MHz clock
+  -- in order to reduce jitter
+  wait until rising_edge(clk_200_i);
+  TRIGGER_OUT    <= cts_trigger_out;
+  TRIGGER_OUT2   <= cts_trigger_out;
+end process;
   
   
 ---------------------------------------------------------------------------
@@ -749,7 +855,7 @@ THE_SPI_MEMORY: spi_databus_memory
 
 
 ---------------------------------------------------------------------------
--- AddOn Connecto
+-- AddOn Connector
 ---------------------------------------------------------------------------
     PWM_OUT                        <= "00";
     
