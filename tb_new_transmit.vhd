@@ -259,6 +259,11 @@ end process CLOCK_GEN_PROC;
 testbench_proc : process
 begin
 	
+	reset <= '1';
+	wait for 100 ns;
+	reset <= '0';
+	
+		
 	wait;
 
 end process testbench_proc;
