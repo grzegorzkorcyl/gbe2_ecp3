@@ -629,6 +629,29 @@ begin
 	wait until ps_busy = "000";
 	mc_busy <= '0';		
 	
+	
+	
+	wait for 5 us;
+	
+	wait until rising_edge(clk);
+	ps_data <= '0' & x"ff";
+	ps_wr_en <= '1';
+	ps_proto <= "100";
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	ps_data <= '1' & x"aa";
+	wait until rising_edge(clk);
+	ps_data <= '0' & x"00";
+	ps_wr_en <= '0';
+	ps_proto <= "000";
+
+	wait until rising_edge(tc_dataready);
+	mc_busy <= '1';
+	wait until ps_busy = "000";
+	mc_busy <= '0';	
+	
 --	dhcp_start <= '1';
 --	wait for 100 ns;
 --	dhcp_start <= '0';
