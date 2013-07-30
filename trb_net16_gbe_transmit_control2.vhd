@@ -159,6 +159,7 @@ FC_EOD_OUT			<= '1' when local_end = x"0000" else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 --FC_WR_EN_OUT		<= '1' when transmit_current_state = TRANSMIT else '0';
+TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
 FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN; 
