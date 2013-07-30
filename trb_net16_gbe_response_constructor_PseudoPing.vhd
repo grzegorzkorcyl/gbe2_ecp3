@@ -192,7 +192,7 @@ fifo_data  <= gen_ctr(7 downto 0);
 process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE or dissect_current_state = CLEANUP) then
 			gen_ctr <= (others => '0');
 		elsif (dissect_current_state = GENERATE_DATA) then
 			gen_ctr <= gen_ctr + x"1";
@@ -206,7 +206,11 @@ end process;
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		tc_data(8) <= '0';
+		if (dissect_current_state = LOAD_FRAME and size_left = x"0000") then 
+			tc_data(8) <= '1';
+		else
+			tc_data(8) <= '0';
+		end if;
 		
 		tc_data(7 downto 0) <= fifo_q;
 	end if;
