@@ -89,7 +89,7 @@ begin
 			
 		when WAIT_A_SEC =>
 			if (wait_ctr = x"10") then
-				next_state <= CLEANUP;
+				next_state <= GENERATE_DATA;
 			else
 				next_state <= WAIT_A_SEC;
 			end if;
