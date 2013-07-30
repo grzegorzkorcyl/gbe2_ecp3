@@ -158,6 +158,7 @@ signal stat_rdy                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0)
 signal stat_ack                 : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal tc_ip_size               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal tc_udp_size              : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+signal tc_size_left             : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 signal tc_flags_size            : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
 
 signal tc_data_not_valid        : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
@@ -258,6 +259,7 @@ port map (
 	TC_RD_EN_IN             => TC_RD_EN_IN,
 	TC_DATA_OUT		        => tc_data(2 * 9 - 1 downto 1 * 9),
 	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
+	TC_SIZE_LEFT_OUT        => tc_size_left(2 * 16 - 1 downto 1 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(2 * 8 - 1 downto 1 * 8),
 	TC_IDENT_OUT            => tc_ident(2 * 16 - 1 downto 1 * 16),
@@ -645,6 +647,7 @@ begin
 			TC_DATA_NOT_VALID_OUT <= '0';
 			--TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
+			TC_SIZE_LEFT_OUT      <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
 			TC_DEST_IP_OUT        <= (others => '0');
@@ -664,6 +667,7 @@ begin
 			TC_DATA_NOT_VALID_OUT <= tc_data_not_valid(index);
 			--TC_WR_EN_OUT          <= or_all(tc_wr);
 			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
+			TC_SIZE_LEFT_OUT      <= tc_size_left((index + 1) * 16 - 1 downto index * 16);
 			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
 			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
 			TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
@@ -688,6 +692,7 @@ begin
 			TC_DATA_NOT_VALID_OUT <= '0';
 			--TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
+			TC_SIZE_LEFT_OUT      <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
 			TC_DEST_IP_OUT        <= (others => '0');

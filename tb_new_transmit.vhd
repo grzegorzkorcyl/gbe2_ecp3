@@ -597,14 +597,12 @@ begin
 	
 	reset <= '1';
 	dhcp_start <= '0';
-	selected <= '0';
 	wait for 100 ns;
 	reset <= '0';
 	
 	wait for 1 us;
 	
 	dhcp_start <= '1';
-	selected <= '1';
 	wait for 100 ns;
 	dhcp_start <= '0';
 	
