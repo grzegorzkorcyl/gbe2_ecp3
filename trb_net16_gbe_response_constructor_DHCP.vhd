@@ -35,10 +35,9 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_RD_EN_IN		: in	std_logic;
+	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -122,7 +121,7 @@ signal vendor_values2           : std_logic_vector(47 downto 0);
 
 signal discarded_ctr            : std_logic_vector(15 downto 0);
 
-signal size_left            : std_logic_vector(15 downto 0);
+
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
@@ -562,25 +561,23 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (construct_current_state = IDLE) then
 			load_ctr <= 0;
-		elsif (TC_RD_EN_IN = '1') and (PS_SELECTED_IN = '1') then
---		elsif (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
+		--elsif (TC_RD_EN_IN = '1') and (PS_SELECTED_IN = '1') then
+		elsif (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
 			load_ctr <= load_ctr + 1;
-		else
-			load_ctr <= load_ctr;
 		end if;
 	end if;
 end process LOAD_CTR_PROC;
 
---TC_WR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
---			TC_WR_EN_OUT <= '1';
---		else
---			TC_WR_EN_OUT <= '0';
---		end if;
---	end if;
---end process TC_WR_PROC;
+TC_WR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
+			TC_WR_EN_OUT <= '1';
+		else
+			TC_WR_EN_OUT <= '0';
+		end if;
+	end if;
+end process TC_WR_PROC;
 
 TC_DATA_PROC : process(CLK, construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
 begin
@@ -676,24 +673,6 @@ TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 
 TC_IDENT_OUT        <= x"1" & sent_frames(11 downto 0);
 
-SIZE_LEFT_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (main_current_state = BOOTING and DHCP_START_IN = '1') then
-			size_left <= x"0103";
-		elsif (main_current_state = SENDING_DISCOVER and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
-			size_left <= size_left - x"1";
-		elsif (main_current_state = WAITING_FOR_OFFER) then
-			size_left <= x"0109";
-		elsif (main_current_state = SENDING_REQUEST and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
-			size_left <= size_left - x"1";
-		else
-			size_left <= size_left;
-		end if;
-	end if;
-end process SIZE_LEFT_PROC;
-
-TC_SIZE_LEFT_OUT <= size_left;
 
 -- **** statistics
 --REC_FRAMES_PROC : process(CLK)

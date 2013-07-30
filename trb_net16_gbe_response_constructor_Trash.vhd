@@ -15,8 +15,6 @@ use work.trb_net_gbe_components.all;
 -- simply clears the fifo from garbage
 
 entity trb_net16_gbe_response_constructor_Trash is
-generic ( STAT_ADDRESS_BASE : integer := 0
-);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
@@ -38,7 +36,6 @@ port (
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
@@ -47,16 +44,9 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	
 	TC_BUSY_IN		: in	std_logic;
 	
-	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
-	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
-	STAT_DATA_RDY_OUT : out std_logic;
-	STAT_DATA_ACK_IN  : in std_logic;
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
