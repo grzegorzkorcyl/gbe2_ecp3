@@ -318,7 +318,7 @@ port map (
 	TC_RD_EN_IN             => TC_RD_EN_IN,
 	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
 	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
-	TC_SIZE_LEFT_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
+	TC_SIZE_LEFT_OUT	    => tc_size_left(3 * 16 - 1 downto 2 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
 	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
