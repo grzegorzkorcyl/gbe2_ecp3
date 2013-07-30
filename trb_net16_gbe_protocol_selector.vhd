@@ -606,6 +606,7 @@ begin
 				select_next_state <= CLEANUP;
 			end if;			
 		
+		--TODO: not really nice, should be the other way around
 		when SELECT_ONE =>
 			state <= x"3";
 			if (MC_BUSY_IN = '1') then

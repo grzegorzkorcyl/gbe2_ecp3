@@ -623,6 +623,12 @@ begin
 	ps_data <= '0' & x"00";
 	ps_wr_en <= '0';
 	ps_proto <= "000";
+
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	mc_busy <= '1';
 		
 	
 --	dhcp_start <= '1';
