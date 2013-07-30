@@ -65,7 +65,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, DIVIDE, WAIT_FOR_TRANS, CLEANUP);
+type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, WAIT_FOR_TRANS);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
@@ -111,7 +111,7 @@ begin
 			
 		when WAIT_FOR_TRANS =>
 			if (FC_READY_IN = '1') then
-				transmit_next_state <= CLEANUP;
+				transmit_next_state <= IDLE;
 			else
 				transmit_next_state <= WAIT_FOR_TRANS;
 			end if;
@@ -119,11 +119,11 @@ begin
 --		when DIVIDE =>
 --			transmit_next_state <= IDLE;
 		
-		when CLEANUP =>
-			transmit_next_state <= IDLE;
-			
-		when others =>
-			transmit_next_state <= IDLE;
+--		when CLEANUP =>
+--			transmit_next_state <= IDLE;
+--			
+--		when others =>
+--			transmit_next_state <= IDLE;
 	
 	end case;
 end process TRANSMIT_MACHINE;
@@ -159,7 +159,7 @@ FC_EOD_OUT			<= '1' when local_end = x"0000" else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 --FC_WR_EN_OUT		<= '1' when transmit_current_state = TRANSMIT else '0';
-TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
+TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = WAIT_FOR_TRANS and FC_READY_IN = '1' else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
 FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN; 
