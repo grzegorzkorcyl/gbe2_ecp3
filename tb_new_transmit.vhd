@@ -597,6 +597,7 @@ begin
 	
 	reset <= '1';
 	dhcp_start <= '0';
+	mc_busy <= '0';
 	wait for 100 ns;
 	reset <= '0';
 	
