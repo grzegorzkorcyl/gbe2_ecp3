@@ -312,7 +312,7 @@ signal pc_sub_size				: std_logic_vector(31 downto 0);
 signal pc_trig_nr				: std_logic_vector(31 downto 0);
 
 signal tc_wr_en					: std_logic;
-signal tc_data					: std_logic_vector(7 downto 0);
+signal tc_data					: std_logic_vector(8 downto 0);
 signal tc_ip_size				: std_logic_vector(15 downto 0);
 signal tc_udp_size				: std_logic_vector(15 downto 0);
 signal tc_ident					: std_logic_vector(15 downto 0);
@@ -487,7 +487,7 @@ signal mc_ctrl_frame_req             : std_logic;
 signal mc_data                       : std_logic_vector(8 downto 0);
 signal mc_wr_en                      : std_logic;
 signal fc_wr_en                      : std_logic;
-signal fc_data                       : std_logic_vector(8 downto 0);
+signal fc_data                       : std_logic_vector(7 downto 0);
 signal fc_ip_size                    : std_logic_vector(15 downto 0);
 signal fc_udp_size                   : std_logic_vector(15 downto 0);
 signal fc_ident                      : std_logic_vector(15 downto 0);
