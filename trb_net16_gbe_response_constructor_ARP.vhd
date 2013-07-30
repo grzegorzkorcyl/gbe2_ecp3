@@ -35,9 +35,10 @@ port (
 	PS_SRC_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	   : in	std_logic_vector(15 downto 0);
 		
-	TC_WR_EN_OUT		   : out	std_logic;
+	TC_RD_EN_IN		   : in	std_logic;
 	TC_DATA_OUT		       : out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -186,22 +187,22 @@ begin
 			data_ctr <= data_ctr + 1;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
 			data_ctr <= data_ctr + 1;
-		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then  -- in case of constructing response
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then  -- in case of constructing response
 			data_ctr <= data_ctr + 1;
 		end if;
 	end if;
 end process DATA_CTR_PROC;
 
-TC_WR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
-			tc_wr <= '1';
-		else
-			tc_wr <= '0';
-		end if;
-	end if;
-end process TC_WR_PROC;
+--TC_WR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
+--			tc_wr <= '1';
+--		else
+--			tc_wr <= '0';
+--		end if;
+--	end if;
+--end process TC_WR_PROC;
 
 SAVE_VALUES_PROC : process(CLK)
 begin
@@ -262,7 +263,7 @@ begin
 	end if;	
 end process TC_DATA_PROC;
 
-TC_WR_EN_OUT <= tc_wr;
+--TC_WR_EN_OUT <= tc_wr;
 TC_DATA_OUT  <= tc_data;
 
 PS_RESPONSE_SYNC : process(CLK)
@@ -285,6 +286,7 @@ end process PS_RESPONSE_SYNC;
 
 
 TC_FRAME_SIZE_OUT   <= x"001c";  -- fixed frame size
+TC_SIZE_LEFT_OUT    <= x"001c";
 
 TC_FRAME_TYPE_OUT   <= x"0608";
 TC_DEST_MAC_OUT     <= PS_SRC_MAC_ADDRESS_IN;
