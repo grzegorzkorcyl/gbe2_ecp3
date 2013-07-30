@@ -765,7 +765,7 @@ port map(
 -- signal to/from main controller
 	TC_DATAREADY_IN        => mc_transmit_ctrl,
 	TC_RD_EN_OUT		   => mc_wr_en,
-	TC_DATA_IN		       => mc_data,
+	TC_DATA_IN		       => mc_data(7 downto 0),
 	TC_FRAME_SIZE_IN	   => mc_frame_size,
 	TC_SIZE_LEFT_IN        => mc_size_left,
 	TC_FRAME_TYPE_IN	   => mc_type,
