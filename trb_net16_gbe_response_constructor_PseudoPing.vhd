@@ -127,7 +127,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, data_length, gen_ctr, size_left)
+DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, data_length, gen_ctr, size_left, PS_SELECTED_IN)
 begin
 	case dissect_current_state is
 	
