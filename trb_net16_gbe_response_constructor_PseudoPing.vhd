@@ -203,7 +203,7 @@ begin
 end process;
 
 
-TC_DATA_PROC : process(dissect_current_state, data_ctr, saved_headers, saved_data, data_length)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		tc_data(8) <= '0';
