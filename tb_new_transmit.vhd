@@ -90,6 +90,61 @@ port (
 );
 end component;
 
+component trb_net16_gbe_response_constructor_DHCP is
+generic ( STAT_ADDRESS_BASE : integer := 0
+);
+port (
+	CLK			: in	std_logic;  -- system clock
+	RESET			: in	std_logic;
+	
+-- INTERFACE	
+	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
+	PS_WR_EN_IN		: in	std_logic;
+	PS_ACTIVATE_IN		: in	std_logic;
+	PS_RESPONSE_READY_OUT	: out	std_logic;
+	PS_BUSY_OUT		: out	std_logic;
+	PS_SELECTED_IN		: in	std_logic;
+	PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
+	PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
+	PS_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
+	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
+		
+	TC_RD_EN_IN : in std_logic;
+	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
+	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
+	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
+	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);
+	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
+	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
+	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
+	TC_BUSY_IN		: in	std_logic;
+	
+	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
+	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
+	STAT_DATA_RDY_OUT : out std_logic;
+	STAT_DATA_ACK_IN  : in std_logic;
+	
+	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
+	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
+-- END OF INTERFACE
+
+	DHCP_START_IN		: in	std_logic;
+	DHCP_DONE_OUT		: out	std_logic;
+-- debug
+	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+);
+end component;
+
 signal clk, reset,RX_MAC_CLK : std_logic;
 signal fc_data                   : std_logic_vector(7 downto 0);
 signal fc_wr_en                  : std_logic;
@@ -121,32 +176,89 @@ signal tc_dest_udp               : std_logic_vector(15 downto 0);
 signal tc_dataready, tc_rd_en, tc_done : std_logic;
 signal tc_data, tc_ip_proto : std_logic_vector(7 downto 0);
 signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logic_vector(15 downto 0);
-
+signal response_ready, selected, dhcp_start : std_logic;
 
 begin
 
-data_src : test_data_source
-port map(
-	CLK			            => clk,
-	RESET			        => reset,
+--data_src : test_data_source
+--port map(
+--	CLK			            => clk,
+--	RESET			        => reset,
+--
+--	TC_DATAREADY_OUT        => tc_dataready,
+--	TC_RD_EN_IN		        => tc_rd_en,
+--	TC_DATA_OUT		        => tc_data,
+--	TC_FRAME_SIZE_OUT	    => tc_frame_size,
+--	TC_SIZE_LEFT_OUT        => tc_size_left,
+--	TC_FRAME_TYPE_OUT	    => tc_frame_type,
+--	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,	
+--	TC_DEST_MAC_OUT		    => tc_dest_mac,
+--	TC_DEST_IP_OUT		    => tc_dest_ip,
+--	TC_DEST_UDP_OUT		    => tc_dest_udp,
+--	TC_SRC_MAC_OUT		    => tc_src_mac,
+--	TC_SRC_IP_OUT		    => tc_src_ip,
+--	TC_SRC_UDP_OUT		    => tc_src_udp,
+--	TC_FLAGS_OFFSET_OUT	    => tc_flags,
+--	TC_TRANSMISSION_DONE_IN => tc_done,
+--	TC_IDENT_OUT            => tc_ident
+--);
 
-	TC_DATAREADY_OUT        => tc_dataready,
-	TC_RD_EN_IN		        => tc_rd_en,
+DHCP : trb_net16_gbe_response_constructor_DHCP
+generic map( STAT_ADDRESS_BASE => 0
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN		        => (others => '0'),
+	PS_WR_EN_IN		        => '0',
+	PS_ACTIVATE_IN		    => '0',
+	PS_RESPONSE_READY_OUT	=> tc_dataready,
+	PS_BUSY_OUT		        => open,
+	PS_SELECTED_IN		    => selected,
+	
+	PS_SRC_MAC_ADDRESS_IN	=> x"001122334455",
+	PS_DEST_MAC_ADDRESS_IN  => x"001122334455",
+	PS_SRC_IP_ADDRESS_IN	=> x"c0a80001",
+	PS_DEST_IP_ADDRESS_IN	=> x"c0a80003",
+	PS_SRC_UDP_PORT_IN	    => x"c350",
+	PS_DEST_UDP_PORT_IN	    => x"c350",
+	 
+	TC_RD_EN_IN             => tc_rd_en,
 	TC_DATA_OUT		        => tc_data,
 	TC_FRAME_SIZE_OUT	    => tc_frame_size,
 	TC_SIZE_LEFT_OUT        => tc_size_left,
 	TC_FRAME_TYPE_OUT	    => tc_frame_type,
-	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,	
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,
+	TC_IDENT_OUT            => tc_ident,
+	 
 	TC_DEST_MAC_OUT		    => tc_dest_mac,
 	TC_DEST_IP_OUT		    => tc_dest_ip,
 	TC_DEST_UDP_OUT		    => tc_dest_udp,
 	TC_SRC_MAC_OUT		    => tc_src_mac,
 	TC_SRC_IP_OUT		    => tc_src_ip,
 	TC_SRC_UDP_OUT		    => tc_src_udp,
+	
+--	TC_IP_SIZE_OUT		    => tc_ip_size(2 * 16 - 1 downto 1 * 16),
+--	TC_UDP_SIZE_OUT		    => tc_udp_size(2 * 16 - 1 downto 1 * 16),
 	TC_FLAGS_OFFSET_OUT	    => tc_flags,
-	TC_TRANSMISSION_DONE_IN => tc_done,
-	TC_IDENT_OUT            => tc_ident
-);
+	 
+	TC_BUSY_IN		        => '0',
+	
+	STAT_DATA_OUT           => open,
+	STAT_ADDR_OUT           => open,
+	STAT_DATA_RDY_OUT       => open,
+	STAT_DATA_ACK_IN        => '0',
+	RECEIVED_FRAMES_OUT	    => open,
+	SENT_FRAMES_OUT		    => open,
+-- END OF INTERFACE
+
+	DHCP_START_IN		    => dhcp_start,
+	DHCP_DONE_OUT		    => open,
+	 
+	DEBUG_OUT		        => open
+ );
 
 transmit_controller : trb_net16_gbe_transmit_control2
 port map(
@@ -260,10 +372,18 @@ testbench_proc : process
 begin
 	
 	reset <= '1';
+	dhcp_start <= '0';
+	selected <= '0';
 	wait for 100 ns;
 	reset <= '0';
 	
-		
+	wait for 1 us;
+	
+	dhcp_start <= '1';
+	selected <= '1';
+	wait for 100 ns;
+	dhcp_start <= '0';
+	
 	wait;
 
 end process testbench_proc;

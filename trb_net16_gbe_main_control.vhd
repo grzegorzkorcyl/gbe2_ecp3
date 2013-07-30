@@ -47,8 +47,10 @@ port (
 	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_WR_EN_OUT		: out	std_logic;
-	TC_DATA_NOT_VALID_OUT : out std_logic;
+	--TC_RD_EN_IN         : in	std_logic;
+	--TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
@@ -58,17 +60,17 @@ port (
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+--	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+--	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
 	
-	TC_FC_H_READY_IN : in std_logic;
-	TC_FC_READY_IN : in std_logic;
-	TC_FC_WR_EN_OUT : out std_logic;
-	
-	TC_BUSY_IN		: in	std_logic;
+--	TC_FC_H_READY_IN : in std_logic;
+--	TC_FC_READY_IN : in std_logic;
+--	TC_FC_WR_EN_OUT : out std_logic;
+--	
+--	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
 
 -- signals to/from sgmii/gbe pcs_an_complete
@@ -165,7 +167,7 @@ signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
 
 signal mac_control_debug             : std_logic_vector(63 downto 0);
 
-type flow_states is (IDLE, WAIT_FOR_H, TRANSMIT_CTRL, WAIT_FOR_FC, CLEANUP);
+type flow_states is (IDLE, TRANSMIT_CTRL, WAIT_FOR_FC, CLEANUP);
 signal flow_current_state, flow_next_state : flow_states;
 
 signal state                        : std_logic_vector(3 downto 0);
@@ -266,15 +268,15 @@ port map(
 	TC_SRC_IP_OUT		=> TC_SRC_IP_OUT,
 	TC_SRC_UDP_OUT		=> TC_SRC_UDP_OUT,
 	
-	TC_IP_SIZE_OUT		=> TC_IP_SIZE_OUT,
-	TC_UDP_SIZE_OUT		=> TC_UDP_SIZE_OUT,
+	TC_IP_SIZE_OUT		=> open, --TC_IP_SIZE_OUT,
+	TC_UDP_SIZE_OUT		=> open, --TC_UDP_SIZE_OUT,
 	TC_FLAGS_OFFSET_OUT	=> TC_FLAGS_OFFSET_OUT,
 	
-	TC_FC_H_READY_IN    => TC_FC_H_READY_IN,
-	TC_FC_READY_IN      => TC_FC_READY_IN,
-	TC_FC_WR_EN_OUT     => TC_FC_WR_EN_OUT,
+	TC_FC_H_READY_IN    => '0', --TC_FC_H_READY_IN,
+	TC_FC_READY_IN      => '0', --TC_FC_READY_IN,
+	TC_FC_WR_EN_OUT     => open, --TC_FC_WR_EN_OUT,
 	
-	TC_BUSY_IN		=> TC_BUSY_IN,
+	TC_BUSY_IN		=> '0', --TC_BUSY_IN,
 	MC_BUSY_IN      => mc_busy,
 	
 	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,
@@ -337,7 +339,7 @@ port map(
 	
 	DEBUG_OUT		=> dbg_ps
 );
-TC_DATA_NOT_VALID_OUT <= '0';
+
 TC_DATA_OUT <= tc_data;
 
 -- gk 07.11.11
@@ -512,23 +514,23 @@ begin
   end if;
 end process FLOW_MACHINE_PROC;
 
-FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, TC_FC_H_READY_IN, TC_FC_READY_IN, ps_response_ready, tc_data)
+FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, ps_response_ready, tc_data)
 begin
 	case flow_current_state is
 
 		when IDLE =>
 			if (ps_response_ready = '1')  then
-				flow_next_state <= WAIT_FOR_H; --TRANSMIT_CTRL;
+				flow_next_state <= TRANSMIT_CTRL;
 			else
 				flow_next_state <= IDLE;
 			end if;
 			
-		when WAIT_FOR_H =>
-			if (TC_FC_H_READY_IN = '1') then
-				flow_next_state <= TRANSMIT_CTRL;
-			else
-				flow_next_state <= WAIT_FOR_H;
-			end if;
+--		when WAIT_FOR_H =>
+--			if (TC_FC_H_READY_IN = '1') then
+--				flow_next_state <= TRANSMIT_CTRL;
+--			else
+--				flow_next_state <= WAIT_FOR_H;
+--			end if;
 			
 		when TRANSMIT_CTRL =>
 			if (tc_data(8) = '1') then
@@ -538,7 +540,7 @@ begin
 			end if;
 			
 		when WAIT_FOR_FC =>
-			if (TC_FC_READY_IN = '1') then
+			if (TC_TRANSMIT_DONE_IN = '1') then
 				flow_next_state <= CLEANUP;
 			else
 				flow_next_state <= WAIT_FOR_FC;
@@ -621,7 +623,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				link_next_state <= ACTIVE; --WAIT_FOR_BOOT; --ACTIVE;
+				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
 			end if;
 			
 		when WAIT_FOR_BOOT =>

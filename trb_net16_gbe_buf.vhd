@@ -590,7 +590,7 @@ signal idle_too_long : std_logic;
 signal tc_data_not_valid : std_logic;
 
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
-signal mc_ident : std_logic_vector(15 downto 0);
+signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
 begin
 
@@ -633,9 +633,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
   -- signals to/from transmit controller
 	  TC_TRANSMIT_CTRL_OUT	=> mc_transmit_ctrl,
 	  TC_DATA_OUT		=> mc_data,
-	  TC_WR_EN_OUT		=> mc_wr_en,
-	  TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
+	  TC_RD_EN_IN		=> mc_wr_en,
+	  --TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
 	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
+	  TC_SIZE_LEFT_OUT  => mc_size_left,
 	  TC_FRAME_TYPE_OUT	=> mc_type,
 	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
 	  TC_IDENT_OUT          => mc_ident,
@@ -647,15 +648,15 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_SRC_IP_OUT		=> mc_src_ip,
 	  TC_SRC_UDP_OUT	=> mc_src_udp,
 	  
-	  TC_IP_SIZE_OUT		=> mc_ip_size,
-	  TC_UDP_SIZE_OUT		=> mc_udp_size,
+--	  TC_IP_SIZE_OUT		=> mc_ip_size,
+--	  TC_UDP_SIZE_OUT		=> mc_udp_size,
 	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
 	  
-	  TC_FC_H_READY_IN => mc_fc_h_ready,
-	  TC_FC_READY_IN  => mc_fc_ready,
-	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
-	  
-	  TC_BUSY_IN		=> mc_busy,
+--	  TC_FC_H_READY_IN => mc_fc_h_ready,
+--	  TC_FC_READY_IN  => mc_fc_ready,
+--	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
+--	  
+--	  TC_BUSY_IN		=> mc_busy,
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
 
   -- signals to/from sgmii/gbe pcs_an_complete
@@ -728,38 +729,56 @@ MAIN_CONTROL : trb_net16_gbe_main_control
   MAKE_RESET_OUT <= make_reset or idle_too_long;
 
 
-TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control
+TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
 port map(
 	CLK			=> CLK,
 	RESET			=> RESET,
 
 -- signal to/from main controller
-	MC_TRANSMIT_CTRL_IN	=> mc_transmit_ctrl,
-	MC_DATA_IN		=> mc_data,
-	MC_WR_EN_IN		=> mc_wr_en,
-	MC_DATA_NOT_VALID_IN => tc_data_not_valid,
-	MC_FRAME_SIZE_IN	=> mc_frame_size,
-	MC_FRAME_TYPE_IN	=> mc_type,
-	MC_IP_PROTOCOL_IN	=> mc_ip_proto,
-	MC_IDENT_IN         => mc_ident,
-	
-	MC_DEST_MAC_IN		=> mc_dest_mac,
-	MC_DEST_IP_IN		=> mc_dest_ip,
-	MC_DEST_UDP_IN		=> mc_dest_udp,
-	MC_SRC_MAC_IN		=> mc_src_mac,
-	MC_SRC_IP_IN		=> mc_src_ip,
-	MC_SRC_UDP_IN		=> mc_src_udp,
-	
-	MC_IP_SIZE_IN		=> mc_ip_size,
-	MC_UDP_SIZE_IN		=> mc_udp_size,
-	MC_FLAGS_OFFSET_IN	=> mc_flags,
-	
-	MC_FC_H_READY_OUT   => mc_fc_h_ready,
-	MC_FC_READY_OUT     => mc_fc_ready,
-	MC_FC_WR_EN_IN      => mc_fc_wr_en,
-		
-	MC_BUSY_OUT		=> mc_busy,
-	MC_TRANSMIT_DONE_OUT    => mc_transmit_done,
+--	MC_TRANSMIT_CTRL_IN	=> mc_transmit_ctrl,
+--	MC_DATA_IN		=> mc_data,
+--	MC_WR_EN_IN		=> mc_wr_en,
+--	MC_DATA_NOT_VALID_IN => tc_data_not_valid,
+--	MC_FRAME_SIZE_IN	=> mc_frame_size,
+--	MC_FRAME_TYPE_IN	=> mc_type,
+--	MC_IP_PROTOCOL_IN	=> mc_ip_proto,
+--	MC_IDENT_IN         => mc_ident,
+--	
+--	MC_DEST_MAC_IN		=> mc_dest_mac,
+--	MC_DEST_IP_IN		=> mc_dest_ip,
+--	MC_DEST_UDP_IN		=> mc_dest_udp,
+--	MC_SRC_MAC_IN		=> mc_src_mac,
+--	MC_SRC_IP_IN		=> mc_src_ip,
+--	MC_SRC_UDP_IN		=> mc_src_udp,
+--	
+--	MC_IP_SIZE_IN		=> mc_ip_size,
+--	MC_UDP_SIZE_IN		=> mc_udp_size,
+--	MC_FLAGS_OFFSET_IN	=> mc_flags,
+--	
+--	MC_FC_H_READY_OUT   => mc_fc_h_ready,
+--	MC_FC_READY_OUT     => mc_fc_ready,
+--	MC_FC_WR_EN_IN      => mc_fc_wr_en,
+--		
+--	MC_BUSY_OUT		=> mc_busy,
+--	MC_TRANSMIT_DONE_OUT    => mc_transmit_done,
+
+-- signal to/from main controller
+	TC_DATAREADY_IN        => mc_transmit_ctrl,
+	TC_RD_EN_OUT		   => mc_wr_en,
+	TC_DATA_IN		       => mc_data,
+	TC_FRAME_SIZE_IN	   => mc_frame_size,
+	TC_SIZE_LEFT_IN        => mc_size_left,
+	TC_FRAME_TYPE_IN	   => mc_type,
+	TC_IP_PROTOCOL_IN	   => mc_ip_proto,	
+	TC_DEST_MAC_IN		   => mc_dest_mac,
+	TC_DEST_IP_IN		   => mc_dest_ip,
+	TC_DEST_UDP_IN		   => mc_dest_udp,
+	TC_SRC_MAC_IN		   => mc_src_mac,
+	TC_SRC_IP_IN		   => mc_src_ip,
+	TC_SRC_UDP_IN		   => mc_src_udp,
+	TC_FLAGS_OFFSET_IN	   => mc_flags,
+	TC_TRANSMISSION_DONE_OUT => mc_transmit_done,
+	TC_IDENT_IN            => mc_ident,
 
 -- signal to/from frame constructor
 	FC_DATA_OUT		=> fc_data,
