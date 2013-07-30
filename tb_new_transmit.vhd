@@ -292,7 +292,7 @@ signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logi
 signal response_ready, selected, dhcp_start, mc_busy : std_logic;
 
 signal ps_data : std_logic_vector(8 downto 0);
-signal ps_wr_en : std_logic;
+signal ps_wr_en, ps_busy : std_logic;
 signal ps_proto : std_logic_vector(2 downto 0);
 
 begin
@@ -386,7 +386,7 @@ port map(
 	PS_DATA_IN		        => ps_data,
 	PS_WR_EN_IN		        => ps_wr_en,
 	PS_PROTO_SELECT_IN	=> ps_proto,
-	PS_BUSY_OUT		=> open,
+	PS_BUSY_OUT		=> ps_busy,
 	PS_FRAME_SIZE_IN	=> (others => '0'),
 	PS_RESPONSE_READY_OUT	=> tc_dataready,
 	
@@ -626,7 +626,8 @@ begin
 
 	wait until rising_edge(tc_dataready);
 	mc_busy <= '1';
-		
+	wait until falling_edge(ps_busy);
+	mc_busy <= '0';		
 	
 --	dhcp_start <= '1';
 --	wait for 100 ns;
