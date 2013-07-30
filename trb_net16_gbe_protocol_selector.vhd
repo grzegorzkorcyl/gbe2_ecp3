@@ -292,7 +292,7 @@ port map (
  );
 
 -- protocol No. 2 DHCP
-DHCP : trb_net16_gbe_response_constructor_DHCP
+DHCP_DUMMY : trb_net16_gbe_response_constructor_DHCP
 generic map( STAT_ADDRESS_BASE => 0
 )
 port map (
