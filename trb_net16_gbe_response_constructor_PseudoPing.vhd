@@ -186,7 +186,7 @@ fifo : fifo_2048x8
   );
   
 fifo_wr_en <= '1' when dissect_current_state = GENERATE_DATA else '0';
-fifo_data  <= gen_ctr;
+fifo_data  <= gen_ctr(7 downto 0);
 
 process(CLK)
 begin
