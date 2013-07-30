@@ -68,7 +68,7 @@ architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 
 type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, DIVIDE, WAIT_FOR_TRANS, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
-signal tc_rd : std_logic;
+signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
 
 begin
@@ -131,7 +131,9 @@ TC_RD_EN_OUT        <= tc_rd;
 process(CLK)
 begin
 	if rising_edge(CLK) then
-		FC_WR_EN_OUT <= tc_rd;
+		tc_rd_q <= tc_rd;
+		tc_rd_qq <= tc_rd_q;
+		FC_WR_EN_OUT <= tc_rd_qq;
 	end if;
 end process;
 
