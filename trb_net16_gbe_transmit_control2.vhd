@@ -65,7 +65,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, WAIT_FOR_TRANS);
+type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, WAIT_FOR_TRANS);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
@@ -104,10 +104,16 @@ begin
 		
 		when TRANSMIT =>
 			if (local_end = x"0000") then
-				transmit_next_state <= WAIT_FOR_TRANS;
+				transmit_next_state <= SEND_ONE;
 			else
 				transmit_next_state <= TRANSMIT;
 			end if;
+			
+		when SEND_ONE =>
+			transmit_next_state <= SEND_TWO;
+			
+		when SEND_TWO =>
+			transmit_next_state <= WAIT_FOR_TRANS;
 			
 		when WAIT_FOR_TRANS =>
 			if (FC_READY_IN = '1') then
@@ -155,7 +161,7 @@ end process;
 
 FC_DATA_OUT         <= TC_DATA_IN;
 FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0'; 
-FC_EOD_OUT			<= '1' when local_end = x"0000" else '0';
+FC_EOD_OUT			<= '1' when transmit_current_state = SEND_TWO else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 --FC_WR_EN_OUT		<= '1' when transmit_current_state = TRANSMIT else '0';
