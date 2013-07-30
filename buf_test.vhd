@@ -1361,7 +1361,7 @@ port map(
 	  CLK			=> CLK,
 	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
-	  ALLOW_RX_IN		=> allow_rx,
+	  ALLOW_RX_IN		=> '1', --allow_rx,
 	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
 
   -- input signals from TS_MAC
