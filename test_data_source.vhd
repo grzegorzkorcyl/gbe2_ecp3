@@ -164,7 +164,7 @@ begin
 	end if; 
 end process;
 
-full_size <= x"0100";
+full_size <= x"00f0";
 
 TC_DATAREADY_OUT <= '1' when (current_state = GENERATE_DATA and gen_data_ctr = x"1000") else '0';
 
