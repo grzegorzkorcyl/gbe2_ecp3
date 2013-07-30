@@ -305,6 +305,7 @@ port (
 	TC_WR_EN_OUT		: out	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);

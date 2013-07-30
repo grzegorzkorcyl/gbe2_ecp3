@@ -42,6 +42,7 @@ port (
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
@@ -254,7 +255,7 @@ port map (
 	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
 	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
 	 
-	TC_WR_EN_OUT            => tc_wr(1),
+	TC_RD_EN_IN             => TC_RD_EN_IN,
 	TC_DATA_OUT		        => tc_data(2 * 9 - 1 downto 1 * 9),
 	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
