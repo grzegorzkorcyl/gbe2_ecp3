@@ -241,8 +241,8 @@ port map (
 	TC_SRC_IP_OUT		    => tc_src_ip,
 	TC_SRC_UDP_OUT		    => tc_src_udp,
 	
---	TC_IP_SIZE_OUT		    => tc_ip_size(2 * 16 - 1 downto 1 * 16),
---	TC_UDP_SIZE_OUT		    => tc_udp_size(2 * 16 - 1 downto 1 * 16),
+	TC_IP_SIZE_OUT		    => open,
+	TC_UDP_SIZE_OUT		    => open,
 	TC_FLAGS_OFFSET_OUT	    => tc_flags,
 	 
 	TC_BUSY_IN		        => '0',
