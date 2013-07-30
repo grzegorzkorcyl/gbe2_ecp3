@@ -136,7 +136,7 @@ begin
 	if rising_edge(CLK) then
 		tc_rd_q <= tc_rd;
 		tc_rd_qq <= tc_rd_q;
-		FC_WR_EN_OUT <= tc_rd_qq;
+		FC_WR_EN_OUT <= tc_rd_q;
 	end if;
 end process;
 
@@ -144,7 +144,7 @@ process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = WAIT_FOR_H) then
-			local_end <= TC_FRAME_SIZE_IN + x"2";
+			local_end <= TC_FRAME_SIZE_IN + x"1";
 		elsif (transmit_current_state = TRANSMIT) then
 			local_end <= local_end - x"1";
 		else
