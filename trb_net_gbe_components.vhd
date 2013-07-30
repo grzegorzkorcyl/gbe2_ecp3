@@ -10,6 +10,55 @@ use work.trb_net_gbe_protocols.all;
 package trb_net_gbe_components is
 
 
+component trb_net16_gbe_transmit_control2 is
+port (
+	CLK			         : in	std_logic;
+	RESET			     : in	std_logic;
+
+-- signal to/from main controller
+	TC_DATAREADY_IN        : in 	std_logic;
+	TC_RD_EN_OUT		        : out	std_logic;
+	TC_DATA_IN		        : in	std_logic_vector(7 downto 0);
+	TC_FRAME_SIZE_IN	    : in	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_IN        : in	std_logic_vector(15 downto 0);
+	TC_FRAME_TYPE_IN	    : in	std_logic_vector(15 downto 0);
+	TC_IP_PROTOCOL_IN	    : in	std_logic_vector(7 downto 0);	
+	TC_DEST_MAC_IN		    : in	std_logic_vector(47 downto 0);
+	TC_DEST_IP_IN		    : in	std_logic_vector(31 downto 0);
+	TC_DEST_UDP_IN		    : in	std_logic_vector(15 downto 0);
+	TC_SRC_MAC_IN		    : in	std_logic_vector(47 downto 0);
+	TC_SRC_IP_IN		    : in	std_logic_vector(31 downto 0);
+	TC_SRC_UDP_IN		    : in	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_IN	    : in	std_logic_vector(15 downto 0);
+	TC_TRANSMISSION_DONE_OUT : out	std_logic;
+	TC_IDENT_IN             : in	std_logic_vector(15 downto 0);
+
+-- signal to/from frame constructor
+	FC_DATA_OUT		     : out	std_logic_vector(7 downto 0);
+	FC_WR_EN_OUT		 : out	std_logic;
+	FC_READY_IN		     : in	std_logic;
+	FC_H_READY_IN		 : in	std_logic;
+	FC_FRAME_TYPE_OUT	 : out	std_logic_vector(15 downto 0);
+	FC_IP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
+	FC_UDP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
+	FC_IDENT_OUT		 : out	std_logic_vector(15 downto 0);  -- internal packet counter
+	FC_FLAGS_OFFSET_OUT	 : out	std_logic_vector(15 downto 0);
+	FC_SOD_OUT		     : out	std_logic;
+	FC_EOD_OUT		     : out	std_logic;
+	FC_IP_PROTOCOL_OUT	 : out	std_logic_vector(7 downto 0);
+
+	DEST_MAC_ADDRESS_OUT : out    std_logic_vector(47 downto 0);
+	DEST_IP_ADDRESS_OUT  : out    std_logic_vector(31 downto 0);
+	DEST_UDP_PORT_OUT    : out    std_logic_vector(15 downto 0);
+	SRC_MAC_ADDRESS_OUT  : out    std_logic_vector(47 downto 0);
+	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
+	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
+
+-- debug
+	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
+);
+end component;
+
 component trb_net16_gbe_event_constr is
 port(
 	RESET                   : in    std_logic;
@@ -253,9 +302,10 @@ port (
 	
 -- singals to/from transmi controller with constructed response
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_WR_EN_OUT		: out	std_logic;
+	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
@@ -396,9 +446,10 @@ port (
 -- signals to/from transmit controller
 	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_WR_EN_OUT		: out	std_logic;
-	TC_DATA_NOT_VALID_OUT : out std_logic;
+	TC_RD_EN_IN		: in	std_logic;
+	--TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
@@ -411,15 +462,15 @@ port (
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
 	
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+--	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+--	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);	
 	
-	TC_FC_H_READY_IN : in std_logic;
-	TC_FC_READY_IN : in std_logic;
-	TC_FC_WR_EN_OUT : out std_logic;
-	
-	TC_BUSY_IN		: in	std_logic;
+--	TC_FC_H_READY_IN : in std_logic;
+--	TC_FC_READY_IN : in std_logic;
+--	TC_FC_WR_EN_OUT : out std_logic;
+--	
+--	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
 
 -- signals to/from sgmii/gbe pcs_an_complete

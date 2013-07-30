@@ -713,32 +713,33 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  RC_DEST_UDP_PORT_IN	=> rc_dest_udp,
 
   -- signals to/from transmit controller
-	  TC_TRANSMIT_CTRL_OUT	=> mc_transmit_ctrl,
-	  TC_DATA_OUT		=> mc_data,
-	  TC_WR_EN_OUT		=> mc_wr_en,
-	  TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
-	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
-	  TC_FRAME_TYPE_OUT	=> mc_type,
-	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
-	  TC_IDENT_OUT          => mc_ident,
+	  TC_TRANSMIT_CTRL_OUT	=> tc_dataready,
+	  TC_DATA_OUT		=> tc_data,
+	  TC_RD_EN_IN		=> tc_rd_en,
+	  --TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
+	  TC_FRAME_SIZE_OUT	=> tc_frame_size,
+	  TC_SIZE_LEFT_OUT  => tc_size_left,
+	  TC_FRAME_TYPE_OUT	=> tc_frame_type,
+	  TC_IP_PROTOCOL_OUT	=> tc_ip_proto,
+	  TC_IDENT_OUT          => tc_ident,
 	  
-	  TC_DEST_MAC_OUT	=> mc_dest_mac,
-	  TC_DEST_IP_OUT	=> mc_dest_ip,
-	  TC_DEST_UDP_OUT	=> mc_dest_udp,
-	  TC_SRC_MAC_OUT	=> mc_src_mac,
-	  TC_SRC_IP_OUT		=> mc_src_ip,
-	  TC_SRC_UDP_OUT	=> mc_src_udp,
+	  TC_DEST_MAC_OUT	=> tc_dest_mac,
+	  TC_DEST_IP_OUT	=> tc_dest_ip,
+	  TC_DEST_UDP_OUT	=> tc_dest_udp,
+	  TC_SRC_MAC_OUT	=> tc_src_mac,
+	  TC_SRC_IP_OUT		=> tc_src_ip,
+	  TC_SRC_UDP_OUT	=> tc_src_udp,
 	  
-	  TC_IP_SIZE_OUT		=> mc_ip_size,
-	  TC_UDP_SIZE_OUT		=> mc_udp_size,
-	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
+	  --TC_IP_SIZE_OUT		=> mc_ip_size,
+	  --TC_UDP_SIZE_OUT		=> mc_udp_size,
+	  TC_FLAGS_OFFSET_OUT	=> tc_flags,
 	  
-	  TC_FC_H_READY_IN => mc_fc_h_ready,
-	  TC_FC_READY_IN  => mc_fc_ready,
-	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
-	  
-	  TC_BUSY_IN		=> mc_busy,
-	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
+--	  TC_FC_H_READY_IN => mc_fc_h_ready,
+--	  TC_FC_READY_IN  => mc_fc_ready,
+--	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
+--	  
+--	  TC_BUSY_IN		=> mc_busy,
+	  TC_TRANSMIT_DONE_IN   => tc_done,
 
   -- signals to/from sgmii/gbe pcs_an_complete
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
@@ -807,31 +808,31 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  DEBUG_OUT		=> dbg_mc
   );
   
-  MAKE_RESET_OUT <= make_reset or idle_too_long;
+  MAKE_RESET_OUT <= '0'; -- make_reset or idle_too_long;
 
 
-data_src : test_data_source
-port map(
-	CLK			            => clk,
-	RESET			        => reset,
-
-	TC_DATAREADY_OUT        => tc_dataready,
-	TC_RD_EN_IN		        => tc_rd_en,
-	TC_DATA_OUT		        => tc_data,
-	TC_FRAME_SIZE_OUT	    => tc_frame_size,
-	TC_SIZE_LEFT_OUT        => tc_size_left,
-	TC_FRAME_TYPE_OUT	    => tc_frame_type,
-	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,	
-	TC_DEST_MAC_OUT		    => tc_dest_mac,
-	TC_DEST_IP_OUT		    => tc_dest_ip,
-	TC_DEST_UDP_OUT		    => tc_dest_udp,
-	TC_SRC_MAC_OUT		    => tc_src_mac,
-	TC_SRC_IP_OUT		    => tc_src_ip,
-	TC_SRC_UDP_OUT		    => tc_src_udp,
-	TC_FLAGS_OFFSET_OUT	    => tc_flags,
-	TC_TRANSMISSION_DONE_IN => tc_done,
-	TC_IDENT_OUT            => tc_ident
-);
+--data_src : test_data_source
+--port map(
+--	CLK			            => clk,
+--	RESET			        => reset,
+--
+--	TC_DATAREADY_OUT        => tc_dataready,
+--	TC_RD_EN_IN		        => tc_rd_en,
+--	TC_DATA_OUT		        => tc_data,
+--	TC_FRAME_SIZE_OUT	    => tc_frame_size,
+--	TC_SIZE_LEFT_OUT        => tc_size_left,
+--	TC_FRAME_TYPE_OUT	    => tc_frame_type,
+--	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,	
+--	TC_DEST_MAC_OUT		    => tc_dest_mac,
+--	TC_DEST_IP_OUT		    => tc_dest_ip,
+--	TC_DEST_UDP_OUT		    => tc_dest_udp,
+--	TC_SRC_MAC_OUT		    => tc_src_mac,
+--	TC_SRC_IP_OUT		    => tc_src_ip,
+--	TC_SRC_UDP_OUT		    => tc_src_udp,
+--	TC_FLAGS_OFFSET_OUT	    => tc_flags,
+--	TC_TRANSMISSION_DONE_IN => tc_done,
+--	TC_IDENT_OUT            => tc_ident
+--);
 
 transmit_controller : trb_net16_gbe_transmit_control2
 port map(

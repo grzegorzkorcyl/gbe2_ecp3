@@ -15,12 +15,12 @@ signal g_MY_IP                : std_logic_vector(31 downto 0);
 signal g_MY_MAC               : std_logic_vector(47 downto 0);
 
 -- size of ethernet frame use for fragmentation of outgoing packets
-signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0020"; -- set up in main controller
+signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0578"; -- set up in main controller
 
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
-constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 4; --5;
+constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 2; --4; --5;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
 constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 4;
 
@@ -172,6 +172,8 @@ port (
 end component;
 
 component trb_net16_gbe_response_constructor_Trash is
+generic ( STAT_ADDRESS_BASE : integer := 0
+);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
@@ -190,19 +192,28 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_WR_EN_OUT : out std_logic;
+	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
+	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
+	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);
+	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
+	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_BUSY_IN		: in	std_logic;
 	
+	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
+	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
+	STAT_DATA_RDY_OUT : out std_logic;
+	STAT_DATA_ACK_IN  : in std_logic;
 	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
@@ -233,9 +244,10 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		
-	TC_WR_EN_OUT : out std_logic;
+	TC_RD_EN_IN : in std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);
