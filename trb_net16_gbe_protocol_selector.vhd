@@ -293,7 +293,7 @@ port map (
  );
 
 -- protocol No. 3 Ping
-Ping : trb_net16_gbe_response_constructor_Ping
+Ping : trb_net16_gbe_response_constructor_PseudoPing
 generic map( STAT_ADDRESS_BASE => 3
 )
 port map (
