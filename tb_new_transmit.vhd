@@ -174,7 +174,8 @@ signal tc_dest_ip                : std_logic_vector(31 downto 0);
 signal tc_src_udp                : std_logic_vector(15 downto 0);
 signal tc_dest_udp               : std_logic_vector(15 downto 0);
 signal tc_dataready, tc_rd_en, tc_done : std_logic;
-signal tc_data, tc_ip_proto : std_logic_vector(7 downto 0);
+signal tc_ip_proto : std_logic_vector(7 downto 0);
+signal tc_data : std_logic_vector(8 downto 0);
 signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logic_vector(15 downto 0);
 signal response_ready, selected, dhcp_start : std_logic;
 
@@ -268,7 +269,7 @@ port map(
 -- signal to/from main controller
 	TC_DATAREADY_IN        => tc_dataready,
 	TC_RD_EN_OUT		        => tc_rd_en,
-	TC_DATA_IN		        => tc_data,
+	TC_DATA_IN		        => tc_data(7 downto 0),
 	TC_FRAME_SIZE_IN	    => tc_frame_size,
 	TC_SIZE_LEFT_IN        => tc_size_left,
 	TC_FRAME_TYPE_IN	    => tc_frame_type,
