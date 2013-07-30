@@ -46,7 +46,7 @@ port (
 -- signals to/from transmit controller
 	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_WR_EN_OUT		: out	std_logic;
+	TC_RD_EN_IN		: in	std_logic;
 	--TC_RD_EN_IN         : in	std_logic;
 	--TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
@@ -254,9 +254,10 @@ port map(
 	PS_DEST_UDP_PORT_IN	=> RC_DEST_UDP_PORT_IN,
 	
 	TC_DATA_OUT		    => tc_data,
-	TC_WR_EN_OUT		=> TC_WR_EN_OUT,
+	TC_RD_EN_IN		    => TC_RD_EN_IN,
 	TC_DATA_NOT_VALID_OUT => open, --TC_DATA_NOT_VALID_OUT,
 	TC_FRAME_SIZE_OUT	=> TC_FRAME_SIZE_OUT,
+	TC_SIZE_LEFT_OUT    => TC_SIZE_LEFT_OUT,
 	TC_FRAME_TYPE_OUT	=> TC_FRAME_TYPE_OUT,
 	TC_IP_PROTOCOL_OUT	=> TC_IP_PROTOCOL_OUT,
 	TC_IDENT_OUT        => TC_IDENT_OUT,
