@@ -41,7 +41,7 @@ architecture test_data_source of test_data_source is
 signal df_data, df_q : std_logic_vector(7 downto 0);
 signal df_eod, df_wr_en, df_rd_en, load_eod, df_empty, df_full, df_reset : std_logic;
 
-type states is (IDLE, GENERATE_DATA, TRANSMIT_DATA, WAIT_A_SEC, CLEANUP);
+type states is (IDLE, GENERATE_DATA, TRANSMIT_DATA, WAIT_A_SEC, FUCK, CLEANUP);
 signal current_state, next_state : states; 
 
 signal gen_data_ctr, full_size, size_left : std_logic_vector(15 downto 0);
@@ -109,10 +109,11 @@ begin
 			end if;
 			
 		when CLEANUP =>
+			next_state <= FUCK;
+			
+		when FUCK =>
 			next_state <= IDLE;
 			
-		when others => 
-			next_state <= IDLE;
 	end case;
 end process STATE_MACHINE;
 
