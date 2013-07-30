@@ -293,57 +293,58 @@ port map (
  );
 
 -- protocol No. 3 Ping
---Ping : trb_net16_gbe_response_constructor_Ping
---generic map( STAT_ADDRESS_BASE => 3
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET,
---	
----- INTERFACE	
---	PS_DATA_IN		        => PS_DATA_IN,
---	PS_WR_EN_IN		        => PS_WR_EN_IN,
---	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(2),
---	PS_RESPONSE_READY_OUT	=> resp_ready(2),
---	PS_BUSY_OUT		        => busy(2),
---	PS_SELECTED_IN		    => selected(2),
---	
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
---	
---	TC_WR_EN_OUT            => tc_wr(2),
---	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
---	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
---	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
---	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
---	
---	TC_DEST_MAC_OUT		    => tc_mac(3 * 48 - 1 downto 2 * 48),
---	TC_DEST_IP_OUT	     	=> tc_ip(3 * 32 - 1 downto 2 * 32),
---	TC_DEST_UDP_OUT		    => tc_udp(3 * 16 - 1 downto 2 * 16),
---	TC_SRC_MAC_OUT		    => tc_src_mac(3 * 48 - 1 downto 2 * 48),
---	TC_SRC_IP_OUT		    => tc_src_ip(3 * 32 - 1 downto 2 * 32),
---	TC_SRC_UDP_OUT		    => tc_src_udp(3 * 16 - 1 downto 2 * 16),
---	
---	TC_IP_SIZE_OUT		    => tc_ip_size(3 * 16 - 1 downto 2 * 16),
---	TC_UDP_SIZE_OUT		    => tc_udp_size(3 * 16 - 1 downto 2 * 16),
---	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(3 * 16 - 1 downto 2 * 16),
---	
---	TC_BUSY_IN		        => TC_BUSY_IN,
---	
---	STAT_DATA_OUT           => stat_data(3 * 32 - 1 downto 2 * 32),
---	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
---	STAT_DATA_RDY_OUT       => stat_rdy(2),
---	STAT_DATA_ACK_IN        => stat_ack(2),
---	RECEIVED_FRAMES_OUT  	=> RECEIVED_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
---	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
---	DEBUG_OUT		        => PROTOS_DEBUG_OUT(3 * 32 - 1 downto 2 * 32)
----- END OF INTERFACE
---);
+Ping : trb_net16_gbe_response_constructor_Ping
+generic map( STAT_ADDRESS_BASE => 3
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN		        => PS_DATA_IN,
+	PS_WR_EN_IN		        => PS_WR_EN_IN,
+	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(2),
+	PS_RESPONSE_READY_OUT	=> resp_ready(2),
+	PS_BUSY_OUT		        => busy(2),
+	PS_SELECTED_IN		    => selected(2),
+	
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN             => TC_RD_EN_IN,
+	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
+	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
+	TC_SIZE_LEFT_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
+	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
+	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
+	
+	TC_DEST_MAC_OUT		    => tc_mac(3 * 48 - 1 downto 2 * 48),
+	TC_DEST_IP_OUT	     	=> tc_ip(3 * 32 - 1 downto 2 * 32),
+	TC_DEST_UDP_OUT		    => tc_udp(3 * 16 - 1 downto 2 * 16),
+	TC_SRC_MAC_OUT		    => tc_src_mac(3 * 48 - 1 downto 2 * 48),
+	TC_SRC_IP_OUT		    => tc_src_ip(3 * 32 - 1 downto 2 * 32),
+	TC_SRC_UDP_OUT		    => tc_src_udp(3 * 16 - 1 downto 2 * 16),
+	
+	TC_IP_SIZE_OUT		    => tc_ip_size(3 * 16 - 1 downto 2 * 16),
+	TC_UDP_SIZE_OUT		    => tc_udp_size(3 * 16 - 1 downto 2 * 16),
+	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(3 * 16 - 1 downto 2 * 16),
+	
+	TC_BUSY_IN		        => TC_BUSY_IN,
+	
+	STAT_DATA_OUT           => stat_data(3 * 32 - 1 downto 2 * 32),
+	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
+	STAT_DATA_RDY_OUT       => stat_rdy(2),
+	STAT_DATA_ACK_IN        => stat_ack(2),
+	RECEIVED_FRAMES_OUT  	=> RECEIVED_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
+	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
+	DEBUG_OUT		        => PROTOS_DEBUG_OUT(3 * 32 - 1 downto 2 * 32)
+-- END OF INTERFACE
+);
 --
 --SCTRL : trb_net16_gbe_response_constructor_SCTRL
 --generic map( STAT_ADDRESS_BASE => 8

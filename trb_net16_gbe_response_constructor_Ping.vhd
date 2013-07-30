@@ -36,9 +36,10 @@ port (
 	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 	
-	TC_WR_EN_OUT		: out	std_logic;
+	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -168,22 +169,22 @@ begin
 			data_ctr <= 2;
 		elsif (dissect_current_state = READ_FRAME and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- in case of saving data from incoming frame
 			data_ctr <= data_ctr + 1;
-		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then  -- in case of constructing response
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then  -- in case of constructing response
 			data_ctr <= data_ctr + 1;
 		end if;
 	end if;
 end process DATA_CTR_PROC;
 
-TC_WR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
-			tc_wr <= '1';
-		else
-			tc_wr <= '0';
-		end if;
-	end if;
-end process TC_WR_PROC;
+--TC_WR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
+--			tc_wr <= '1';
+--		else
+--			tc_wr <= '0';
+--		end if;
+--	end if;
+--end process TC_WR_PROC;
 
 DATA_LENGTH_PROC: process(CLK)
 begin
@@ -292,7 +293,7 @@ begin
 end process TC_DATA_PROC;
 
 TC_DATA_OUT <= tc_data;
-TC_WR_EN_OUT <= tc_wr;
+--TC_WR_EN_OUT <= tc_wr;
 
 PS_RESPONSE_SYNC : process(CLK)
 begin
@@ -312,6 +313,7 @@ begin
 end process PS_RESPONSE_SYNC;
 
 TC_FRAME_SIZE_OUT   <= std_logic_vector(to_unsigned(data_length, 16));
+TC_SIZE_LEFT_OUT    <= std_logic_vector(to_unsigned(data_length, 16));
 TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
 TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
 
