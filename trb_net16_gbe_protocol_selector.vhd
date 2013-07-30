@@ -293,7 +293,7 @@ port map (
 
 -- protocol No. 2 DHCP
 Trash : trb_net16_gbe_response_constructor_Trash
-generic map( STAT_ADDRESS_BASE => 0
+generic map( STAT_ADDRESS_BASE => 1
 )
 port map (
 	CLK			            => CLK,

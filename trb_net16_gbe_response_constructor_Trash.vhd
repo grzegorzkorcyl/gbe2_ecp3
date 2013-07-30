@@ -15,6 +15,8 @@ use work.trb_net_gbe_components.all;
 -- simply clears the fifo from garbage
 
 entity trb_net16_gbe_response_constructor_Trash is
+generic ( STAT_ADDRESS_BASE : integer := 0
+);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
