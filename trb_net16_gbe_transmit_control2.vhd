@@ -116,10 +116,13 @@ begin
 				transmit_next_state <= WAIT_FOR_TRANS;
 			end if;
 		
-		when DIVIDE =>
-			transmit_next_state <= IDLE;
+--		when DIVIDE =>
+--			transmit_next_state <= IDLE;
 		
 		when CLEANUP =>
+			transmit_next_state <= IDLE;
+			
+		when others =>
 			transmit_next_state <= IDLE;
 	
 	end case;
