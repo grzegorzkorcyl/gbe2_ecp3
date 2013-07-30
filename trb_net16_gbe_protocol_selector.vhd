@@ -292,7 +292,7 @@ port map (
  );
 
 -- protocol No. 2 DHCP
-DHCP_DUMMY : trb_net16_gbe_response_constructor_DHCP
+Trash : trb_net16_gbe_response_constructor_Trash
 generic map( STAT_ADDRESS_BASE => 0
 )
 port map (
@@ -342,9 +342,6 @@ port map (
 	RECEIVED_FRAMES_OUT	    => RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 -- END OF INTERFACE
-
-	DHCP_START_IN		    => '0',
-	DHCP_DONE_OUT		    => open,
 	 
 	DEBUG_OUT		        => PROTOS_DEBUG_OUT(2 * 32 - 1 downto 1 * 32)
  );
