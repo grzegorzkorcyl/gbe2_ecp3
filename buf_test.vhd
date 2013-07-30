@@ -1487,20 +1487,20 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		rx_error			=> mac_rx_er --open
 	);
 	
---	SYNC_GMII_RX_PROC : process(serdes_rx_clk)
---	begin
---		if rising_edge(serdes_rx_clk) then
---			pcs_rxd_q   <= pcs_rxd;
---			pcs_rx_en_q <= pcs_rx_en;
---			pcs_rx_er_q <= pcs_rx_er;
---			
---			pcs_rxd_qq   <= pcs_rxd_q;
---			pcs_rx_en_qq <= pcs_rx_en_q;
---			pcs_rx_er_qq <= pcs_rx_er_q;
---			--mac_col_q   <= mac_col;
---			--mac_crs_q   <= mac_crs;
---		end if;
---	end process SYNC_GMII_RX_PROC;
+	SYNC_GMII_RX_PROC : process(serdes_rx_clk)
+	begin
+		if rising_edge(serdes_rx_clk) then
+			pcs_rxd_q   <= pcs_rxd;
+			pcs_rx_en_q <= pcs_rx_en;
+			pcs_rx_er_q <= pcs_rx_er;
+			
+			pcs_rxd_qq   <= pcs_rxd_q;
+			pcs_rx_en_qq <= pcs_rx_en_q;
+			pcs_rx_er_qq <= pcs_rx_er_q;
+			--mac_col_q   <= mac_col;
+			--mac_crs_q   <= mac_crs;
+		end if;
+	end process SYNC_GMII_RX_PROC;
 	
 	SYNC_GMII_TX_PROC : process(serdes_clk_125)
 	begin
