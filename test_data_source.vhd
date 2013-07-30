@@ -49,7 +49,7 @@ signal wait_ctr : std_logic_vector(31 downto 0);
 
 begin
 
-DATA_FIFO : fifo_64kx9
+DATA_FIFO : fifo_4096x9
 port map(
 	Data(7 downto 0) =>  df_data,
 	Data(8)          =>  df_eod,
