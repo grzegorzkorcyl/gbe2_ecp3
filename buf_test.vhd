@@ -13,7 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 --use work.version.all;
 
-entity trb_net16_gbe_buf is
+entity buf_test is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
@@ -109,9 +109,9 @@ port(
 	-- debug ports
 	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
 );
-end entity trb_net16_gbe_buf;
+end entity buf_test;
 
-architecture trb_net16_gbe_buf of trb_net16_gbe_buf is
+architecture buf_test of buf_test is
 
 -- Placer Directives
 --attribute HGROUP : string;
