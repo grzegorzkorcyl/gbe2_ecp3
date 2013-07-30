@@ -344,7 +344,7 @@ port map (
 -- END OF INTERFACE
 
 	DHCP_START_IN		    => '0',
-	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
+	DHCP_DONE_OUT		    => open,
 	 
 	DEBUG_OUT		        => PROTOS_DEBUG_OUT(2 * 32 - 1 downto 1 * 32)
  );
