@@ -103,16 +103,16 @@ begin
 			
 		when TRANSMIT_DATA =>
 			if (TC_TRANSMISSION_DONE_IN = '1') then
-				next_state <= CLEANUP;
+				next_state <= FUCK;
 			else
 				next_state <= TRANSMIT_DATA;
 			end if;
 			
 		when CLEANUP =>
-			next_state <= FUCK;
+			next_state <= IDLE;
 			
 		when FUCK =>
-			next_state <= IDLE;
+			next_state <= CLEANUP;
 			
 	end case;
 end process STATE_MACHINE;
