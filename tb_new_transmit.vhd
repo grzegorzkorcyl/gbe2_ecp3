@@ -624,10 +624,7 @@ begin
 	ps_wr_en <= '0';
 	ps_proto <= "000";
 
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
+	wait until rising_edge(tc_dataready);
 	mc_busy <= '1';
 		
 	
