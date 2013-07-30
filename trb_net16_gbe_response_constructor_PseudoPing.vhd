@@ -112,6 +112,7 @@ signal tc_wr                    : std_logic;
 signal data_reg                 : std_logic_vector(511 downto 0);
 signal fifo_data : std_logic_vector(7 downto 0);
 signal gen_ctr : std_logic_vector(15 downto 0);
+signal size_left : std_logic_vector(15 downto 0);
 
 begin
 
@@ -159,7 +160,7 @@ begin
 			end if;
 		
 		when LOAD_FRAME =>
-			if (data_ctr = data_length + 1) then
+			if (size_left = x"0000") then
 				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD_FRAME;
@@ -230,8 +231,21 @@ begin
 	end if;	
 end process PS_RESPONSE_SYNC;
 
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = GENERATE_DATA) then
+			size_left <= x"0200";
+		elsif (dissect_current_state = LOAD_FRAME) then
+			size_left <= size_left - x"1";
+		else
+			size_left <= size_left;
+		end if;
+	end if;	
+end process;
+
 TC_FRAME_SIZE_OUT   <= x"0200";
-TC_SIZE_LEFT_OUT    <= x"0200";
+TC_SIZE_LEFT_OUT    <= size_left;
 TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
 TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
 
