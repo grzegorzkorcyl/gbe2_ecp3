@@ -13,7 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 --use work.version.all;
 
-entity buf_test is
+entity trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
@@ -109,9 +109,9 @@ port(
 	-- debug ports
 	ANALYZER_DEBUG_OUT			: out	std_logic_vector(63 downto 0)
 );
-end entity buf_test;
+end entity trb_net16_gbe_buf;
 
-architecture buf_test of buf_test is
+architecture trb_net16_gbe_buf of trb_net16_gbe_buf is
 
 -- Placer Directives
 --attribute HGROUP : string;
@@ -591,6 +591,7 @@ signal tc_data_not_valid : std_logic;
 
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
 signal mc_ident : std_logic_vector(15 downto 0);
+
 component test_data_source is
 port (
 	CLK			            : in	std_logic;
@@ -663,133 +664,6 @@ port (
 	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
 );
 end component;
-
-
-component main_crap is
-port (
-	CLK			: in	std_logic;  -- system clock
-	CLK_125			: in	std_logic;
-	RESET			: in	std_logic;
-
-	MC_LINK_OK_OUT		: out	std_logic;
-	MC_RESET_LINK_IN	: in	std_logic;
-	MC_IDLE_TOO_LONG_OUT : out std_logic;
-
--- signals to/from receive controller
-	RC_FRAME_WAITING_IN	: in	std_logic;
-	RC_LOADING_DONE_OUT	: out	std_logic;
-	RC_DATA_IN		: in	std_logic_vector(8 downto 0);
-	RC_RD_EN_OUT		: out	std_logic;
-	RC_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
-	RC_FRAME_PROTO_IN	: in	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-
-	RC_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
-	RC_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
-	RC_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	RC_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	RC_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-	RC_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-
--- signals to/from transmit controller
-	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
-	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_WR_EN_OUT		: out	std_logic;
-	TC_DATA_NOT_VALID_OUT : out std_logic;
-	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	
-	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
-	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
-	
-	TC_FC_H_READY_IN : in std_logic;
-	TC_FC_READY_IN : in std_logic;
-	TC_FC_WR_EN_OUT : out std_logic;
-	
-	TC_BUSY_IN		: in	std_logic;
-	TC_TRANSMIT_DONE_IN	: in	std_logic;
-
--- signals to/from sgmii/gbe pcs_an_complete
-	PCS_AN_COMPLETE_IN	: in	std_logic;
-
--- signals to/from hub
-	MC_UNIQUE_ID_IN		: in	std_logic_vector(63 downto 0);
-	
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	-- signal for data readout
-	-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
-	
-	MAKE_RESET_OUT           : out std_logic;
-
--- signal to/from Host interface of TriSpeed MAC
-	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
-	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);
-	TSM_HCS_N_OUT		: out	std_logic;
-	TSM_HWRITE_N_OUT	: out	std_logic;
-	TSM_HREAD_N_OUT		: out	std_logic;
-	TSM_HREADY_N_IN		: in	std_logic;
-	TSM_HDATA_EN_N_IN	: in	std_logic;
-	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
-	TSM_RX_STAT_EN_IN   : in	std_logic;
-
-	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
-);
-end component;
-
-signal fc_flags                  : std_logic_vector(15 downto 0);
-signal fc_proto                  : std_logic_vector(7 downto 0);
 signal tc_src_mac                : std_logic_vector(47 downto 0);
 signal tc_dest_mac               : std_logic_vector(47 downto 0);
 signal tc_src_ip                 : std_logic_vector(31 downto 0);
@@ -798,7 +672,8 @@ signal tc_src_udp                : std_logic_vector(15 downto 0);
 signal tc_dest_udp               : std_logic_vector(15 downto 0);
 signal tc_dataready, tc_rd_en, tc_done : std_logic;
 signal tc_ip_proto : std_logic_vector(7 downto 0);
-signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags  : std_logic_vector(15 downto 0);
+signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags : std_logic_vector(15 downto 0);
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -812,14 +687,14 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 
-MAIN_CONTROL_FUCK : main_crap
+MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
 
 	  MC_LINK_OK_OUT	=> link_ok,
-	  MC_RESET_LINK_IN	=> '0',
+	  MC_RESET_LINK_IN	=> MR_RESTART_IN,
 	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
 
   -- signals to/from receive controller
@@ -881,7 +756,7 @@ MAIN_CONTROL_FUCK : main_crap
 	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
 	GSC_BUSY_IN              => GSC_BUSY_IN,
 
-	MAKE_RESET_OUT           => open, --MAKE_RESET_OUT,
+	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
 	
 		-- CTS interface
 	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
@@ -910,9 +785,9 @@ MAIN_CONTROL_FUCK : main_crap
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => '1',
-	CFG_IPU_ENABLE_IN           => '0',
-	CFG_MULT_ENABLE_IN          => '0',
+	CFG_GBE_ENABLE_IN           => use_gbe,
+	CFG_IPU_ENABLE_IN           => use_trbnet,
+	CFG_MULT_ENABLE_IN          => use_multievents,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -931,11 +806,14 @@ MAIN_CONTROL_FUCK : main_crap
 
 	  DEBUG_OUT		=> dbg_mc
   );
+  
+  MAKE_RESET_OUT <= make_reset or idle_too_long;
+
 
 data_src : test_data_source
 port map(
-	CLK			            => CLK,
-	RESET			        => RESET,
+	CLK			            => clk,
+	RESET			        => reset,
 
 	TC_DATAREADY_OUT        => tc_dataready,
 	TC_RD_EN_IN		        => tc_rd_en,
@@ -987,10 +865,10 @@ port map(
 	FC_IP_SIZE_OUT		=> fc_ip_size,
 	FC_UDP_SIZE_OUT		=> fc_udp_size,
 	FC_IDENT_OUT		=> fc_ident,
-	FC_FLAGS_OFFSET_OUT	=> fc_flags,
+	FC_FLAGS_OFFSET_OUT	=> fc_flags_offset,
 	FC_SOD_OUT		=> fc_sod,
 	FC_EOD_OUT		=> fc_eod,
-	FC_IP_PROTOCOL_OUT	=> fc_proto,
+	FC_IP_PROTOCOL_OUT	=> fc_protocol,
 
 	DEST_MAC_ADDRESS_OUT    => fc_dest_mac,
 	DEST_IP_ADDRESS_OUT     => fc_dest_ip,
@@ -1002,6 +880,359 @@ port map(
 	DEBUG_OUT		=> open
 );
 
+
+setup_imp_gen : if (DO_SIMULATION = 0) generate
+-- gk 22.04.10 new entity to set values via slow control
+SETUP : gbe_setup
+port map(
+	CLK                       => CLK,
+	RESET                     => RESET,
+
+	-- gk 26.04.10
+	-- interface to regio bus
+	BUS_ADDR_IN               => BUS_ADDR_IN,
+	BUS_DATA_IN               => BUS_DATA_IN,
+	BUS_DATA_OUT              => BUS_DATA_OUT,
+	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
+	BUS_READ_EN_IN            => BUS_READ_EN_IN,
+	BUS_ACK_OUT               => BUS_ACK_OUT,
+
+	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
+
+	-- output to gbe_buf
+	GBE_SUBEVENT_ID_OUT       => pc_event_id,
+	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
+	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
+	GBE_MAX_PACKET_OUT        => max_packet,
+	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
+	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
+	GBE_USE_GBE_OUT           => use_gbe,
+	GBE_USE_TRBNET_OUT        => use_trbnet,
+	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
+	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
+	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
+	GBE_DELAY_OUT             => pc_delay,
+	GBE_ALLOW_LARGE_OUT       => allow_large,  -- gk 21.07.10
+	GBE_ALLOW_RX_OUT          => allow_rx,
+	GBE_ALLOW_BRDCST_ETH_OUT  => open,
+	GBE_ALLOW_BRDCST_IP_OUT   => open,
+	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
+	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
+	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
+	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
+	GBE_VLAN_ID_OUT	          => vlan_id,
+	-- gk 28.07.10
+	MONITOR_BYTES_IN          => bytes_sent_ctr,
+	MONITOR_SENT_IN           => monitor_sent,
+	MONITOR_DROPPED_IN        => monitor_dropped,
+	MONITOR_SM_IN             => monitor_sm,
+	MONITOR_LR_IN             => monitor_lr,
+	MONITOR_HDR_IN            => monitor_hr,
+	MONITOR_FIFOS_IN          => monitor_fifos_q,
+	MONITOR_DISCFRM_IN        => monitor_discfrm,
+	MONITOR_EMPTY_IN          => monitor_empty,
+	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
+	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
+	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
+	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
+	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
+	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
+	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
+	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
+	-- gk 01.06.10
+	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
+	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
+	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
+	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
+	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
+	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
+	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
+	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
+	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
+	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
+	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
+	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
+	DBG_PC1_IN                => dbg_pc1,
+	DBG_PC2_IN                => dbg_pc2,
+	DBG_FC1_IN                => dbg_fc1,
+	DBG_FC2_IN                => dbg_fc2,
+	DBG_FT1_IN                => dbg_ft1,
+	DBG_FT2_IN                => dbg_ft(31 downto 0),
+	DBG_FR_IN                 => dbg_fr(63 downto 0),
+	DBG_RC_IN                 => dbg_rc,
+	DBG_MC_IN                 => dbg_mc,
+	DBG_TC_IN                 => dbg_tc(31 downto 0),
+	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
+	
+	DBG_SELECT_REC_IN	=> dbg_select_rec,
+	DBG_SELECT_SENT_IN	=> dbg_select_sent,
+	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
+	
+	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
+	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
+	
+	DBG_FIFO_Q_IN             => dbg_q
+	
+	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
+);
+end generate;
+
+setup_sim_gen : if (DO_SIMULATION = 1) generate
+-- gk 22.04.10 new entity to set values via slow control
+SETUP : gbe_setup
+port map(
+	CLK                       => CLK,
+	RESET                     => RESET,
+
+	-- gk 26.04.10
+	-- interface to regio bus
+	BUS_ADDR_IN               => BUS_ADDR_IN,
+	BUS_DATA_IN               => BUS_DATA_IN,
+	BUS_DATA_OUT              => BUS_DATA_OUT,
+	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
+	BUS_READ_EN_IN            => BUS_READ_EN_IN,
+	BUS_ACK_OUT               => BUS_ACK_OUT,
+
+	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
+
+	-- output to gbe_buf
+	GBE_SUBEVENT_ID_OUT       => pc_event_id,
+	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
+	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
+	GBE_MAX_PACKET_OUT        => max_packet,
+	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
+	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
+	GBE_USE_GBE_OUT           => open, --use_gbe,
+	GBE_USE_TRBNET_OUT        => use_trbnet,
+	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
+	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
+	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
+	GBE_DELAY_OUT             => pc_delay,
+	GBE_ALLOW_LARGE_OUT       => open,
+	GBE_ALLOW_RX_OUT          => open,
+	GBE_ALLOW_BRDCST_ETH_OUT  => open,
+	GBE_ALLOW_BRDCST_IP_OUT   => open,
+	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
+	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
+	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
+	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
+	GBE_VLAN_ID_OUT	          => vlan_id,
+	-- gk 28.07.10
+	MONITOR_BYTES_IN          => bytes_sent_ctr,
+	MONITOR_SENT_IN           => monitor_sent,
+	MONITOR_DROPPED_IN        => monitor_dropped,
+	MONITOR_SM_IN             => monitor_sm,
+	MONITOR_LR_IN             => monitor_lr,
+	MONITOR_HDR_IN            => monitor_hr,
+	MONITOR_FIFOS_IN          => monitor_fifos_q,
+	MONITOR_DISCFRM_IN        => monitor_discfrm,
+	MONITOR_EMPTY_IN          => monitor_empty,
+	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
+	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
+	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
+	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
+	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
+	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
+	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
+	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
+	
+	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
+	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
+	
+	-- gk 01.06.10
+	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
+	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
+	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
+	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
+	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
+	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
+	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
+	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
+	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
+	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
+	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
+	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
+	DBG_PC1_IN                => dbg_pc1,
+	DBG_PC2_IN                => dbg_pc2,
+	DBG_FC1_IN                => dbg_fc1,
+	DBG_FC2_IN                => dbg_fc2,
+	DBG_FT1_IN                => dbg_ft1,
+	DBG_FT2_IN                => dbg_ft(31 downto 0),
+	DBG_FR_IN                 => dbg_fr(63 downto 0),
+	DBG_RC_IN                 => dbg_rc,
+	DBG_MC_IN                 => dbg_mc,
+	DBG_TC_IN                 => dbg_tc(31 downto 0),
+	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
+		
+	DBG_SELECT_REC_IN	=> dbg_select_rec,
+	DBG_SELECT_SENT_IN	=> dbg_select_sent,
+	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
+	
+	DBG_FIFO_Q_IN             => dbg_q
+	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
+);
+
+use_gbe <= '1';
+
+allow_rx <= '1';
+allow_large <= '0';
+
+end generate;
+
+
+---- IP configurator: allows IP config to change for each event builder
+--THE_IP_CONFIGURATOR: ip_configurator
+--port map( 
+--	CLK					=> CLK,
+--	RESET					=> RESET,
+--	-- configuration interface
+--	START_CONFIG_IN				=> ip_cfg_start, --IP_CFG_START_IN, -- new  -- gk 7.03.10
+--	BANK_SELECT_IN				=> ip_cfg_bank, --IP_CFG_BANK_SEL_IN, -- new  -- gk 27.03.10
+--	CONFIG_DONE_OUT				=> ip_cfg_done, --IP_CFG_DONE_OUT, -- new  -- gk 27.03.10
+--	MEM_ADDR_OUT				=> ip_cfg_mem_addr, --IP_CFG_MEM_ADDR_OUT, -- new  -- gk 27.03.10
+--	MEM_DATA_IN				=> ip_cfg_mem_data, --IP_CFG_MEM_DATA_IN, -- new  -- gk 27.03.10
+--	MEM_CLK_OUT				=> ip_cfg_mem_clk, --IP_CFG_MEM_CLK_OUT, -- new  -- gk 27.03.10
+--	-- information for IP cores
+--	DEST_MAC_OUT				=> ic_dest_mac,
+--	DEST_IP_OUT				=> ic_dest_ip,
+--	DEST_UDP_OUT				=> ic_dest_udp,
+--	SRC_MAC_OUT				=> ic_src_mac,
+--	SRC_IP_OUT				=> ic_src_ip,
+--	SRC_UDP_OUT				=> ic_src_udp,
+--	MTU_OUT					=> open, --pc_max_frame_size,  -- gk 22.04.10
+--	-- Debug
+--	DEBUG_OUT				=> open
+--);
+--
+---- gk 27.03.01
+--MB_IP_CONFIG: slv_mac_memory
+--port map( 
+--	CLK		=> CLK, -- clk_100,
+--	RESET           => RESET, --reset_i,
+--	BUSY_IN         => '0',
+--	-- Slave bus
+--	SLV_ADDR_IN     => SLV_ADDR_IN, --x"00", --mb_ip_mem_addr(7 downto 0),
+--	SLV_READ_IN     => SLV_READ_IN, --'0', --mb_ip_mem_read,
+--	SLV_WRITE_IN    => SLV_WRITE_IN, --mb_ip_mem_write,
+--	SLV_BUSY_OUT    => SLV_BUSY_OUT,
+--	SLV_ACK_OUT     => SLV_ACK_OUT, --mb_ip_mem_ack,
+--	SLV_DATA_IN     => SLV_DATA_IN, --mb_ip_mem_data_wr,
+--	SLV_DATA_OUT    => SLV_DATA_OUT, --mb_ip_mem_data_rd,
+--	-- I/O to the backend
+--	MEM_CLK_IN      => ip_cfg_mem_clk,
+--	MEM_ADDR_IN     => ip_cfg_mem_addr,
+--	MEM_DATA_OUT    => ip_cfg_mem_data,
+--	-- Status lines
+--	STAT            => open
+--);
+
+-- First stage: get data from IPU channel, buffer it and terminate the IPU transmission to CTS
+--THE_IPU_INTERFACE: trb_net16_ipu2gbe
+--port map( 
+--	CLK					=> CLK,
+--	RESET					=> RESET,
+--	--Event information coming from CTS
+--	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+--	CTS_CODE_IN				=> CTS_CODE_IN,
+--	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+--	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+--	CTS_START_READOUT_IN			=> CTS_START_READOUT_IN,
+--	--Information sent to CTS
+--	--status data, equipped with DHDR
+--	CTS_DATA_OUT				=> cts_data,
+--	CTS_DATAREADY_OUT			=> cts_dataready,
+--	CTS_READOUT_FINISHED_OUT		=> cts_readout_finished,
+--	CTS_READ_IN				=> CTS_READ_IN,
+--	CTS_LENGTH_OUT				=> cts_length,
+--	CTS_ERROR_PATTERN_OUT			=> cts_error_pattern,
+--	-- Data from Frontends
+--	FEE_DATA_IN				=> FEE_DATA_IN,
+--	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+--	FEE_READ_OUT				=> fee_read,
+--	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+--	FEE_BUSY_IN				=> FEE_BUSY_IN,
+--	-- slow control interface
+--	START_CONFIG_OUT			=> ip_cfg_start, --open, --: out	std_logic; -- reconfigure MACs/IPs/ports/packet size  -- gk 27.03.10
+--	BANK_SELECT_OUT				=> ip_cfg_bank, --open, --: out	std_logic_vector(3 downto 0); -- configuration page address -- gk 27.03.10
+--	CONFIG_DONE_IN				=> ip_cfg_done, --'1', --: in	std_logic; -- configuration finished -- gk 27.03.10
+--	DATA_GBE_ENABLE_IN			=> use_gbe, --'1', --: in	std_logic; -- IPU data is forwarded to GbE  -- gk 22.04.10
+--	DATA_IPU_ENABLE_IN			=> use_trbnet, --'0', --: in	std_logic; -- IPU data is forwarded to CTS / TRBnet -- gk 22.04.10
+--	MULT_EVT_ENABLE_IN			=> use_multievents,
+--	MAX_MESSAGE_SIZE_IN			=> max_packet, --x"0000_FDE8",  -- gk 08.04.10  -- temporarily fixed here, to be set by slow ctrl -- gk 22.04.10
+--	MIN_MESSAGE_SIZE_IN			=> min_packet, -- gk 20.07.10
+--	READOUT_CTR_IN				=> readout_ctr, -- gk 26.04.10
+--	READOUT_CTR_VALID_IN			=> readout_ctr_valid, -- gk 26.04.10
+--	ALLOW_LARGE_IN				=> allow_large, -- gk 21.07.10
+--	SCTRL_DUMMY_SIZE_IN      => dummy_size,
+--	SCTRL_DUMMY_PAUSE_IN     => dummy_pause,
+--	-- PacketConstructor interface
+--	PC_WR_EN_OUT				=> pc_wr_en,
+--	PC_DATA_OUT				=> pc_data,
+--	PC_READY_IN				=> pc_ready,
+--	PC_SOS_OUT				=> pc_sos,
+--	PC_EOS_OUT				=> pc_eos,  -- gk 07.10.10
+--	PC_EOD_OUT				=> pc_eod,
+--	PC_SUB_SIZE_OUT				=> pc_sub_size,
+--	PC_TRIG_NR_OUT				=> pc_trig_nr,
+--	PC_PADDING_OUT				=> pc_padding,
+--	MONITOR_OUT(31 downto 0)                => monitor_sent,
+--	MONITOR_OUT(63 downto 32)               => monitor_dropped,
+--	MONITOR_OUT(95 downto 64)               => monitor_hr,
+--	MONITOR_OUT(127 downto 96)              => monitor_sm,
+--	MONITOR_OUT(159 downto 128)             => monitor_lr,
+--	MONITOR_OUT(191 downto 160)             => monitor_fifos,
+--	MONITOR_OUT(223 downto 192)             => monitor_empty,
+--	DEBUG_OUT(31 downto 0)                  => dbg_ipu2gbe1,
+--	DEBUG_OUT(63 downto 32)                 => dbg_ipu2gbe2,
+--	DEBUG_OUT(95 downto 64)                 => dbg_ipu2gbe3,
+--	DEBUG_OUT(127 downto 96)                => dbg_ipu2gbe4,
+--	DEBUG_OUT(159 downto 128)               => dbg_ipu2gbe5,
+--	DEBUG_OUT(191 downto 160)               => dbg_ipu2gbe6,
+--	DEBUG_OUT(223 downto 192)               => dbg_ipu2gbe7,
+--	DEBUG_OUT(255 downto 224)               => dbg_ipu2gbe8,
+--	DEBUG_OUT(287 downto 256)               => dbg_ipu2gbe9,
+--	DEBUG_OUT(319 downto 288)               => dbg_ipu2gbe10,
+--	DEBUG_OUT(351 downto 320)               => dbg_ipu2gbe11,
+--	DEBUG_OUT(383 downto 352)               => dbg_ipu2gbe12
+--);
+
+---- Second stage: Packet constructor
+--PACKET_CONSTRUCTOR : trb_net16_gbe_packet_constr
+--port map( 
+--	-- ports for user logic
+--	RESET				=> RESET,
+--	CLK				=> CLK,
+--	MULT_EVT_ENABLE_IN		=> use_multievents,  -- gk 06.10.10
+--	PC_WR_EN_IN			=> pc_wr_en,
+--	PC_DATA_IN			=> pc_data,
+--	PC_READY_OUT			=> pc_ready,
+--	PC_START_OF_SUB_IN		=> pc_sos, --CHANGED TO SLOW CONTROL PULSE
+--	PC_END_OF_SUB_IN		=> pc_eos, -- gk 07.10.10
+--	PC_END_OF_DATA_IN		=> pc_eod,
+--	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
+--	-- queue and subevent layer headers
+--	PC_SUB_SIZE_IN			=> pc_sub_size,
+--	PC_PADDING_IN			=> pc_padding, -- gk 29.03.10
+--	PC_DECODING_IN			=> pc_decoding,
+--	PC_EVENT_ID_IN			=> pc_event_id,
+--	PC_TRIG_NR_IN			=> pc_trig_nr,
+--	PC_QUEUE_DEC_IN			=> pc_queue_dec,
+--	PC_MAX_FRAME_SIZE_IN            => pc_max_frame_size,
+--	PC_DELAY_IN                     => pc_delay, -- gk 28.04.10
+--	-- NEW PORTS
+--	TC_WR_EN_OUT			=> tc_wr_en,
+--	TC_DATA_OUT			=> tc_data,
+--	TC_H_READY_IN			=> tc_pc_h_ready,
+--	TC_READY_IN			=> tc_pc_ready,
+--	TC_IP_SIZE_OUT			=> tc_ip_size,
+--	TC_UDP_SIZE_OUT			=> tc_udp_size,
+--	--FC_IDENT_OUT			=> fc_ident,
+--	TC_FLAGS_OFFSET_OUT		=> tc_flags_offset,
+--	TC_SOD_OUT			=> tc_sod,
+--	TC_EOD_OUT			=> tc_eod,
+--	DEBUG_OUT(31 downto 0)		=> dbg_pc1,
+--	DEBUG_OUT(63 downto 32)         => dbg_pc2
+--);
 
 -- Third stage: Frame Constructor
 FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
@@ -1050,6 +1281,50 @@ port map(
 );
 
 
+RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
+port map(
+	CLK			=> CLK,
+	RESET			=> RESET,
+
+-- signals to/from frame_receiver
+	RC_DATA_IN		=> fr_q,
+	FR_RD_EN_OUT		=> fr_rd_en,
+	FR_FRAME_VALID_IN	=> fr_frame_valid,
+	FR_GET_FRAME_OUT	=> fr_get_frame,
+	FR_FRAME_SIZE_IN	=> fr_frame_size,
+	FR_FRAME_PROTO_IN	=> fr_frame_proto,
+	FR_IP_PROTOCOL_IN	=> fr_ip_proto,
+	
+	FR_SRC_MAC_ADDRESS_IN	=> fr_src_mac,
+	FR_DEST_MAC_ADDRESS_IN  => fr_dest_mac,
+	FR_SRC_IP_ADDRESS_IN	=> fr_src_ip,
+	FR_DEST_IP_ADDRESS_IN	=> fr_dest_ip,
+	FR_SRC_UDP_PORT_IN	=> fr_src_udp,
+	FR_DEST_UDP_PORT_IN	=> fr_dest_udp,
+
+-- signals to/from main controller
+	RC_RD_EN_IN		=> rc_rd_en,
+	RC_Q_OUT		=> rc_q,
+	RC_FRAME_WAITING_OUT	=> rc_frame_ready,
+	RC_LOADING_DONE_IN	=> rc_loading_done,
+	RC_FRAME_SIZE_OUT	=> rc_frame_size,
+	RC_FRAME_PROTO_OUT	=> rc_frame_proto,
+	
+	RC_SRC_MAC_ADDRESS_OUT	=> rc_src_mac,
+	RC_DEST_MAC_ADDRESS_OUT => rc_dest_mac,
+	RC_SRC_IP_ADDRESS_OUT	=> rc_src_ip,
+	RC_DEST_IP_ADDRESS_OUT	=> rc_dest_ip,
+	RC_SRC_UDP_PORT_OUT	=> rc_src_udp,
+	RC_DEST_UDP_PORT_OUT	=> rc_dest_udp,
+
+-- statistics
+	FRAMES_RECEIVED_OUT	=> rc_frames_rec_ctr,
+	BYTES_RECEIVED_OUT      => rc_bytes_rec,
+
+
+	DEBUG_OUT		=> rc_debug
+);
+dbg_q(15 downto 9) <= (others  => '0');
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
@@ -1079,6 +1354,47 @@ port map(
 	--DEBUG_OUT(31 downto 0)		=> open,
 	--DEBUG_OUT(63 downto 32)		=> open
 );  
+
+  FRAME_RECEIVER : trb_net16_gbe_frame_receiver
+  port map(
+	  CLK			=> CLK,
+	  RESET			=> RESET,
+	  LINK_OK_IN		=> link_ok,
+	  ALLOW_RX_IN		=> allow_rx,
+	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
+
+  -- input signals from TS_MAC
+	  MAC_RX_EOF_IN		=> mac_rx_eof,
+	  MAC_RX_ER_IN		=> mac_rx_er,
+	  MAC_RXD_IN		=> mac_rxd,
+	  MAC_RX_EN_IN		=> mac_rx_en,
+	  MAC_RX_FIFO_ERR_IN	=> mac_rx_fifo_err,
+	  MAC_RX_FIFO_FULL_OUT	=> mac_rx_fifo_full,
+	  MAC_RX_STAT_EN_IN	=> mac_rx_stat_en,
+	  MAC_RX_STAT_VEC_IN	=> mac_rx_stat_vec,
+  -- output signal to control logic
+	  FR_Q_OUT		=> fr_q,
+	  FR_RD_EN_IN		=> fr_rd_en,
+	  FR_FRAME_VALID_OUT	=> fr_frame_valid,
+	  FR_GET_FRAME_IN	=> fr_get_frame,
+	  FR_FRAME_SIZE_OUT	=> fr_frame_size,
+	  FR_FRAME_PROTO_OUT	=> fr_frame_proto,
+	  FR_IP_PROTOCOL_OUT	=> fr_ip_proto,
+	  FR_ALLOWED_TYPES_IN   => fr_allowed_types,
+	  FR_ALLOWED_IP_IN      => fr_allowed_ip,
+	  FR_ALLOWED_UDP_IN     => fr_allowed_udp,
+	  FR_VLAN_ID_IN		=> vlan_id,
+	
+	FR_SRC_MAC_ADDRESS_OUT	=> fr_src_mac,
+	FR_DEST_MAC_ADDRESS_OUT => fr_dest_mac,
+	FR_SRC_IP_ADDRESS_OUT	=> fr_src_ip,
+	FR_DEST_IP_ADDRESS_OUT	=> fr_dest_ip,
+	FR_SRC_UDP_PORT_OUT	=> fr_src_udp,
+	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
+
+	  DEBUG_OUT		=> dbg_fr
+  );
+
 
 -- in case of real hardware, we use the IP cores for MAC and PHY, and also put a SerDes in
 imp_gen: if (DO_SIMULATION = 0) generate
@@ -1170,20 +1486,20 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		rx_error			=> mac_rx_er --open
 	);
 	
-	SYNC_GMII_RX_PROC : process(serdes_rx_clk)
-	begin
-		if rising_edge(serdes_rx_clk) then
-			pcs_rxd_q   <= pcs_rxd;
-			pcs_rx_en_q <= pcs_rx_en;
-			pcs_rx_er_q <= pcs_rx_er;
-			
-			pcs_rxd_qq   <= pcs_rxd_q;
-			pcs_rx_en_qq <= pcs_rx_en_q;
-			pcs_rx_er_qq <= pcs_rx_er_q;
-			--mac_col_q   <= mac_col;
-			--mac_crs_q   <= mac_crs;
-		end if;
-	end process SYNC_GMII_RX_PROC;
+--	SYNC_GMII_RX_PROC : process(serdes_rx_clk)
+--	begin
+--		if rising_edge(serdes_rx_clk) then
+--			pcs_rxd_q   <= pcs_rxd;
+--			pcs_rx_en_q <= pcs_rx_en;
+--			pcs_rx_er_q <= pcs_rx_er;
+--			
+--			pcs_rxd_qq   <= pcs_rxd_q;
+--			pcs_rx_en_qq <= pcs_rx_en_q;
+--			pcs_rx_er_qq <= pcs_rx_er_q;
+--			--mac_col_q   <= mac_col;
+--			--mac_crs_q   <= mac_crs;
+--		end if;
+--	end process SYNC_GMII_RX_PROC;
 	
 	SYNC_GMII_TX_PROC : process(serdes_clk_125)
 	begin
@@ -1197,6 +1513,19 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			pcs_tx_er_qq <= pcs_tx_er_q; 
 		end if;
 	end process SYNC_GMII_TX_PROC;
+
+	-- gk 08.06.10
+	dbg_statevec_proc : process(serdes_clk_125)
+	begin
+		if rising_edge(serdes_clk_125) then
+			if (RESET = '1') then
+				dbg_ft1              <= (others => '0');
+			elsif (mac_tx_staten = '1') then
+				dbg_ft1(30 downto 0) <= mac_tx_statevec;
+				dbg_ft1(31)          <= mac_tx_discfrm;
+			end if;
+		end if;
+	end process dbg_statevec_proc;
 
 	serdes_intclk_gen: if (USE_125MHZ_EXTCLK = 0) generate
 		-- PHY part
@@ -1397,6 +1726,99 @@ sim_gen: if (DO_SIMULATION = 1) generate
 end generate sim_gen;
 
 
+--***********************
+--	MONITORING & DEBUG
+--***********************
+
+
+-- gk 04.08.10
+MON_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		monitor_fifos_q(3 downto 0)           <= monitor_fifos(3 downto 0);
+		if (dbg_pc1(28) = '1') then
+			monitor_fifos_q(5 downto 4)   <= b"11";
+		else 
+			monitor_fifos_q(5 downto 4)   <= b"00";
+		end if;
+		if (dbg_pc1(30) = '1') then
+			monitor_fifos_q(7 downto 6)   <= b"11";
+		else 
+			monitor_fifos_q(7 downto 6)   <= b"00";
+		end if;
+		if (dbg_fc1(28) = '1') then
+			monitor_fifos_q(11 downto 8)  <= b"1111";
+		else
+			monitor_fifos_q(11 downto 8)  <= b"0000";
+		end if;
+		if (pcs_an_complete = '0') then
+			monitor_fifos_q(15 downto 12) <= b"1111";
+		else
+			monitor_fifos_q(15 downto 12) <= b"0000";
+		end if;
+	end if;
+end process MON_PROC;
+
+-- gk 28.07.10
+BYTES_SENT_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			bytes_sent_ctr <= (others => '0');
+		elsif (fc_wr_en = '1') then
+			bytes_sent_ctr <= bytes_sent_ctr + x"1";
+		end if;
+	end if;
+end process BYTES_SENT_CTR_PROC;
+
+-- gk 02.08.10
+DISCFRM_PROC : process(serdes_clk_125)
+begin
+	if rising_edge(serdes_clk_125) then
+		if (RESET = '1') then
+			discfrm_ctr <= (others => '0');
+		elsif (mac_tx_discfrm = '1') then
+			discfrm_ctr <= discfrm_ctr + x"1";
+		end if;
+	end if;
+end process DISCFRM_PROC;
+
+discfrm_sync : signal_sync
+	generic map(
+	  DEPTH => 2,
+	  WIDTH => 32
+	  )
+	port map(
+	  RESET    => RESET,
+	  D_IN     => discfrm_ctr,
+	  CLK0     => serdes_clk_125,
+	  CLK1     => CLK,
+	  D_OUT    => monitor_discfrm
+	  );
+
+
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
+--***************
+--	LOGIC ANALYZER SIGNALS
+--***************
+--ANALYZER_DEBUG_OUT <= dbg_mc or dbg_tc or (dbg_fc1 & dbg_fc2) or rc_debug or dbg_ft or dbg_fr(63 downto 0) or (dbg_fr(95 downto 64) & x"00000000");
+ANALYZER_DEBUG_OUT(3 downto 0) <= dbg_select_protos(99 downto 96);
+ANALYZER_DEBUG_OUT(63 downto 4) <= (others => '0');
+
+-- Outputs
+--FEE_READ_OUT             <= fee_read;
+
+CTS_READOUT_FINISHED_OUT <= cts_readout_finished;
+CTS_DATAREADY_OUT        <= cts_dataready;
+CTS_DATA_OUT             <= cts_data;
+CTS_LENGTH_OUT           <= cts_length;
+CTS_ERROR_PATTERN_OUT    <= cts_error_pattern;
+
+STAGE_STAT_REGS_OUT      <= stage_stat_regs;
 
 
 end architecture;

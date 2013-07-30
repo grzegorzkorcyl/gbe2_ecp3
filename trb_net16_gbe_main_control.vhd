@@ -621,7 +621,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
+				link_next_state <= ACTIVE; --WAIT_FOR_BOOT; --ACTIVE;
 			end if;
 			
 		when WAIT_FOR_BOOT =>
