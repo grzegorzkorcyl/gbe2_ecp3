@@ -291,6 +291,10 @@ signal tc_data : std_logic_vector(8 downto 0);
 signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logic_vector(15 downto 0);
 signal response_ready, selected, dhcp_start, mc_busy : std_logic;
 
+signal ps_data : std_logic_vector(8 downto 0);
+signal ps_wr_en : std_logic;
+signal ps_proto : std_logic_vector(2 downto 0);
+
 begin
 
 --data_src : test_data_source
@@ -379,9 +383,9 @@ port map(
 	RESET			=> reset,
 
 -- signals to/from main controller
-	PS_DATA_IN		        => (others => '0'),
-	PS_WR_EN_IN		        => '0',
-	PS_PROTO_SELECT_IN	=> (others => '0'),
+	PS_DATA_IN		        => ps_data,
+	PS_WR_EN_IN		        => ps_wr_en,
+	PS_PROTO_SELECT_IN	=> ps_proto,
 	PS_BUSY_OUT		=> open,
 	PS_FRAME_SIZE_IN	=> (others => '0'),
 	PS_RESPONSE_READY_OUT	=> tc_dataready,
@@ -598,27 +602,45 @@ begin
 	reset <= '1';
 	dhcp_start <= '0';
 	mc_busy <= '0';
+	ps_wr_en <= '0';
+	ps_data <= '0' & x"00";
+	ps_proto <= "000";
 	wait for 100 ns;
 	reset <= '0';
 	
 	wait for 1 us;
 	
-	dhcp_start <= '1';
-	wait for 100 ns;
-	dhcp_start <= '0';
+	wait until rising_edge(clk);
+	ps_data <= '0' & x"ff";
+	ps_wr_en <= '1';
+	ps_proto <= "100";
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	ps_data <= '1' & x"aa";
+	wait until rising_edge(clk);
+	ps_data <= '0' & x"00";
+	ps_wr_en <= '0';
+	ps_proto <= "000";
+		
 	
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	mc_busy <= '1';
-	
-	wait until rising_edge(tc_done);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	mc_busy <= '0';
+--	dhcp_start <= '1';
+--	wait for 100 ns;
+--	dhcp_start <= '0';
+--	
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	mc_busy <= '1';
+--	
+--	wait until rising_edge(tc_done);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	mc_busy <= '0';
 	
 	wait;
 
