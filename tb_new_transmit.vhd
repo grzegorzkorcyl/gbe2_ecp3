@@ -292,90 +292,123 @@ signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logi
 signal response_ready, selected, dhcp_start, mc_busy : std_logic;
 
 signal ps_data : std_logic_vector(8 downto 0);
-signal ps_wr_en : std_logic;
-signal ps_proto, ps_busy : std_logic_vector(2 downto 0);
+signal ps_wr_en, ps_rd_en : std_logic;
+signal ps_proto, ps_busy, ps_frame_ready : std_logic_vector(2 downto 0);
+signal ps_frame_size : std_logic_vector(15 downto 0);
 
 begin
 
---data_src : test_data_source
---port map(
---	CLK			            => clk,
---	RESET			        => reset,
---
---	TC_DATAREADY_OUT        => tc_dataready,
---	TC_RD_EN_IN		        => tc_rd_en,
---	TC_DATA_OUT		        => tc_data,
---	TC_FRAME_SIZE_OUT	    => tc_frame_size,
---	TC_SIZE_LEFT_OUT        => tc_size_left,
---	TC_FRAME_TYPE_OUT	    => tc_frame_type,
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,	
---	TC_DEST_MAC_OUT		    => tc_dest_mac,
---	TC_DEST_IP_OUT		    => tc_dest_ip,
---	TC_DEST_UDP_OUT		    => tc_dest_udp,
---	TC_SRC_MAC_OUT		    => tc_src_mac,
---	TC_SRC_IP_OUT		    => tc_src_ip,
---	TC_SRC_UDP_OUT		    => tc_src_udp,
---	TC_FLAGS_OFFSET_OUT	    => tc_flags,
---	TC_TRANSMISSION_DONE_IN => tc_done,
---	TC_IDENT_OUT            => tc_ident
---);
+MAIN_CONTROL : trb_net16_gbe_main_control
+  port map(
+	  CLK			=> CLK,
+	  CLK_125		=> RX_MAC_CLK,
+	  RESET			=> RESET,
 
---DHCP : trb_net16_gbe_response_constructor_DHCP
---generic map( STAT_ADDRESS_BASE => 0
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET,
---	
----- INTERFACE	
---	PS_DATA_IN		        => (others => '0'),
---	PS_WR_EN_IN		        => '0',
---	PS_ACTIVATE_IN		    => '0',
---	PS_RESPONSE_READY_OUT	=> tc_dataready,
---	PS_BUSY_OUT		        => open,
---	PS_SELECTED_IN		    => selected,
---	
---	PS_SRC_MAC_ADDRESS_IN	=> x"001122334455",
---	PS_DEST_MAC_ADDRESS_IN  => x"001122334455",
---	PS_SRC_IP_ADDRESS_IN	=> x"c0a80001",
---	PS_DEST_IP_ADDRESS_IN	=> x"c0a80003",
---	PS_SRC_UDP_PORT_IN	    => x"c350",
---	PS_DEST_UDP_PORT_IN	    => x"c350",
---	 
---	TC_RD_EN_IN             => tc_rd_en,
---	TC_DATA_OUT		        => tc_data,
---	TC_FRAME_SIZE_OUT	    => tc_frame_size,
---	TC_SIZE_LEFT_OUT        => tc_size_left,
---	TC_FRAME_TYPE_OUT	    => tc_frame_type,
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,
---	TC_IDENT_OUT            => tc_ident,
---	 
---	TC_DEST_MAC_OUT		    => tc_dest_mac,
---	TC_DEST_IP_OUT		    => tc_dest_ip,
---	TC_DEST_UDP_OUT		    => tc_dest_udp,
---	TC_SRC_MAC_OUT		    => tc_src_mac,
---	TC_SRC_IP_OUT		    => tc_src_ip,
---	TC_SRC_UDP_OUT		    => tc_src_udp,
---	
---	TC_IP_SIZE_OUT		    => open,
---	TC_UDP_SIZE_OUT		    => open,
---	TC_FLAGS_OFFSET_OUT	    => tc_flags,
---	 
---	TC_BUSY_IN		        => '0',
---	
---	STAT_DATA_OUT           => open,
---	STAT_ADDR_OUT           => open,
---	STAT_DATA_RDY_OUT       => open,
---	STAT_DATA_ACK_IN        => '0',
---	RECEIVED_FRAMES_OUT	    => open,
---	SENT_FRAMES_OUT		    => open,
----- END OF INTERFACE
---
---	DHCP_START_IN		    => dhcp_start,
---	DHCP_DONE_OUT		    => open,
---	 
---	DEBUG_OUT		        => open
--- );
+	  MC_LINK_OK_OUT	=> open,
+	  MC_RESET_LINK_IN	=> '0',
+	  MC_IDLE_TOO_LONG_OUT => open,
+
+  -- signals to/from receive controller
+	  RC_FRAME_WAITING_IN	=> ps_frame_ready,
+	  RC_LOADING_DONE_OUT	=> open,
+	  RC_DATA_IN		=> ps_data,
+	  RC_RD_EN_OUT		=> ps_rd_en,
+	  RC_FRAME_SIZE_IN	=> ps_frame_size,
+	  RC_FRAME_PROTO_IN	=> ps_proto,
+
+	RC_SRC_MAC_ADDRESS_IN	=> x"001122334455",
+	RC_DEST_MAC_ADDRESS_IN  => x"001122334455",
+	RC_SRC_IP_ADDRESS_IN	=> x"c0a80001",
+	RC_DEST_IP_ADDRESS_IN	=> x"c0a80003",
+	RC_SRC_UDP_PORT_IN	    => x"c350",
+	RC_DEST_UDP_PORT_IN	    => x"c350",
+
+	  -- signals to/from transmit controller
+	  TC_TRANSMIT_CTRL_OUT	=> tc_dataready,
+	  
+	TC_DATA_OUT				=> tc_data,
+	TC_RD_EN_IN				=> tc_rd_en,
+	TC_FRAME_SIZE_OUT	    => tc_frame_size,
+	TC_SIZE_LEFT_OUT        => tc_size_left,
+	TC_FRAME_TYPE_OUT	    => tc_frame_type,
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,
+	TC_IDENT_OUT            => tc_ident,
+	
+	TC_DEST_MAC_OUT		    => tc_dest_mac,
+	TC_DEST_IP_OUT		    => tc_dest_ip,
+	TC_DEST_UDP_OUT		    => tc_dest_udp,
+	TC_SRC_MAC_OUT		    => tc_src_mac,
+	TC_SRC_IP_OUT		    => tc_src_ip,
+	TC_SRC_UDP_OUT		    => tc_src_udp,
+	TC_FLAGS_OFFSET_OUT		=> tc_flags,
+  	TC_TRANSMIT_DONE_IN		=> tc_done,
+
+  -- signals to/from sgmii/gbe pcs_an_complete
+	  PCS_AN_COMPLETE_IN	=> '1',
+
+  -- signals to/from hub
+	GSC_CLK_IN               => '0',
+	GSC_INIT_DATAREADY_OUT   => open,
+	GSC_INIT_DATA_OUT        => open,
+	GSC_INIT_PACKET_NUM_OUT  => open,
+	GSC_INIT_READ_IN         => '0',
+	GSC_REPLY_DATAREADY_IN   => '0',
+	GSC_REPLY_DATA_IN        => (others => '0'),
+	GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
+	GSC_REPLY_READ_OUT       => open,
+	GSC_BUSY_IN              => '0',
+
+	MAKE_RESET_OUT           => open, --MAKE_RESET_OUT,
+	
+	CTS_NUMBER_IN				=> (others => '0'),
+	CTS_CODE_IN					=> (others => '0'),
+	CTS_INFORMATION_IN			=> (others => '0'),
+	CTS_READOUT_TYPE_IN			=> (others => '0'),
+	CTS_START_READOUT_IN		=> '0',
+	CTS_DATA_OUT				=> open,
+	CTS_DATAREADY_OUT			=> open,
+	CTS_READOUT_FINISHED_OUT	=> open,
+	CTS_READ_IN					=> '0',
+	CTS_LENGTH_OUT				=> open,
+	CTS_ERROR_PATTERN_OUT		=> open,
+	-- Data payload interface
+	FEE_DATA_IN					=> (others => '0'),
+	FEE_DATAREADY_IN			=> '0',
+	FEE_READ_OUT				=> open,
+	FEE_STATUS_BITS_IN			=> (others => '0'),
+	FEE_BUSY_IN					=> '0',
+	-- ip configurator
+	SLV_ADDR_IN                  => (others => '0'),
+	SLV_READ_IN                  => '0',
+	SLV_WRITE_IN                 => '0',
+	SLV_BUSY_OUT                 => open,
+	SLV_ACK_OUT                  => open,
+	SLV_DATA_IN                  => (others => '0'),
+	SLV_DATA_OUT                 => open,
+	
+	CFG_GBE_ENABLE_IN           => '0',
+	CFG_IPU_ENABLE_IN           => '0',
+	CFG_MULT_ENABLE_IN          => '0',
+	
+	MC_UNIQUE_ID_IN => (others => '0'),
+
+  -- signal to/from Host interface of TriSpeed MAC
+	  TSM_HADDR_OUT		=> open,
+	  TSM_HDATA_OUT		=> open,
+	  TSM_HCS_N_OUT		=> open,
+	  TSM_HWRITE_N_OUT	=> open,
+	  TSM_HREAD_N_OUT	=> open,
+	  TSM_HREADY_N_IN	=> '0',
+	  TSM_HDATA_EN_N_IN	=> '0',
+	  TSM_RX_STAT_VEC_IN  => (others => '0'),
+	  TSM_RX_STAT_EN_IN   => '0',
+	  
+	  SELECT_REC_FRAMES_OUT		=> open,
+	  SELECT_SENT_FRAMES_OUT	=> open,
+	  SELECT_PROTOS_DEBUG_OUT	=> open,
+
+	  DEBUG_OUT		=> open
+  );
 
 selector: trb_net16_gbe_protocol_selector
 port map(
@@ -598,8 +631,10 @@ end process CLOCK_GEN_PROC;
 
 testbench_proc : process
 begin
-	
 	reset <= '1';
+	ps_frame_ready <= '0';
+	ps_data <= (others => '0');
+	ps_frame_size <= x"0000"; 
 	dhcp_start <= '0';
 	mc_busy <= '0';
 	ps_wr_en <= '0';
@@ -652,22 +687,22 @@ begin
 --	wait until ps_busy = "000";
 --	mc_busy <= '0';	
 	
-	dhcp_start <= '1';
-	wait for 100 ns;
-	dhcp_start <= '0';
-	
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	mc_busy <= '1';
-	
-	wait until rising_edge(tc_done);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	mc_busy <= '0';
+--	dhcp_start <= '1';
+--	wait for 100 ns;
+--	dhcp_start <= '0';
+--	
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	mc_busy <= '1';
+--	
+--	wait until rising_edge(tc_done);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	mc_busy <= '0';
 	
 	wait;
 
