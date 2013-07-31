@@ -71,8 +71,8 @@ signal transmit_current_state, transmit_next_state : transmit_states;
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
 
-signal actual_frame_bytes : std_logic_vector(15 downto 0);
-signal go_to_divide : std_logic;
+signal actual_frame_bytes, full_packet_size, ip_size : std_logic_vector(15 downto 0);
+signal go_to_divide, more_fragments : std_logic;
 
 begin
 
@@ -188,10 +188,13 @@ begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE and TC_DATAREADY_IN = '1') then
 			local_end <= TC_FRAME_SIZE_IN - x"1";
+			full_packet_size <= TC_FRAME_SIZE_IN;
 		elsif (transmit_current_state = TRANSMIT) then
 			local_end <= local_end - x"1";
+			full_packet_size <= full_packet_size;
 		else
 			local_end <= local_end;
+			full_packet_size <= full_packet_size;
 		end if; 
 	end if;
 end process LOCAL_END_PROC;
@@ -199,13 +202,47 @@ end process LOCAL_END_PROC;
 FC_DATA_OUT         <= TC_DATA_IN;
 FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0';
 FC_EOD_OUT			<= '1' when transmit_current_state = CLOSE else '0';
-FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
-FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = WAIT_FOR_H) then
+			if (local_end >= g_MAX_FRAME_SIZE) then
+				ip_size <= g_MAX_FRAME_SIZE;
+			else
+				ip_size <= local_end;
+			end if;
+		else
+			ip_size <= ip_size;
+		end if;
+	end if;
+end process;
+FC_IP_SIZE_OUT      <= ip_size; 
+FC_UDP_SIZE_OUT		<= full_packet_size; --TC_FRAME_SIZE_IN;
+
+FC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
+FC_FLAGS_OFFSET_OUT(13) <= more_fragments;
+MORE_FRAGMENTS_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = WAIT_FOR_H) then
+			if (local_end >= g_MAX_FRAME_SIZE) then
+				more_fragments <= '1';
+			else
+				more_fragments <= '0';
+			end if;
+		else
+			more_fragments <= more_fragments;
+		end if;
+	end if;
+end process MORE_FRAGMENTS_PROC;
+FC_FLAGS_OFFSET_OUT(12 downto 0) <= full_packet_size(15 downto 3) - local_end(15 downto 3);
+
 TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
 FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN; 
-FC_FLAGS_OFFSET_OUT  <= TC_FLAGS_OFFSET_IN;
+--FC_FLAGS_OFFSET_OUT  <= TC_FLAGS_OFFSET_IN;
 DEST_MAC_ADDRESS_OUT <= TC_DEST_MAC_IN;
 DEST_IP_ADDRESS_OUT  <= TC_DEST_IP_IN;
 DEST_UDP_PORT_OUT    <= TC_DEST_UDP_IN;
