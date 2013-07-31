@@ -289,10 +289,12 @@ begin
 		else
 			tc_data(7 downto 0) <= (others => '0');	
 		end if;
+		
+		TC_DATA_OUT <= tc_data;
+		
 	end if;
 end process TC_DATA_PROC;
 
-TC_DATA_OUT <= tc_data;
 --TC_WR_EN_OUT <= tc_wr;
 
 PS_RESPONSE_SYNC : process(CLK)

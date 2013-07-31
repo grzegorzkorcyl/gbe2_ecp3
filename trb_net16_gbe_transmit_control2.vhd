@@ -142,7 +142,7 @@ begin
 	if rising_edge(CLK) then
 		tc_rd_q <= tc_rd;
 		tc_rd_qq <= tc_rd_q;
-		FC_WR_EN_OUT <= tc_rd_q;
+		FC_WR_EN_OUT <= tc_rd_qq;
 	end if;
 end process;
 
