@@ -291,7 +291,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			sent_frames <= (others => '0');
-		elsif (dissect_current_state = CLEANUP) then
+		elsif (dissect_current_state = WAIT_FOR_LOAD and PS_SELECTED_IN = '1') then
 			sent_frames <= sent_frames + x"1";
 		end if;
 	end if;
