@@ -652,7 +652,7 @@ begin
 	wait for 1 us;
 	
 	
-	for i in 0 to 1000 loop
+	for i in 0 to 100 loop
 	
 		wait until rising_edge(clk);
 		gsc_reply_dataready <= '1';
