@@ -65,7 +65,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
+type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
@@ -93,10 +93,13 @@ begin
 	
 		when IDLE =>
 			if (TC_DATAREADY_IN = '1') then
-				transmit_next_state <= WAIT_FOR_H;
+				transmit_next_state <= PREPARE_HEADERS; --WAIT_FOR_H;
 			else
 				transmit_next_state <= IDLE;
 			end if;
+			
+		when PREPARE_HEADERS =>
+			transmit_next_state<= WAIT_FOR_H;
 		
 		when WAIT_FOR_H =>
 			if (FC_H_READY_IN = '1') then
@@ -206,7 +209,7 @@ FC_EOD_OUT			<= '1' when transmit_current_state = CLOSE else '0';
 process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (transmit_current_state = WAIT_FOR_H) then
+		if (transmit_current_state = PREPARE_HEADERS) then
 			if (local_end >= g_MAX_FRAME_SIZE) then
 				ip_size <= g_MAX_FRAME_SIZE;
 			else
@@ -225,7 +228,7 @@ FC_FLAGS_OFFSET_OUT(13) <= more_fragments;
 MORE_FRAGMENTS_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (transmit_current_state = WAIT_FOR_H) then
+		if (transmit_current_state = PREPARE_HEADERS) then
 			if (local_end >= g_MAX_FRAME_SIZE) then
 				more_fragments <= '1';
 			else
