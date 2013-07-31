@@ -167,7 +167,6 @@ FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0';
 FC_EOD_OUT			<= '1' when transmit_current_state = CLOSE else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
---FC_WR_EN_OUT		<= '1' when transmit_current_state = TRANSMIT else '0';
 TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = WAIT_FOR_TRANS and FC_READY_IN = '1' else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
