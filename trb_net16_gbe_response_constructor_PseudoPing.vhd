@@ -239,7 +239,7 @@ process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (dissect_current_state = GENERATE_DATA) then
-			size_left <= x"0400";
+			size_left <= x"0500";
 		elsif (dissect_current_state = LOAD_FRAME) then
 			size_left <= size_left - x"1";
 		else
@@ -248,7 +248,7 @@ begin
 	end if;	
 end process;
 
-TC_FRAME_SIZE_OUT   <= x"0400";
+TC_FRAME_SIZE_OUT   <= x"0500";
 TC_SIZE_LEFT_OUT    <= size_left;
 TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
 TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
