@@ -180,12 +180,13 @@ fifo : fifo_2048x8
 	RdClock => CLK,
     Data    => fifo_data,
     WrEn    => fifo_wr_en,
-    RdEn    => TC_RD_EN_IN,
+    RdEn    => fifo_rd_en, --TC_RD_EN_IN,
     Q       => fifo_q,
     Full    => open,
     Empty   => open
   );
   
+fifo_rd_en <= '1' when TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' else '0';
 fifo_wr_en <= '1' when dissect_current_state = GENERATE_DATA else '0';
 fifo_data  <= gen_ctr(7 downto 0);
 

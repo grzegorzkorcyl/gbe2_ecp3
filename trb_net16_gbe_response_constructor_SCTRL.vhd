@@ -33,7 +33,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 		PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
 			
-		TC_WR_EN_OUT		: out	std_logic;
+		TC_RD_EN_IN		: in	std_logic;
 		TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 		TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 		TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
@@ -83,7 +83,8 @@ architecture RTL of trb_net16_gbe_response_constructor_SCTRL is
 
 attribute syn_encoding	: string;
 
-type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+--type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
+type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_LOAD, CLEANUP);
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_TWO, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
@@ -313,16 +314,17 @@ begin
 	end if;
 end process TX_FIFO_WR_SYNC;
 
-TX_FIFO_RD_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and tx_frame_loaded /= g_MAX_FRAME_SIZE) then
-			tx_fifo_rd <= '1';
-		else
-			tx_fifo_rd <= '0';
-		end if;
-	end if;
-end process TX_FIFO_RD_SYNC;
+--TX_FIFO_RD_SYNC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and tx_frame_loaded /= g_MAX_FRAME_SIZE) then
+--			tx_fifo_rd <= '1';
+--		else
+--			tx_fifo_rd <= '0';
+--		end if;
+--	end if;
+--end process TX_FIFO_RD_SYNC;
+tx_fifo_rd <= '1' when TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' else '0';
 		
 TX_FIFO_SYNC_PROC : process(CLK)
 begin
@@ -335,21 +337,22 @@ begin
 	end if;
 end process TX_FIFO_SYNC_PROC;
 
-TC_WR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		tc_wr <= tx_fifo_rd;
-		
-		TC_WR_EN_OUT <= tc_wr;
-	end if;
-end process TC_WR_PROC;
+--TC_WR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		tc_wr <= tx_fifo_rd;
+--		
+--		TC_WR_EN_OUT <= tc_wr;
+--	end if;
+--end process TC_WR_PROC;
 
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 		
-		if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+		if (tx_loaded_ctr = tx_data_ctr) then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
@@ -398,7 +401,8 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
 			tx_loaded_ctr <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then  -- TODO: change this to real wr signal
+		--elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then  -- TODO: change this to real wr signal
+		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
 	end if;
@@ -434,52 +438,57 @@ TC_SRC_UDP_OUT     <= x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
-FRAME_SIZE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
-			TC_FRAME_SIZE_OUT <= (others => '0');
-			TC_IP_SIZE_OUT    <= (others => '0');
-		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
-			if  (size_left >= g_MAX_FRAME_SIZE) then
-				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
-				TC_IP_SIZE_OUT    <= g_MAX_FRAME_SIZE;
-			else
-				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
-				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
-			end if;
-		end if;
-	end if;
-end process FRAME_SIZE_PROC;
-
+TC_FRAME_SIZE_OUT   <= tx_data_ctr;
+--TC_SIZE_LEFT_OUT    <= size_left;
+TC_IP_SIZE_OUT      <= tx_data_ctr;
 TC_UDP_SIZE_OUT     <= tx_data_ctr;
 
-TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
-MORE_FRAGMENTS_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
-			TC_FLAGS_OFFSET_OUT(13) <= '0';
-		elsif ((dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
-			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
-				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
-			else
-				TC_FLAGS_OFFSET_OUT(13) <= '1';  -- more fragments
-			end if;
-		end if;
-	end if;
-end process MORE_FRAGMENTS_PROC;
-
-OFFSET_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
-			TC_FLAGS_OFFSET_OUT(12 downto 0) <= (others => '0');
-		elsif (dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') then
-			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3) + x"1";
-		end if;
-	end if;
-end process OFFSET_PROC;
+--FRAME_SIZE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or dissect_current_state = IDLE) then
+--			TC_FRAME_SIZE_OUT <= (others => '0');
+--			TC_IP_SIZE_OUT    <= (others => '0');
+--		elsif (dissect_current_state = WAIT_FOR_LOAD or dissect_current_state = DIVIDE) then
+--			if  (size_left >= g_MAX_FRAME_SIZE) then
+--				TC_FRAME_SIZE_OUT <= g_MAX_FRAME_SIZE;
+--				TC_IP_SIZE_OUT    <= g_MAX_FRAME_SIZE;
+--			else
+--				TC_FRAME_SIZE_OUT <= size_left(15 downto 0);
+--				TC_IP_SIZE_OUT    <= size_left(15 downto 0);
+--			end if;
+--		end if;
+--	end if;
+--end process FRAME_SIZE_PROC;
+--
+--TC_UDP_SIZE_OUT     <= tx_data_ctr;
+--
+--TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
+--MORE_FRAGMENTS_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
+--			TC_FLAGS_OFFSET_OUT(13) <= '0';
+--		elsif ((dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') or (dissect_current_state = WAIT_FOR_LOAD)) then
+--			if ((tx_data_ctr - tx_loaded_ctr) < g_MAX_FRAME_SIZE) then
+--				TC_FLAGS_OFFSET_OUT(13) <= '0';  -- no more fragments
+--			else
+--				TC_FLAGS_OFFSET_OUT(13) <= '1';  -- more fragments
+--			end if;
+--		end if;
+--	end if;
+--end process MORE_FRAGMENTS_PROC;
+--
+--OFFSET_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') or (dissect_current_state = IDLE) or (dissect_current_state = CLEANUP) then
+--			TC_FLAGS_OFFSET_OUT(12 downto 0) <= (others => '0');
+--		elsif (dissect_current_state = DIVIDE and PS_SELECTED_IN = '1') then
+--			TC_FLAGS_OFFSET_OUT(12 downto 0) <= tx_loaded_ctr(15 downto 3) + x"1";
+--		end if;
+--	end if;
+--end process OFFSET_PROC;
 
 DISSECT_MACHINE_PROC : process(CLK)
 begin
@@ -587,59 +596,64 @@ begin
 		
 		when LOAD_FRAME =>
 			state <= x"9";
-			if (tx_loaded_ctr = tx_data_ctr + x"1") then
+			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
-			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
-				dissect_next_state <= DIVIDE;
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
+--			if (tx_loaded_ctr = tx_data_ctr + x"1") then
+--				dissect_next_state <= CLEANUP;
+--			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
+--				dissect_next_state <= DIVIDE;
+--			else
+--				dissect_next_state <= LOAD_FRAME;
+--			end if;
 
-		when DIVIDE =>
-			state <= x"a";
-			if (PS_SELECTED_IN = '1') then
-				dissect_next_state <= LOAD_FRAME;
-			else
-				dissect_next_state <= DIVIDE;
-			end if;
+--		when DIVIDE =>
+--			state <= x"a";
+--			if (PS_SELECTED_IN = '1') then
+--				dissect_next_state <= LOAD_FRAME;
+--			else
+--				dissect_next_state <= DIVIDE;
+--			end if;
 		
 		when CLEANUP =>
 			state <= x"b";
 			dissect_next_state <= IDLE;
 			
-		when others =>
-			state <= x"f";
-			dissect_next_state <= IDLE;
+--		when others =>
+--			state <= x"f";
+--			dissect_next_state <= IDLE;
 	
 	end case;
 end process DISSECT_MACHINE;
 
 
--- counter of bytes of currently constructed frame
-FRAME_LOADED_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = DIVIDE or dissect_current_state = IDLE) then
-			tx_frame_loaded <= (others => '0');
-		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
-			tx_frame_loaded <= tx_frame_loaded + x"1";
-		end if;
-	end if;
-end process FRAME_LOADED_PROC;
-
--- counter down to 0 of bytes that have to be transmitted for a given packet
-SIZE_LEFT_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = SAVE_RESPONSE) then
-			size_left <= (others => '0');
-		elsif (dissect_current_state = WAIT_FOR_LOAD) then
-			size_left <= tx_data_ctr;
-		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
-			size_left <= size_left - x"1";
-		end if;
-	end if;
-end process SIZE_LEFT_PROC;
+---- counter of bytes of currently constructed frame
+--FRAME_LOADED_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or dissect_current_state = DIVIDE or dissect_current_state = IDLE) then
+--			tx_frame_loaded <= (others => '0');
+--		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
+--			tx_frame_loaded <= tx_frame_loaded + x"1";
+--		end if;
+--	end if;
+--end process FRAME_LOADED_PROC;
+--
+---- counter down to 0 of bytes that have to be transmitted for a given packet
+--SIZE_LEFT_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or dissect_current_state = SAVE_RESPONSE) then
+--			size_left <= (others => '0');
+--		elsif (dissect_current_state = WAIT_FOR_LOAD) then
+--			size_left <= tx_data_ctr;
+--		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then
+--			size_left <= size_left - x"1";
+--		end if;
+--	end if;
+--end process SIZE_LEFT_PROC;
 
 
 -- reset request packet detection

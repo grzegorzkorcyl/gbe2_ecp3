@@ -296,6 +296,9 @@ signal ps_wr_en, ps_rd_en, ps_frame_ready : std_logic;
 signal ps_proto, ps_busy : std_logic_vector(2 downto 0);
 signal ps_frame_size : std_logic_vector(15 downto 0);
 
+signal gsc_reply_dataready, gsc_busy : std_logic;
+signal gsc_reply_data : std_logic_vector(15 downto 0);
+
 begin
 
 MAIN_CONTROL : trb_net16_gbe_main_control
@@ -352,11 +355,11 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	GSC_INIT_DATA_OUT        => open,
 	GSC_INIT_PACKET_NUM_OUT  => open,
 	GSC_INIT_READ_IN         => '0',
-	GSC_REPLY_DATAREADY_IN   => '0',
-	GSC_REPLY_DATA_IN        => (others => '0'),
+	GSC_REPLY_DATAREADY_IN   => gsc_reply_dataready,
+	GSC_REPLY_DATA_IN        => gsc_reply_data,
 	GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
 	GSC_REPLY_READ_OUT       => open,
-	GSC_BUSY_IN              => '0',
+	GSC_BUSY_IN              => gsc_busy,
 
 	MAKE_RESET_OUT           => open, --MAKE_RESET_OUT,
 	
@@ -640,30 +643,46 @@ begin
 	ps_wr_en <= '0';
 	ps_data <= '0' & x"00";
 	ps_proto <= "000";
+	gsc_reply_data <= (others => '0');
+	gsc_reply_dataready <= '0';
+	gsc_busy <= '0'; 
 	wait for 100 ns;
 	reset <= '0';
 	
 	wait for 1 us;
 	
+	
+	for i in 0 to 1000 loop
+	
+		wait until rising_edge(clk);
+		gsc_reply_dataready <= '1';
+		gsc_busy <= '1';
+		gsc_reply_data <= std_logic_vector(to_unsigned(i, 16));
+			
+	end loop;
 	wait until rising_edge(clk);
-	ps_frame_ready <= '1';
-	ps_proto <= "100";
-	ps_frame_size <= x"0005";
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	ps_data <= '1' & x"aa";
-	ps_frame_ready <= '0';
-	ps_proto <= "000";
+	gsc_busy <= '0';
+	gsc_reply_dataready <= '0';
+	
+--	wait until rising_edge(clk);
+--	ps_frame_ready <= '1';
+--	ps_proto <= "100";
+--	ps_frame_size <= x"0005";
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	ps_data <= '1' & x"aa";
+--	ps_frame_ready <= '0';
+--	ps_proto <= "000";
 
 --	
 --	
