@@ -11,7 +11,7 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_protocols.all;
 
 --********
--- doing shit right now
+-- performs response constructors readout and splitting into frames
 
 entity trb_net16_gbe_transmit_control2 is
 port (
@@ -65,11 +65,14 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS);
+type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
+
+signal actual_frame_bytes : std_logic_vector(15 downto 0);
+signal go_to_divide : std_logic;
 
 begin
 
@@ -84,7 +87,7 @@ begin
 	end if;
 end process TRANSMIT_MACHINE_PROC;
 
-TRANSMIT_MACHINE : process(FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end)
+TRANSMIT_MACHINE : process(FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end, g_MAX_FRAME_SIZE, actual_frame_bytes, go_to_divide)
 begin
 	case transmit_current_state is
 	
@@ -106,33 +109,38 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				transmit_next_state <= TRANSMIT;
+				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then
+					transmit_next_state <= SEND_ONE;
+				else
+					transmit_next_state <= TRANSMIT;
+				end if;
 			end if;
 			
 		when SEND_ONE =>
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
-			transmit_next_state <= CLOSE; --WAIT_FOR_TRANS;
+			transmit_next_state <= CLOSE; 
 			
 		when CLOSE =>
 			transmit_next_state <= WAIT_FOR_TRANS;
 			
 		when WAIT_FOR_TRANS =>
 			if (FC_READY_IN = '1') then
-				transmit_next_state <= IDLE;
+				if (go_to_divide = '1') then
+					transmit_next_state <= DIVIDE;
+				else
+					transmit_next_state <= IDLE;
+				end if;
 			else
 				transmit_next_state <= WAIT_FOR_TRANS;
 			end if;
 		
---		when DIVIDE =>
---			transmit_next_state <= IDLE;
-		
---		when CLEANUP =>
---			transmit_next_state <= IDLE;
---			
---		when others =>
---			transmit_next_state <= IDLE;
+		when DIVIDE =>
+			transmit_next_state <= WAIT_FOR_H;
+			
+		when CLEANUP =>
+			transmit_next_state <= IDLE;
 	
 	end case;
 end process TRANSMIT_MACHINE;
@@ -140,19 +148,45 @@ end process TRANSMIT_MACHINE;
 tc_rd               <= '1' when transmit_current_state = TRANSMIT else '0';
 TC_RD_EN_OUT        <= tc_rd;
 
-process(CLK)
+SYNC_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		tc_rd_q <= tc_rd;
 		tc_rd_qq <= tc_rd_q;
 		FC_WR_EN_OUT <= tc_rd_qq;
 	end if;
-end process;
+end process SYNC_PROC;
 
-process(CLK)
+ACTUAL_FRAME_BYTES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (transmit_current_state = WAIT_FOR_H) then
+		if (transmit_current_state = IDLE or transmit_current_state = DIVIDE) then
+			actual_frame_bytes <= (others => '0');
+		elsif (transmit_current_state = TRANSMIT) then
+			actual_frame_bytes <= actual_frame_bytes + x"1";
+		else
+			actual_frame_bytes <= actual_frame_bytes;
+		end if;
+	end if;
+end process ACTUAL_FRAME_BYTES_PROC;
+
+GO_TO_DIVIDE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = IDLE or transmit_current_state = DIVIDE) then
+			go_to_divide <= '0';
+		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then
+			go_to_divide <= '1';
+		else
+			go_to_divide <= go_to_divide;
+		end if;		
+	end if;
+end process GO_TO_DIVIDE_PROC;
+
+LOCAL_END_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = IDLE and TC_DATAREADY_IN = '1') then
 			local_end <= TC_FRAME_SIZE_IN - x"1";
 		elsif (transmit_current_state = TRANSMIT) then
 			local_end <= local_end - x"1";
@@ -160,14 +194,14 @@ begin
 			local_end <= local_end;
 		end if; 
 	end if;
-end process;
+end process LOCAL_END_PROC;
 
 FC_DATA_OUT         <= TC_DATA_IN;
 FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0'; 
 FC_EOD_OUT			<= '1' when transmit_current_state = CLOSE else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
-TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = WAIT_FOR_TRANS and FC_READY_IN = '1' else '0';
+TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
 FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN; 

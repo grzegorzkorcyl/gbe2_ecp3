@@ -612,7 +612,7 @@ port map(
 );
 
 
-
+g_MAX_FRAME_SIZE <= x"0100";
 
 
 -- 125 MHz MAC clock
@@ -645,24 +645,17 @@ begin
 	
 	wait for 1 us;
 	
---	wait until rising_edge(clk);
---	ps_data <= '0' & x"ff";
---	ps_wr_en <= '1';
---	ps_proto <= "100";
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	wait until rising_edge(clk);
---	ps_data <= '1' & x"aa";
---	wait until rising_edge(clk);
---	ps_data <= '0' & x"00";
---	ps_wr_en <= '0';
---	ps_proto <= "000";
---
---	wait until rising_edge(tc_dataready);
---	mc_busy <= '1';
---	wait until ps_busy = "000";
---	mc_busy <= '0';		
+	wait until rising_edge(clk);
+	ps_frame_ready <= '1';
+	ps_proto <= "100";
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	ps_data <= '1' & x"aa";
+	ps_frame_ready <= '0';
+	ps_proto <= "000";
+
 --	
 --	
 --	
