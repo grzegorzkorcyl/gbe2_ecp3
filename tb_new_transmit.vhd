@@ -642,7 +642,7 @@ begin
 	mc_busy <= '0';
 	ps_wr_en <= '0';
 	ps_data <= '0' & x"00";
-	ps_proto <= "000";
+	ps_proto <= "0000";
 	gsc_reply_data <= (others => '0');
 	gsc_reply_dataready <= '0';
 	gsc_busy <= '0'; 
