@@ -64,9 +64,10 @@ end trb_net16_gbe_transmit_control2;
 
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
-
+attribute syn_encoding : string;
 type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
+attribute syn_encoding of transmit_current_state : signal is "safe,gray";
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
