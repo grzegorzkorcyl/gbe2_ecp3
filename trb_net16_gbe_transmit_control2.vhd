@@ -215,7 +215,7 @@ begin
 			if (local_end >= g_MAX_FRAME_SIZE) then
 				ip_size <= g_MAX_FRAME_SIZE;
 			else
-				ip_size <= local_end;
+				ip_size <= local_end + x"1";
 			end if;
 		else
 			ip_size <= ip_size;
