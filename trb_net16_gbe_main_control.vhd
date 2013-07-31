@@ -567,7 +567,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				link_current_state <= INACTIVE;
+				link_current_state <= GET_ADDRESS; --INACTIVE;
 			else
 				link_current_state <= GET_ADDRESS; --ACTIVE;
 			end if;
