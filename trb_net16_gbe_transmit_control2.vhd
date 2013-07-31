@@ -140,7 +140,7 @@ begin
 			end if;
 		
 		when DIVIDE =>
-			transmit_next_state <= WAIT_FOR_H;
+			transmit_next_state <= PREPARE_HEADERS; --WAIT_FOR_H;
 			
 		when CLEANUP =>
 			transmit_next_state <= IDLE;
