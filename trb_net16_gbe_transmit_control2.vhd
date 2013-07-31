@@ -130,7 +130,7 @@ begin
 				if (go_to_divide = '1') then
 					transmit_next_state <= DIVIDE;
 				else
-					transmit_next_state <= IDLE;
+					transmit_next_state <= CLEANUP;
 				end if;
 			else
 				transmit_next_state <= WAIT_FOR_TRANS;
