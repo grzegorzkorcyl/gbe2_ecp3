@@ -71,7 +71,7 @@ signal transmit_current_state, transmit_next_state : transmit_states;
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
 
-signal actual_frame_bytes, full_packet_size, ip_size : std_logic_vector(15 downto 0);
+signal actual_frame_bytes, full_packet_size, ip_size, packet_loaded_bytes : std_logic_vector(15 downto 0);
 signal go_to_divide, more_fragments : std_logic;
 
 begin
@@ -239,7 +239,20 @@ begin
 		end if;
 	end if;
 end process MORE_FRAGMENTS_PROC;
-FC_FLAGS_OFFSET_OUT(12 downto 0) <= full_packet_size(15 downto 3) - local_end(15 downto 3);
+FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3);
+
+PACKET_LOADED_BYTES_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = IDLE) then
+			packet_loaded_bytes <= (others => '0');
+		elsif (transmit_current_state = TRANSMIT) then
+			packet_loaded_bytes <= packet_loaded_bytes + x"1";
+		else
+			packet_loaded_bytes <= packet_loaded_bytes;
+		end if;
+	end if;
+end process PACKET_LOADED_BYTES_PROC;
 
 TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
