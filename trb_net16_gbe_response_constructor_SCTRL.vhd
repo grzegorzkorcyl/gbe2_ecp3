@@ -145,9 +145,6 @@ signal tx_fifo_data            : std_logic_vector(17 downto 0);
 signal tc_wr                   : std_logic;
 signal state                   : std_logic_vector(3 downto 0);
 
--- ONLY FOR SIMULATION
---signal g_MAX_FRAME_SIZE : std_logic_vector(15 downto 0) := x"0020";
-
 begin
 
 MAKE_RESET_OUT <= make_reset;
