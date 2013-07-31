@@ -64,10 +64,9 @@ end trb_net16_gbe_transmit_control2;
 
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
-attribute syn_encoding : string;
+
 type transmit_states is (IDLE, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
-attribute syn_encoding of transmit_current_state : signal is "safe,gray";
 
 signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
@@ -88,7 +87,7 @@ begin
 	end if;
 end process TRANSMIT_MACHINE_PROC;
 
-TRANSMIT_MACHINE : process(FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end, g_MAX_FRAME_SIZE, actual_frame_bytes, go_to_divide)
+TRANSMIT_MACHINE : process(transmit_current_state, FC_H_READY_IN, TC_DATAREADY_IN, FC_READY_IN, local_end, g_MAX_FRAME_SIZE, actual_frame_bytes, go_to_divide)
 begin
 	case transmit_current_state is
 	
@@ -121,18 +120,10 @@ begin
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
-			if (x"2" = x"2") then
-				transmit_next_state <= CLOSE;
-			else
-				transmit_next_state <= CLOSE;
-			end if; 
+			transmit_next_state <= CLOSE;
 			
 		when CLOSE =>
-			if (x"1" = x"1") then
-				transmit_next_state <= WAIT_FOR_TRANS;
-			else
-				transmit_next_state <= WAIT_FOR_TRANS;
-			end if;
+			transmit_next_state <= WAIT_FOR_TRANS;
 			
 		when WAIT_FOR_TRANS =>
 			if (FC_READY_IN = '1') then
