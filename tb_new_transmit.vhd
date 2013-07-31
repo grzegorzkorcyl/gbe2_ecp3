@@ -648,6 +648,7 @@ begin
 	wait until rising_edge(clk);
 	ps_frame_ready <= '1';
 	ps_proto <= "100";
+	ps_frame_size <= x"0005";
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
