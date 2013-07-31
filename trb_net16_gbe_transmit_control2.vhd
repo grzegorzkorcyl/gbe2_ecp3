@@ -112,7 +112,7 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
+				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then
 					transmit_next_state <= SEND_ONE;
 				else
 					transmit_next_state <= TRANSMIT;
@@ -178,7 +178,7 @@ begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE or transmit_current_state = DIVIDE) then
 			go_to_divide <= '0';
-		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
+		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then
 			go_to_divide <= '1';
 		else
 			go_to_divide <= go_to_divide;
