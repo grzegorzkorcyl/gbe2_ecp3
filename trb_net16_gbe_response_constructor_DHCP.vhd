@@ -644,10 +644,11 @@ begin
 		
 		end case;
 		
-		TC_DATA_OUT  <= tc_data;
 		
 	end if;
 end process;
+TC_DATA_OUT  <= tc_data;
+		
 
 PS_RESPONSE_SYNC : process(CLK)
 begin
