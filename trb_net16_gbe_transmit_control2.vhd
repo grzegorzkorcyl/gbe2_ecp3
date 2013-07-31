@@ -123,7 +123,11 @@ begin
 			transmit_next_state <= CLOSE; 
 			
 		when CLOSE =>
-			transmit_next_state <= WAIT_FOR_TRANS;
+			if (x"1" = x"1") then
+				transmit_next_state <= WAIT_FOR_TRANS;
+			else
+				transmit_next_state <= WAIT_FOR_TRANS;
+			end if;
 			
 		when WAIT_FOR_TRANS =>
 			if (FC_READY_IN = '1') then
@@ -197,7 +201,7 @@ begin
 end process LOCAL_END_PROC;
 
 FC_DATA_OUT         <= TC_DATA_IN;
-FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0'; 
+FC_SOD_OUT			<= '1' when transmit_current_state = WAIT_FOR_H else '0';
 FC_EOD_OUT			<= '1' when transmit_current_state = CLOSE else '0';
 FC_IP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
 FC_UDP_SIZE_OUT		<= TC_FRAME_SIZE_IN;
