@@ -120,7 +120,11 @@ begin
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
-			transmit_next_state <= CLOSE; 
+			if (x"2" = x"2") then
+				transmit_next_state <= CLOSE;
+			else
+				transmit_next_state <= CLOSE;
+			end if; 
 			
 		when CLOSE =>
 			if (x"1" = x"1") then
