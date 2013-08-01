@@ -741,7 +741,7 @@ port map(
 
 --DEBUG_OUT <= mac_control_debug;
 
-tsm_reconf <= '1' when (link_current_state = INACTIVE) and (PCS_AN_COMPLETE_IN = '1') else '0';
+tsm_reconf <= '1' when (link_current_state = INACTIVE) and (PCS_AN_COMPLETE_IN = '0') else '0';
 
 TSM_HADDR_OUT     <= tsm_haddr;
 TSM_HCS_N_OUT     <= tsm_hcs_n;
