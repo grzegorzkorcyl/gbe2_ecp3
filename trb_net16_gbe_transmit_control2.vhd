@@ -241,15 +241,17 @@ begin
 		end if;
 	end if;
 end process MORE_FRAGMENTS_PROC;
-FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3);
+FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3) + x"1";
 
 PACKET_LOADED_BYTES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE) then
-			packet_loaded_bytes <= (others => '0');
+			packet_loaded_bytes <= x"3";
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
+		elsif (transmit_current_state = DIVIDE) then	
+			packet_loaded_bytes <= packet_loaded_bytes + x"3";	
 		else
 			packet_loaded_bytes <= packet_loaded_bytes;
 		end if;
