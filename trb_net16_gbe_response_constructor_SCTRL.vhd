@@ -376,7 +376,7 @@ begin
 		if (RESET = '1' or dissect_current_state = IDLE) then
 			tx_data_ctr <= (others => '0');
 		elsif (tx_fifo_wr = '1') then
-			tx_data_ctr(15 downto 1) <= tx_data_ctr(15 downto 1) + x"2";
+			tx_data_ctr <= tx_data_ctr + x"2";
 		end if;
 	end if;
 end process TX_DATA_CTR_PROC;
