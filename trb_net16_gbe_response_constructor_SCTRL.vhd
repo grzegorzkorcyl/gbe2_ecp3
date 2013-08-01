@@ -130,11 +130,6 @@ signal reset_detected           : std_logic := '0';
 signal make_reset               : std_logic := '0';
 
 
-attribute syn_preserve : boolean;
-attribute syn_keep : boolean;
-attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
-attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
-
 signal fifo_rd_q               : std_logic;
 
 signal too_much_data           : std_logic;
@@ -144,6 +139,12 @@ signal tx_fifo_data            : std_logic_vector(17 downto 0);
 
 signal tc_wr                   : std_logic;
 signal state                   : std_logic_vector(3 downto 0);
+
+attribute syn_preserve : boolean;
+attribute syn_keep : boolean;
+attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
+attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
+
 
 begin
 
