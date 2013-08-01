@@ -225,8 +225,8 @@ signal tc_data                      : std_logic_vector(8 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
-attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state : signal is true;
+attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
+attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
 
 signal mc_busy                      : std_logic;
 
@@ -567,7 +567,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				link_current_state <= INACTIVE;
+				link_current_state <= ACTIVE; --INACTIVE;
 			else
 				link_current_state <= GET_ADDRESS; --ACTIVE;
 			end if;

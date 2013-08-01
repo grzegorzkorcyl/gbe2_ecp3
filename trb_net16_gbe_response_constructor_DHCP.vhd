@@ -127,8 +127,8 @@ signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of state : signal is true;
-attribute syn_preserve of state : signal is true;
+attribute syn_keep of state, state2 : signal is true;
+attribute syn_preserve of state, state2 : signal is true;
 
 begin
 
@@ -644,7 +644,7 @@ begin
 		
 		end case;
 
-TC_DATA_OUT  <= tc_data;
+		TC_DATA_OUT  <= tc_data;
 				
 	end if;
 end process;
