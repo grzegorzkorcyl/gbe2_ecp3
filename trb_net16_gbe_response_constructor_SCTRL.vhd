@@ -132,8 +132,8 @@ signal make_reset               : std_logic := '0';
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
-attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
-attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read : signal is true;
+attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
+attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
 
 signal fifo_rd_q               : std_logic;
 

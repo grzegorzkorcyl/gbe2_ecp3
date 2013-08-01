@@ -116,16 +116,16 @@ signal size_left : std_logic_vector(15 downto 0);
 
 begin
 
-DISSECT_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dissect_current_state <= IDLE;
-		else
-			dissect_current_state <= dissect_next_state;
-		end if;
-	end if;
-end process DISSECT_MACHINE_PROC;
+--DISSECT_MACHINE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			dissect_current_state <= IDLE;
+--		else
+--			dissect_current_state <= dissect_next_state;
+--		end if;
+--	end if;
+--end process DISSECT_MACHINE_PROC;
 
 DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, data_length, gen_ctr, size_left, PS_SELECTED_IN)
 begin
