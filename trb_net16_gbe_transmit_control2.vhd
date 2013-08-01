@@ -247,7 +247,7 @@ PACKET_LOADED_BYTES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE) then
-			packet_loaded_bytes <= x"0003";
+			packet_loaded_bytes <= x"0000";
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
 		elsif (transmit_current_state = DIVIDE) then	
