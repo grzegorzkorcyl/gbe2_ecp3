@@ -165,7 +165,7 @@ begin
 		
 		when IDLE =>
 			state <= x"1";
-			if (new_frame = '1') and (ALLOW_RX_IN = '1') then
+			if (new_frame = '1') and (ALLOW_RX_IN = '1') and (LINK_OK_IN = '1') then
 				filter_next_state <= REMOVE_DEST;
 			else
 				filter_next_state <= IDLE;

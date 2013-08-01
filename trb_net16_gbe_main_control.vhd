@@ -665,7 +665,8 @@ begin
 	end if;
 end process LINK_OK_CTR_PROC;
 
-link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) or (link_current_state = WAIT_FOR_BOOT) else '0';
+--link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) or (link_current_state = WAIT_FOR_BOOT) else '0';
+link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) else '0';
 
 WAIT_CTR_PROC : process(CLK)
 begin
@@ -680,20 +681,20 @@ end process WAIT_CTR_PROC;
 
 dhcp_start <= '1' when link_current_state = GET_ADDRESS else '0';
 
-LINK_DOWN_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			link_down_ctr      <= (others => '0');
-			link_down_ctr_lock <= '0';
-		elsif (PCS_AN_COMPLETE_IN = '1') then
-			link_down_ctr_lock <= '0';
-		elsif ((PCS_AN_COMPLETE_IN = '0') and (link_down_ctr_lock = '0')) then
-			link_down_ctr      <= link_down_ctr + x"1";
-			link_down_ctr_lock <= '1';
-		end if;
-	end if;
-end process LINK_DOWN_CTR_PROC;
+--LINK_DOWN_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			link_down_ctr      <= (others => '0');
+--			link_down_ctr_lock <= '0';
+--		elsif (PCS_AN_COMPLETE_IN = '1') then
+--			link_down_ctr_lock <= '0';
+--		elsif ((PCS_AN_COMPLETE_IN = '0') and (link_down_ctr_lock = '0')) then
+--			link_down_ctr      <= link_down_ctr + x"1";
+--			link_down_ctr_lock <= '1';
+--		end if;
+--	end if;
+--end process LINK_DOWN_CTR_PROC;
 
 MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 
