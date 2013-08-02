@@ -23,7 +23,6 @@ port (
 	TC_RD_EN_OUT		        : out	std_logic;
 	TC_DATA_IN		        : in	std_logic_vector(7 downto 0);
 	TC_FRAME_SIZE_IN	    : in	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_IN        : in	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_IN	    : in	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_IN	    : in	std_logic_vector(7 downto 0);	
 	TC_DEST_MAC_IN		    : in	std_logic_vector(47 downto 0);
@@ -32,7 +31,6 @@ port (
 	TC_SRC_MAC_IN		    : in	std_logic_vector(47 downto 0);
 	TC_SRC_IP_IN		    : in	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_IN		    : in	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_IN	    : in	std_logic_vector(15 downto 0);
 	TC_TRANSMISSION_DONE_OUT : out	std_logic;
 	TC_IDENT_IN             : in	std_logic_vector(15 downto 0);
 
@@ -252,7 +250,7 @@ begin
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
 		elsif (transmit_current_state = DIVIDE and first_frame = '1') then	
-			packet_loaded_bytes <= packet_loaded_bytes + x"8" + x"4";	
+			packet_loaded_bytes <= packet_loaded_bytes + x"8";	-- 8bytes for udp headers added for the first offset
 		else
 			packet_loaded_bytes <= packet_loaded_bytes;
 		end if;
@@ -276,8 +274,7 @@ end process FIRST_FRAME_PROC;
 TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
 FC_FRAME_TYPE_OUT    <= TC_FRAME_TYPE_IN;
-FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN; 
---FC_FLAGS_OFFSET_OUT  <= TC_FLAGS_OFFSET_IN;
+FC_IP_PROTOCOL_OUT   <= TC_IP_PROTOCOL_IN;
 DEST_MAC_ADDRESS_OUT <= TC_DEST_MAC_IN;
 DEST_IP_ADDRESS_OUT  <= TC_DEST_IP_IN;
 DEST_UDP_PORT_OUT    <= TC_DEST_UDP_IN;

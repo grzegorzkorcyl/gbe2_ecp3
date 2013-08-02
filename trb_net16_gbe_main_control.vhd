@@ -47,30 +47,17 @@ port (
 	TC_TRANSMIT_CTRL_OUT	: out	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_RD_EN_IN		: in	std_logic;
-	--TC_RD_EN_IN         : in	std_logic;
-	--TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	
 	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
---	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
---	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
 	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
 	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
-	
---	TC_FC_H_READY_IN : in std_logic;
---	TC_FC_READY_IN : in std_logic;
---	TC_FC_WR_EN_OUT : out std_logic;
---	
---	TC_BUSY_IN		: in	std_logic;
 	TC_TRANSMIT_DONE_IN	: in	std_logic;
 
 -- signals to/from sgmii/gbe pcs_an_complete
@@ -255,13 +242,10 @@ port map(
 	
 	TC_DATA_OUT		    => tc_data,
 	TC_RD_EN_IN		    => TC_RD_EN_IN,
-	TC_DATA_NOT_VALID_OUT => open, --TC_DATA_NOT_VALID_OUT,
 	TC_FRAME_SIZE_OUT	=> TC_FRAME_SIZE_OUT,
-	TC_SIZE_LEFT_OUT    => TC_SIZE_LEFT_OUT,
 	TC_FRAME_TYPE_OUT	=> TC_FRAME_TYPE_OUT,
 	TC_IP_PROTOCOL_OUT	=> TC_IP_PROTOCOL_OUT,
 	TC_IDENT_OUT        => TC_IDENT_OUT,
-	
 	TC_DEST_MAC_OUT		=> TC_DEST_MAC_OUT,
 	TC_DEST_IP_OUT		=> TC_DEST_IP_OUT,
 	TC_DEST_UDP_OUT		=> TC_DEST_UDP_OUT,
@@ -269,15 +253,6 @@ port map(
 	TC_SRC_IP_OUT		=> TC_SRC_IP_OUT,
 	TC_SRC_UDP_OUT		=> TC_SRC_UDP_OUT,
 	
-	TC_IP_SIZE_OUT		=> open, --TC_IP_SIZE_OUT,
-	TC_UDP_SIZE_OUT		=> open, --TC_UDP_SIZE_OUT,
-	TC_FLAGS_OFFSET_OUT	=> TC_FLAGS_OFFSET_OUT,
-	
-	TC_FC_H_READY_IN    => '0', --TC_FC_H_READY_IN,
-	TC_FC_READY_IN      => '0', --TC_FC_READY_IN,
-	TC_FC_WR_EN_OUT     => open, --TC_FC_WR_EN_OUT,
-	
-	TC_BUSY_IN		=> '0', --TC_BUSY_IN,
 	MC_BUSY_IN      => mc_busy,
 	
 	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,

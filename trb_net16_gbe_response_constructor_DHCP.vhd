@@ -38,7 +38,6 @@ port (
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -48,11 +47,6 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	
-	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
@@ -668,12 +662,8 @@ end process PS_RESPONSE_SYNC;
 
 -- fixed sizes for discover and request messages
 TC_FRAME_SIZE_OUT   <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
-TC_IP_SIZE_OUT      <= x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
-TC_UDP_SIZE_OUT     <=  x"0103" when (main_current_state = SENDING_DISCOVER) else x"0109";
 
 TC_FRAME_TYPE_OUT   <= x"0008";  -- frame type: ip
-
-TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 
 TC_IDENT_OUT        <= x"1" & sent_frames(11 downto 0);
 
@@ -693,8 +683,6 @@ begin
 		end if;
 	end if;
 end process SIZE_LEFT_PROC;
-
-TC_SIZE_LEFT_OUT <= size_left;
 
 -- **** statistics
 --REC_FRAMES_PROC : process(CLK)

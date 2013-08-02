@@ -45,12 +45,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 		TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 		TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-		TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-		TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-		TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
 		
-		TC_BUSY_IN		: in	std_logic;
-
 		STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 		STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 		STAT_DATA_RDY_OUT : out std_logic;
@@ -437,9 +432,6 @@ TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
 TC_FRAME_SIZE_OUT   <= tx_data_ctr;
---TC_SIZE_LEFT_OUT    <= size_left;
-TC_IP_SIZE_OUT      <= tx_data_ctr;
-TC_UDP_SIZE_OUT     <= tx_data_ctr;
 
 --FRAME_SIZE_PROC : process(CLK)
 --begin
@@ -503,7 +495,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, TC_BUSY_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
 begin
 	case dissect_current_state is
 	

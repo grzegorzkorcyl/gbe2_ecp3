@@ -32,7 +32,6 @@ port (
 	
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_DATA_NOT_VALID_OUT : out std_logic;
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
@@ -42,15 +41,6 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	
-	TC_FC_H_READY_IN : in std_logic;
-	TC_FC_READY_IN : in std_logic;
-	TC_FC_WR_EN_OUT : out std_logic;
-		
-	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
@@ -296,7 +286,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, tc_sod, TC_BUSY_IN, tc_eod)
+DISSECT_MACHINE : process(dissect_current_state, tc_sod, tc_eod)
 begin
 	case dissect_current_state is
 	
@@ -308,7 +298,7 @@ begin
 			end if;
 			
 		when WAIT_FOR_LOAD =>
-			if (TC_BUSY_IN = '0' and PS_SELECTED_IN = '1') then
+			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD;
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;
@@ -328,14 +318,13 @@ begin
 end process DISSECT_MACHINE;
 
 --TODO: change this to real "ready" signals 
-tc_ready <= '1' when TC_BUSY_IN = '0' else '0'; --not TC_BUSY_IN);
-tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
+--tc_ready <= '1' when TC_BUSY_IN = '0' else '0'; --not TC_BUSY_IN);
+--tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
 
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
 TC_DATA_OUT           <= "0" & tc_data;
-TC_DATA_NOT_VALID_OUT <= tc_not_valid;
 
 --FRAME_SIZE_PROC : process(CLK)
 --begin
@@ -352,8 +341,6 @@ TC_DATA_NOT_VALID_OUT <= tc_not_valid;
 --	end if;
 --end process;
 TC_FRAME_SIZE_OUT 	  <= tc_ip_size + x"4";-- when tc_flags_offset(13) = '0' else tc_ip_size;
-TC_IP_SIZE_OUT		  <= tc_ip_size;
-TC_UDP_SIZE_OUT		  <= tc_udp_size;
 
 TC_FRAME_TYPE_OUT     <= x"0008";
 TC_DEST_MAC_OUT       <= ic_dest_mac;
@@ -363,7 +350,6 @@ TC_SRC_MAC_OUT        <= g_MY_MAC;
 TC_SRC_IP_OUT         <= g_MY_IP;
 TC_SRC_UDP_OUT        <= x"cb20";
 TC_IP_PROTOCOL_OUT    <= x"11";
-TC_FLAGS_OFFSET_OUT   <= tc_flags_offset;
 
 
 end trb_net16_gbe_response_constructor_TrbNetData;

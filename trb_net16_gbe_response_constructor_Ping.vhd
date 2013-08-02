@@ -39,7 +39,6 @@ port (
 	TC_RD_EN_IN		: in	std_logic;
 	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -49,11 +48,6 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	
-	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
@@ -254,7 +248,7 @@ begin
 			else
 				checksum_r <= checksum_r + PS_DATA_IN(7 downto 0);
 			end if;
-		elsif (dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0') then
+		elsif (dissect_current_state = WAIT_FOR_LOAD) then
 				checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
 				checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
 		elsif (dissect_current_state = LOAD_FRAME and data_ctr = 2) then
@@ -315,17 +309,12 @@ begin
 end process PS_RESPONSE_SYNC;
 
 TC_FRAME_SIZE_OUT   <= std_logic_vector(to_unsigned(data_length, 16));
-TC_SIZE_LEFT_OUT    <= std_logic_vector(to_unsigned(data_length, 16));
-TC_IP_SIZE_OUT      <= std_logic_vector(to_unsigned(data_length, 16));
-TC_UDP_SIZE_OUT     <= std_logic_vector(to_unsigned(data_length, 16));
-
 TC_FRAME_TYPE_OUT   <= x"0008";
 TC_DEST_UDP_OUT     <= x"0000";  -- not used
 TC_SRC_MAC_OUT      <= g_MY_MAC;
 TC_SRC_IP_OUT       <= g_MY_IP;
 TC_SRC_UDP_OUT      <= x"0000";  -- not used
 TC_IP_PROTOCOL_OUT  <= X"01"; -- ICMP
-TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 TC_IDENT_OUT        <= x"2" & sent_frames(11 downto 0);
 
 ADDR_PROC : process(CLK)

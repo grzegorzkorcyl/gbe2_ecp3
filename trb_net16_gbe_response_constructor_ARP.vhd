@@ -38,7 +38,6 @@ port (
 	TC_RD_EN_IN		   : in	std_logic;
 	TC_DATA_OUT		       : out	std_logic_vector(8 downto 0);
 	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
 	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
 	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
 	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);	
@@ -48,11 +47,6 @@ port (
 	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
 	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-		
-	TC_BUSY_IN		: in	std_logic;
 	
 	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
@@ -288,7 +282,6 @@ end process PS_RESPONSE_SYNC;
 
 
 TC_FRAME_SIZE_OUT   <= x"001c";  -- fixed frame size
-TC_SIZE_LEFT_OUT    <= x"001c";
 
 TC_FRAME_TYPE_OUT   <= x"0608";
 TC_DEST_MAC_OUT     <= PS_SRC_MAC_ADDRESS_IN;
@@ -298,9 +291,6 @@ TC_SRC_MAC_OUT      <= g_MY_MAC;
 TC_SRC_IP_OUT       <= x"00000000";  -- doesnt matter
 TC_SRC_UDP_OUT      <= x"0000";  -- doesnt matter
 TC_IP_PROTOCOL_OUT  <= x"00"; -- doesnt matter
-TC_IP_SIZE_OUT      <= (others => '0');  -- doesn't matter
-TC_UDP_SIZE_OUT     <= (others => '0'); -- doesn't matter
-TC_FLAGS_OFFSET_OUT <= (others => '0');  -- doesn't matter
 TC_IDENT_OUT        <= (others => '0');  -- doesn't matter
 
 
