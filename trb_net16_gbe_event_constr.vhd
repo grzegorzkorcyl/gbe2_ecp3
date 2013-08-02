@@ -592,7 +592,9 @@ shf_rd_en <= '1' when load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' else '
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = GET_Q_SIZE) then
+		if (load_current_state = GET_Q_SIZE and header_ctr /= 0) then
+			qsf_rd_en_q <= '1';
+		elsif (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en_q <= '1';
 		else 
 			qsf_rd_en_q <= '0';
@@ -605,9 +607,9 @@ qsf_rd_en <= '1' when load_current_state = PUT_Q_HEADERS and TC_RD_EN_IN = '1' e
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = PUT_Q_HEADERS and header_ctr = 7) then
+		if (load_current_state = START_TRANSFER) then
 			actual_q_size(7 downto 0) <= qsf_q;
-		elsif (load_current_state = START_TRANSFER) then
+		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			actual_q_size(15 downto 8)  <= qsf_q;
 		end if;
 	end if;
