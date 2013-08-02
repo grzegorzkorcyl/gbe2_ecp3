@@ -49,7 +49,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, GET_Q_SIZE_BYTE1, GET_Q_SIZE_BYTE2, START_TRANSFER, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -353,7 +353,6 @@ begin
 	
 		qsf_wr_en_q  <= qsf_wr_en;
 		qsf_wr_en_qq <= qsf_wr_en_q;
-		
 	
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
@@ -427,16 +426,17 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= GET_Q_SIZE_BYTE1; --PUT_Q_HEADERS;
+				load_next_state <= GET_Q_SIZE; --PUT_Q_HEADERS;
 			else
 				load_next_state <= IDLE;
 			end if;
 			
-		when GET_Q_SIZE_BYTE1 =>
-			load_next_state <= GET_Q_SIZE_BYTE2;
-		
-		when GET_Q_SIZE_BYTE2 =>
-			load_next_state <= START_TRANSFER;
+		when GET_Q_SIZE =>
+			if (header_ctr = 0) then
+				load_next_state <= START_TRANSFER;
+			else
+				load_next_state <= GET_Q_SIZE;
+			end if;
 			
 		when START_TRANSFER =>
 			load_next_state <= PUT_Q_HEADERS;
@@ -490,6 +490,8 @@ HEADER_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
+			header_ctr <= 3;
+		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			header_ctr <= 7;
 		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
@@ -588,9 +590,7 @@ shf_rd_en <= '1' when load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' else '
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = IDLE and qsf_empty = '0') then
-			qsf_rd_en_q <= '1';
-		elsif (load_current_state = GET_Q_SIZE_BYTE1) then
+		if (load_current_state = GET_Q_SIZE) then
 			qsf_rd_en_q <= '1';
 		else 
 			qsf_rd_en_q <= '0';
@@ -603,9 +603,9 @@ qsf_rd_en <= '1' when load_current_state = PUT_Q_HEADERS and TC_RD_EN_IN = '1' e
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = GET_Q_SIZE_BYTE1) then
+		if (load_current_state = GET_Q_SIZE and header_ctr = 2) then
 			actual_q_size(7 downto 0) <= qsf_q;
-		elsif (load_current_state = GET_Q_SIZE_BYTE2) then
+		elsif (load_current_state = GET_Q_SIZE and header_ctr = 1) then
 			actual_q_size(15 downto 8)  <= qsf_q;
 		end if;
 	end if;
