@@ -336,7 +336,7 @@ begin
 	
 	wait for 1 us;
 	
-		MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
+		--MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
 		-- generate a real random byte for CTS
 		UNIFORM(seed1, seed2, rand);
 		int_rand := INTEGER(TRUNC(rand*256.0));
@@ -495,7 +495,7 @@ begin
 		
 		--wait for 8 us;
 
-	end loop MY_TRIGGER_LOOP;
+	--end loop MY_TRIGGER_LOOP;
 	
 
 	wait;
