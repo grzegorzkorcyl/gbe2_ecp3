@@ -301,7 +301,16 @@ PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
 TC_DATA_OUT(7 downto 0) <= tc_data;
-TC_DATA_OUT(8)          <= '1' when dissect_current_state = LOAD and event_bytes = loaded_bytes else '0';
+TC_DATA_EOD_PROC : process (clk) is
+begin
+	if rising_edge(clk) then
+		if (dissect_current_state = LOAD and event_bytes = loaded_bytes - x"1") then
+			TC_DATA_OUT(8) <= '1';
+		else
+			TC_DATA_OUT(8) <= '0';
+		end if;
+	end if;
+end process TC_DATA_EOD_PROC;
 
 EVENT_BYTES_PROC : process (clk) is
 begin
@@ -331,10 +340,10 @@ TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
 TC_DEST_MAC_OUT       <= ic_dest_mac;
 TC_DEST_IP_OUT        <= ic_dest_ip;
-TC_DEST_UDP_OUT       <= x"cb20";
+TC_DEST_UDP_OUT       <= ic_dest_ip;
 TC_SRC_MAC_OUT        <= g_MY_MAC;
 TC_SRC_IP_OUT         <= g_MY_IP;
-TC_SRC_UDP_OUT        <= x"cb20";
+TC_SRC_UDP_OUT        <= ic_src_udp;
 TC_IP_PROTOCOL_OUT    <= x"11";
 
 
