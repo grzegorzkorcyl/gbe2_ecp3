@@ -251,7 +251,7 @@ begin
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
 		elsif (transmit_current_state = DIVIDE) then	
-			packet_loaded_bytes <= packet_loaded_bytes + x"3";	
+			packet_loaded_bytes <= packet_loaded_bytes + x"4";	
 		else
 			packet_loaded_bytes <= packet_loaded_bytes;
 		end if;
