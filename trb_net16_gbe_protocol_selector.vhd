@@ -373,93 +373,82 @@ port map (
 	
 	DEBUG_OUT		        => PROTOS_DEBUG_OUT(4 * 32 - 1 downto 3 * 32)
 );
---
---TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
---port map (
---	CLK							=> CLK,
---	RESET						=> RESET,
---	
----- INTERFACE	
---	PS_DATA_IN					=> PS_DATA_IN,
---	PS_WR_EN_IN					=> PS_WR_EN_IN,
---	PS_ACTIVATE_IN				=> PS_PROTO_SELECT_IN(4),
---	PS_RESPONSE_READY_OUT		=> resp_ready(4),
---	PS_BUSY_OUT					=> busy(4),
---	PS_SELECTED_IN				=> selected(4),
---	
---	PS_SRC_MAC_ADDRESS_IN		=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN 		=> PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN		=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN		=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN			=> PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN			=> PS_DEST_UDP_PORT_IN,
---	
---	TC_WR_EN_OUT 				=> tc_wr(4),
---	TC_DATA_OUT					=> tc_data(5 * 9 - 1 downto 4 * 9),
---	TC_DATA_NOT_VALID_OUT       => tc_data_not_valid(4),
---	TC_FRAME_SIZE_OUT			=> tc_size(5 * 16 - 1 downto 4 * 16),
---	TC_FRAME_TYPE_OUT			=> tc_type(5 * 16 - 1 downto 4 * 16),
---	TC_IP_PROTOCOL_OUT			=> tc_ip_proto(5 * 8 - 1 downto 4 * 8),
---	
---	TC_DEST_MAC_OUT				=> tc_mac(5 * 48 - 1 downto 4 * 48),
---	TC_DEST_IP_OUT				=> tc_ip(5 * 32 - 1 downto 4 * 32),
---	TC_DEST_UDP_OUT				=> tc_udp(5 * 16 - 1 downto 4 * 16),
---	TC_SRC_MAC_OUT				=> tc_src_mac(5 * 48 - 1 downto 4 * 48),
---	TC_SRC_IP_OUT				=> tc_src_ip(5 * 32 - 1 downto 4 * 32),
---	TC_SRC_UDP_OUT				=> tc_src_udp(5 * 16 - 1 downto 4 * 16),
---	
---	TC_IP_SIZE_OUT				=> tc_ip_size(5 * 16 - 1 downto 4 * 16),
---	TC_UDP_SIZE_OUT				=> tc_udp_size(5 * 16 - 1 downto 4 * 16),
---	TC_FLAGS_OFFSET_OUT			=> tc_flags_size(5 * 16 - 1 downto 4 * 16),
---	
---	TC_FC_H_READY_IN            => TC_FC_H_READY_IN,
---	TC_FC_READY_IN              => TC_FC_READY_IN,
---	TC_FC_WR_EN_OUT             => TC_FC_WR_EN_OUT,
---	
---	TC_BUSY_IN					=> TC_BUSY_IN,
---	
---	STAT_DATA_OUT 				=> stat_data(5 * 32 - 1 downto 4 * 32),
---	STAT_ADDR_OUT 				=> stat_addr(5 * 8 - 1 downto 4 * 8),
---	STAT_DATA_RDY_OUT 			=> stat_rdy(4),
---	STAT_DATA_ACK_IN  			=> stat_ack(4),
---	RECEIVED_FRAMES_OUT			=> RECEIVED_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
---	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
----- END OF INTERFACE
---
---	-- CTS interface
---	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
---	CTS_CODE_IN					=> CTS_CODE_IN,
---	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
---	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
---	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
---	CTS_DATA_OUT				=> CTS_DATA_OUT,
---	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
---	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
---	CTS_READ_IN					=> CTS_READ_IN,
---	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
---	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
---	-- Data payload interface
---	FEE_DATA_IN					=> FEE_DATA_IN,
---	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
---	FEE_READ_OUT				=> FEE_READ_OUT,
---	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
---	FEE_BUSY_IN					=> FEE_BUSY_IN, 
---	-- ip configurator
---	SLV_ADDR_IN                 => SLV_ADDR_IN,
---	SLV_READ_IN                 => SLV_READ_IN,
---	SLV_WRITE_IN                => SLV_WRITE_IN,
---	SLV_BUSY_OUT                => SLV_BUSY_OUT,
---	SLV_ACK_OUT                 => SLV_ACK_OUT,
---	SLV_DATA_IN                 => SLV_DATA_IN,
---	SLV_DATA_OUT                => SLV_DATA_OUT,
---	
---	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
---	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
---	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
---
----- debug
---	DEBUG_OUT					=> open
---);
+
+TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
+port map (
+	CLK							=> CLK,
+	RESET						=> RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN					=> PS_DATA_IN,
+	PS_WR_EN_IN					=> PS_WR_EN_IN,
+	PS_ACTIVATE_IN				=> PS_PROTO_SELECT_IN(4),
+	PS_RESPONSE_READY_OUT		=> resp_ready(4),
+	PS_BUSY_OUT					=> busy(4),
+	PS_SELECTED_IN				=> selected(4),
+	
+	PS_SRC_MAC_ADDRESS_IN		=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN 		=> PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN		=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN		=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN			=> PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN			=> PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN 				=> TC_RD_EN_IN,
+	TC_DATA_OUT					=> tc_data(5 * 9 - 1 downto 4 * 9),
+	TC_FRAME_SIZE_OUT			=> tc_size(5 * 16 - 1 downto 4 * 16),
+	TC_FRAME_TYPE_OUT			=> tc_type(5 * 16 - 1 downto 4 * 16),
+	TC_IP_PROTOCOL_OUT			=> tc_ip_proto(5 * 8 - 1 downto 4 * 8),
+	
+	TC_DEST_MAC_OUT				=> tc_mac(5 * 48 - 1 downto 4 * 48),
+	TC_DEST_IP_OUT				=> tc_ip(5 * 32 - 1 downto 4 * 32),
+	TC_DEST_UDP_OUT				=> tc_udp(5 * 16 - 1 downto 4 * 16),
+	TC_SRC_MAC_OUT				=> tc_src_mac(5 * 48 - 1 downto 4 * 48),
+	TC_SRC_IP_OUT				=> tc_src_ip(5 * 32 - 1 downto 4 * 32),
+	TC_SRC_UDP_OUT				=> tc_src_udp(5 * 16 - 1 downto 4 * 16),
+	
+	STAT_DATA_OUT 				=> stat_data(5 * 32 - 1 downto 4 * 32),
+	STAT_ADDR_OUT 				=> stat_addr(5 * 8 - 1 downto 4 * 8),
+	STAT_DATA_RDY_OUT 			=> stat_rdy(4),
+	STAT_DATA_ACK_IN  			=> stat_ack(4),
+	RECEIVED_FRAMES_OUT			=> RECEIVED_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
+	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(5 * 16 - 1 downto 4 * 16),
+-- END OF INTERFACE
+
+	-- CTS interface
+	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+	CTS_CODE_IN					=> CTS_CODE_IN,
+	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+	CTS_DATA_OUT				=> CTS_DATA_OUT,
+	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+	CTS_READ_IN					=> CTS_READ_IN,
+	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+	-- Data payload interface
+	FEE_DATA_IN					=> FEE_DATA_IN,
+	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+	FEE_READ_OUT				=> FEE_READ_OUT,
+	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	-- ip configurator
+	SLV_ADDR_IN                 => SLV_ADDR_IN,
+	SLV_READ_IN                 => SLV_READ_IN,
+	SLV_WRITE_IN                => SLV_WRITE_IN,
+	SLV_BUSY_OUT                => SLV_BUSY_OUT,
+	SLV_ACK_OUT                 => SLV_ACK_OUT,
+	SLV_DATA_IN                 => SLV_DATA_IN,
+	SLV_DATA_OUT                => SLV_DATA_OUT,
+	
+	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
+	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
+	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
+
+-- debug
+	DEBUG_OUT					=> open
+);
 
 --stat_gen : if g_SIMULATE = 0 generate
 --Stat : trb_net16_gbe_response_constructor_Stat
