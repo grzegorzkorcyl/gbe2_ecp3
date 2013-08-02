@@ -264,7 +264,7 @@ begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE) then
 			first_frame <= '1';
-		elsif (transmit_current_state <= DIVIDE) then
+		elsif (transmit_current_state = DIVIDE) then
 			first_frame <= '0';
 		else
 			first_frame <= first_frame;
