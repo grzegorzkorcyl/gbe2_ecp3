@@ -243,7 +243,7 @@ port map(
 	PC_EVENT_ID_IN			=> pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
-	PC_MAX_FRAME_SIZE_IN    => x"0068", --x"0578",
+	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
 	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
 	PC_DELAY_IN             => (others => '0'),
 	TC_RD_EN_IN				=> tc_rd_en,
