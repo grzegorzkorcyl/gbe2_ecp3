@@ -194,7 +194,6 @@ port map (
 	TC_RD_EN_IN 			=> TC_RD_EN_IN,
 	TC_DATA_OUT				=> tc_data(1 * 9 - 1 downto 0 * 9),
 	TC_FRAME_SIZE_OUT		=> tc_size(1 * 16 - 1 downto 0 * 16),
-	TC_SIZE_LEFT_OUT	    => tc_size(1 * 16 - 1 downto 0 * 16),
 	TC_FRAME_TYPE_OUT		=> tc_type(1 * 16 - 1 downto 0 * 16),
 	TC_IP_PROTOCOL_OUT		=> tc_ip_proto(1 * 8 - 1 downto 0 * 8),
 	TC_IDENT_OUT            => tc_ident(1 * 16 - 1 downto 0 * 16),
@@ -205,12 +204,6 @@ port map (
 	TC_SRC_MAC_OUT			=> tc_src_mac(1 * 48 - 1 downto 0 * 48),
 	TC_SRC_IP_OUT			=> tc_src_ip(1 * 32 - 1 downto 0 * 32),
 	TC_SRC_UDP_OUT			=> tc_src_udp(1 * 16 - 1 downto 0 * 16),
-	
-	TC_IP_SIZE_OUT			=> tc_ip_size(1 * 16 - 1 downto 0 * 16),
-	TC_UDP_SIZE_OUT			=> tc_udp_size(1 * 16 - 1 downto 0 * 16),
-	TC_FLAGS_OFFSET_OUT		=> tc_flags_size(1 * 16 - 1 downto 0 * 16),
-	
-	TC_BUSY_IN				=> TC_BUSY_IN,
 	
 	STAT_DATA_OUT 			=> stat_data(1 * 32 - 1 downto 0 * 32),
 	STAT_ADDR_OUT 			=> stat_addr(1 * 8 - 1 downto 0 * 8),
@@ -248,7 +241,6 @@ port map (
 	TC_RD_EN_IN             => TC_RD_EN_IN,
 	TC_DATA_OUT		        => tc_data(2 * 9 - 1 downto 1 * 9),
 	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
-	TC_SIZE_LEFT_OUT        => tc_size_left(2 * 16 - 1 downto 1 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(2 * 8 - 1 downto 1 * 8),
 	TC_IDENT_OUT            => tc_ident(2 * 16 - 1 downto 1 * 16),
@@ -259,12 +251,6 @@ port map (
 	TC_SRC_MAC_OUT		    => tc_src_mac(2 * 48 - 1 downto 1 * 48),
 	TC_SRC_IP_OUT		    => tc_src_ip(2 * 32 - 1 downto 1 * 32),
 	TC_SRC_UDP_OUT		    => tc_src_udp(2 * 16 - 1 downto 1 * 16),
-	
-	TC_IP_SIZE_OUT		    => tc_ip_size(2 * 16 - 1 downto 1 * 16),
-	TC_UDP_SIZE_OUT		    => tc_udp_size(2 * 16 - 1 downto 1 * 16),
-	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(2 * 16 - 1 downto 1 * 16),
-	 
-	TC_BUSY_IN		        => TC_BUSY_IN,
 	
 	STAT_DATA_OUT           => stat_data(2 * 32 - 1 downto 1 * 32),
 	STAT_ADDR_OUT           => stat_addr(2 * 8 - 1 downto 1 * 8),
@@ -306,7 +292,6 @@ port map (
 	TC_RD_EN_IN             => TC_RD_EN_IN,
 	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
 	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
-	TC_SIZE_LEFT_OUT	    => tc_size_left(3 * 16 - 1 downto 2 * 16),
 	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
 	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
@@ -317,12 +302,6 @@ port map (
 	TC_SRC_MAC_OUT		    => tc_src_mac(3 * 48 - 1 downto 2 * 48),
 	TC_SRC_IP_OUT		    => tc_src_ip(3 * 32 - 1 downto 2 * 32),
 	TC_SRC_UDP_OUT		    => tc_src_udp(3 * 16 - 1 downto 2 * 16),
-	
-	TC_IP_SIZE_OUT		    => tc_ip_size(3 * 16 - 1 downto 2 * 16),
-	TC_UDP_SIZE_OUT		    => tc_udp_size(3 * 16 - 1 downto 2 * 16),
-	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(3 * 16 - 1 downto 2 * 16),
-	
-	TC_BUSY_IN		        => TC_BUSY_IN,
 	
 	STAT_DATA_OUT           => stat_data(3 * 32 - 1 downto 2 * 32),
 	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
@@ -369,12 +348,6 @@ port map (
 	TC_SRC_MAC_OUT		    => tc_src_mac(4 * 48 - 1 downto 3 * 48),
 	TC_SRC_IP_OUT		    => tc_src_ip(4 * 32 - 1 downto 3 * 32),
 	TC_SRC_UDP_OUT		    => tc_src_udp(4 * 16 - 1 downto 3 * 16),
-	
-	TC_IP_SIZE_OUT	    	=> tc_ip_size(4 * 16 - 1 downto 3 * 16),
-	TC_UDP_SIZE_OUT		    => tc_udp_size(4 * 16 - 1 downto 3 * 16),
-	TC_FLAGS_OFFSET_OUT	    => tc_flags_size(4 * 16 - 1 downto 3 * 16),
-	
-	TC_BUSY_IN		        => TC_BUSY_IN,
 	
 	STAT_DATA_OUT           => stat_data(4 * 32 - 1 downto 3 * 32),
 	STAT_ADDR_OUT           => stat_addr(4 * 8 - 1 downto 3 * 8),
@@ -634,10 +607,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			TC_DATA_OUT           <= (others => '0');
-			TC_DATA_NOT_VALID_OUT <= '0';
-			--TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
-			TC_SIZE_LEFT_OUT      <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
 			TC_DEST_IP_OUT        <= (others => '0');
@@ -647,17 +617,11 @@ begin
 			TC_SRC_UDP_OUT        <= (others => '0');
 			TC_IP_PROTOCOL_OUT    <= (others => '0');
 			TC_IDENT_OUT          <= (others => '0');
-			TC_IP_SIZE_OUT        <= (others => '0');
-			TC_UDP_SIZE_OUT       <= (others => '0');
-			TC_FLAGS_OFFSET_OUT   <= (others => '0');
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');
 		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
 			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
-			TC_DATA_NOT_VALID_OUT <= tc_data_not_valid(index);
-			--TC_WR_EN_OUT          <= or_all(tc_wr);
 			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
-			TC_SIZE_LEFT_OUT      <= tc_size_left((index + 1) * 16 - 1 downto index * 16);
 			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
 			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
 			TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
@@ -667,9 +631,6 @@ begin
 			TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
 			TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
 			TC_IDENT_OUT          <= tc_ident((index + 1) * 16 - 1 downto index * 16);
-			TC_IP_SIZE_OUT        <= tc_ip_size((index + 1) * 16 - 1 downto index * 16);
-			TC_UDP_SIZE_OUT       <= tc_udp_size((index + 1) * 16 - 1 downto index * 16);
-			TC_FLAGS_OFFSET_OUT   <= tc_flags_size((index + 1) * 16 - 1 downto index * 16);
 			if (select_current_state = SELECT_ONE) then
 				PS_RESPONSE_READY_OUT <= '1';
 				selected(index)       <= '0';
@@ -679,10 +640,7 @@ begin
 			end if;
 		else
 			TC_DATA_OUT           <= (others => '0');
-			TC_DATA_NOT_VALID_OUT <= '0';
-			--TC_WR_EN_OUT          <= '0';
 			TC_FRAME_SIZE_OUT     <= (others => '0');
-			TC_SIZE_LEFT_OUT      <= (others => '0');
 			TC_FRAME_TYPE_OUT     <= (others => '0');
 			TC_DEST_MAC_OUT       <= (others => '0');
 			TC_DEST_IP_OUT        <= (others => '0');
@@ -692,9 +650,6 @@ begin
 			TC_SRC_UDP_OUT        <= (others => '0');
 			TC_IP_PROTOCOL_OUT    <= (others => '0');
 			TC_IDENT_OUT          <= (others => '0');
-			TC_IP_SIZE_OUT        <= (others => '0');
-			TC_UDP_SIZE_OUT       <= (others => '0');
-			TC_FLAGS_OFFSET_OUT   <= (others => '0');
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');		
 		end if;
