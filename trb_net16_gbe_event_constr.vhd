@@ -605,9 +605,9 @@ qsf_rd_en <= '1' when load_current_state = PUT_Q_HEADERS and TC_RD_EN_IN = '1' e
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = GET_Q_SIZE and header_ctr = 2) then
+		if (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			actual_q_size(7 downto 0) <= qsf_q;
-		elsif (load_current_state = GET_Q_SIZE and header_ctr = 1) then
+		elsif (load_current_state = START_TRANSFER) then
 			actual_q_size(15 downto 8)  <= qsf_q;
 		end if;
 	end if;
