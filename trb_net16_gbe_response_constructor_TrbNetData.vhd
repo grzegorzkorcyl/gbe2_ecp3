@@ -300,7 +300,8 @@ end process DISSECT_MACHINE;
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
-TC_DATA_OUT           <= "0" & tc_data;
+TC_DATA_OUT(7 downto 0) <= tc_data;
+TC_DATA_OUT(8)          <= '1' when dissect_current_state = LOAD and event_bytes = loaded_bytes else '0';
 
 EVENT_BYTES_PROC : process (clk) is
 begin
@@ -316,7 +317,7 @@ end process EVENT_BYTES_PROC;
 LOADED_BYTES_PROC : process (clk) is
 begin
 	if rising_edge(clk) then
-		if dissect_current_state = IDLE then
+		if (dissect_current_state = IDLE) then
 			loaded_bytes <= (others => '0');
 		elsif (dissect_current_state = LOAD and TC_RD_EN_IN = '1') then
 			loaded_bytes <= loaded_bytes + x"1";
