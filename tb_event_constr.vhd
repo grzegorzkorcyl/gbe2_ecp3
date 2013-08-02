@@ -12,10 +12,10 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
-ENTITY testbench_new_transmit IS
-END testbench_new_transmit;
+ENTITY aa_tb_event_constr IS
+END aa_tb_event_constr;
 
-ARCHITECTURE behavior OF testbench_new_transmit IS
+ARCHITECTURE behavior OF aa_tb_event_constr IS
 
 signal clk, reset,RX_MAC_CLK : std_logic;
 signal fc_data                   : std_logic_vector(7 downto 0);

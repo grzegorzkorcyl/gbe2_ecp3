@@ -636,7 +636,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_RD_EN_IN		=> mc_wr_en,
 	  --TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
 	  TC_FRAME_SIZE_OUT	=> mc_frame_size,
-	  TC_SIZE_LEFT_OUT  => mc_size_left,
 	  TC_FRAME_TYPE_OUT	=> mc_type,
 	  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
 	  TC_IDENT_OUT          => mc_ident,
@@ -647,16 +646,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TC_SRC_MAC_OUT	=> mc_src_mac,
 	  TC_SRC_IP_OUT		=> mc_src_ip,
 	  TC_SRC_UDP_OUT	=> mc_src_udp,
-	  
---	  TC_IP_SIZE_OUT		=> mc_ip_size,
---	  TC_UDP_SIZE_OUT		=> mc_udp_size,
-	  TC_FLAGS_OFFSET_OUT	=> mc_flags,
-	  
---	  TC_FC_H_READY_IN => mc_fc_h_ready,
---	  TC_FC_READY_IN  => mc_fc_ready,
---	  TC_FC_WR_EN_OUT => mc_fc_wr_en,
---	  
---	  TC_BUSY_IN		=> mc_busy,
 	  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
 
   -- signals to/from sgmii/gbe pcs_an_complete
@@ -767,7 +756,6 @@ port map(
 	TC_RD_EN_OUT		   => mc_wr_en,
 	TC_DATA_IN		       => mc_data(7 downto 0),
 	TC_FRAME_SIZE_IN	   => mc_frame_size,
-	TC_SIZE_LEFT_IN        => mc_size_left,
 	TC_FRAME_TYPE_IN	   => mc_type,
 	TC_IP_PROTOCOL_IN	   => mc_ip_proto,	
 	TC_DEST_MAC_IN		   => mc_dest_mac,
@@ -776,7 +764,6 @@ port map(
 	TC_SRC_MAC_IN		   => mc_src_mac,
 	TC_SRC_IP_IN		   => mc_src_ip,
 	TC_SRC_UDP_IN		   => mc_src_udp,
-	TC_FLAGS_OFFSET_IN	   => mc_flags,
 	TC_TRANSMISSION_DONE_OUT => mc_transmit_done,
 	TC_IDENT_IN            => mc_ident,
 

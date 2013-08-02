@@ -17,246 +17,6 @@ END testbench_new_transmit;
 
 ARCHITECTURE behavior OF testbench_new_transmit IS
 
-component test_data_source is
-port (
-	CLK			            : in	std_logic;
-	RESET			        : in	std_logic;
-
-	TC_DATAREADY_OUT        : out 	std_logic;
-	TC_RD_EN_IN		        : in	std_logic;
-	TC_DATA_OUT		        : out	std_logic_vector(7 downto 0);
-	TC_FRAME_SIZE_OUT	    : out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT        : out	std_logic_vector(15 downto 0);
-	TC_FRAME_TYPE_OUT	    : out	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_OUT	    : out	std_logic_vector(7 downto 0);	
-	TC_DEST_MAC_OUT		    : out	std_logic_vector(47 downto 0);
-	TC_DEST_IP_OUT		    : out	std_logic_vector(31 downto 0);
-	TC_DEST_UDP_OUT		    : out	std_logic_vector(15 downto 0);
-	TC_SRC_MAC_OUT		    : out	std_logic_vector(47 downto 0);
-	TC_SRC_IP_OUT		    : out	std_logic_vector(31 downto 0);
-	TC_SRC_UDP_OUT		    : out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	    : out	std_logic_vector(15 downto 0);
-	TC_TRANSMISSION_DONE_IN : in	std_logic;
-	TC_IDENT_OUT            : out	std_logic_vector(15 downto 0)
-);
-end component;
-
-component trb_net16_gbe_transmit_control2 is
-port (
-	CLK			         : in	std_logic;
-	RESET			     : in	std_logic;
-
--- signal to/from main controller
-	TC_DATAREADY_IN        : in 	std_logic;
-	TC_RD_EN_OUT		        : out	std_logic;
-	TC_DATA_IN		        : in	std_logic_vector(7 downto 0);
-	TC_FRAME_SIZE_IN	    : in	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_IN        : in	std_logic_vector(15 downto 0);
-	TC_FRAME_TYPE_IN	    : in	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_IN	    : in	std_logic_vector(7 downto 0);	
-	TC_DEST_MAC_IN		    : in	std_logic_vector(47 downto 0);
-	TC_DEST_IP_IN		    : in	std_logic_vector(31 downto 0);
-	TC_DEST_UDP_IN		    : in	std_logic_vector(15 downto 0);
-	TC_SRC_MAC_IN		    : in	std_logic_vector(47 downto 0);
-	TC_SRC_IP_IN		    : in	std_logic_vector(31 downto 0);
-	TC_SRC_UDP_IN		    : in	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_IN	    : in	std_logic_vector(15 downto 0);
-	TC_TRANSMISSION_DONE_OUT : out	std_logic;
-	TC_IDENT_IN             : in	std_logic_vector(15 downto 0);
-
--- signal to/from frame constructor
-	FC_DATA_OUT		     : out	std_logic_vector(7 downto 0);
-	FC_WR_EN_OUT		 : out	std_logic;
-	FC_READY_IN		     : in	std_logic;
-	FC_H_READY_IN		 : in	std_logic;
-	FC_FRAME_TYPE_OUT	 : out	std_logic_vector(15 downto 0);
-	FC_IP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
-	FC_UDP_SIZE_OUT		 : out	std_logic_vector(15 downto 0);
-	FC_IDENT_OUT		 : out	std_logic_vector(15 downto 0);  -- internal packet counter
-	FC_FLAGS_OFFSET_OUT	 : out	std_logic_vector(15 downto 0);
-	FC_SOD_OUT		     : out	std_logic;
-	FC_EOD_OUT		     : out	std_logic;
-	FC_IP_PROTOCOL_OUT	 : out	std_logic_vector(7 downto 0);
-
-	DEST_MAC_ADDRESS_OUT : out    std_logic_vector(47 downto 0);
-	DEST_IP_ADDRESS_OUT  : out    std_logic_vector(31 downto 0);
-	DEST_UDP_PORT_OUT    : out    std_logic_vector(15 downto 0);
-	SRC_MAC_ADDRESS_OUT  : out    std_logic_vector(47 downto 0);
-	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
-	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
-
--- debug
-	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
-);
-end component;
-
-component trb_net16_gbe_response_constructor_DHCP is
-generic ( STAT_ADDRESS_BASE : integer := 0
-);
-port (
-	CLK			: in	std_logic;  -- system clock
-	RESET			: in	std_logic;
-	
--- INTERFACE	
-	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
-	PS_WR_EN_IN		: in	std_logic;
-	PS_ACTIVATE_IN		: in	std_logic;
-	PS_RESPONSE_READY_OUT	: out	std_logic;
-	PS_BUSY_OUT		: out	std_logic;
-	PS_SELECTED_IN		: in	std_logic;
-	PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
-	PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
-	PS_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-		
-	TC_RD_EN_IN : in std_logic;
-	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
-	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);	
-	TC_IDENT_OUT        : out	std_logic_vector(15 downto 0);
-	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	TC_BUSY_IN		: in	std_logic;
-	
-	STAT_DATA_OUT : out std_logic_vector(31 downto 0);
-	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
-	STAT_DATA_RDY_OUT : out std_logic;
-	STAT_DATA_ACK_IN  : in std_logic;
-	
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
--- END OF INTERFACE
-
-	DHCP_START_IN		: in	std_logic;
-	DHCP_DONE_OUT		: out	std_logic;
--- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
-);
-end component;
-
-component trb_net16_gbe_protocol_selector is
-port (
-	CLK			: in	std_logic;  -- system clock
-	RESET			: in	std_logic;
-
--- signals to/from main controller
-	PS_DATA_IN		: in	std_logic_vector(8 downto 0); 
-	PS_WR_EN_IN		: in	std_logic;
-	PS_PROTO_SELECT_IN	: in	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-	PS_BUSY_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
-	PS_FRAME_SIZE_IN	: in	std_logic_vector(15 downto 0);
-	PS_RESPONSE_READY_OUT	: out	std_logic;
-	
-	PS_SRC_MAC_ADDRESS_IN	: in	std_logic_vector(47 downto 0);
-	PS_DEST_MAC_ADDRESS_IN  : in	std_logic_vector(47 downto 0);
-	PS_SRC_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_DEST_IP_ADDRESS_IN	: in	std_logic_vector(31 downto 0);
-	PS_SRC_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-	PS_DEST_UDP_PORT_IN	: in	std_logic_vector(15 downto 0);
-	
--- singals to/from transmit controller with constructed response
-	TC_DATA_OUT		: out	std_logic_vector(8 downto 0);
-	TC_RD_EN_IN		: in	std_logic;
-	TC_DATA_NOT_VALID_OUT : out std_logic;
-	TC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_SIZE_LEFT_OUT	: out	std_logic_vector(15 downto 0);
-	TC_FRAME_TYPE_OUT	: out	std_logic_vector(15 downto 0);
-	TC_IP_PROTOCOL_OUT	: out	std_logic_vector(7 downto 0);
-	TC_IDENT_OUT        : out   std_logic_vector(15 downto 0);
-	
-	TC_DEST_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_DEST_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_DEST_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	TC_SRC_MAC_OUT		: out	std_logic_vector(47 downto 0);
-	TC_SRC_IP_OUT		: out	std_logic_vector(31 downto 0);
-	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
-	
-	TC_IP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT		: out	std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT	: out	std_logic_vector(15 downto 0);
-	
-	TC_FC_H_READY_IN : in std_logic;
-	TC_FC_READY_IN : in std_logic;
-	TC_FC_WR_EN_OUT : out std_logic;
-	
-	TC_BUSY_IN		: in	std_logic;
-	MC_BUSY_IN      : in	std_logic;
-	
-	-- counters from response constructors
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
-	-- misc signals for response constructors
-	DHCP_START_IN		: in	std_logic;
-	DHCP_DONE_OUT		: out	std_logic;
-	
-	GSC_CLK_IN               : in std_logic;
-	GSC_INIT_DATAREADY_OUT   : out std_logic;
-	GSC_INIT_DATA_OUT        : out std_logic_vector(15 downto 0);
-	GSC_INIT_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
-	GSC_INIT_READ_IN         : in std_logic;
-	GSC_REPLY_DATAREADY_IN   : in std_logic;
-	GSC_REPLY_DATA_IN        : in std_logic_vector(15 downto 0);
-	GSC_REPLY_PACKET_NUM_IN  : in std_logic_vector(2 downto 0);
-	GSC_REPLY_READ_OUT       : out std_logic;
-	GSC_BUSY_IN              : in std_logic;
-	
-	MAKE_RESET_OUT           : out std_logic;
-	
-	-- signal for data readout
-		-- CTS interface
-	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
-	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
-	CTS_INFORMATION_IN			: in	std_logic_vector (7  downto 0);
-	CTS_READOUT_TYPE_IN			: in	std_logic_vector (3  downto 0);
-	CTS_START_READOUT_IN		: in	std_logic;
-	CTS_DATA_OUT				: out	std_logic_vector (31 downto 0);
-	CTS_DATAREADY_OUT			: out	std_logic;
-	CTS_READOUT_FINISHED_OUT	: out	std_logic;
-	CTS_READ_IN					: in	std_logic;
-	CTS_LENGTH_OUT				: out	std_logic_vector (15 downto 0);
-	CTS_ERROR_PATTERN_OUT		: out	std_logic_vector (31 downto 0);
-	-- Data payload interface
-	FEE_DATA_IN					: in	std_logic_vector (15 downto 0);
-	FEE_DATAREADY_IN			: in	std_logic;
-	FEE_READ_OUT				: out	std_logic;
-	FEE_STATUS_BITS_IN			: in	std_logic_vector (31 downto 0);
-	FEE_BUSY_IN					: in	std_logic;
-	-- ip configurator
-	SLV_ADDR_IN                  : in std_logic_vector(7 downto 0);
-	SLV_READ_IN                  : in std_logic;
-	SLV_WRITE_IN                 : in std_logic;
-	SLV_BUSY_OUT                 : out std_logic;
-	SLV_ACK_OUT                  : out std_logic;
-	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
-	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
-	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
-
-	-- input for statistics from outside	
-	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
-	STAT_ADDR_IN             : in std_logic_vector(7 downto 0);
-	STAT_DATA_RDY_IN         : in std_logic;
-	STAT_DATA_ACK_OUT        : out std_logic;
-
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
-);
-end component;
-
 signal clk, reset,RX_MAC_CLK : std_logic;
 signal fc_data                   : std_logic_vector(7 downto 0);
 signal fc_wr_en                  : std_logic;
@@ -332,7 +92,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	TC_DATA_OUT				=> tc_data,
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_FRAME_SIZE_OUT	    => tc_frame_size,
-	TC_SIZE_LEFT_OUT        => tc_size_left,
 	TC_FRAME_TYPE_OUT	    => tc_frame_type,
 	TC_IP_PROTOCOL_OUT	    => tc_ip_proto,
 	TC_IDENT_OUT            => tc_ident,
@@ -343,7 +102,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	TC_SRC_MAC_OUT		    => tc_src_mac,
 	TC_SRC_IP_OUT		    => tc_src_ip,
 	TC_SRC_UDP_OUT		    => tc_src_udp,
-	TC_FLAGS_OFFSET_OUT		=> tc_flags,
   	TC_TRANSMIT_DONE_IN		=> tc_done,
 
   -- signals to/from sgmii/gbe pcs_an_complete
@@ -534,7 +292,6 @@ port map(
 	TC_RD_EN_OUT		        => tc_rd_en,
 	TC_DATA_IN		        => tc_data(7 downto 0),
 	TC_FRAME_SIZE_IN	    => tc_frame_size,
-	TC_SIZE_LEFT_IN        => tc_size_left,
 	TC_FRAME_TYPE_IN	    => tc_frame_type,
 	TC_IP_PROTOCOL_IN	    => tc_ip_proto,	
 	TC_DEST_MAC_IN		    => tc_dest_mac,
@@ -543,7 +300,6 @@ port map(
 	TC_SRC_MAC_IN		    => tc_src_mac,
 	TC_SRC_IP_IN		    => tc_src_ip,
 	TC_SRC_UDP_IN		    => tc_src_udp,
-	TC_FLAGS_OFFSET_IN	    => tc_flags,
 	TC_TRANSMISSION_DONE_OUT => tc_done,
 	TC_IDENT_IN            => tc_ident,
 	
