@@ -399,6 +399,7 @@ port map (
 	TC_FRAME_SIZE_OUT			=> tc_size(5 * 16 - 1 downto 4 * 16),
 	TC_FRAME_TYPE_OUT			=> tc_type(5 * 16 - 1 downto 4 * 16),
 	TC_IP_PROTOCOL_OUT			=> tc_ip_proto(5 * 8 - 1 downto 4 * 8),
+	TC_IDENT_OUT            	=> tc_ident(5 * 16 - 1 downto 4 * 16),
 	
 	TC_DEST_MAC_OUT				=> tc_mac(5 * 48 - 1 downto 4 * 48),
 	TC_DEST_IP_OUT				=> tc_ip(5 * 32 - 1 downto 4 * 32),
