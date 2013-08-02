@@ -73,6 +73,7 @@ signal local_end : std_logic_vector(15 downto 0);
 
 signal actual_frame_bytes, full_packet_size, ip_size, packet_loaded_bytes : std_logic_vector(15 downto 0);
 signal go_to_divide, more_fragments : std_logic;
+signal first_frame : std_logic;
 
 begin
 
@@ -250,13 +251,27 @@ begin
 			packet_loaded_bytes <= x"0000";
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
-		elsif (transmit_current_state = DIVIDE) then	
-			packet_loaded_bytes <= packet_loaded_bytes + x"4";	
+		elsif (transmit_current_state = DIVIDE and first_frame = '1') then	
+			packet_loaded_bytes <= packet_loaded_bytes + x"8";	
 		else
 			packet_loaded_bytes <= packet_loaded_bytes;
 		end if;
 	end if;
 end process PACKET_LOADED_BYTES_PROC;
+
+FIRST_FRAME_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (transmit_current_state = IDLE) then
+			first_frame <= '1';
+		elsif (transmit_current_state <= DIVIDE) then
+			first_frame <= '0';
+		else
+			first_frame <= first_frame;
+		end if;
+	end if;	
+end process FIRST_FRAME_PROC;
+
 
 TC_TRANSMISSION_DONE_OUT <= '1' when transmit_current_state = CLEANUP else '0';
 
