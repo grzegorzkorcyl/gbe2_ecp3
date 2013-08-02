@@ -89,8 +89,6 @@ end trb_net16_gbe_response_constructor_TrbNetData;
 
 architecture trb_net16_gbe_response_constructor_TrbNetData of trb_net16_gbe_response_constructor_TrbNetData is
 
-attribute syn_encoding	: string;
-
 signal ip_cfg_start				: std_logic;
 signal ip_cfg_bank				: std_logic_vector(3 downto 0);
 signal ip_cfg_done				: std_logic;
@@ -111,10 +109,7 @@ signal pc_eod					: std_logic;
 signal pc_sos					: std_logic;
 signal pc_ready					: std_logic;
 signal pc_padding				: std_logic;
-signal pc_decoding				: std_logic_vector(31 downto 0);
 signal pc_event_id				: std_logic_vector(31 downto 0);
-signal pc_queue_dec				: std_logic_vector(31 downto 0);
-signal pc_max_frame_size        : std_logic_vector(15 downto 0);
 signal pc_sub_size				: std_logic_vector(31 downto 0);
 signal pc_trig_nr				: std_logic_vector(31 downto 0);
 signal pc_eos                   : std_logic;
@@ -122,20 +117,13 @@ signal pc_transmit_on           : std_logic;
 
 signal tc_rd_en					: std_logic;
 signal tc_data					: std_logic_vector(7 downto 0);
-signal tc_ip_size				: std_logic_vector(15 downto 0);
-signal tc_udp_size				: std_logic_vector(15 downto 0);
-signal tc_ident					: std_logic_vector(15 downto 0);
-signal tc_flags_offset			: std_logic_vector(15 downto 0);
+signal tc_size					: std_logic_vector(15 downto 0);
 signal tc_sod					: std_logic;
-signal tc_eod					: std_logic;
-signal tc_h_ready				: std_logic;
-signal tc_ready					: std_logic;
-signal tc_not_valid             : std_logic;
 
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
-
-signal frame_size              : std_logic_vector(15 downto 0) := x"0000";
+signal event_bytes : std_logic_vector(15 downto 0);
+signal loaded_bytes : std_logic_vector(15 downto 0);
 
 begin
 
@@ -221,9 +209,6 @@ port map(
 	READOUT_CTR_IN			 => x"00_0000",
 	READOUT_CTR_VALID_IN	 => '0',
 	ALLOW_LARGE_IN			 => '0',
-	-- only for simple sender
---	SCTRL_DUMMY_SIZE_IN      => x"0100",
---	SCTRL_DUMMY_PAUSE_IN     => x"0040_0000",
 	-- PacketConstructor interface
 	PC_WR_EN_OUT			 => pc_wr_en,
 	PC_DATA_OUT				 => pc_data,
@@ -257,19 +242,13 @@ port map(
 	PC_EVENT_ID_IN			=> pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
-	PC_MAX_FRAME_SIZE_IN    => x"0050", --x"0578",
+	PC_MAX_FRAME_SIZE_IN    => x"0068", --x"0578",
 	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
 	PC_DELAY_IN             => (others => '0'),
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
-	TC_H_READY_IN			=> tc_h_ready,
-	TC_READY_IN				=> tc_ready,
-	TC_IP_SIZE_OUT			=> tc_ip_size,
-	TC_UDP_SIZE_OUT			=> tc_udp_size,
-	TC_FLAGS_OFFSET_OUT		=> tc_flags_offset,
+	TC_EVENT_SIZE_OUT		=> tc_size,
 	TC_SOD_OUT				=> tc_sod,
-	TC_EOD_OUT				=> tc_eod,
-	TC_DATA_NOT_VALID_OUT   => tc_not_valid,
 	DEBUG_OUT				=> open
 );
 
@@ -286,7 +265,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, tc_sod, tc_eod)
+DISSECT_MACHINE : process(dissect_current_state, tc_sod, event_bytes, loaded_bytes, PS_SELECTED_IN)
 begin
 	case dissect_current_state is
 	
@@ -305,7 +284,7 @@ begin
 			end if;
 		
 		when LOAD =>
-			if (tc_eod = '1') then
+			if (event_bytes = loaded_bytes) then
 				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD;
@@ -317,31 +296,36 @@ begin
 	end case;
 end process DISSECT_MACHINE;
 
---TODO: change this to real "ready" signals 
---tc_ready <= '1' when TC_BUSY_IN = '0' else '0'; --not TC_BUSY_IN);
---tc_h_ready <= '1' when dissect_current_state = WAIT_FOR_LOAD and TC_BUSY_IN = '0' else '0';
-
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
 TC_DATA_OUT           <= "0" & tc_data;
 
---FRAME_SIZE_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if dissect_current_state = WAIT_FOR_LOAD then
---			if (tc_flags_offset(12 downto 0) = "0000000000000") then
---				frame_size <= tc_ip_size + x"4";
---			else
---				frame_size <= tc_ip_size;
---			end if;
---		else
---			frame_size <= frame_size;
---		end if; 	
---	end if;
---end process;
-TC_FRAME_SIZE_OUT 	  <= tc_ip_size + x"4";-- when tc_flags_offset(13) = '0' else tc_ip_size;
+EVENT_BYTES_PROC : process (clk) is
+begin
+	if rising_edge(clk) then
+		if dissect_current_state = IDLE and tc_sod = '1' then
+			event_bytes <= tc_size;
+		else
+			event_bytes <= event_bytes;
+		end if;
+	end if;
+end process EVENT_BYTES_PROC;
 
+LOADED_BYTES_PROC : process (clk) is
+begin
+	if rising_edge(clk) then
+		if dissect_current_state = IDLE then
+			loaded_bytes <= (others => '0');
+		elsif (dissect_current_state = LOAD and TC_RD_EN_IN = '1') then
+			loaded_bytes <= loaded_bytes + x"1";
+		else
+			loaded_bytes <= loaded_bytes;
+		end if;
+	end if;
+end process LOADED_BYTES_PROC;
+
+TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
 TC_DEST_MAC_OUT       <= ic_dest_mac;
 TC_DEST_IP_OUT        <= ic_dest_ip;

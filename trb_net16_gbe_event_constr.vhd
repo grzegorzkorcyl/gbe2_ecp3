@@ -38,14 +38,8 @@ port(
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
 	TC_DATA_OUT             : out   std_logic_vector(7 downto 0);
-	TC_H_READY_IN           : in    std_logic;
-	TC_READY_IN             : in    std_logic;
-	TC_IP_SIZE_OUT          : out   std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT         : out   std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT     : out   std_logic_vector(15 downto 0);
+	TC_EVENT_SIZE_OUT       : out   std_logic_vector(15 downto 0);
 	TC_SOD_OUT              : out   std_logic;
-	TC_EOD_OUT              : out   std_logic;
-	TC_DATA_NOT_VALID_OUT   : out   std_logic;
 	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
 );
 end entity trb_net16_gbe_event_constr;
@@ -55,7 +49,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, PRELOAD_Q, WAIT_FOR_FC, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLOSE_FRAME, DIVIDE, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE_BYTE1, GET_Q_SIZE_BYTE2, START_TRANSFER, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -82,11 +76,6 @@ signal queue_size : std_logic_vector(31 downto 0);
 signal termination : std_logic_vector(255 downto 0);
 signal term_ctr : integer range 0 to 32;
 signal size_for_padding : std_logic_vector(7 downto 0);
-signal loaded_bytes_frame, loaded_bytes_packet : std_logic_vector(15 downto 0);
-signal divide_position : std_logic_vector(1 downto 0);
-
-signal not_valid_ctr : integer range 0 to 7;
-signal data_not_valid : std_logic;
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 
@@ -330,7 +319,7 @@ port map(
 	WrClock     =>  CLK,
 	RdClock     =>  CLK,
 	WrEn        =>  qsf_wr,
-	RdEn        =>  qsf_rd_en_q,
+	RdEn        =>  qsf_rd_en,
 	Reset       =>  RESET,
 	RPReset     =>  RESET,
 	Q           =>  qsf_q,
@@ -342,6 +331,7 @@ qsf_wr <= qsf_wr_en or qsf_wr_en_q or qsf_wr_en_qq;
 
 QSF_DATA_PROC : process(qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq)
 begin
+	-- queue size is saved twice in a row to facilitate readout and packet construction 
 	if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
 		qsf_data(7 downto 0)   <= queue_size(31 downto 24);
 		qsf_data(15 downto 8)  <= queue_size(23 downto 16);
@@ -356,13 +346,6 @@ begin
 		qsf_data <= (others => '1');
 	end if;
 end process QSF_DATA_PROC;
-
-QSF_QQ_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		qsf_qq <= qsf_q;
-	end if;
-end process QSF_QQ_PROC;
 
 QSF_WR_PROC : process(CLK)
 begin
@@ -438,30 +421,25 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, size_for_padding, qsf_empty, TC_H_READY_IN, divide_position, header_ctr, load_eod, loaded_bytes_frame, PC_MAX_FRAME_SIZE_IN)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod)
 begin
 	case (load_current_state) is
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= PRELOAD_Q; --WAIT_FOR_FC;
+				load_next_state <= GET_Q_SIZE_BYTE1; --PUT_Q_HEADERS;
 			else
 				load_next_state <= IDLE;
 			end if;
 			
-		when PRELOAD_Q =>
-			if (header_ctr = 7) then
-				load_next_state <= WAIT_FOR_FC;
-			else
-				load_next_state <= PRELOAD_Q;
-			end if; 
+		when GET_Q_SIZE_BYTE1 =>
+			load_next_state <= GET_Q_SIZE_BYTE2;
+		
+		when GET_Q_SIZE_BYTE2 =>
+			load_next_state <= START_TRANSFER;
 			
-		when WAIT_FOR_FC =>
-			if (TC_H_READY_IN = '1') then
-				load_next_state <= PUT_Q_HEADERS;
-			else
-				load_next_state <= WAIT_FOR_FC;
-			end if;
+		when START_TRANSFER =>
+			load_next_state <= PUT_Q_HEADERS;
 			
 		when PUT_Q_HEADERS =>
 			if (header_ctr = 0) then
@@ -471,138 +449,50 @@ begin
 			end if;
 			
 		when LOAD_SUB =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= CLOSE_FRAME;
+			if (header_ctr = 0) then
+				load_next_state <= LOAD_DATA;
 			else
-				if (header_ctr = 0) then
-					load_next_state <= LOAD_DATA;
-				else
-					load_next_state <= LOAD_SUB;
-				end if;
+				load_next_state <= LOAD_SUB;
 			end if;
 			
 		when LOAD_DATA =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= CLOSE_FRAME;
-			else
-				if (load_eod = '1') then
-					if (size_for_padding(2) = '1') then
-						load_next_state <= LOAD_PADDING;
-					else
-						load_next_state <= LOAD_TERM;
-					end if;
+			if (load_eod = '1') then
+				if (size_for_padding(2) = '1') then
+					load_next_state <= LOAD_PADDING;
 				else
-					load_next_state <= LOAD_DATA;
+					load_next_state <= LOAD_TERM;
 				end if;
+			else
+				load_next_state <= LOAD_DATA;
 			end if;
 			
 		when LOAD_PADDING =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= CLOSE_FRAME;
+			if (header_ctr = 0) then
+				load_next_state <= LOAD_TERM;
 			else
-				if (header_ctr = 0) then
-					load_next_state <= LOAD_TERM;
-				else
-					load_next_state <= LOAD_PADDING;
-				end if;
-			end if;
-			
-			
-		when LOAD_TERM =>
-			if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-				load_next_state <= CLOSE_FRAME;
-			else
-				if (header_ctr = 0) then
-					load_next_state <= CLEANUP;
-				else
-					load_next_state <= LOAD_TERM;
-				end if;
+				load_next_state <= LOAD_PADDING;
 			end if;			
 			
-		when CLOSE_FRAME =>
-			load_next_state <= DIVIDE;
-		
-		when DIVIDE =>
-			if (TC_H_READY_IN = '1') then
-				if (divide_position = "00") then
-					load_next_state <= LOAD_SUB;
-				elsif (divide_position = "01") then
-					load_next_state <= LOAD_DATA;
-				elsif (divide_position = "10") then
-					load_next_state <= LOAD_PADDING;
-				elsif (divide_position = "11") then
-					load_next_state <= LOAD_TERM;
-				end if;				
+		when LOAD_TERM =>
+			if (header_ctr = 0) then
+				load_next_state <= CLEANUP;
 			else
-				load_next_state <= DIVIDE;
+				load_next_state <= LOAD_TERM;
 			end if;
 		
 		when CLEANUP =>
 			load_next_state <= IDLE;
 		
-		when others => load_next_state <= IDLE;
-		
 	end case;
 end process LOAD_MACHINE;
-
-DIVIDE_POSITION_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-			case (load_current_state) is
-				when LOAD_SUB     => divide_position <= "00";
-				when LOAD_DATA    => divide_position <= "01";
-				when LOAD_PADDING => divide_position <= "10";
-				when LOAD_TERM    => divide_position <= "11";
-				when others       => divide_position <= "00";
-			end case;
-		else
-			divide_position <= divide_position;
-		end if;
-	end if;
-end process DIVIDE_POSITION_PROC;
-
-LOADED_BYTES_FRAME_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = IDLE) then
-			loaded_bytes_frame <= (others => '0');
-		elsif (loaded_bytes_frame = PC_MAX_FRAME_SIZE_IN) then
-			loaded_bytes_frame <= (others => '0');
-		elsif (load_current_state = CLOSE_FRAME or load_current_state = DIVIDE) then
-			loaded_bytes_frame <= (others => '0');
-		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
-			loaded_bytes_frame <= loaded_bytes_frame + x"1";
-		else
-			loaded_bytes_frame <= loaded_bytes_frame;
-		end if;
-	end if;
-end process LOADED_BYTES_FRAME_PROC;
-
-LOADED_BYTES_PACKET_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = IDLE) then
-			loaded_bytes_packet <= (others => '0');
-		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
-			loaded_bytes_packet <= loaded_bytes_packet + x"1";
-		else
-			loaded_bytes_packet <= loaded_bytes_packet;
-		end if;
-	end if;
-end process LOADED_BYTES_PACKET_PROC;
 
 HEADER_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
-			header_ctr <= 11;
+			header_ctr <= 7;
 		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
---		elsif (load_current_state = PUT_Q_LEN and header_ctr = 0) then
---			header_ctr <= 3;
---		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then
---			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
@@ -613,10 +503,7 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		elsif (load_current_state = PRELOAD_Q) then
-			header_ctr <= header_ctr - 1;
-		elsif (TC_RD_EN_IN = '1' and data_not_valid = '0') then
-			--if (load_current_state = PUT_Q_LEN or load_current_state = PUT_Q_DEC or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
+		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = PUT_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
@@ -628,6 +515,7 @@ begin
 	end if;
 end process HEADER_CTR_PROC;
 
+-- ??
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
 	if (load_current_state = LOAD_SUB and header_ctr = 13) then
@@ -640,11 +528,7 @@ end process SIZE_FOR_PADDING_PROC;
 TC_SOD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = IDLE) then
-			TC_SOD_OUT <= '0';
-		elsif (load_current_state = WAIT_FOR_FC) and (TC_READY_IN = '1') then
-			TC_SOD_OUT <= '1';
-		elsif (load_current_state = DIVIDE) and (TC_READY_IN = '1') then
+		if (load_current_state = START_TRANSFER) then
 			TC_SOD_OUT <= '1';
 		else
 			TC_SOD_OUT <= '0';
@@ -652,132 +536,83 @@ begin
 	end if;
 end process TC_SOD_PROC;
 
-TC_EOD_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = IDLE) then
-			TC_EOD_OUT <= '0';
---		elsif (load_current_state = LOAD_DATA) and (load_eod = '1') then
---			TC_EOD_OUT <= '1';
-		elsif (load_current_state = LOAD_TERM) and (header_ctr = 0) then
-			TC_EOD_OUT <= '1';
-		elsif (load_current_state = CLOSE_FRAME) then
-			TC_EOD_OUT <= '1';
-		else
-			TC_EOD_OUT <= '0';
-		end if;
-	end if;
-end process TC_EOD_PROC;
-
-TC_DATA_NOT_VALID_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
-			data_not_valid <= '1';
-		else
-			data_not_valid <= '0';
-		end if;
-	end if;
-end process TC_DATA_NOT_VALID_PROC;
-
-TC_DATA_NOT_VALID_OUT <= data_not_valid;
-
-NOT_VALID_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (TC_RD_EN_IN = '1') then
-			if (load_current_state = DIVIDE and divide_position = "01") then
-				not_valid_ctr <= 0;
-			elsif (load_current_state = LOAD_SUB) then
-				not_valid_ctr <= 3;
-			elsif (load_current_state = LOAD_DATA and not_valid_ctr /= 3) then
-				not_valid_ctr <= not_valid_ctr + 1;
-			else
-				not_valid_ctr <= not_valid_ctr;
-			end if;
-		else
-			not_valid_ctr <= not_valid_ctr;
-		end if;
-	end if;
-end process NOT_VALID_CTR_PROC;
-
 --*****
 -- read from fifos
 
-DATA_FIFO_RD_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
-			df_rd_en <= '1';
-		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then  -- preload the first word
-			df_rd_en <= '1';
-		elsif (load_current_state = LOAD_SUB and header_ctr = 1) then  -- preload the first word
-			df_rd_en <= '1';
-		elsif (load_current_state = LOAD_SUB and header_ctr = 2) then  -- preload the first word
-			df_rd_en <= '1';
-		elsif (load_current_state = LOAD_SUB and header_ctr = 3) then  -- preload the first word
-			df_rd_en <= '1';
-		else
-			df_rd_en <= '0';
-		end if;
-	end if;
-end process DATA_FIFO_RD_PROC;
+df_rd_en <= '1' when load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' else '0';
 
-SUB_FIFO_RD_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
-			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 2) then -- preload the first word
-			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 1) then -- preload the first word
-			shf_rd_en <= '1';
-		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then -- preload the first word
-			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
+shf_rd_en <= '1' when load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' else '0';
+
+--DATA_FIFO_RD_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
+--			df_rd_en <= '1';
+--		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then  -- preload the first word
+--			df_rd_en <= '1';
+--		elsif (load_current_state = LOAD_SUB and header_ctr = 1) then  -- preload the first word
+--			df_rd_en <= '1';
+--		elsif (load_current_state = LOAD_SUB and header_ctr = 2) then  -- preload the first word
+--			df_rd_en <= '1';
+--		elsif (load_current_state = LOAD_SUB and header_ctr = 3) then  -- preload the first word
+--			df_rd_en <= '1';
+--		else
+--			df_rd_en <= '0';
+--		end if;
+--	end if;
+--end process DATA_FIFO_RD_PROC;
+--
+--SUB_FIFO_RD_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
 --			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
+--		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 2) then -- preload the first word
 --			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
+--		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 1) then -- preload the first word
 --			shf_rd_en <= '1';
-		else
-			shf_rd_en <= '0';
-		end if;
-	end if;
-end process SUB_FIFO_RD_PROC;
+--		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then -- preload the first word
+--			shf_rd_en <= '1';
+----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
+----			shf_rd_en <= '1';
+----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
+----			shf_rd_en <= '1';
+----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
+----			shf_rd_en <= '1';
+--		else
+--			shf_rd_en <= '0';
+--		end if;
+--	end if;
+--end process SUB_FIFO_RD_PROC;
 
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
---		if (load_current_state = IDLE and qsf_empty = '0') then
---			qsf_rd_en <= '1';
-		if (load_current_state = PRELOAD_Q) then
-			qsf_rd_en <= '1';
-		--elsif (load_current_state = PUT_Q_LEN and header_ctr = 2) then
-		elsif (TC_RD_EN_IN = '1' and load_current_state = PUT_Q_HEADERS and header_ctr > 0) then
-			qsf_rd_en <= '1';
-		else
-			qsf_rd_en <= '0';
+		if (load_current_state = IDLE and qsf_empty = '0') then
+			qsf_rd_en_q <= '1';
+		elsif (load_current_state = GET_Q_SIZE_BYTE1) then
+			qsf_rd_en_q <= '1';
+		else 
+			qsf_rd_en_q <= '0';
 		end if;
-		
-		qsf_rd_en_q <= qsf_rd_en;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
+
+qsf_rd_en <= '1' when load_current_state = PUT_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
 
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = PRELOAD_Q) then
-			if (header_ctr = 9) then
-				actual_q_size(7 downto 0) <= qsf_q;
-			elsif (header_ctr = 8) then
-				actual_q_size(15 downto 8)  <= qsf_q;
-			end if;
+		if (load_current_state = GET_Q_SIZE_BYTE1) then
+			actual_q_size(7 downto 0) <= qsf_q;
+		elsif (load_current_state = GET_Q_SIZE_BYTE2) then
+			actual_q_size(15 downto 8)  <= qsf_q;
 		end if;
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
---TODO: przerobic terminacje na zapisywana do qsf
+TC_EVENT_SIZE_OUT <= actual_q_size;
+
 TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -788,11 +623,9 @@ begin
 			
 			for I in 0 to 7 loop
 				case (load_current_state) is
-					when PUT_Q_HEADERS => termination(I) <= qsf_qq(I);
---					when PUT_Q_LEN => termination(I) <= qsf_qq(header_ctr * 8 + I);
---					when PUT_Q_DEC => termination(I) <= qsf_qq(header_ctr * 8 + I);
-					when LOAD_SUB  => termination(I) <= shf_qq(I);
-					when LOAD_DATA => termination(I) <= df_qq(I);
+					when PUT_Q_HEADERS => termination(I) <= qsf_q(I);
+					when LOAD_SUB  => termination(I) <= shf_q(I);
+					when LOAD_DATA => termination(I) <= df_q(I);
 					when others    => termination(I) <= '0';
 				end case;
 			end loop;
@@ -818,14 +651,12 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-			when PUT_Q_HEADERS => TC_DATA_OUT <= qsf_qq; 
---			when PUT_Q_LEN    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
---			when PUT_Q_DEC    => TC_DATA_OUT <= qsf_qq((header_ctr + 1) * 8 - 1  downto header_ctr * 8);
-			when LOAD_SUB     => TC_DATA_OUT <= shf_qq;
-			when LOAD_DATA    => TC_DATA_OUT <= df_qq;
-			when LOAD_PADDING => TC_DATA_OUT <= x"aa";
-			when LOAD_TERM    => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when others       => TC_DATA_OUT <= df_qq; --(others => '0');
+			when PUT_Q_HEADERS => TC_DATA_OUT <= qsf_q; 
+			when LOAD_SUB      => TC_DATA_OUT <= shf_q;
+			when LOAD_DATA     => TC_DATA_OUT <= df_q;
+			when LOAD_PADDING  => TC_DATA_OUT <= x"aa";
+			when LOAD_TERM     => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when others        => TC_DATA_OUT <= x"cc";
 		end case;
 	end if;
 end process TC_DATA_PROC;
@@ -833,50 +664,7 @@ end process TC_DATA_PROC;
 --*****
 -- outputs
 
-TC_PACKET_SIZES_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		--TC_UDP_SIZE_OUT     <= qsf_qq(15 downto 0) + x"20";
-		TC_UDP_SIZE_OUT     <= actual_q_size + x"20";
-	end if;
-end process TC_PACKET_SIZES_PROC;
 
-TC_FLAGS_OFFSET_PROC : process(CLK)
-begin
-	TC_FLAGS_OFFSET_OUT(15 downto 14) <= "00";
-
-	if rising_edge(CLK) then
-		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
-			--if ((qsf_qq + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
-			if ((actual_q_size + x"20" - loaded_bytes_packet) < PC_MAX_FRAME_SIZE_IN) then
-				TC_FLAGS_OFFSET_OUT(13) <= '0';
-			else
-				TC_FLAGS_OFFSET_OUT(13) <= '1';
-			end if;
-			
-			TC_FLAGS_OFFSET_OUT(12 downto 0) <= loaded_bytes_packet(15 downto 3);
-		end if;
-	end if;
-end process TC_FLAGS_OFFSET_PROC;
-
-TC_IP_SIZE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		--if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_LEN) and loaded_bytes_frame = x"0000") then
-		if ((load_current_state = DIVIDE or load_current_state = WAIT_FOR_FC or load_current_state = PUT_Q_HEADERS) and loaded_bytes_frame = x"0000") then
-			--if (qsf_qq + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
-			if (actual_q_size + x"20" - loaded_bytes_packet >= PC_MAX_FRAME_SIZE_IN) then
-				TC_IP_SIZE_OUT <= PC_MAX_FRAME_SIZE_IN;
-			else
-				--TC_IP_SIZE_OUT <= qsf_qq(15 downto 0) + x"20" - loaded_bytes_packet;
-				TC_IP_SIZE_OUT <= actual_q_size + x"20" - loaded_bytes_packet;
-			end if;
-		end if;
-	end if;
-end process TC_IP_SIZE_PROC;
-
-PC_TRANSMIT_ON_OUT <= '0';
 
 DEBUG_OUT <= (others => '0');
 

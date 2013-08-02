@@ -83,14 +83,8 @@ port(
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
 	TC_DATA_OUT             : out   std_logic_vector(7 downto 0);
-	TC_H_READY_IN           : in    std_logic;
-	TC_READY_IN             : in    std_logic;
-	TC_IP_SIZE_OUT          : out   std_logic_vector(15 downto 0);
-	TC_UDP_SIZE_OUT         : out   std_logic_vector(15 downto 0);
-	TC_FLAGS_OFFSET_OUT     : out   std_logic_vector(15 downto 0);
+	TC_EVENT_SIZE_OUT       : out   std_logic_vector(15 downto 0);
 	TC_SOD_OUT              : out   std_logic;
-	TC_EOD_OUT              : out   std_logic;
-	TC_DATA_NOT_VALID_OUT   : out   std_logic;
 	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
 );
 end component;
