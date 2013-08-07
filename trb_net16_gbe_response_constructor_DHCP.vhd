@@ -116,7 +116,6 @@ signal vendor_values2           : std_logic_vector(47 downto 0);
 
 signal discarded_ctr            : std_logic_vector(15 downto 0);
 
-signal size_left            : std_logic_vector(15 downto 0);
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
@@ -667,22 +666,6 @@ TC_FRAME_TYPE_OUT   <= x"0008";  -- frame type: ip
 
 TC_IDENT_OUT        <= x"1" & sent_frames(11 downto 0);
 
-SIZE_LEFT_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (main_current_state = BOOTING and DHCP_START_IN = '1') then
-			size_left <= x"0103";
-		elsif (main_current_state = SENDING_DISCOVER and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
-			size_left <= size_left - x"1";
-		elsif (main_current_state = WAITING_FOR_OFFER) then
-			size_left <= x"0109";
-		elsif (main_current_state = SENDING_REQUEST and TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
-			size_left <= size_left - x"1";
-		else
-			size_left <= size_left;
-		end if;
-	end if;
-end process SIZE_LEFT_PROC;
 
 -- **** statistics
 --REC_FRAMES_PROC : process(CLK)
