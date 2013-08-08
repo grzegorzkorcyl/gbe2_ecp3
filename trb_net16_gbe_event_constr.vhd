@@ -49,7 +49,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 
-type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, PUT_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
@@ -440,13 +440,13 @@ begin
 			end if;
 			
 		when START_TRANSFER =>
-			load_next_state <= PUT_Q_HEADERS;
+			load_next_state <= LOAD_Q_HEADERS;
 			
-		when PUT_Q_HEADERS =>
+		when LOAD_Q_HEADERS =>
 			if (header_ctr = 0) then
 				load_next_state <= LOAD_SUB;
 			else
-				load_next_state <= PUT_Q_HEADERS;
+				load_next_state <= LOAD_Q_HEADERS;
 			end if;
 			
 		when LOAD_SUB =>
@@ -493,8 +493,8 @@ begin
 		if (load_current_state = IDLE) then
 			header_ctr <= 3;
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
-			header_ctr <= 7;
-		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then
+			header_ctr <= 8;
+		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
@@ -507,7 +507,7 @@ begin
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
-			if (load_current_state = PUT_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
+			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
 				header_ctr <= header_ctr;
@@ -561,7 +561,7 @@ begin
 	end if;
 end process QUEUE_FIFO_RD_PROC;
 
-qsf_rd_en <= '1' when load_current_state = PUT_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
+qsf_rd_en <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
 
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
@@ -586,7 +586,7 @@ begin
 			
 			for I in 0 to 7 loop
 				case (load_current_state) is
-					when PUT_Q_HEADERS => termination(I) <= qsf_q(I);
+					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
 					when LOAD_SUB  => termination(I) <= shf_q(I);
 					when LOAD_DATA => termination(I) <= df_q(I);
 					when others    => termination(I) <= '0';
@@ -614,7 +614,7 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-			when PUT_Q_HEADERS => tc_data <= qsf_q; 
+			when LOAD_Q_HEADERS => tc_data <= qsf_q; 
 			when LOAD_SUB      => tc_data <= shf_q;
 			when LOAD_DATA     => tc_data <= df_q;
 			when LOAD_PADDING  => tc_data <= x"aa";
