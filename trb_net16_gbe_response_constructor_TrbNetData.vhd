@@ -316,7 +316,7 @@ EVENT_BYTES_PROC : process (clk) is
 begin
 	if rising_edge(clk) then
 		if dissect_current_state = IDLE and tc_sod = '1' then
-			event_bytes <= tc_size + x"20";  -- adding termination bytes
+			event_bytes <= tc_size + x"24";  -- adding termination bytes
 		else
 			event_bytes <= event_bytes;
 		end if;
