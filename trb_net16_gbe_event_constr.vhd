@@ -634,7 +634,7 @@ TC_DATA_OUT(7 downto 0) <= tc_data;
 TC_DATA_8_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = LOAD_TERM and header_ctr = 1) then
+		if (load_current_state = LOAD_TERM and header_ctr = 0) then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
