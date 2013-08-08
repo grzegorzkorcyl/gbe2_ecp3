@@ -547,48 +547,6 @@ df_rd_en <= '1' when load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' else '
 
 shf_rd_en <= '1' when load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' else '0';
 
---DATA_FIFO_RD_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') then
---			df_rd_en <= '1';
---		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then  -- preload the first word
---			df_rd_en <= '1';
---		elsif (load_current_state = LOAD_SUB and header_ctr = 1) then  -- preload the first word
---			df_rd_en <= '1';
---		elsif (load_current_state = LOAD_SUB and header_ctr = 2) then  -- preload the first word
---			df_rd_en <= '1';
---		elsif (load_current_state = LOAD_SUB and header_ctr = 3) then  -- preload the first word
---			df_rd_en <= '1';
---		else
---			df_rd_en <= '0';
---		end if;
---	end if;
---end process DATA_FIFO_RD_PROC;
---
---SUB_FIFO_RD_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') then
---			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 2) then -- preload the first word
---			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 1) then -- preload the first word
---			shf_rd_en <= '1';
---		elsif (load_current_state = PUT_Q_HEADERS and header_ctr = 0) then -- preload the first word
---			shf_rd_en <= '1';
-----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 2) then -- preload the first word
-----			shf_rd_en <= '1';
-----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 1) then -- preload the first word
-----			shf_rd_en <= '1';
-----		elsif (load_current_state = PUT_Q_DEC and header_ctr = 0) then -- preload the first word
-----			shf_rd_en <= '1';
---		else
---			shf_rd_en <= '0';
---		end if;
---	end if;
---end process SUB_FIFO_RD_PROC;
-
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -655,15 +613,26 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-			when PUT_Q_HEADERS => TC_DATA_OUT <= qsf_q; 
-			when LOAD_SUB      => TC_DATA_OUT <= shf_q;
-			when LOAD_DATA     => TC_DATA_OUT <= df_q;
-			when LOAD_PADDING  => TC_DATA_OUT <= x"aa";
-			when LOAD_TERM     => TC_DATA_OUT <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when others        => TC_DATA_OUT <= x"cc";
+			when PUT_Q_HEADERS => TC_DATA_OUT(7 downto 0) <= qsf_q; 
+			when LOAD_SUB      => TC_DATA_OUT(7 downto 0) <= shf_q;
+			when LOAD_DATA     => TC_DATA_OUT(7 downto 0) <= df_q;
+			when LOAD_PADDING  => TC_DATA_OUT(7 downto 0) <= x"aa";
+			when LOAD_TERM     => TC_DATA_OUT(7 downto 0) <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when others        => TC_DATA_OUT(7 downto 0) <= x"cc";
 		end case;
 	end if;
 end process TC_DATA_PROC;
+
+TC_DATA_8_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_TERM and header_ctr = 1) then
+			TC_DATA_OUT(8) <= '1';
+		else
+			TC_DATA_OUT(8) <= '0';
+		end if;
+	end if;	
+end process TC_DATA_8_PROC;
 
 --*****
 -- outputs

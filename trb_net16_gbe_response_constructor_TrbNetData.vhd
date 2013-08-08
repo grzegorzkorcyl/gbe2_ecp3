@@ -117,7 +117,7 @@ signal pc_eos                   : std_logic;
 signal pc_transmit_on           : std_logic;
 
 signal tc_rd_en					: std_logic;
-signal tc_data					: std_logic_vector(7 downto 0);
+signal tc_data					: std_logic_vector(8 downto 0);
 signal tc_size					: std_logic_vector(15 downto 0);
 signal tc_sod					: std_logic;
 
@@ -300,23 +300,23 @@ end process DISSECT_MACHINE;
 PS_BUSY_OUT <= '0' when dissect_current_state = IDLE else '1';
 PS_RESPONSE_READY_OUT <= '1' when (dissect_current_state = LOAD) or (dissect_current_state = WAIT_FOR_LOAD) else '0';
 
-TC_DATA_OUT(7 downto 0) <= tc_data;
-TC_DATA_EOD_PROC : process (clk) is
-begin
-	if rising_edge(clk) then
-		if (dissect_current_state = LOAD and event_bytes = loaded_bytes - x"1") then
-			TC_DATA_OUT(8) <= '1';
-		else
-			TC_DATA_OUT(8) <= '0';
-		end if;
-	end if;
-end process TC_DATA_EOD_PROC;
+TC_DATA_OUT <= tc_data;
+--TC_DATA_EOD_PROC : process (clk) is
+--begin
+--	if rising_edge(clk) then
+--		if (dissect_current_state = LOAD and event_bytes = loaded_bytes - x"2") then
+--			TC_DATA_OUT(8) <= '1';
+--		else
+--			TC_DATA_OUT(8) <= '0';
+--		end if;
+--	end if;
+--end process TC_DATA_EOD_PROC;
 
 EVENT_BYTES_PROC : process (clk) is
 begin
 	if rising_edge(clk) then
 		if dissect_current_state = IDLE and tc_sod = '1' then
-			event_bytes <= tc_size + x"24";  -- adding termination bytes
+			event_bytes <= tc_size + x"20";  -- adding termination bytes
 		else
 			event_bytes <= event_bytes;
 		end if;
