@@ -372,7 +372,7 @@ begin
 
 		-- original data block (trigger 1, random 0xaa, number 0x4711, source 0x21)
 		fee_dataready_in <= '1';
-		fee_data_in <= x"10" & cts_random_number;
+		fee_data_in <= x"1234"; --x"10" & cts_random_number;
 		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of first data word
 		fee_dataready_in <= '0';
 		wait until rising_edge(clk); -- BLA
@@ -380,7 +380,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);
 		fee_dataready_in <= '1';
-		fee_data_in <= std_logic_vector( trigger_counter );
+		fee_data_in <= x"5678"; --std_logic_vector( trigger_counter );
 		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of second data word
 		fee_dataready_in <= '0';
 		wait until rising_edge(clk); -- BLA
@@ -392,9 +392,9 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);
 		fee_dataready_in <= '1';
-		fee_data_in <= std_logic_vector( test_hdr_len );
+		fee_data_in <= x"9abc"; --std_logic_vector( test_hdr_len );
 		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of third data word
-		fee_data_in <= x"ff21";
+		fee_data_in <= x"def0"; --x"ff21";
 		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of fourth data word
 		fee_dataready_in <= '0';
 		wait until rising_edge(clk);
@@ -423,9 +423,9 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);
 		fee_dataready_in <= '1';
-		fee_data_in <= std_logic_vector( test_evt_len );
+		fee_data_in <= x"1234"; --std_logic_vector( test_evt_len );
 		wait until rising_edge(clk) and (fee_read_out = '1');
-		fee_data_in <= x"ff22";	
+		fee_data_in <= x"5678"; --x"ff22";	
 		wait until rising_edge(clk) and (fee_read_out = '1');
 		fee_dataready_in <= '0';
 		wait until rising_edge(clk);
