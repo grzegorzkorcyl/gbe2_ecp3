@@ -331,6 +331,10 @@ begin
 	fee_status_bits_in <= x"1234_5678";
 	fee_busy_in <= '0';
 	
+	gsc_reply_data <= (others => '0');
+	gsc_busy <= '0';
+	gsc_reply_dataready <= '0';
+	
 	wait for 100 ns;
 	reset <= '0';
 	
@@ -363,7 +367,7 @@ begin
 		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
 		
 		--test_data_len := 9685;
-		test_data_len := 26; --100; -- + (1 - J) * 200;
+		test_data_len := 100; --26; --100; -- + (1 - J) * 200;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
@@ -493,7 +497,26 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		wait for 10 us;
+		wait for 2 us;
+		
+-- REPLY TESTBENCH
+	
+	for k in 0 to 100 loop
+	
+		wait until rising_edge(clk);
+		gsc_reply_dataready <= '1';
+		gsc_busy <= '1';
+		gsc_reply_data <= std_logic_vector(to_unsigned(k, 16));
+			
+	end loop;
+	wait until rising_edge(clk);
+	gsc_reply_dataready <= '0';
+	gsc_busy <= '0';
+	
+	--wait for 100 ns;
+	--selected <= '1';
+		
+		--wait for 10 us;
 
 	end loop MY_TRIGGER_LOOP;
 	
