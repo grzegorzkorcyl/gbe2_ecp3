@@ -78,6 +78,7 @@ signal term_ctr : integer range 0 to 32;
 signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
+signal tc_data : std_logic_vector(7 downto 0);
 
 begin
 
@@ -613,16 +614,17 @@ TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
-			when PUT_Q_HEADERS => TC_DATA_OUT(7 downto 0) <= qsf_q; 
-			when LOAD_SUB      => TC_DATA_OUT(7 downto 0) <= shf_q;
-			when LOAD_DATA     => TC_DATA_OUT(7 downto 0) <= df_q;
-			when LOAD_PADDING  => TC_DATA_OUT(7 downto 0) <= x"aa";
-			when LOAD_TERM     => TC_DATA_OUT(7 downto 0) <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when others        => TC_DATA_OUT(7 downto 0) <= x"cc";
+			when PUT_Q_HEADERS => tc_data <= qsf_q; 
+			when LOAD_SUB      => tc_data <= shf_q;
+			when LOAD_DATA     => tc_data <= df_q;
+			when LOAD_PADDING  => tc_data <= x"aa";
+			when LOAD_TERM     => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when others        => tc_data <= x"cc";
 		end case;
 	end if;
 end process TC_DATA_PROC;
 
+TC_DATA_OUT(7 downto 0) <= tc_data;
 TC_DATA_8_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
