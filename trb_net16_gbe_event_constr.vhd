@@ -520,13 +520,14 @@ begin
 	end if;
 end process HEADER_CTR_PROC;
 
--- ??
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
-	if (load_current_state = LOAD_SUB and header_ctr = 13) then
-		size_for_padding <= shf_q;
-	else
-		size_for_padding <= size_for_padding;
+	if rising_edge(CLK) then
+		if (load_current_state = LOAD_SUB and header_ctr = 13) then
+			size_for_padding <= shf_q;
+		else
+			size_for_padding <= size_for_padding;
+		end if;
 	end if;
 end process SIZE_FOR_PADDING_PROC;
 
@@ -620,11 +621,11 @@ begin
 	if rising_edge(CLK) then
 		case (load_current_state) is
 			when LOAD_Q_HEADERS => tc_data <= qsf_q; 
-			when LOAD_SUB      => tc_data <= shf_q;
-			when LOAD_DATA     => tc_data <= df_q;
-			when LOAD_PADDING  => tc_data <= x"aa";
-			when LOAD_TERM     => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
-			when others        => tc_data <= x"cc";
+			when LOAD_SUB       => tc_data <= shf_q;
+			when LOAD_DATA      => tc_data <= df_q;
+			when LOAD_PADDING   => tc_data <= x"aa";
+			when LOAD_TERM      => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when others         => tc_data <= x"cc";
 		end case;
 	end if;
 end process TC_DATA_PROC;
