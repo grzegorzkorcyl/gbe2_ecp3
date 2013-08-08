@@ -244,7 +244,7 @@ begin
 		end if;
 	end if;
 end process MORE_FRAGMENTS_PROC;
-FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3);
+FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3) + x"8";
 
 PACKET_LOADED_BYTES_PROC : process(CLK)
 begin
@@ -253,8 +253,8 @@ begin
 			packet_loaded_bytes <= x"0000";
 		elsif (transmit_current_state = TRANSMIT) then
 			packet_loaded_bytes <= packet_loaded_bytes + x"1";
-		elsif (transmit_current_state = DIVIDE and first_frame = '1') then	
-			packet_loaded_bytes <= packet_loaded_bytes + x"8";	-- 8bytes for udp headers added for the first offset
+--		elsif (transmit_current_state = DIVIDE and first_frame = '1') then	
+--			packet_loaded_bytes <= packet_loaded_bytes + x"8";	-- 8bytes for udp headers added for the first offset
 		else
 			packet_loaded_bytes <= packet_loaded_bytes;
 		end if;
