@@ -37,7 +37,7 @@ port(
 	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
-	TC_DATA_OUT             : out   std_logic_vector(7 downto 0);
+	TC_DATA_OUT             : out   std_logic_vector(8 downto 0);
 	TC_EVENT_SIZE_OUT       : out   std_logic_vector(15 downto 0);
 	TC_SOD_OUT              : out   std_logic;
 	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
