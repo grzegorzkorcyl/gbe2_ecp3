@@ -74,7 +74,7 @@ signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_rd_en, qsf_rd_en_q, qsf
 signal queue_size : std_logic_vector(31 downto 0);
 
 signal termination : std_logic_vector(255 downto 0);
-signal term_ctr : integer range 0 to 32;
+signal term_ctr : integer range 0 to 33;
 signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
