@@ -456,7 +456,7 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod = '1') then
+			if (load_eod = '1' and term_ctr = 32) then
 				if (size_for_padding(2) = '1') then
 					load_next_state <= LOAD_PADDING;
 				else
