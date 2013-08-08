@@ -277,7 +277,7 @@ port map(
 );
 
 
-g_MAX_FRAME_SIZE <= x"0064";
+g_MAX_FRAME_SIZE <= x"0fd0";
 
 
 -- 125 MHz MAC clock
