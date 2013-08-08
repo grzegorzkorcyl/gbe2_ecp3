@@ -125,6 +125,7 @@ type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
 signal event_bytes : std_logic_vector(15 downto 0);
 signal loaded_bytes : std_logic_vector(15 downto 0);
+signal sent_packets : std_logic_vector(15 downto 0);
 
 begin
 
@@ -240,7 +241,7 @@ port map(
 	PC_SUB_SIZE_IN			=> pc_sub_size,
 	PC_PADDING_IN			=> pc_padding,
 	PC_DECODING_IN			=> x"0002_0001", --pc_decoding,
-	PC_EVENT_ID_IN			=> pc_event_id,
+	PC_EVENT_ID_IN			=> x"0000_8000", --pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
@@ -345,6 +346,18 @@ TC_SRC_MAC_OUT        <= g_MY_MAC;
 TC_SRC_IP_OUT         <= g_MY_IP;
 TC_SRC_UDP_OUT        <= ic_src_udp;
 TC_IP_PROTOCOL_OUT    <= x"11";
+TC_IDENT_OUT          <= x"4" & sent_packets(11 downto 0);
+
+SENT_PACKETS_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			sent_packets <= (others => '0');
+		elsif (dissect_current_state = IDLE and tc_sod = '1') then
+			sent_packets <= sent_packets + x"1";
+		end if;
+	end if;
+end process SENT_PACKETS_PROC;
 
 
 end trb_net16_gbe_response_constructor_TrbNetData;
