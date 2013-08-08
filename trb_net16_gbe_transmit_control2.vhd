@@ -182,7 +182,7 @@ begin
 		elsif (transmit_current_state = SEND_ONE and full_packet_size < packet_loaded_bytes - x"1") then
 			go_to_divide <= '1';
 		elsif (transmit_current_state = SEND_TWO and full_packet_size < packet_loaded_bytes - x"1") then
-			go_to_divide <= '0';
+			go_to_divide <= '1';
 		elsif (transmit_current_state = SEND_ONE and full_packet_size = packet_loaded_bytes) then
 			go_to_divide <= '0';
 		else
