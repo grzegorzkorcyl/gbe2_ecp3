@@ -277,7 +277,7 @@ begin
 end process PACKET_NUM_PROC;
 
 --temporairly changed to a smaller fifo
-transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
+transmit_fifo : fifo_65536x18x9 --fifo_4kx18x9 --fifo_65536x18x9
   PORT map(
     Reset             => tx_fifo_reset,
 	RPReset           => tx_fifo_reset,
@@ -485,7 +485,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				dissect_current_state <= WAIT_FOR_RESPONSE; --IDLE;
+				dissect_current_state <= IDLE;
 			else
 				dissect_current_state <= WAIT_FOR_RESPONSE;
 			end if;
