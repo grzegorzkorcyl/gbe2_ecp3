@@ -497,7 +497,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		wait for 2 us;
+		wait for 5 us;
 		
 -- REPLY TESTBENCH
 	
