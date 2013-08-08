@@ -523,7 +523,7 @@ end process HEADER_CTR_PROC;
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = LOAD_SUB and header_ctr = 11) then
+		if (load_current_state = LOAD_SUB and header_ctr = 12) then
 			size_for_padding <= shf_q;
 		else
 			size_for_padding <= size_for_padding;
