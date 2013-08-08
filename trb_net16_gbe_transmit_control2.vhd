@@ -179,6 +179,10 @@ begin
 			go_to_divide <= '0';
 		elsif (transmit_current_state = TRANSMIT and actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
 			go_to_divide <= '1';
+		elsif (transmit_current_state = SEND_ONE and full_packet_size < packet_loaded_bytes - x"1") then
+			go_to_divide <= '1';
+		elsif (transmit_current_state = SEND_TWO and full_packet_size < packet_loaded_bytes - x"1") then
+			go_to_divide <= '0';
 		elsif (transmit_current_state = SEND_ONE and full_packet_size = packet_loaded_bytes) then
 			go_to_divide <= '0';
 		else
