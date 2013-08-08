@@ -587,7 +587,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			termination <= (others => '0');
-		elsif (TC_RD_EN_IN = '1' and term_ctr /= 32) then
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
 			for I in 0 to 7 loop
@@ -610,7 +610,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			term_ctr <= 0;
-		elsif (TC_RD_EN_IN = '1' and term_ctr /= 32) then
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33) then
 			term_ctr <= term_ctr + 1;
 		end if;
 	end if;
