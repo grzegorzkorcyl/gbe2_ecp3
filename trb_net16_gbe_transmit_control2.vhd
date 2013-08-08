@@ -244,7 +244,7 @@ begin
 		end if;
 	end if;
 end process MORE_FRAGMENTS_PROC;
-FC_FLAGS_OFFSET_OUT(12 downto 0) <= packet_loaded_bytes(15 downto 3) + x"8";
+FC_FLAGS_OFFSET_OUT(12 downto 0) <= x"000" when first_frame = '1' else (packet_loaded_bytes(15 downto 3) + x"8");
 
 PACKET_LOADED_BYTES_PROC : process(CLK)
 begin
