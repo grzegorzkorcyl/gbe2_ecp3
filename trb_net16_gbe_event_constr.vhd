@@ -171,13 +171,13 @@ PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3 --fifo_512x8 --fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
-	Clock		=> CLK,
---	WrClock       =>  CLK,
---	RdClock		=> CLK,
+--	Clock		=> CLK,
+	WrClock       =>  CLK,
+	RdClock		=> CLK,
 	WrEn        =>  shf_wr_en,
 	RdEn        =>  shf_rd_en,
 	Reset       =>  RESET,
---	RPReset		=> RESET,
+	RPReset		=> RESET,
 	Q           =>  shf_q,
 	Empty       =>  shf_empty,
 	Full        =>  shf_full
