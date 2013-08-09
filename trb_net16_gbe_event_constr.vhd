@@ -56,11 +56,11 @@ type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
 
 signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
-signal df_q, df_qq : std_logic_vector(7 downto 0);
+signal df_q : std_logic_vector(7 downto 0);
 	
 signal header_ctr : integer range 0 to 31;
 
-signal shf_data, shf_q, shf_qq : std_logic_vector(7 downto 0);
+signal shf_data, shf_q : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
 signal sub_int_ctr : integer range 0 to 3;
 signal sub_size_to_save : std_logic_vector(31 downto 0);
@@ -68,7 +68,7 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data : std_logic_vector(31 downto 0);
-signal qsf_q, qsf_qq : std_logic_vector(7 downto 0);
+signal qsf_q : std_logic_vector(7 downto 0);
 signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
@@ -162,13 +162,6 @@ port map(
 	Full             =>  df_full
 );
 
-DF_QQ_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		df_qq <= df_q;
-	end if;
-end process DF_QQ_PROC;
-
 PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 
 --*****
@@ -199,13 +192,6 @@ begin
 		end if;
 	end if;
 end process SHF_WR_EN_PROC;
-
-SHF_Q_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		shf_qq <= shf_q;
-	end if;
-end process SHF_Q_PROC;
 
 SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
 begin
@@ -430,7 +416,7 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= GET_Q_SIZE; --PUT_Q_HEADERS;
+				load_next_state <= GET_Q_SIZE;
 			else
 				load_next_state <= IDLE;
 			end if;
@@ -509,7 +495,7 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		elsif (TC_RD_EN_IN = '1') then
+		elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
