@@ -1210,6 +1210,39 @@ port (
 );
 end component;
 
+component fifo_16kx18x9 is
+    port (
+        Data: in  std_logic_vector(17 downto 0); 
+        WrClock: in  std_logic; 
+        RdClock: in  std_logic; 
+        WrEn: in  std_logic; 
+        RdEn: in  std_logic; 
+        Reset: in  std_logic; 
+        RPReset: in  std_logic; 
+        AmEmptyThresh: in  std_logic_vector(14 downto 0); 
+        AmFullThresh: in  std_logic_vector(13 downto 0); 
+        Q: out  std_logic_vector(8 downto 0); 
+        Empty: out  std_logic; 
+        Full: out  std_logic; 
+        AlmostEmpty: out  std_logic; 
+        AlmostFull: out  std_logic);
+end component;
+
+component fifo_32k_9 is
+    port (
+        Data: in  std_logic_vector(8 downto 0); 
+        WrClock: in  std_logic; 
+        RdClock: in  std_logic; 
+        WrEn: in  std_logic; 
+        RdEn: in  std_logic; 
+        Reset: in  std_logic; 
+        RPReset: in  std_logic; 
+        Q: out  std_logic_vector(8 downto 0); 
+        Empty: out  std_logic; 
+        Full: out  std_logic);
+end component;
+
+
 component fifo_512x32x8
 port (
 	Data        : in  std_logic_vector(31 downto 0); 
