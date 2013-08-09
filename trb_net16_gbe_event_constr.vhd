@@ -147,7 +147,7 @@ begin
 end process DF_WR_EN_PROC;
 
 
-DATA_FIFO : fifo_32k_9 --fifo_64kx9
+DATA_FIFO : fifo_64kx9 --fifo_32k_9 --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  PC_DATA_IN,
 	Data(8)          =>  df_eod,
@@ -168,7 +168,7 @@ PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 --*****
 -- subevent headers
 
-SUBEVENT_HEADERS_FIFO : fifo_512x8 --fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3 --fifo_512x8 --fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
 	Clock		=> CLK,
