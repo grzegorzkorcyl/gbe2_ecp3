@@ -79,6 +79,7 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
+signal load_additional_one : std_logic;
 
 begin
 
@@ -536,8 +537,22 @@ end process TC_SOD_PROC;
 
 df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or 
 					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1') or 
-					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1')
+					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1') or
+					(load_additional_one = '1')
 					else '0';
+					
+LOAD_ADDITIONAL_ONE_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			load_additional_one <= '0';
+		elsif (load_current_state = LOAD_DATA and load_eod = '1' and TC_RD_EN_IN = '0') then
+			load_additional_one <= '1';
+		else
+			load_additional_one <= load_additional_one;
+		end if;			
+	end if;
+end process LOAD_ADDITIONAL_ONE_PROC;
 
 shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1')
