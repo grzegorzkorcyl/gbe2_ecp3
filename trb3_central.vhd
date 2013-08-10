@@ -423,119 +423,119 @@ architecture trb3_central_arch of trb3_central is
 
 
 begin
----- MBS Module
---	gen_mbs_vulom_as_etm : if ETM_CHOICE = ETM_CHOICE_MBS_VULOM generate
---	THE_MBS: entity work.mbs_vulom_recv
---   port map (
---      CLK => clk_100_i,
---      RESET_IN => reset_i,
---      
---      MBS_IN => CLK_EXT(3),
---      CLK_200 => clk_200_i,
---      
---      -- TRG_ASYNC_OUT => ,
---      TRG_SYNC_OUT => cts_ext_trigger,
---      
---      TRIGGER_IN     => cts_rdo_trg_data_valid,
---      DATA_OUT       => cts_rdo_additional_data(31 downto 0),
---      WRITE_OUT      => cts_rdo_additional_write(0),
---      STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional(31 downto 0),
---      FINISHED_OUT   => cts_rdo_additional_finished(0),
---
---      CONTROL_REG_IN => cts_ext_control,
---      STATUS_REG_OUT => cts_ext_status,
---      HEADER_REG_OUT => cts_ext_header,
---      
---      DEBUG => cts_ext_debug
---   );
---	end generate;
---
----- Mainz A2 Module
---	gen_mainz_a2_as_etm: if ETM_CHOICE = ETM_CHOICE_MAINZ_A2 generate
---		mainz_a2_recv_1: entity work.mainz_a2_recv
---			port map (
---				CLK						 => clk_100_i,
---				RESET_IN			 => reset_i,
---				TIMER_TICK_1US_IN => timer_ticks(0),
---				SERIAL_IN			 => CLK_EXT(3),
---				EXT_TRG_IN		 => CLK_EXT(4),
---				TRG_SYNC_OUT	 => cts_ext_trigger,
---				TRIGGER_IN     => cts_rdo_trg_data_valid,
---				DATA_OUT       => cts_rdo_additional_data(31 downto 0),
---				WRITE_OUT      => cts_rdo_additional_write(0),
---				STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional(31 downto 0),
---				FINISHED_OUT   => cts_rdo_additional_finished(0),
---
---				CONTROL_REG_IN => cts_ext_control,
---				STATUS_REG_OUT => cts_ext_status,
---				HEADER_REG_OUT => cts_ext_header,
---				
---				DEBUG => cts_ext_debug
---				);
---	end generate;
---
---	
---	
---   trigger_in_buf_i(1 downto 0) <= CLK_EXT;
---   trigger_in_buf_i(3 downto 2) <= TRIGGER_EXT(3 downto 2);
---
--- THE_CTS: CTS 
---   generic map (
---      EXTERNAL_TRIGGER_ID  => X"60"+ETM_CHOICE_type'pos(ETM_CHOICE), --, fill in trigger logic enumeration id of external trigger logic
---      TRIGGER_INPUT_COUNT  => 4,
---      TRIGGER_COIN_COUNT   => 4,
---      TRIGGER_PULSER_COUNT => 4,
---      TRIGGER_RAND_PULSER  => 1
---   )
---   port map ( 
---      CLK => clk_100_i,
---      RESET => reset_i,
---      
---      TRIGGERS_IN => trigger_in_buf_i,
---      TRIGGER_BUSY_OUT => trigger_busy_i,
---      TIME_REFERENCE_OUT => cts_trigger_out,
---      
---      EXT_TRIGGER_IN => cts_ext_trigger,
---      EXT_STATUS_IN  => cts_ext_status,
---      EXT_CONTROL_OUT => cts_ext_control,
---      EXT_HEADER_BITS_IN => cts_ext_header,
---      
---      CTS_TRG_SEND_OUT => cts_trg_send,
---      CTS_TRG_TYPE_OUT => cts_trg_type,
---      CTS_TRG_NUMBER_OUT => cts_trg_number,
---      CTS_TRG_INFORMATION_OUT => cts_trg_information,
---      CTS_TRG_RND_CODE_OUT => cts_trg_code,
---      CTS_TRG_STATUS_BITS_IN => cts_trg_status_bits,
---      CTS_TRG_BUSY_IN => cts_trg_busy,
---       
---      CTS_IPU_SEND_OUT => cts_ipu_send,
---      CTS_IPU_TYPE_OUT => cts_ipu_type,
---      CTS_IPU_NUMBER_OUT => cts_ipu_number,
---      CTS_IPU_INFORMATION_OUT => cts_ipu_information,
---      CTS_IPU_RND_CODE_OUT => cts_ipu_code,
---      CTS_IPU_STATUS_BITS_IN => cts_ipu_status_bits,
---      CTS_IPU_BUSY_IN => cts_ipu_busy,
---       
---      CTS_REGIO_ADDR_IN => cts_regio_addr,
---      CTS_REGIO_DATA_IN => cts_regio_data_out,
---      CTS_REGIO_READ_ENABLE_IN => cts_regio_read,
---      CTS_REGIO_WRITE_ENABLE_IN => cts_regio_write,
---      CTS_REGIO_DATA_OUT => cts_regio_data_in,
---      CTS_REGIO_DATAREADY_OUT => cts_regio_dataready,
---      CTS_REGIO_WRITE_ACK_OUT => cts_regio_write_ack,
---      CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
---  
---      LVL1_TRG_DATA_VALID_IN    => cts_rdo_trg_data_valid,
---      LVL1_VALID_TIMING_TRG_IN  => cts_rdo_valid_timing_trg,
---      LVL1_VALID_NOTIMING_TRG_IN=> cts_rdo_valid_notiming_trg,
---      LVL1_INVALID_TRG_IN       => cts_rdo_invalid_trg,
---  
---      FEE_TRG_STATUSBITS_OUT  => cts_rdo_trg_status_bits_cts,
---      FEE_DATA_OUT            => cts_rdo_data,
---      FEE_DATA_WRITE_OUT      => cts_rdo_write,
---      FEE_DATA_FINISHED_OUT   => cts_rdo_finished
---   );   
---   
+-- MBS Module
+	gen_mbs_vulom_as_etm : if ETM_CHOICE = ETM_CHOICE_MBS_VULOM generate
+	THE_MBS: entity work.mbs_vulom_recv
+   port map (
+      CLK => clk_100_i,
+      RESET_IN => reset_i,
+      
+      MBS_IN => CLK_EXT(3),
+      CLK_200 => clk_200_i,
+      
+      -- TRG_ASYNC_OUT => ,
+      TRG_SYNC_OUT => cts_ext_trigger,
+      
+      TRIGGER_IN     => cts_rdo_trg_data_valid,
+      DATA_OUT       => cts_rdo_additional_data(31 downto 0),
+      WRITE_OUT      => cts_rdo_additional_write(0),
+      STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional(31 downto 0),
+      FINISHED_OUT   => cts_rdo_additional_finished(0),
+
+      CONTROL_REG_IN => cts_ext_control,
+      STATUS_REG_OUT => cts_ext_status,
+      HEADER_REG_OUT => cts_ext_header,
+      
+      DEBUG => cts_ext_debug
+   );
+	end generate;
+
+-- Mainz A2 Module
+	gen_mainz_a2_as_etm: if ETM_CHOICE = ETM_CHOICE_MAINZ_A2 generate
+		mainz_a2_recv_1: entity work.mainz_a2_recv
+			port map (
+				CLK						 => clk_100_i,
+				RESET_IN			 => reset_i,
+				TIMER_TICK_1US_IN => timer_ticks(0),
+				SERIAL_IN			 => CLK_EXT(3),
+				EXT_TRG_IN		 => CLK_EXT(4),
+				TRG_SYNC_OUT	 => cts_ext_trigger,
+				TRIGGER_IN     => cts_rdo_trg_data_valid,
+				DATA_OUT       => cts_rdo_additional_data(31 downto 0),
+				WRITE_OUT      => cts_rdo_additional_write(0),
+				STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional(31 downto 0),
+				FINISHED_OUT   => cts_rdo_additional_finished(0),
+
+				CONTROL_REG_IN => cts_ext_control,
+				STATUS_REG_OUT => cts_ext_status,
+				HEADER_REG_OUT => cts_ext_header,
+				
+				DEBUG => cts_ext_debug
+				);
+	end generate;
+
+	
+	
+   trigger_in_buf_i(1 downto 0) <= CLK_EXT;
+   trigger_in_buf_i(3 downto 2) <= TRIGGER_EXT(3 downto 2);
+
+ THE_CTS: CTS 
+   generic map (
+      EXTERNAL_TRIGGER_ID  => X"60"+ETM_CHOICE_type'pos(ETM_CHOICE), --, fill in trigger logic enumeration id of external trigger logic
+      TRIGGER_INPUT_COUNT  => 4,
+      TRIGGER_COIN_COUNT   => 4,
+      TRIGGER_PULSER_COUNT => 4,
+      TRIGGER_RAND_PULSER  => 1
+   )
+   port map ( 
+      CLK => clk_100_i,
+      RESET => reset_i,
+      
+      TRIGGERS_IN => trigger_in_buf_i,
+      TRIGGER_BUSY_OUT => trigger_busy_i,
+      TIME_REFERENCE_OUT => cts_trigger_out,
+      
+      EXT_TRIGGER_IN => cts_ext_trigger,
+      EXT_STATUS_IN  => cts_ext_status,
+      EXT_CONTROL_OUT => cts_ext_control,
+      EXT_HEADER_BITS_IN => cts_ext_header,
+      
+      CTS_TRG_SEND_OUT => cts_trg_send,
+      CTS_TRG_TYPE_OUT => cts_trg_type,
+      CTS_TRG_NUMBER_OUT => cts_trg_number,
+      CTS_TRG_INFORMATION_OUT => cts_trg_information,
+      CTS_TRG_RND_CODE_OUT => cts_trg_code,
+      CTS_TRG_STATUS_BITS_IN => cts_trg_status_bits,
+      CTS_TRG_BUSY_IN => cts_trg_busy,
+       
+      CTS_IPU_SEND_OUT => cts_ipu_send,
+      CTS_IPU_TYPE_OUT => cts_ipu_type,
+      CTS_IPU_NUMBER_OUT => cts_ipu_number,
+      CTS_IPU_INFORMATION_OUT => cts_ipu_information,
+      CTS_IPU_RND_CODE_OUT => cts_ipu_code,
+      CTS_IPU_STATUS_BITS_IN => cts_ipu_status_bits,
+      CTS_IPU_BUSY_IN => cts_ipu_busy,
+       
+      CTS_REGIO_ADDR_IN => cts_regio_addr,
+      CTS_REGIO_DATA_IN => cts_regio_data_out,
+      CTS_REGIO_READ_ENABLE_IN => cts_regio_read,
+      CTS_REGIO_WRITE_ENABLE_IN => cts_regio_write,
+      CTS_REGIO_DATA_OUT => cts_regio_data_in,
+      CTS_REGIO_DATAREADY_OUT => cts_regio_dataready,
+      CTS_REGIO_WRITE_ACK_OUT => cts_regio_write_ack,
+      CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
+  
+      LVL1_TRG_DATA_VALID_IN    => cts_rdo_trg_data_valid,
+      LVL1_VALID_TIMING_TRG_IN  => cts_rdo_valid_timing_trg,
+      LVL1_VALID_NOTIMING_TRG_IN=> cts_rdo_valid_notiming_trg,
+      LVL1_INVALID_TRG_IN       => cts_rdo_invalid_trg,
+  
+      FEE_TRG_STATUSBITS_OUT  => cts_rdo_trg_status_bits_cts,
+      FEE_DATA_OUT            => cts_rdo_data,
+      FEE_DATA_WRITE_OUT      => cts_rdo_write,
+      FEE_DATA_FINISHED_OUT   => cts_rdo_finished
+   );   
+   
 --    cts_rdo_trg_status_bits <= cts_rdo_trg_status_bits_cts OR cts_rdo_trg_status_bits_additional;
    
 ---------------------------------------------------------------------------
@@ -1248,91 +1248,91 @@ THE_FPGA_REBOOT : fpga_reboot
 -------------------------------------------------------------------------------
 -- TDC
 -------------------------------------------------------------------------------
---gen_TDC : if INCLUDE_TDC = c_YES generate
---  THE_TDC : TDC
---    generic map (
---      CHANNEL_NUMBER => 5,             -- Number of TDC channels
---      CONTROL_REG_NR => 5)
---    port map (
---      RESET                 => reset_i,
---      CLK_TDC               => CLK_PCLK_RIGHT,  -- Clock used for the time measurement
---      CLK_READOUT           => clk_100_i,   -- Clock for the readout
---      REFERENCE_TIME        => cts_trigger_out,  -- Reference time input
---      HIT_IN                => trigger_in_buf_i,  -- Channel start signals
---      HIT_CALIBRATION       => clk_20_i,    -- Hits for calibrating the TDC
---      TRG_WIN_PRE           => tdc_ctrl_reg(42 downto 32),  -- Pre-Trigger window width
---      TRG_WIN_POST          => tdc_ctrl_reg(58 downto 48),  -- Post-Trigger window width
---      --
---      
---      -- Trigger signals from handler
---      TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,  -- trig data valid signal from trbnet
---      VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,  -- valid timing trigger signal from trbnet
---      VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,  -- valid notiming signal from trbnet
---      INVALID_TRG_IN        => cts_rdo_invalid_trg,  -- invalid trigger signal from trbnet
---      TMGTRG_TIMEOUT_IN     => '0',  -- timing trigger timeout signal from trbnet
---      SPIKE_DETECTED_IN     => '0',
---      MULTI_TMG_TRG_IN      => '0',
---      SPURIOUS_TRG_IN       => '0',
---      --
---      TRG_NUMBER_IN         => cts_rdo_trg_number,  -- LVL1 trigger information package
---      TRG_CODE_IN           => cts_rdo_trg_code,  --
---      TRG_INFORMATION_IN    => cts_rdo_trg_information,   --
---      TRG_TYPE_IN           => cts_rdo_trg_type,  -- LVL1 trigger information package
---      --Response to handler
-----       TRG_RELEASE_OUT       => fee_trg_release_i,   -- trigger release signal
---      TRG_STATUSBIT_OUT     => cts_rdo_trg_status_bits_additional(63 downto 32),  -- status information of the tdc
---      DATA_OUT              => cts_rdo_additional_data(63 downto 32),  -- tdc data
---      DATA_WRITE_OUT        => cts_rdo_additional_write(1),  -- data valid signal
---      DATA_FINISHED_OUT     => cts_rdo_additional_finished(1),  -- readout finished signal
---      --
---      --Hit Counter Bus
---      HCB_READ_EN_IN        => hitreg_read_en,    -- bus read en strobe
---      HCB_WRITE_EN_IN       => hitreg_write_en,   -- bus write en strobe
---      HCB_ADDR_IN           => hitreg_addr,   -- bus address
---      HCB_DATA_OUT          => hitreg_data_out,   -- bus data
---      HCB_DATAREADY_OUT     => hitreg_data_ready,   -- bus data ready strobe
---      HCB_UNKNOWN_ADDR_OUT  => hitreg_invalid,    -- bus invalid addr
---      --Status Registers Bus
---      SRB_READ_EN_IN        => srb_read_en,   -- bus read en strobe
---      SRB_WRITE_EN_IN       => srb_write_en,  -- bus write en strobe
---      SRB_ADDR_IN           => srb_addr,    -- bus address
---      SRB_DATA_OUT          => srb_data_out,  -- bus data
---      SRB_DATAREADY_OUT     => srb_data_ready,    -- bus data ready strobe
---      SRB_UNKNOWN_ADDR_OUT  => srb_invalid,   -- bus invalid addr
---      --Encoder Start Registers Bus
---      ESB_READ_EN_IN        => esb_read_en,   -- bus read en strobe
---      ESB_WRITE_EN_IN       => esb_write_en,  -- bus write en strobe
---      ESB_ADDR_IN           => esb_addr,    -- bus address
---      ESB_DATA_OUT          => esb_data_out,  -- bus data
---      ESB_DATAREADY_OUT     => esb_data_ready,    -- bus data ready strobe
---      ESB_UNKNOWN_ADDR_OUT  => esb_invalid,   -- bus invalid addr
---      --Fifo Write Registers Bus
---      EFB_READ_EN_IN        => fwb_read_en,   -- bus read en strobe
---      EFB_WRITE_EN_IN       => fwb_write_en,  -- bus write en strobe
---      EFB_ADDR_IN           => fwb_addr,    -- bus address
---      EFB_DATA_OUT          => fwb_data_out,  -- bus data
---      EFB_DATAREADY_OUT     => fwb_data_ready,    -- bus data ready strobe
---      EFB_UNKNOWN_ADDR_OUT  => fwb_invalid,   -- bus invalid addr
---      --Lost Hit Registers Bus
---      LHB_READ_EN_IN        => '0', -- lhb_read_en,   -- bus read en strobe
---      LHB_WRITE_EN_IN       => '0', -- lhb_write_en,  -- bus write en strobe
---      LHB_ADDR_IN           => (others => '0'), -- lhb_addr,    -- bus address
---      LHB_DATA_OUT          => open, -- lhb_data_out,  -- bus data
---      LHB_DATAREADY_OUT     => open, -- lhb_data_ready,    -- bus data ready strobe
---      LHB_UNKNOWN_ADDR_OUT  => open, -- lhb_invalid,   -- bus invalid addr
---      --
---      LOGIC_ANALYSER_OUT    => tdc_debug,
---      CONTROL_REG_IN        => tdc_ctrl_reg
---      );
---end generate;    
---
---gen_no_TDC : if INCLUDE_TDC = c_NO generate
---  
---  srb_invalid <= '1';
---  esb_invalid <= '1';
---  fwb_invalid <= '1';
---  hitreg_invalid  <= '1';
---end generate;
+gen_TDC : if INCLUDE_TDC = c_YES generate
+  THE_TDC : TDC
+    generic map (
+      CHANNEL_NUMBER => 5,             -- Number of TDC channels
+      CONTROL_REG_NR => 5)
+    port map (
+      RESET                 => reset_i,
+      CLK_TDC               => CLK_PCLK_RIGHT,  -- Clock used for the time measurement
+      CLK_READOUT           => clk_100_i,   -- Clock for the readout
+      REFERENCE_TIME        => cts_trigger_out,  -- Reference time input
+      HIT_IN                => trigger_in_buf_i,  -- Channel start signals
+      HIT_CALIBRATION       => clk_20_i,    -- Hits for calibrating the TDC
+      TRG_WIN_PRE           => tdc_ctrl_reg(42 downto 32),  -- Pre-Trigger window width
+      TRG_WIN_POST          => tdc_ctrl_reg(58 downto 48),  -- Post-Trigger window width
+      --
+      
+      -- Trigger signals from handler
+      TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,  -- trig data valid signal from trbnet
+      VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,  -- valid timing trigger signal from trbnet
+      VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,  -- valid notiming signal from trbnet
+      INVALID_TRG_IN        => cts_rdo_invalid_trg,  -- invalid trigger signal from trbnet
+      TMGTRG_TIMEOUT_IN     => '0',  -- timing trigger timeout signal from trbnet
+      SPIKE_DETECTED_IN     => '0',
+      MULTI_TMG_TRG_IN      => '0',
+      SPURIOUS_TRG_IN       => '0',
+      --
+      TRG_NUMBER_IN         => cts_rdo_trg_number,  -- LVL1 trigger information package
+      TRG_CODE_IN           => cts_rdo_trg_code,  --
+      TRG_INFORMATION_IN    => cts_rdo_trg_information,   --
+      TRG_TYPE_IN           => cts_rdo_trg_type,  -- LVL1 trigger information package
+      --Response to handler
+--       TRG_RELEASE_OUT       => fee_trg_release_i,   -- trigger release signal
+      TRG_STATUSBIT_OUT     => cts_rdo_trg_status_bits_additional(63 downto 32),  -- status information of the tdc
+      DATA_OUT              => cts_rdo_additional_data(63 downto 32),  -- tdc data
+      DATA_WRITE_OUT        => cts_rdo_additional_write(1),  -- data valid signal
+      DATA_FINISHED_OUT     => cts_rdo_additional_finished(1),  -- readout finished signal
+      --
+      --Hit Counter Bus
+      HCB_READ_EN_IN        => hitreg_read_en,    -- bus read en strobe
+      HCB_WRITE_EN_IN       => hitreg_write_en,   -- bus write en strobe
+      HCB_ADDR_IN           => hitreg_addr,   -- bus address
+      HCB_DATA_OUT          => hitreg_data_out,   -- bus data
+      HCB_DATAREADY_OUT     => hitreg_data_ready,   -- bus data ready strobe
+      HCB_UNKNOWN_ADDR_OUT  => hitreg_invalid,    -- bus invalid addr
+      --Status Registers Bus
+      SRB_READ_EN_IN        => srb_read_en,   -- bus read en strobe
+      SRB_WRITE_EN_IN       => srb_write_en,  -- bus write en strobe
+      SRB_ADDR_IN           => srb_addr,    -- bus address
+      SRB_DATA_OUT          => srb_data_out,  -- bus data
+      SRB_DATAREADY_OUT     => srb_data_ready,    -- bus data ready strobe
+      SRB_UNKNOWN_ADDR_OUT  => srb_invalid,   -- bus invalid addr
+      --Encoder Start Registers Bus
+      ESB_READ_EN_IN        => esb_read_en,   -- bus read en strobe
+      ESB_WRITE_EN_IN       => esb_write_en,  -- bus write en strobe
+      ESB_ADDR_IN           => esb_addr,    -- bus address
+      ESB_DATA_OUT          => esb_data_out,  -- bus data
+      ESB_DATAREADY_OUT     => esb_data_ready,    -- bus data ready strobe
+      ESB_UNKNOWN_ADDR_OUT  => esb_invalid,   -- bus invalid addr
+      --Fifo Write Registers Bus
+      EFB_READ_EN_IN        => fwb_read_en,   -- bus read en strobe
+      EFB_WRITE_EN_IN       => fwb_write_en,  -- bus write en strobe
+      EFB_ADDR_IN           => fwb_addr,    -- bus address
+      EFB_DATA_OUT          => fwb_data_out,  -- bus data
+      EFB_DATAREADY_OUT     => fwb_data_ready,    -- bus data ready strobe
+      EFB_UNKNOWN_ADDR_OUT  => fwb_invalid,   -- bus invalid addr
+      --Lost Hit Registers Bus
+      LHB_READ_EN_IN        => '0', -- lhb_read_en,   -- bus read en strobe
+      LHB_WRITE_EN_IN       => '0', -- lhb_write_en,  -- bus write en strobe
+      LHB_ADDR_IN           => (others => '0'), -- lhb_addr,    -- bus address
+      LHB_DATA_OUT          => open, -- lhb_data_out,  -- bus data
+      LHB_DATAREADY_OUT     => open, -- lhb_data_ready,    -- bus data ready strobe
+      LHB_UNKNOWN_ADDR_OUT  => open, -- lhb_invalid,   -- bus invalid addr
+      --
+      LOGIC_ANALYSER_OUT    => tdc_debug,
+      CONTROL_REG_IN        => tdc_ctrl_reg
+      );
+end generate;    
+
+gen_no_TDC : if INCLUDE_TDC = c_NO generate
+  
+  srb_invalid <= '1';
+  esb_invalid <= '1';
+  fwb_invalid <= '1';
+  hitreg_invalid  <= '1';
+end generate;
 
 
 ---------------------------------------------------------------------------
