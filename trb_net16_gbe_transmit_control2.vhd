@@ -63,7 +63,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
+type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, SEND_THREE, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq, tc_rd_qqq : std_logic;
@@ -111,7 +111,7 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
+				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then --x"1") then
 					transmit_next_state <= SEND_ONE;
 				else
 					transmit_next_state <= TRANSMIT;
@@ -122,6 +122,9 @@ begin
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
+			transmit_next_state <= SEND_THREE; --CLOSE;
+			
+		when SEND_THREE =>
 			transmit_next_state <= CLOSE;
 			
 		when CLOSE =>
