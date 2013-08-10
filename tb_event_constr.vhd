@@ -277,7 +277,7 @@ port map(
 );
 
 
-g_MAX_FRAME_SIZE <= x"0100";
+g_MAX_FRAME_SIZE <= x"0578";
 
 
 -- 125 MHz MAC clock
@@ -367,7 +367,7 @@ begin
 		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
 		
 		--test_data_len := 9685;
-		test_data_len := 182; --26; --100; -- + (1 - J) * 200;
+		test_data_len := 1250; --182; --26; --100; -- + (1 - J) * 200;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
@@ -501,20 +501,17 @@ begin
 		
 -- REPLY TESTBENCH
 	
-	for k in 0 to 100 loop
-	
-		wait until rising_edge(clk);
-		gsc_reply_dataready <= '1';
-		gsc_busy <= '1';
-		gsc_reply_data <= std_logic_vector(to_unsigned(k, 16));
-			
-	end loop;
-	wait until rising_edge(clk);
-	gsc_reply_dataready <= '0';
-	gsc_busy <= '0';
-	
-	--wait for 100 ns;
-	--selected <= '1';
+--	for k in 0 to 100 loop
+--	
+--		wait until rising_edge(clk);
+--		gsc_reply_dataready <= '1';
+--		gsc_busy <= '1';
+--		gsc_reply_data <= std_logic_vector(to_unsigned(k, 16));
+--			
+--	end loop;
+--	wait until rising_edge(clk);
+--	gsc_reply_dataready <= '0';
+--	gsc_busy <= '0';
 		
 		--wait for 10 us;
 
