@@ -80,6 +80,7 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
 signal load_additional_one : std_logic;
+signal qsf_rd_en_comb, shf_rd_en_comb, df_rd_en_comb : std_logic;
 
 begin
 
@@ -535,7 +536,16 @@ end process TC_SOD_PROC;
 --*****
 -- read from fifos
 
-df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or 
+READ_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		df_rd_en <= df_rd_en_comb;
+		shf_rd_en <= shf_rd_en_comb;
+		qsf_rd_en <= qsf_rd_en_comb;
+	end if;
+end process READ_SYNC;
+
+df_rd_en_comb <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or 
 					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1') or 
 					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1') or
 					(load_additional_one = '1')
@@ -554,7 +564,7 @@ begin
 	end if;
 end process LOAD_ADDITIONAL_ONE_PROC;
 
-shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
+shf_rd_en_comb <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1')
 					else '0';
 
@@ -571,7 +581,7 @@ begin
 	end if;
 end process QUEUE_FIFO_RD_PROC;
 
-qsf_rd_en <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
+qsf_rd_en_comb <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
 
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
