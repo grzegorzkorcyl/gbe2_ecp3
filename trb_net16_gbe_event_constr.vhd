@@ -483,11 +483,11 @@ HEADER_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
-			header_ctr <= 3;
+			header_ctr <= 4; --3;
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
-			header_ctr <= 15;
+			header_ctr <= 16; --15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
@@ -498,8 +498,8 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		--elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
-		elsif (tc_rd_q = '1' and header_ctr /= 0) then
+		elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
+		--elsif (tc_rd_q = '1' and header_ctr /= 0) then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
