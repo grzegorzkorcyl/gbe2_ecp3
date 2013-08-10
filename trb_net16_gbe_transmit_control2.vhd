@@ -63,7 +63,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, SEND_THREE, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
+type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, PREP_LOAD, TRANSMIT, SEND_ONE, SEND_TWO, SEND_THREE, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq, tc_rd_qqq : std_logic;
@@ -102,10 +102,13 @@ begin
 		
 		when WAIT_FOR_H =>
 			if (FC_H_READY_IN = '1') then
-				transmit_next_state <= TRANSMIT;
+				transmit_next_state <= PREP_LOAD; --TRANSMIT;
 			else
 				transmit_next_state <= WAIT_FOR_H;
 			end if;
+			
+		when PREP_LOAD =>
+			transmit_next_state <= TRANSMIT;
 		
 		when TRANSMIT =>
 			if (local_end = x"0000") then
@@ -150,7 +153,7 @@ begin
 	end case;
 end process TRANSMIT_MACHINE;
 
-tc_rd               <= '1' when transmit_current_state = TRANSMIT else '0';
+tc_rd               <= '1' when transmit_current_state = TRANSMIT or transmit_current_state = PREP_LOAD else '0';
 TC_RD_EN_OUT        <= tc_rd;
 
 SYNC_PROC : process(CLK)
