@@ -340,7 +340,7 @@ begin
 	
 	wait for 1 us;
 	
-		MY_TRIGGER_LOOP: for J in 0 to 10 loop
+		MY_TRIGGER_LOOP: for J in 0 to 0 loop
 		-- generate a real random byte for CTS
 		UNIFORM(seed1, seed2, rand);
 		int_rand := INTEGER(TRUNC(rand*256.0));
@@ -367,7 +367,7 @@ begin
 		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
 		
 		--test_data_len := 9685;
-		test_data_len := 3000; --182; --26; --100; -- + (1 - J) * 200;
+		test_data_len := 25000; --182; --26; --100; -- + (1 - J) * 200;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
