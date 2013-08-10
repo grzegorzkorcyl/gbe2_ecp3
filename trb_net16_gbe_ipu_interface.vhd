@@ -318,7 +318,7 @@ begin
 end process FEE_READ_PROC;
 
 
-THE_SPLIT_FIFO: fifo_16kx18x9 --fifo_32kx16x8_mb2
+THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
 	Data(7 downto 0)  => sf_data(15 downto 8),
@@ -331,12 +331,12 @@ port map(
 	RdEn              => sf_rd_en,
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
-	AmEmptyThresh     => b"000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
-	AmFullThresh      => b"11_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
+	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
+	AmFullThresh      => b"111_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
---	WCNT              => open,
---	RCNT              => open,
+	WCNT              => open,
+	RCNT              => open,
 	Empty             => sf_empty,
 	AlmostEmpty       => open,
 	Full              => sf_full,
