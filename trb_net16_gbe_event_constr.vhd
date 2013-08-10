@@ -81,6 +81,7 @@ signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
 signal load_additional_one : std_logic;
 signal qsf_rd_en_comb, shf_rd_en_comb, df_rd_en_comb : std_logic;
+signal tc_rd_q : std_logic;
 
 begin
 
@@ -497,7 +498,8 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
+		--elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
+		elsif (tc_rd_q = '1' and header_ctr /= 0) then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
@@ -542,6 +544,7 @@ begin
 		df_rd_en <= df_rd_en_comb;
 		shf_rd_en <= shf_rd_en_comb;
 		qsf_rd_en <= qsf_rd_en_comb;
+		tc_rd_q <= TC_RD_EN_IN;
 	end if;
 end process READ_SYNC;
 
@@ -601,7 +604,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			termination <= (others => '0');
-		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
+		--elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
+		elsif (tc_rd_q = '1' and term_ctr /= 33 and term_ctr /= 0) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
 			for I in 0 to 7 loop
@@ -624,7 +628,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			term_ctr <= 0;
-		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33) then
+		--elsif (TC_RD_EN_IN = '1' and term_ctr /= 33) then
+		elsif (tc_rd_q = '1' and term_ctr /= 33) then
 			term_ctr <= term_ctr + 1;
 		end if;
 	end if;
