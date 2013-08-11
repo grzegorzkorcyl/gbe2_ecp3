@@ -307,17 +307,16 @@ begin
 	end if;
 end process TX_FIFO_WR_SYNC;
 
---TX_FIFO_RD_SYNC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and tx_frame_loaded /= g_MAX_FRAME_SIZE) then
---			tx_fifo_rd <= '1';
---		else
---			tx_fifo_rd <= '0';
---		end if;
---	end if;
---end process TX_FIFO_RD_SYNC;
-tx_fifo_rd <= '1' when TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1' else '0';
+TX_FIFO_RD_SYNC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (TC_RD_EN_IN = '1' and PS_SELECTED_IN = '1') then
+			tx_fifo_rd <= '1';
+		else
+			tx_fifo_rd <= '0';
+		end if;
+	end if;
+end process TX_FIFO_RD_SYNC;
 		
 TX_FIFO_SYNC_PROC : process(CLK)
 begin
@@ -330,21 +329,11 @@ begin
 	end if;
 end process TX_FIFO_SYNC_PROC;
 
---TC_WR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		tc_wr <= tx_fifo_rd;
---		
---		TC_WR_EN_OUT <= tc_wr;
---	end if;
---end process TC_WR_PROC;
-
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
-		
-		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
+
 		if (tx_loaded_ctr = tx_data_ctr) then
 			TC_DATA_OUT(8) <= '1';
 		else
