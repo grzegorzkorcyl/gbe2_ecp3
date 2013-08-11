@@ -487,7 +487,7 @@ begin
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			header_ctr <= 9;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
-			header_ctr <= 15;
+			header_ctr <= 14;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
