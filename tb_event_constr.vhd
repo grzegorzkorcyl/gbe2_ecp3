@@ -338,8 +338,6 @@ begin
 	wait for 100 ns;
 	reset <= '0';
 	
-	wait;
-	
 	wait for 1 us;
 	
 		MY_TRIGGER_LOOP: for J in 0 to 0 loop
