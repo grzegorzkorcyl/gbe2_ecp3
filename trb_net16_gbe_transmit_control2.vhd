@@ -63,7 +63,7 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, PREP_LOAD, TRANSMIT, SEND_ONE, SEND_TWO, SEND_THREE, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
+type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, PREP_LOAD, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
 signal tc_rd, tc_rd_q, tc_rd_qq, tc_rd_qqq : std_logic;
@@ -125,10 +125,10 @@ begin
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
-			transmit_next_state <= SEND_THREE; --CLOSE;
+			transmit_next_state <= CLOSE; --SEND_THREE; --CLOSE;
 			
-		when SEND_THREE =>
-			transmit_next_state <= CLOSE;
+--		when SEND_THREE =>
+--			transmit_next_state <= CLOSE;
 			
 		when CLOSE =>
 			transmit_next_state <= WAIT_FOR_TRANS;
@@ -202,7 +202,7 @@ LOCAL_END_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE and TC_DATAREADY_IN = '1') then
-			local_end <= TC_FRAME_SIZE_IN;
+			local_end <= TC_FRAME_SIZE_IN - x"1";
 			full_packet_size <= TC_FRAME_SIZE_IN;
 		elsif (transmit_current_state = TRANSMIT) then
 			local_end <= local_end - x"1";
