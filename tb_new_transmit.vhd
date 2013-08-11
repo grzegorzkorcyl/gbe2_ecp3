@@ -53,7 +53,7 @@ signal response_ready, selected, dhcp_start, mc_busy : std_logic;
 
 signal ps_data : std_logic_vector(8 downto 0);
 signal ps_wr_en, ps_rd_en, ps_frame_ready : std_logic;
-signal ps_proto, ps_busy : std_logic_vector(4 downto 0);
+signal ps_proto, ps_busy : std_logic_vector(5 downto 0);
 signal ps_frame_size : std_logic_vector(15 downto 0);
 
 signal gsc_reply_dataready, gsc_busy : std_logic;
@@ -287,7 +287,7 @@ begin
 	mc_busy <= '0';
 	ps_wr_en <= '0';
 	ps_data <= '0' & x"00";
-	ps_proto <= "0000";
+	ps_proto <= "00000";
 	gsc_reply_data <= (others => '0');
 	gsc_reply_dataready <= '0';
 	gsc_busy <= '0'; 
