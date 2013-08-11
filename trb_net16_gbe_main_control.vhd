@@ -501,16 +501,9 @@ begin
 				flow_next_state <= IDLE;
 			end if;
 			
---		when WAIT_FOR_H =>
---			if (TC_FC_H_READY_IN = '1') then
---				flow_next_state <= TRANSMIT_CTRL;
---			else
---				flow_next_state <= WAIT_FOR_H;
---			end if;
-			
 		when TRANSMIT_CTRL =>
 			if (tc_data(8) = '1') then
-				flow_next_state <= WAIT_FOR_FC; --CLEANUP;
+				flow_next_state <= WAIT_FOR_FC;
 			else
 				flow_next_state <= TRANSMIT_CTRL;
 			end if;
