@@ -487,7 +487,7 @@ begin
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
-			header_ctr <= 16; --15;
+			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
@@ -568,7 +568,8 @@ begin
 end process LOAD_ADDITIONAL_ONE_PROC;
 
 shf_rd_en_comb <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1')
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 1 and TC_RD_EN_IN = '1')
 					else '0';
 
 QUEUE_FIFO_RD_PROC : process(CLK)
