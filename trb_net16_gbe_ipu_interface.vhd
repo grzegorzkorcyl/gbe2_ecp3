@@ -644,7 +644,7 @@ begin
 		
 		--sf_eod_qq <= sf_eod_q;
 		--PC_EOD_OUT <= sf_eod_qq;
-		PC_EOD_OUT <= sf_eod_q;
+		PC_EOD_OUT <= sf_eod; --_q;
 	end if;
 end process PC_EOD_PROC;
 
