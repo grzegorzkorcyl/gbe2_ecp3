@@ -114,7 +114,7 @@ begin
 			if (local_end = x"0000") then
 				transmit_next_state <= SEND_ONE;
 			else
-				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"2") then --x"1") then
+				if (actual_frame_bytes = g_MAX_FRAME_SIZE - x"1") then
 					transmit_next_state <= SEND_ONE;
 				else
 					transmit_next_state <= TRANSMIT;
@@ -202,7 +202,7 @@ LOCAL_END_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (transmit_current_state = IDLE and TC_DATAREADY_IN = '1') then
-			local_end <= TC_FRAME_SIZE_IN - x"1";
+			local_end <= TC_FRAME_SIZE_IN;
 			full_packet_size <= TC_FRAME_SIZE_IN;
 		elsif (transmit_current_state = TRANSMIT) then
 			local_end <= local_end - x"1";
