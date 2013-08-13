@@ -98,7 +98,7 @@ signal load_ctr                 : integer range 0 to 600 := 0;
 
 signal bootp_hdr                : std_logic_vector(95 downto 0);
 
-signal tc_data, tc_data_q       : std_logic_vector(8 downto 0);
+signal tc_data                  : std_logic_vector(8 downto 0);
 signal vendor_values            : std_logic_vector(175 downto 0);
 signal save_ctr                 : integer range 0 to 600 := 0;
 signal saved_transaction_id     : std_logic_vector(31 downto 0);
@@ -637,8 +637,7 @@ begin
 		
 		end case;
 
-		tc_data_q    <= tc_data;
-		TC_DATA_OUT  <= tc_data_q;
+		TC_DATA_OUT  <= tc_data;
 				
 	end if;
 end process;

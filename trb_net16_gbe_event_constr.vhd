@@ -56,11 +56,11 @@ type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
 
 signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
-signal df_q : std_logic_vector(7 downto 0);
+signal df_q, df_qq : std_logic_vector(7 downto 0);
 	
 signal header_ctr : integer range 0 to 31;
 
-signal shf_data, shf_q : std_logic_vector(7 downto 0);
+signal shf_data, shf_q, shf_qq : std_logic_vector(7 downto 0);
 signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
 signal sub_int_ctr : integer range 0 to 3;
 signal sub_size_to_save : std_logic_vector(31 downto 0);
@@ -68,7 +68,7 @@ signal sub_size_to_save : std_logic_vector(31 downto 0);
 signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data : std_logic_vector(31 downto 0);
-signal qsf_q : std_logic_vector(7 downto 0);
+signal qsf_q, qsf_qq : std_logic_vector(7 downto 0);
 signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
@@ -79,9 +79,6 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
-signal load_additional_one : std_logic;
-signal qsf_rd_en_comb, shf_rd_en_comb, df_rd_en_comb : std_logic;
-signal tc_rd_q : std_logic;
 
 begin
 
@@ -149,7 +146,7 @@ begin
 end process DF_WR_EN_PROC;
 
 
-DATA_FIFO : fifo_64kx9 --fifo_32k_9 --fifo_64kx9
+DATA_FIFO : fifo_64kx9
 port map(
 	Data(7 downto 0) =>  PC_DATA_IN,
 	Data(8)          =>  df_eod,
@@ -165,6 +162,13 @@ port map(
 	Full             =>  df_full
 );
 
+DF_QQ_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		df_qq <= df_q;
+	end if;
+end process DF_QQ_PROC;
+
 PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 
 --*****
@@ -173,7 +177,6 @@ PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
 SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3 --fifo_512x8 --fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
---	Clock		=> CLK,
 	WrClock       =>  CLK,
 	RdClock		=> CLK,
 	WrEn        =>  shf_wr_en,
@@ -195,6 +198,13 @@ begin
 		end if;
 	end if;
 end process SHF_WR_EN_PROC;
+
+SHF_Q_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		shf_qq <= shf_q;
+	end if;
+end process SHF_Q_PROC;
 
 SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
 begin
@@ -419,7 +429,7 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= GET_Q_SIZE;
+				load_next_state <= GET_Q_SIZE; --PUT_Q_HEADERS;
 			else
 				load_next_state <= IDLE;
 			end if;
@@ -485,7 +495,7 @@ begin
 		if (load_current_state = IDLE) then
 			header_ctr <= 3;
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
-			header_ctr <= 9;
+			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
@@ -498,8 +508,7 @@ begin
 			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
-		elsif (TC_RD_EN_IN = '1' and header_ctr /= 0) then
-		--elsif (tc_rd_q = '1' and header_ctr /= 0) then
+		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
 			else
@@ -538,38 +547,13 @@ end process TC_SOD_PROC;
 --*****
 -- read from fifos
 
-READ_SYNC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		df_rd_en <= df_rd_en_comb;
-		shf_rd_en <= shf_rd_en_comb;
-	--	qsf_rd_en <= qsf_rd_en_comb;
-		tc_rd_q <= TC_RD_EN_IN;
-	end if;
-end process READ_SYNC;
-
-df_rd_en_comb <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or 
-					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1') or
-					(load_additional_one = '1')
+df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or 
+					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1') or 
+					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1')
 					else '0';
-					
-LOAD_ADDITIONAL_ONE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (load_current_state = IDLE) then
-			load_additional_one <= '0';
-		elsif (load_current_state = LOAD_DATA and load_eod = '1' and TC_RD_EN_IN = '0') then
-			load_additional_one <= '1';
-		else
-			load_additional_one <= load_additional_one;
-		end if;			
-	end if;
-end process LOAD_ADDITIONAL_ONE_PROC;
 
-shf_rd_en_comb <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_Q_HEADERS and header_ctr = 1 and TC_RD_EN_IN = '1')
+shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1')
 					else '0';
 
 QUEUE_FIFO_RD_PROC : process(CLK)
@@ -579,15 +563,13 @@ begin
 			qsf_rd_en_q <= '1';
 		elsif (load_current_state = IDLE and qsf_empty = '0') then
 			qsf_rd_en_q <= '1';
-		elsif (load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1') then
-			qsf_rd_en_q <= '1';
 		else 
 			qsf_rd_en_q <= '0';
 		end if;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
-qsf_rd_en <= qsf_rd_en_q;
---qsf_rd_en_comb <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
+
+qsf_rd_en <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
 
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
@@ -607,8 +589,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			termination <= (others => '0');
-		--elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
-		elsif (tc_rd_q = '1' and term_ctr /= 33 and term_ctr /= 0) then
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
 			for I in 0 to 7 loop
@@ -631,8 +612,7 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			term_ctr <= 0;
-		--elsif (TC_RD_EN_IN = '1' and term_ctr /= 33) then
-		elsif (tc_rd_q = '1' and term_ctr /= 33) then
+		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33) then
 			term_ctr <= term_ctr + 1;
 		end if;
 	end if;

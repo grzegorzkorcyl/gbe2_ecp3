@@ -81,7 +81,7 @@ signal saved_sender_ip          : std_logic_vector(31 downto 0);
 signal saved_target_ip          : std_logic_vector(31 downto 0);
 signal data_ctr                 : integer range 0 to 30;
 signal values                   : std_logic_vector(223 downto 0);
-signal tc_data, tc_data_q       : std_logic_vector(8 downto 0);
+signal tc_data                  : std_logic_vector(8 downto 0);
 
 signal state                    : std_logic_vector(3 downto 0);
 signal rec_frames               : std_logic_vector(15 downto 0);
@@ -255,8 +255,7 @@ begin
 			tc_data(7 downto 0) <= (others => '0');	
 		end if;
 		
-		tc_data_q   <= tc_data;
-		TC_DATA_OUT <= tc_data_q;
+		TC_DATA_OUT <= tc_data;
 		
 	end if;	
 end process TC_DATA_PROC;

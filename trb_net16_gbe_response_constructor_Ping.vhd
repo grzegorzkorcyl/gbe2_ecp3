@@ -87,7 +87,7 @@ signal saved_headers            : std_logic_vector(63 downto 0);
 
 signal data_ctr                 : integer range 1 to 1500;
 signal data_length              : integer range 1 to 1500;
-signal tc_data, tc_data_q       : std_logic_vector(8 downto 0);
+signal tc_data                  : std_logic_vector(8 downto 0);
 
 signal checksum                 : std_logic_vector(15 downto 0);
 
@@ -284,8 +284,7 @@ begin
 			tc_data(7 downto 0) <= (others => '0');	
 		end if;
 		
-		tc_data_q   <= tc_data;
-		TC_DATA_OUT <= tc_data_q;
+		TC_DATA_OUT <= tc_data;
 		
 	end if;
 end process TC_DATA_PROC;

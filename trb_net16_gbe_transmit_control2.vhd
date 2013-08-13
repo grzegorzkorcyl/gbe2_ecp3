@@ -63,10 +63,10 @@ end trb_net16_gbe_transmit_control2;
 
 architecture trb_net16_gbe_transmit_control2 of trb_net16_gbe_transmit_control2 is
 
-type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, PREP_LOAD, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
+type transmit_states is (IDLE, PREPARE_HEADERS, WAIT_FOR_H, TRANSMIT, SEND_ONE, SEND_TWO, CLOSE, WAIT_FOR_TRANS, DIVIDE, CLEANUP);
 signal transmit_current_state, transmit_next_state : transmit_states;
 
-signal tc_rd, tc_rd_q, tc_rd_qq, tc_rd_qqq : std_logic;
+signal tc_rd, tc_rd_q, tc_rd_qq : std_logic;
 signal local_end : std_logic_vector(15 downto 0);
 
 signal actual_frame_bytes, full_packet_size, ip_size, packet_loaded_bytes : std_logic_vector(15 downto 0);
@@ -102,13 +102,10 @@ begin
 		
 		when WAIT_FOR_H =>
 			if (FC_H_READY_IN = '1') then
-				transmit_next_state <= PREP_LOAD; --TRANSMIT;
+				transmit_next_state <= TRANSMIT;
 			else
 				transmit_next_state <= WAIT_FOR_H;
 			end if;
-			
-		when PREP_LOAD =>
-			transmit_next_state <= TRANSMIT;
 		
 		when TRANSMIT =>
 			if (local_end = x"0000") then
@@ -125,10 +122,7 @@ begin
 			transmit_next_state <= SEND_TWO;
 			
 		when SEND_TWO =>
-			transmit_next_state <= CLOSE; --SEND_THREE; --CLOSE;
-			
---		when SEND_THREE =>
---			transmit_next_state <= CLOSE;
+			transmit_next_state <= CLOSE;
 			
 		when CLOSE =>
 			transmit_next_state <= WAIT_FOR_TRANS;
@@ -153,7 +147,7 @@ begin
 	end case;
 end process TRANSMIT_MACHINE;
 
-tc_rd               <= '1' when transmit_current_state = TRANSMIT or transmit_current_state = PREP_LOAD else '0';
+tc_rd               <= '1' when transmit_current_state = TRANSMIT else '0';
 TC_RD_EN_OUT        <= tc_rd;
 
 SYNC_PROC : process(CLK)
@@ -161,8 +155,7 @@ begin
 	if rising_edge(CLK) then
 		tc_rd_q <= tc_rd;
 		tc_rd_qq <= tc_rd_q;
-		tc_rd_qqq <= tc_rd_qq;
-		FC_WR_EN_OUT <= tc_rd_qqq;
+		FC_WR_EN_OUT <= tc_rd_qq;
 	end if;
 end process SYNC_PROC;
 
