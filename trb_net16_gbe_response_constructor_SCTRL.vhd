@@ -171,7 +171,7 @@ RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "010") then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
