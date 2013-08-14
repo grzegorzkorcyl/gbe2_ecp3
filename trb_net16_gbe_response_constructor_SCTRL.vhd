@@ -187,7 +187,7 @@ begin
 		if (dissect_current_state = IDLE) then
 			saved_hdr_ctr <= "001";
 		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "100") then
-			saved_hdr_ctr(2 downto 1) <= saved_hdr_ctr(1 downto 0) & '0';
+			saved_hdr_ctr(2 downto 0) <= saved_hdr_ctr(1 downto 0) & '0';
 		else
 			saved_hdr_ctr <= saved_hdr_ctr;
 		end if;
