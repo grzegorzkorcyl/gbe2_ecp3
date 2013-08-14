@@ -197,12 +197,17 @@ end process SAVED_HDR_CTR_PROC;
 SAVED_HDR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (saved_hdr_ctr = "001") then
-			saved_hdr_1 <= PS_DATA_IN(7 downto 0);
-			saved_hdr_2 <= saved_hdr_2;
-		elsif (saved_hdr_ctr = "010") then
-			saved_hdr_2 <= PS_DATA_IN(7 downto 0);
-			saved_hdr_1 <= saved_hdr_1;
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+			if (saved_hdr_ctr = "001") then
+				saved_hdr_1 <= PS_DATA_IN(7 downto 0);
+				saved_hdr_2 <= saved_hdr_2;
+			elsif (saved_hdr_ctr = "010") then
+				saved_hdr_2 <= PS_DATA_IN(7 downto 0);
+				saved_hdr_1 <= saved_hdr_1;
+			else
+				saved_hdr_1 <= saved_hdr_1;
+				saved_hdr_2 <= saved_hdr_2;
+			end if;
 		else
 			saved_hdr_1 <= saved_hdr_1;
 			saved_hdr_2 <= saved_hdr_2;
