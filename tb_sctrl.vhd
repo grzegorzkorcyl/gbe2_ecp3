@@ -49,7 +49,7 @@ port map (
 	PS_SRC_UDP_PORT_IN	    => (others => '0'),
 	PS_DEST_UDP_PORT_IN	    => (others => '0'),
 	
-	TC_WR_EN_OUT            => open,
+	TC_RD_EN_IN             => open,
 	TC_DATA_OUT		        => open,
 	TC_FRAME_SIZE_OUT	    => open,
 	TC_FRAME_TYPE_OUT	    => open,
@@ -62,12 +62,6 @@ port map (
 	TC_SRC_MAC_OUT		    => open,
 	TC_SRC_IP_OUT		    => open,
 	TC_SRC_UDP_OUT		    => open,
-	
-	TC_IP_SIZE_OUT	    	=> open,
-	TC_UDP_SIZE_OUT		    => open,
-	TC_FLAGS_OFFSET_OUT	    => open,
-	
-	TC_BUSY_IN		        => '0',
 	
 	STAT_DATA_OUT           => open,
 	STAT_ADDR_OUT           => open,
@@ -122,90 +116,96 @@ begin
 	wait for 100 ns;
 
 -- REPLY TESTBENCH
-	
-	for i in 0 to 100 loop
-	
-		wait until rising_edge(clk);
-		reply_dataready <= '1';
-		reply_busy <= '1';
-		reply_data <= std_logic_vector(to_unsigned(i, 16));
-			
-	end loop;
-	wait until rising_edge(clk);
-	reply_dataready <= '0';
-	reply_busy <= '0';
-	
-	wait for 100 ns;
-	selected <= '1';
-	
-	wait;
+--	
+--	for i in 0 to 100 loop
+--	
+--		wait until rising_edge(clk);
+--		reply_dataready <= '1';
+--		reply_busy <= '1';
+--		reply_data <= std_logic_vector(to_unsigned(i, 16));
+--			
+--	end loop;
+--	wait until rising_edge(clk);
+--	reply_dataready <= '0';
+--	reply_busy <= '0';
+--	
+--	wait for 100 ns;
+--	selected <= '1';
+--	
+--	wait;
 	
 -- REQUEST TESTBENCH
---	activate <= '1';
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wr_en <= '1';
---	wait until rising_edge(clk);
---	data <= '0' & x"31";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"ff";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"08";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"30";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"50";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"33";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '0' & x"00";
---	wait until rising_edge(clk);
---	data <= '1' & x"08";
---	wait until rising_edge(clk);
---	wr_en <= '0';
---	activate <= '0';
+	activate <= '1';
+	
+	
+	wait until rising_edge(clk);
+	data <= '0' & x"ab";
+	wr_en <= '1';
+	wait until rising_edge(clk);
+	data <= '0' & x"cd";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"31";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"ff";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"08";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"30";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"50";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"33";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '0' & x"00";
+	wait until rising_edge(clk);
+	data <= '1' & x"08";
+	wait until rising_edge(clk);
+	wr_en <= '0';
+	activate <= '0';
 --	
 --	wait until rising_edge(dataready);
 ------	wait until rising_edge(clk);

@@ -134,6 +134,8 @@ signal tx_fifo_data            : std_logic_vector(17 downto 0);
 
 signal tc_wr                   : std_logic;
 signal state                   : std_logic_vector(3 downto 0);
+signal saved_hdr_1, saved_hdr_2 : std_logic_vector(7 downto 0);
+signal saved_hdr_ctr            : std_logic_vector(2 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -169,7 +171,7 @@ RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
@@ -178,6 +180,35 @@ begin
 		rx_fifo_data <= PS_DATA_IN;
 	end if;
 end process RX_FIFO_WR_SYNC;
+
+SAVED_HDR_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (dissect_current_state = IDLE) then
+			saved_hdr_ctr <= "001";
+		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "100") then
+			saved_hdr_ctr(2 downto 1) <= saved_hdr_ctr(1 downto 0) & '0';
+		else
+			saved_hdr_ctr <= saved_hdr_ctr;
+		end if;
+	end if;
+end process SAVED_HDR_CTR_PROC;
+
+SAVED_HDR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (saved_hdr_ctr = "001") then
+			saved_hdr_1 <= PS_DATA_IN(7 downto 0);
+			saved_hdr_2 <= saved_hdr_2;
+		elsif (saved_hdr_ctr = "010") then
+			saved_hdr_2 <= PS_DATA_IN(7 downto 0);
+			saved_hdr_1 <= saved_hdr_1;
+		else
+			saved_hdr_1 <= saved_hdr_1;
+			saved_hdr_2 <= saved_hdr_2;
+		end if;
+	end if;
+end process SAVED_HDR_PROC;
 
 --RX_FIFO_RD_SYNC : process(CLK)
 --begin
