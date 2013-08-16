@@ -134,7 +134,8 @@ signal tx_fifo_data            : std_logic_vector(17 downto 0);
 
 signal tc_wr                   : std_logic;
 signal state                   : std_logic_vector(3 downto 0);
-signal saved_hdr_1, saved_hdr_2 : std_logic_vector(7 downto 0);
+signal saved_hdr_1              : std_logic_vector(7 downto 0) := x"ab";
+signal saved_hdr_2              : std_logic_vector(7 downto 0) := x"cd";
 signal saved_hdr_ctr            : std_logic_vector(2 downto 0);
 
 attribute syn_preserve : boolean;
@@ -527,7 +528,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				dissect_current_state <= IDLE;
+				dissect_current_state <= WAIT_FOR_RESPONSE; --IDLE;
 			else
 				dissect_current_state <= WAIT_FOR_RESPONSE;
 			end if;
