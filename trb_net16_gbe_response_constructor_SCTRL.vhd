@@ -171,7 +171,7 @@ RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "010") then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
@@ -184,7 +184,7 @@ end process RX_FIFO_WR_SYNC;
 SAVED_HDR_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE and PS_WR_EN_IN = '0' and PS_ACTIVATE_IN = '0') then
 			saved_hdr_ctr <= "001";
 		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "100") then
 			saved_hdr_ctr(2 downto 0) <= saved_hdr_ctr(1 downto 0) & '0';
