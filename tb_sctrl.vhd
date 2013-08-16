@@ -49,7 +49,7 @@ port map (
 	PS_SRC_UDP_PORT_IN	    => (others => '0'),
 	PS_DEST_UDP_PORT_IN	    => (others => '0'),
 	
-	TC_RD_EN_IN             => '0',
+	TC_RD_EN_IN             => '1',
 	TC_DATA_OUT		        => open,
 	TC_FRAME_SIZE_OUT	    => open,
 	TC_FRAME_TYPE_OUT	    => open,
