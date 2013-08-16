@@ -378,7 +378,14 @@ end process TX_FIFO_SYNC_PROC;
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		case (tx_loaded_ctr) is
+			when x"fffe" =>
+				TC_DATA_OUT(7 downto 0) <= saved_hdr_1;
+			when x"ffff" =>
+				TC_DATA_OUT(7 downto 0) <= saved_hdr_2;
+			when others =>
+				TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		end case;
 		
 		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
 		if (tx_loaded_ctr = tx_data_ctr) then
@@ -429,8 +436,7 @@ TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
-			tx_loaded_ctr <= (others => '0');
-		--elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and (tx_frame_loaded /= g_MAX_FRAME_SIZE)) then  -- TODO: change this to real wr signal
+			tx_loaded_ctr <= x"fffe";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
@@ -619,7 +625,7 @@ begin
 			else
 				dissect_next_state <= WAIT_FOR_LOAD;
 			end if;
-		
+			
 		when LOAD_FRAME =>
 			state <= x"9";
 			if (tx_loaded_ctr = tx_data_ctr) then
