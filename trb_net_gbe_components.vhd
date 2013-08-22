@@ -1152,27 +1152,27 @@ component statts_mem is
         Q: out  std_logic_vector(7 downto 0));
 end component;
 
-component slv_mac_memory is
-port( 
-	CLK             : in    std_logic;
-	RESET           : in    std_logic;
-	BUSY_IN         : in    std_logic;
-	-- Slave bus
-	SLV_ADDR_IN     : in    std_logic_vector(7 downto 0);
-	SLV_READ_IN     : in    std_logic;
-	SLV_WRITE_IN    : in    std_logic;
-	SLV_BUSY_OUT    : out   std_logic;
-	SLV_ACK_OUT     : out   std_logic;
-	SLV_DATA_IN     : in    std_logic_vector(31 downto 0);
-	SLV_DATA_OUT    : out   std_logic_vector(31 downto 0);
-	-- I/O to the backend
-	MEM_CLK_IN      : in    std_logic;
-	MEM_ADDR_IN     : in    std_logic_vector(7 downto 0);
-	MEM_DATA_OUT    : out   std_logic_vector(31 downto 0);
-	-- Status lines
-	 STAT           : out   std_logic_vector(31 downto 0) -- DEBUG
-);
-end component;
+--component slv_mac_memory is
+--port( 
+--	CLK             : in    std_logic;
+--	RESET           : in    std_logic;
+--	BUSY_IN         : in    std_logic;
+--	-- Slave bus
+--	SLV_ADDR_IN     : in    std_logic_vector(7 downto 0);
+--	SLV_READ_IN     : in    std_logic;
+--	SLV_WRITE_IN    : in    std_logic;
+--	SLV_BUSY_OUT    : out   std_logic;
+--	SLV_ACK_OUT     : out   std_logic;
+--	SLV_DATA_IN     : in    std_logic_vector(31 downto 0);
+--	SLV_DATA_OUT    : out   std_logic_vector(31 downto 0);
+--	-- I/O to the backend
+--	MEM_CLK_IN      : in    std_logic;
+--	MEM_ADDR_IN     : in    std_logic_vector(7 downto 0);
+--	MEM_DATA_OUT    : out   std_logic_vector(31 downto 0);
+--	-- Status lines
+--	 STAT           : out   std_logic_vector(31 downto 0) -- DEBUG
+--);
+--end component;
 
 component fifo_32kx16x8_mb2
 port( 
