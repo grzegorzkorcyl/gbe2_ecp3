@@ -532,7 +532,7 @@ begin
 	end if;
 end process SELECT_MACHINE_PROC;
 
-SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index, c_MAX_PROTOCOLS)
+SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index)
 begin
 	
 	case (select_current_state) is
@@ -550,7 +550,7 @@ begin
 			if (or_all(resp_ready) = '1') then
 				if (resp_ready(index) = '1') then
 					select_next_state <= SELECT_ONE;
-				elsif (index = c_MAX_PROTOCOLS) then
+				elsif (index = 5) then --c_MAX_PROTOCOLS) then
 					select_next_state <= CLEANUP;
 				end if;
 			else
