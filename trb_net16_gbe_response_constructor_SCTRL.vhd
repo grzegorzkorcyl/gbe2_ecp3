@@ -474,7 +474,7 @@ TC_SRC_UDP_OUT     <= x"9065"; --x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
-TC_FRAME_SIZE_OUT   <= tx_data_ctr + x"2";
+TC_FRAME_SIZE_OUT   <= tx_data_ctr;
 
 --FRAME_SIZE_PROC : process(CLK)
 --begin
