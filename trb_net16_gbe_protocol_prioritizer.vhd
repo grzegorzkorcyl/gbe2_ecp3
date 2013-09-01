@@ -51,19 +51,19 @@ begin
 			
 				-- IPv4 
 				when x"0800" =>
-					if (PROTOCOL_CODE_IN = x"11") then -- UDP
+					if (PROTOCOL_CODE_IN = IP_PROTOCOLS(0)) then --x"11") then -- UDP
 						-- No. 2 = DHCP
-						if (UDP_PROTOCOL_IN = x"0044") then  -- DHCP Client
+						if (UDP_PROTOCOL_IN = UDP_PROTOCOLS(0)) then --x"0044") then  -- DHCP Client
 							CODE_OUT(1) <= '1';
 						-- No. 4 = SCTRL
-						elsif (UDP_PROTOCOL_IN = x"6590") then -- SCTRL module
+						elsif (UDP_PROTOCOL_IN = UDP_PROTOCOLS(1)) then --x"6590") then -- SCTRL module
 							CODE_OUT(3) <= '1';
 						else
 							-- branch for pure IPv4
 							CODE_OUT <= (others => '0');
 						end if;
 					-- No. 3 = ICMP 
-					elsif (PROTOCOL_CODE_IN = x"01") then -- ICMP
+					elsif (PROTOCOL_CODE_IN = IP_PROTOCOLS(1)) then --x"01") then -- ICMP
 						CODE_OUT(2) <= '1';
 					else
 						CODE_OUT <= (others => '0');
