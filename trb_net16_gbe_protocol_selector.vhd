@@ -532,7 +532,7 @@ begin
 	end if;
 end process SELECT_MACHINE_PROC;
 
-SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index)
+SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index, c_MAX_PROTOCOLS)
 begin
 	
 	case (select_current_state) is
