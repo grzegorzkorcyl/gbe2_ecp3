@@ -474,7 +474,7 @@ TC_SRC_UDP_OUT     <= x"9065"; --x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
-TC_FRAME_SIZE_OUT   <= tx_data_ctr + x"3";
+TC_FRAME_SIZE_OUT   <= tx_data_ctr + x"2";
 
 --FRAME_SIZE_PROC : process(CLK)
 --begin
@@ -629,7 +629,7 @@ begin
 			
 		when LOAD_FRAME =>
 			state <= x"9";
-			if (tx_loaded_ctr = tx_data_ctr) then
+			if (tx_loaded_ctr = tx_data_ctr - x"3") then
 				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD_FRAME;
