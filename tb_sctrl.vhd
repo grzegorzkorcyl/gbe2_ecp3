@@ -117,104 +117,104 @@ begin
 
 ---- REPLY TESTBENCH
 ----	
---	for i in 0 to 100 loop
---	
---		wait until rising_edge(clk);
---		reply_dataready <= '1';
---		reply_busy <= '1';
---		reply_data <= std_logic_vector(to_unsigned(i, 16));
---			
---	end loop;
---	wait until rising_edge(clk);
---	reply_dataready <= '0';
---	reply_busy <= '0';
---	
---	wait for 100 ns;
---	selected <= '1';
---	
---	wait;
+	for i in 0 to 100 loop
+	
+		wait until rising_edge(clk);
+		reply_dataready <= '1';
+		reply_busy <= '1';
+		reply_data <= std_logic_vector(to_unsigned(i, 16));
+			
+	end loop;
+	wait until rising_edge(clk);
+	reply_dataready <= '0';
+	reply_busy <= '0';
+	
+	wait for 100 ns;
+	selected <= '1';
+	
+	wait;
 	
 -- REQUEST TESTBENCH
-	activate <= '1';
-	
-	
-	wait until rising_edge(clk);
-	data <= '0' & x"ab";
-	wr_en <= '1';
-	wait until rising_edge(clk);
-	data <= '0' & x"cd";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"31";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"ff";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"08";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"30";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"50";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"33";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '0' & x"00";
-	wait until rising_edge(clk);
-	data <= '1' & x"08";
-	wait until rising_edge(clk);
-	wr_en <= '0';
-	activate <= '0';
-	
-	wait until rising_edge(dataready);
-----	wait until rising_edge(clk);
-----	read <= '1';
+--	activate <= '1';
+--	
+--	
 --	wait until rising_edge(clk);
---	read <= '0';
-	wait until rising_edge(clk);
-	wait until rising_edge(clk);
-	read <= '1';
+--	data <= '0' & x"ab";
+--	wr_en <= '1';
+--	wait until rising_edge(clk);
+--	data <= '0' & x"cd";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"31";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"ff";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"08";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"30";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"50";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"33";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '0' & x"00";
+--	wait until rising_edge(clk);
+--	data <= '1' & x"08";
+--	wait until rising_edge(clk);
+--	wr_en <= '0';
+--	activate <= '0';
+--	
+--	wait until rising_edge(dataready);
+------	wait until rising_edge(clk);
+------	read <= '1';
+----	wait until rising_edge(clk);
+----	read <= '0';
+--	wait until rising_edge(clk);
+--	wait until rising_edge(clk);
+--	read <= '1';
 --	wait until rising_edge(clk);
 --	wait until rising_edge(clk);
 --	wait until rising_edge(clk);

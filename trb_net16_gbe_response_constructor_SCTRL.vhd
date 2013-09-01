@@ -437,7 +437,7 @@ TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
-			tx_loaded_ctr <= x"fffe";
+			tx_loaded_ctr <= x"fffd";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
