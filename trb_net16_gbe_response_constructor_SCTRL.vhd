@@ -379,15 +379,14 @@ end process TX_FIFO_SYNC_PROC;
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
---		case (tx_loaded_ctr) is
---			when x"fffe" =>
---				TC_DATA_OUT(7 downto 0) <= x"02";
---			when x"ffff" =>
---				TC_DATA_OUT(7 downto 0) <= saved_hdr_2;
---			when others =>
---				TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
---		end case;
-		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		case (tx_loaded_ctr) is
+			when x"fffe" =>
+				TC_DATA_OUT(7 downto 0) <= x"02";
+			when x"ffff" =>
+				TC_DATA_OUT(7 downto 0) <= saved_hdr_2;
+			when others =>
+				TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
+		end case;
 		
 		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
 		if (tx_loaded_ctr = tx_data_ctr) then
@@ -438,8 +437,7 @@ TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
-			--tx_loaded_ctr <= x"fffe";
-			tx_loaded_ctr <= x"0000";
+			tx_loaded_ctr <= x"fffe";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
@@ -476,7 +474,7 @@ TC_SRC_UDP_OUT     <= x"9065"; --x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
-TC_FRAME_SIZE_OUT   <= tx_data_ctr;-- + x"2";
+TC_FRAME_SIZE_OUT   <= tx_data_ctr + x"2";
 
 --FRAME_SIZE_PROC : process(CLK)
 --begin
