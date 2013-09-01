@@ -266,6 +266,9 @@ port map (
 	DEBUG_OUT		        => PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
  );
 
+resp_ready(2) <= '0';
+busy(2) <= '0';
+
 -- protocol No. 3 Ping
 --Ping : trb_net16_gbe_response_constructor_Ping
 --generic map( STAT_ADDRESS_BASE => 3
@@ -550,7 +553,7 @@ begin
 			if (or_all(resp_ready) = '1') then
 				if (resp_ready(index) = '1') then
 					select_next_state <= SELECT_ONE;
-				elsif (index = 5) then --c_MAX_PROTOCOLS) then
+				elsif (index = c_MAX_PROTOCOLS) then
 					select_next_state <= CLEANUP;
 				end if;
 			else
