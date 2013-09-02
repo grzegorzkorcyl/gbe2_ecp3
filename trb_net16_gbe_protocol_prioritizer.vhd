@@ -47,30 +47,37 @@ begin
 			--**** HERE ADD YOU PROTOCOL RECOGNITION AT WANTED PRIORITY LEVEL
 			-- priority level is the bit position in the CODE_OUT vector
 			-- less significant bit has the higher priority
+			case FRAME_TYPE_IN is
 			
-			if (FRAME_TYPE_IN = FRAME_TYPES(0)) then -- IPv4 
-				if (PROTOCOL_CODE_IN = IP_PROTOCOLS(0)) then -- UDP
-					-- No. 2 = DHCP
-					if (UDP_PROTOCOL_IN = UDP_PROTOCOLS(0)) then  -- DHCP Client
-						CODE_OUT(1) <= '1';
-					-- No. 4 = SCTRL
-					elsif (UDP_PROTOCOL_IN = UDP_PROTOCOLS(1)) then -- SCTRL module
-						CODE_OUT(3) <= '1';
+				-- IPv4 
+				when x"0800" =>
+					if (PROTOCOL_CODE_IN = x"11") then -- UDP
+						-- No. 2 = DHCP
+						if (UDP_PROTOCOL_IN = x"0044") then  -- DHCP Client
+							CODE_OUT(1) <= '1';
+						-- No. 4 = SCTRL
+						elsif (UDP_PROTOCOL_IN = x"6590") then -- SCTRL module
+							CODE_OUT(3) <= '1';
+						else
+							-- branch for pure IPv4
+							CODE_OUT <= (others => '0');
+						end if;
+					-- No. 3 = ICMP 
+					elsif (PROTOCOL_CODE_IN = x"01") then -- ICMP
+						CODE_OUT(2) <= '1';
 					else
-						-- branch for pure IPv4
 						CODE_OUT <= (others => '0');
 					end if;
-				-- No. 3 = ICMP 
-				elsif (PROTOCOL_CODE_IN = IP_PROTOCOLS(1)) then -- ICMP
-					CODE_OUT(2) <= '1';
-				else
+				
+				-- No. 1 = ARP
+				when x"0806" =>
+					CODE_OUT(0) <= '1';
+				
+				-- last slot is reserved for Trash
+				when others =>
 					CODE_OUT <= (others => '0');
-				end if;
-			elsif (FRAME_TYPE_IN = FRAME_TYPES(1)) then -- No. 1 = ARP
-				CODE_OUT(0) <= '1';
-			else
-				CODE_OUT <= (others => '0');
-			end if;
+			
+			end case;
 			
 		end if;
 		
