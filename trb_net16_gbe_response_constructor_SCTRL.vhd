@@ -528,7 +528,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				dissect_current_state <= IDLE;
+				dissect_current_state <= WAIT_FOR_RESPONSE; --IDLE;
 			else
 				dissect_current_state <= WAIT_FOR_RESPONSE;
 			end if;
