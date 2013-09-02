@@ -541,7 +541,7 @@ begin
 	end if;
 end process SELECT_MACHINE_PROC;
 
-SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index)
+SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index, zeros)
 begin
 	
 	case (select_current_state) is
@@ -596,7 +596,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (select_current_state = IDLE) then
 			index <= 0;
-		elsif (select_current_state = LOOP_OVER) then -- and resp_ready(index) = '0') then -- and (or_all(resp_ready) = '1' or mult = '1')) then
+		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0') then -- and (or_all(resp_ready) = '1' or mult = '1')) then
 			index <= index + 1;
 		end if;
 	end if;
@@ -620,23 +620,23 @@ begin
 			PS_RESPONSE_READY_OUT <= '0';
 			selected              <= (others => '0');
 		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
-			TC_DATA_OUT           <= tc_data((index) * 9 - 1 downto (index - 1) * 9);
-			TC_FRAME_SIZE_OUT     <= tc_size((index) * 16 - 1 downto (index - 1) * 16);
-			TC_FRAME_TYPE_OUT     <= tc_type((index) * 16 - 1 downto (index - 1) * 16);
-			TC_DEST_MAC_OUT       <= tc_mac((index) * 48 - 1 downto (index - 1) * 48);
-			TC_DEST_IP_OUT        <= tc_ip((index) * 32 - 1 downto (index - 1) * 32);
-			TC_DEST_UDP_OUT       <= tc_udp((index) * 16 - 1 downto (index - 1) * 16);
-			TC_SRC_MAC_OUT        <= tc_src_mac((index) * 48 - 1 downto (index - 1) * 48);
-			TC_SRC_IP_OUT         <= tc_src_ip((index) * 32 - 1 downto (index - 1) * 32);
-			TC_SRC_UDP_OUT        <= tc_src_udp((index) * 16 - 1 downto (index - 1) * 16);
-			TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index) * 8 - 1 downto (index - 1) * 8);
-			TC_IDENT_OUT          <= tc_ident((index) * 16 - 1 downto (index - 1) * 16);
+			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
+			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
+			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);
+			TC_DEST_MAC_OUT       <= tc_mac((index + 1) * 48 - 1 downto index * 48);
+			TC_DEST_IP_OUT        <= tc_ip((index + 1) * 32 - 1 downto index * 32);
+			TC_DEST_UDP_OUT       <= tc_udp((index + 1) * 16 - 1 downto index * 16);
+			TC_SRC_MAC_OUT        <= tc_src_mac((index + 1) * 48 - 1 downto index * 48);
+			TC_SRC_IP_OUT         <= tc_src_ip((index + 1) * 32 - 1 downto index * 32);
+			TC_SRC_UDP_OUT        <= tc_src_udp((index + 1) * 16 - 1 downto index * 16);
+			TC_IP_PROTOCOL_OUT    <= tc_ip_proto((index + 1) * 8 - 1 downto index * 8);
+			TC_IDENT_OUT          <= tc_ident((index + 1) * 16 - 1 downto index * 16);
 			if (select_current_state = SELECT_ONE) then
 				PS_RESPONSE_READY_OUT <= '1';
-				selected(index - 1)       <= '0';
+				selected(index)       <= '0';
 			else
 				PS_RESPONSE_READY_OUT <= '0';
-				selected(index - 1)       <= '1';
+				selected(index)       <= '1';
 			end if;
 		else
 			TC_DATA_OUT           <= (others => '0');
