@@ -46,14 +46,19 @@ end entity trb_net16_gbe_event_constr;
 
 architecture RTL of trb_net16_gbe_event_constr is
 
+attribute syn_encoding	: string;
+
 type saveStates is (IDLE, SAVE_DATA, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
+attribute syn_encoding of save_current_state : signal is "onehot";
 
 type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
+attribute syn_encoding of load_current_state : signal is "onehot";
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
+attribute syn_encoding of load_current_state : signal is "onehot";
 
 signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
 signal df_q, df_qq : std_logic_vector(7 downto 0);

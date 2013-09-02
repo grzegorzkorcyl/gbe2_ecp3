@@ -44,12 +44,12 @@ end trb_net16_gbe_mac_control;
 
 architecture trb_net16_gbe_mac_control of trb_net16_gbe_mac_control is
 
---attribute HGROUP : string;
---attribute HGROUP of trb_net16_gbe_mac_control : architecture is "GBE_BUF_group";
+attribute syn_encoding : string;
 
 type mac_conf_states is (IDLE, DISABLE, WRITE_TX_RX_CTRL, WRITE_MAX_PKT_SIZE, SKIP, WRITE_IPG, 
 			  WRITE_MAC0, WRITE_MAC1, WRITE_MAC2, ENABLE, READY);
 signal mac_conf_current_state, mac_conf_next_state : mac_conf_states;
+attribute syn_encoding of mac_conf_current_state : signal is "onehot";
 
 signal tsmac_ready                          : std_logic;
 signal reg_mode                             : std_logic_vector(15 downto 0);

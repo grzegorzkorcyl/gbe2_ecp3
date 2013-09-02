@@ -64,11 +64,15 @@ end entity trb_net16_gbe_ipu_interface;
 
 architecture RTL of trb_net16_gbe_ipu_interface is
 
+attribute syn_encoding : string;
+
 type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO, CLEANUP, DROP_SUBEVENT);
 signal save_current_state, save_next_state : saveStates;
+attribute syn_encoding of save_current_state : signal is "onehot";
 
 type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, LOAD_LAST_ONE, LOAD_LAST_TWO, DROP, CLOSE);
 signal load_current_state, load_next_state : loadStates;
+attribute syn_encoding of load_current_state : signal is "onehot";
 
 signal sf_data : std_Logic_vector(15 downto 0);
 signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eod, sf_eod_q, sf_eod_qq : std_logic;

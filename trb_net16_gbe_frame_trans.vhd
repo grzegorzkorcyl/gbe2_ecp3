@@ -57,16 +57,17 @@ attribute syn_encoding	: string;
 
 type macInitStates is (I_IDLE, I_INCRADDRESS, I_PAUSE, I_WRITE, I_PAUSE2, I_READ, I_PAUSE3, I_ENDED);
 signal macInitState, macInitNextState : macInitStates;
-attribute syn_encoding of macInitState: signal is "safe,gray";
+attribute syn_encoding of macInitState: signal is "onehot";
 signal bsm_init			: std_logic_vector(3 downto 0);
 	
 type macStates is (M_RESETING, M_IDLE, M_INIT);
 signal macCurrentState, macNextState : macStates;
+attribute syn_encoding of macCurrentState : signal is "onehot";
 signal bsm_mac			: std_logic_vector(3 downto 0);
 	
 type transmitStates is (T_IDLE, T_TRANSMIT, T_WAITFORFIFO);
 signal transmitCurrentState, transmitNextState : transmitStates;
-attribute syn_encoding of transmitCurrentState: signal is "safe,gray";
+attribute syn_encoding of transmitCurrentState: signal is "onehot";
 signal bsm_trans		: std_logic_vector(3 downto 0);
 
 signal tx_fifoavail_i	: std_logic;

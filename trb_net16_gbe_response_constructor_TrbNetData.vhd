@@ -90,6 +90,8 @@ end trb_net16_gbe_response_constructor_TrbNetData;
 
 architecture trb_net16_gbe_response_constructor_TrbNetData of trb_net16_gbe_response_constructor_TrbNetData is
 
+attribute syn_encoding : string;
+
 signal ip_cfg_start				: std_logic;
 signal ip_cfg_bank				: std_logic_vector(3 downto 0);
 signal ip_cfg_done				: std_logic;
@@ -123,6 +125,8 @@ signal tc_sod					: std_logic;
 
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
+attribute syn_encoding of dissect_current_state : signal is "onehot";
+ 
 signal event_bytes : std_logic_vector(15 downto 0);
 signal loaded_bytes : std_logic_vector(15 downto 0);
 signal sent_packets : std_logic_vector(15 downto 0);

@@ -72,7 +72,7 @@ port(
 );
 end component;
 
-attribute sys_encoding      : string;
+attribute syn_encoding      : string;
 
 type constructStates    is  (IDLE, DEST_MAC_ADDR, SRC_MAC_ADDR, FRAME_TYPE_S, VERSION,
 							 TOS_S, IP_LENGTH, IDENT, FLAGS, TTL_S, PROTO, HEADER_CS,
@@ -80,10 +80,12 @@ type constructStates    is  (IDLE, DEST_MAC_ADDR, SRC_MAC_ADDR, FRAME_TYPE_S, VE
 							 UDP_CS, SAVE_DATA, CLEANUP, DELAY);
 signal constructCurrentState, constructNextState : constructStates;
 signal bsm_constr           : std_logic_vector(7 downto 0);
-attribute sys_encoding of constructCurrentState: signal is "safe,gray";
+attribute syn_encoding of constructCurrentState: signal is "onehot";
 
 type transmitStates     is  (T_IDLE, T_LOAD, T_TRANSMIT, T_PAUSE, T_CLEANUP);
 signal transmitCurrentState, transmitNextState : transmitStates;
+attribute syn_encoding of transmitCurrentState : signal is "onehot";
+
 signal bsm_trans            : std_logic_vector(3 downto 0);
 
 signal headers_int_counter  : integer range 0 to 6;

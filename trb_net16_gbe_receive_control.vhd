@@ -67,9 +67,11 @@ architecture trb_net16_gbe_receive_control of trb_net16_gbe_receive_control is
 
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_receive_control : architecture is "GBE_MAIN_group";
+attribute syn_encoding : string;
 
 type load_states is (IDLE, PREPARE, READY);
 signal load_current_state, load_next_state : load_states;
+attribute syn_encoding of load_current_state : signal is "onehot";
 
 signal frames_received_ctr       : std_logic_vector(31 downto 0);
 signal frames_readout_ctr        : std_logic_vector(31 downto 0);

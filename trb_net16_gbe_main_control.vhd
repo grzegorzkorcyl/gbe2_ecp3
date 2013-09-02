@@ -136,6 +136,8 @@ architecture trb_net16_gbe_main_control of trb_net16_gbe_main_control is
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_main_control : architecture is "GBE_MAIN_group";
 
+attribute syn_encoding : string;
+
 signal tsm_ready                            : std_logic;
 signal tsm_reconf                           : std_logic;
 signal tsm_haddr                            : std_logic_vector(7 downto 0);
@@ -146,6 +148,7 @@ signal tsm_hread_n                          : std_logic;
 
 type link_states is (ACTIVE, INACTIVE, ENABLE_MAC, TIMEOUT, FINALIZE, WAIT_FOR_BOOT, GET_ADDRESS);
 signal link_current_state, link_next_state : link_states;
+attribute syn_encoding of link_current_state : signal is "onehot";
 
 signal link_down_ctr                 : std_logic_vector(15 downto 0);
 signal link_down_ctr_lock            : std_logic;
@@ -156,6 +159,7 @@ signal mac_control_debug             : std_logic_vector(63 downto 0);
 
 type flow_states is (IDLE, TRANSMIT_CTRL, WAIT_FOR_FC, CLEANUP);
 signal flow_current_state, flow_next_state : flow_states;
+attribute syn_encoding of flow_current_state : signal is "onehot";
 
 signal state                        : std_logic_vector(3 downto 0);
 signal link_state                   : std_logic_vector(3 downto 0);
@@ -184,6 +188,7 @@ signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downt
 
 type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
+attribute syn_encoding of redirect_current_state : signal is "onehot";
 
 signal disable_redirect, ps_wr_en_q : std_logic;
 

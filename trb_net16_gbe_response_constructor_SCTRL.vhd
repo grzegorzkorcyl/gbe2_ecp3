@@ -83,11 +83,11 @@ type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RE
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_A_WORD, WAIT_ONE, WAIT_TWO, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 --type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_HUB, LOAD_TO_HUB, WAIT_FOR_RESPONSE, SAVE_RESPONSE, LOAD_FRAME, WAIT_FOR_TC, DIVIDE, WAIT_FOR_LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
-attribute syn_encoding of dissect_current_state: signal is "safe,gray";
+attribute syn_encoding of dissect_current_state: signal is "onehot";
 
 type stats_states is (IDLE, LOAD_RECEIVED, LOAD_REPLY, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
-attribute syn_encoding of stats_current_state : signal is "safe,gray";
+attribute syn_encoding of stats_current_state : signal is "onehot";
 
 signal saved_target_ip          : std_logic_vector(31 downto 0);
 signal data_ctr                 : integer range 0 to 30;

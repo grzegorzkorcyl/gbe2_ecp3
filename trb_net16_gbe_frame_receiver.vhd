@@ -67,7 +67,7 @@ architecture trb_net16_gbe_frame_receiver of trb_net16_gbe_frame_receiver is
 attribute syn_encoding	: string;
 type filter_states is (IDLE, REMOVE_DEST, REMOVE_SRC, REMOVE_TYPE, SAVE_FRAME, DROP_FRAME, REMOVE_VID, REMOVE_VTYPE, REMOVE_IP, REMOVE_UDP, DECIDE, CLEANUP);
 signal filter_current_state, filter_next_state : filter_states;
-attribute syn_encoding of filter_current_state : signal is "safe,gray";
+attribute syn_encoding of filter_current_state : signal is "onehot";
 
 signal fifo_wr_en                           : std_logic;
 signal rx_bytes_ctr                         : std_logic_vector(15 downto 0);

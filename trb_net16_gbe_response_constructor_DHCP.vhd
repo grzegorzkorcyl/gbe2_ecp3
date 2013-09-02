@@ -74,20 +74,20 @@ attribute syn_encoding	: string;
 
 type main_states is (BOOTING, SENDING_DISCOVER, WAITING_FOR_OFFER, SENDING_REQUEST, WAITING_FOR_ACK, ESTABLISHED);
 signal main_current_state, main_next_state : main_states;
-attribute syn_encoding of main_current_state: signal is "safe,gray";
+attribute syn_encoding of main_current_state: signal is "onehot";
 
 type receive_states is (IDLE, DISCARD, CLEANUP, SAVE_VALUES);
 signal receive_current_state, receive_next_state : receive_states;
-attribute syn_encoding of receive_current_state: signal is "safe,gray";
+attribute syn_encoding of receive_current_state: signal is "onehot";
 
 type discover_states is (IDLE, WAIT_FOR_LOAD, BOOTP_HEADERS, CLIENT_IP, YOUR_IP, ZEROS1, MY_MAC, ZEROS2, VENDOR_VALS, VENDOR_VALS2, TERMINATION, CLEANUP);
 signal construct_current_state, construct_next_state : discover_states;
-attribute syn_encoding of construct_current_state: signal is "safe,gray";
+attribute syn_encoding of construct_current_state: signal is "onehot";
 
 
 type stats_states is (IDLE, LOAD_SENT, LOAD_RECEIVED, LOAD_DISCARDED, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
-attribute syn_encoding of stats_current_state : signal is "safe,gray";
+attribute syn_encoding of stats_current_state : signal is "onehot";
 
 signal state                    : std_logic_vector(3 downto 0);
 signal rec_frames               : std_logic_vector(15 downto 0);

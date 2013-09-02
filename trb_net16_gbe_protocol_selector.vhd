@@ -123,6 +123,8 @@ architecture trb_net16_gbe_protocol_selector of trb_net16_gbe_protocol_selector 
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_protocol_selector : architecture is "GBE_MAIN_group";
 
+attribute syn_encoding : string;
+
 signal rd_en                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal resp_ready               : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal tc_wr                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
@@ -153,6 +155,7 @@ signal tc_data_not_valid        : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0)
 
 type select_states is (IDLE, LOOP_OVER, SELECT_ONE, PROCESS_REQUEST, CLEANUP);
 signal select_current_state, select_next_state : select_states;
+attribute syn_encoding of select_current_state : signal is "onehot";
 
 signal state                    : std_logic_vector(3 downto 0);
 signal index                    : integer range 0 to c_MAX_PROTOCOLS - 1;

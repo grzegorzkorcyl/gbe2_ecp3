@@ -73,11 +73,11 @@ attribute syn_encoding	: string;
 
 type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_LOAD, LOAD_FRAME, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
-attribute syn_encoding of dissect_current_state: signal is "safe,gray";
+attribute syn_encoding of dissect_current_state: signal is "onehot";
 
 type stats_states is (IDLE, LOAD_SENT, LOAD_RECEIVED, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
-attribute syn_encoding of stats_current_state : signal is "safe,gray";
+attribute syn_encoding of stats_current_state : signal is "onehot";
 
 signal rec_frames               : std_logic_vector(15 downto 0);
 signal sent_frames              : std_logic_vector(15 downto 0);
