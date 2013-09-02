@@ -340,7 +340,7 @@ begin
 		end if;
 		
 		if (saved_hdr_ctr = "010") then
-			tx_fifo_data <= '0' & x"02" & '0' & PS_DATA_IN(7 downto 0);
+			tx_fifo_data <= '0' & PS_DATA_IN(7 downto 0) & '0' & x"02";
 		else
 			tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
 			tx_fifo_data(8)           <= '0';
