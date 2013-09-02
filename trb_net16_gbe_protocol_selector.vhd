@@ -163,6 +163,7 @@ signal index                    : integer range 0 to c_MAX_PROTOCOLS - 1;
 signal mult                     : std_logic;
 
 signal tc_ident                 : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
+signal zeros                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -170,6 +171,8 @@ attribute syn_keep of state, mult : signal is true;
 attribute syn_preserve of state, mult : signal is true;
 
 begin
+
+zeros <= (others => '0');
 
 -- protocol Nr. 1 ARP
 ARP : trb_net16_gbe_response_constructor_ARP
@@ -553,7 +556,8 @@ begin
 		
 		when LOOP_OVER =>
 			state <= x"2";
-			if (or_all(resp_ready) = '1') then
+			--if (or_all(resp_ready) = '1') then
+			if (resp_ready /= zeros) then
 				if (resp_ready(index) = '1') then
 					select_next_state <= SELECT_ONE;
 				elsif (index = c_MAX_PROTOCOLS) then
