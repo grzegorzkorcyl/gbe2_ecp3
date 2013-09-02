@@ -58,7 +58,7 @@ attribute syn_encoding of load_current_state : signal is "onehot";
 
 type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
-attribute syn_encoding of load_current_state : signal is "onehot";
+attribute syn_encoding of save_sub_hdr_current_state : signal is "onehot";
 
 signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
 signal df_q, df_qq : std_logic_vector(7 downto 0);
