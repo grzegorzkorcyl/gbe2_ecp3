@@ -333,14 +333,20 @@ begin
 	if rising_edge(CLK) then
 		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
 			tx_fifo_wr <= '1';
+		elsif (saved_hdr_ctr = "010") then
+			tx_fifo_wr <= '1';
 		else
 			tx_fifo_wr <= '0';
 		end if;
 		
-		tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
-		tx_fifo_data(8)           <= '0';
-		tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
-		tx_fifo_data(17)          <= '0';
+		if (saved_hdr_ctr = "010") then
+			tx_fifo_data <= x"02" & PS_DATA_IN(7 downto 0);
+		else
+			tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
+			tx_fifo_data(8)           <= '0';
+			tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
+			tx_fifo_data(17)          <= '0';
+		end if;
 	end if;
 end process TX_FIFO_WR_SYNC;
 
@@ -379,17 +385,11 @@ end process TX_FIFO_SYNC_PROC;
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		case (tx_loaded_ctr) is
-			when x"fffe" =>
-				TC_DATA_OUT(7 downto 0) <= x"02";
-			when x"ffff" =>
-				TC_DATA_OUT(7 downto 0) <= saved_hdr_2;
-			when others =>
-				TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
-		end case;
+
+		TC_DATA_OUT(7 downto 0) <= tx_fifo_q(7 downto 0);
 		
 		--if (tx_loaded_ctr = tx_data_ctr + x"1" or tx_frame_loaded = g_MAX_FRAME_SIZE - x"1") then
-		if (tx_loaded_ctr = tx_data_ctr - x"3") then
+		if (tx_loaded_ctr = tx_data_ctr) then
 			TC_DATA_OUT(8) <= '1';
 		else
 			TC_DATA_OUT(8) <= '0';
@@ -437,7 +437,7 @@ TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1' or dissect_current_state = IDLE) then
-			tx_loaded_ctr <= x"fffd";
+			tx_loaded_ctr <= x"0000";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
 		end if;
@@ -629,7 +629,7 @@ begin
 			
 		when LOAD_FRAME =>
 			state <= x"9";
-			if (tx_loaded_ctr = tx_data_ctr - x"3") then
+			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD_FRAME;
