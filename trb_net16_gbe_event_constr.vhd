@@ -85,7 +85,7 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
 signal df_data : std_logic_vector(7 downto 0);
-signal df_eod_q : std_logic;
+signal df_eod_q, df_eod_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
 
 begin
@@ -141,6 +141,7 @@ begin
 		end if;
 		
 		df_eod_q <= df_eod;
+		df_eod_qq <= df_eod_q;
 	end if; 
 end process DF_EOD_PROC;
 
@@ -164,7 +165,7 @@ end process DF_WR_EN_PROC;
 DATA_FIFO : fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
-	Data(8)          =>  df_eod_q,
+	Data(8)          =>  df_eod_qq,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
 	WrEn             =>  df_wr_en_qq,
