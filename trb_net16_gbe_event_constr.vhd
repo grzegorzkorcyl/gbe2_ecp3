@@ -84,7 +84,7 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
-signal df_data : std_logic_vector(8 downto 0);
+signal df_data : std_logic_vector(7 downto 0);
 signal df_eod_q : std_logic;
 
 begin
