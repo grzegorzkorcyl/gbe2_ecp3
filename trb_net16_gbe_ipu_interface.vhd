@@ -351,7 +351,19 @@ port map(
 	Full              => sf_full,
 	AlmostFull        => sf_afull
 );
-sf_reset <= '1' when save_current_state = DROP_SUBEVENT or RESET = '1' else '0';
+
+SF_RESET_PROC : process(CLK_IPU)
+begin
+	if rising_edge(CLK_IPU) then
+		if (RESET = '1') then
+			sf_reset <= '1';
+		elsif (save_current_state = DROP_SUBEVENT) then
+			sf_reset <= '1';
+		else
+			sf_reset <= '0';
+		end if;
+	end if;
+end process SF_RESET_PROC;
 
 --*********
 -- LOADING PART
@@ -499,10 +511,6 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
---		elsif (load_current_state = CALC_PADDING and padding_needed = '1') then
---			subevent_size <= subevent_size + x"4"+ x"8";
---		elsif (load_current_state = CALC_PADDING and padding_needed = '0') then
---			subevent_size <= subevent_size + x"8";
 		elsif (load_current_state = DECIDE) then
 			subevent_size <= subevent_size + x"8";
 		else
@@ -510,19 +518,6 @@ begin
 		end if;
 	end if;
 end process SUBEVENT_SIZE_PROC;
-
---PADDING_NEEDED_PROC : process(CLK_GBE)
---begin
---	if rising_edge(CLK_GBE) then
---		if (load_current_state = IDLE) then	
---			padding_needed <= '0';
---		elsif (load_current_state = DECIDE and subevent_size(2) = '1') then
---			padding_needed <= '1';
---		end if;
---	end if;
---end process PADDING_NEEDED_PROC;
-			
-			
 
 -- end of extraction
 --*****
@@ -579,7 +574,7 @@ end process READOUT_CTR_PROC;
 --*****
 -- event builder selection
 
---TODO: close the currrent multievent packet in case event builder address changes
+--TODO: close the current multievent packet in case event builder address changes
 
 BANK_SELECT_PROC : process(CLK_GBE)
 begin
@@ -667,7 +662,7 @@ PC_DATA_OUT <= pc_data;
 
 PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
-PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random; 
+PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random;
 
 PC_PADDING_OUT <= '0'; --padding_needed; not used anymore
 
