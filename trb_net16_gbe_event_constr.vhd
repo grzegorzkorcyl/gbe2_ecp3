@@ -48,9 +48,9 @@ architecture RTL of trb_net16_gbe_event_constr is
 
 attribute syn_encoding	: string;
 
-type saveStates is (IDLE, SAVE_DATA, CLEANUP);
-signal save_current_state, save_next_state : saveStates;
-attribute syn_encoding of save_current_state : signal is "onehot";
+--type saveStates is (IDLE, SAVE_DATA, CLEANUP);
+--signal save_current_state, save_next_state : saveStates;
+--attribute syn_encoding of save_current_state : signal is "onehot";
 
 type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
@@ -84,6 +84,8 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
+signal df_data : std_logic_vector(8 downto 0);
+signal df_eod_q : std_logic;
 
 begin
 
@@ -91,42 +93,42 @@ begin
 -- SAVING PART
 --*******
 
-SAVE_MACHINE_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			save_current_state <= IDLE;
-		else
-			save_current_state <= save_next_state;
-		end if;
-	end if;
-end process SAVE_MACHINE_PROC;
-
-SAVE_MACHINE : process(save_current_state, PC_START_OF_SUB_IN, PC_END_OF_DATA_IN)
-begin
-	case (save_current_state) is
-
-		when IDLE =>
-			if (PC_START_OF_SUB_IN = '1') then
-				save_next_state <= SAVE_DATA;
-			else
-				save_next_state <= IDLE;
-			end if;
-		
-		when SAVE_DATA =>
-			if (PC_END_OF_DATA_IN = '1') then
-				save_next_state <= CLEANUP;
-			else
-				save_next_state <= SAVE_DATA;
-			end if;
-		
-		when CLEANUP =>
-			save_next_state <= IDLE;
-		
-		when others => save_next_state <= IDLE;
-
-	end case;
-end process SAVE_MACHINE;
+--SAVE_MACHINE_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			save_current_state <= IDLE;
+--		else
+--			save_current_state <= save_next_state;
+--		end if;
+--	end if;
+--end process SAVE_MACHINE_PROC;
+--
+--SAVE_MACHINE : process(save_current_state, PC_START_OF_SUB_IN, PC_END_OF_DATA_IN)
+--begin
+--	case (save_current_state) is
+--
+--		when IDLE =>
+--			if (PC_START_OF_SUB_IN = '1') then
+--				save_next_state <= SAVE_DATA;
+--			else
+--				save_next_state <= IDLE;
+--			end if;
+--		
+--		when SAVE_DATA =>
+--			if (PC_END_OF_DATA_IN = '1') then
+--				save_next_state <= CLEANUP;
+--			else
+--				save_next_state <= SAVE_DATA;
+--			end if;
+--		
+--		when CLEANUP =>
+--			save_next_state <= IDLE;
+--		
+--		when others => save_next_state <= IDLE;
+--
+--	end case;
+--end process SAVE_MACHINE;
 
 DF_EOD_PROC : process(CLK)
 begin
@@ -136,6 +138,8 @@ begin
 		else
 			df_eod <= '0';
 		end if;
+		
+		df_eod_q <= df_eod;
 	end if; 
 end process DF_EOD_PROC;
 
@@ -147,14 +151,16 @@ begin
 		else
 			df_wr_en <= '0';
 		end if;
+		
+		df_data <= PC_DATA_IN;
 	end if;
 end process DF_WR_EN_PROC;
 
 
 DATA_FIFO : fifo_64kx9
 port map(
-	Data(7 downto 0) =>  PC_DATA_IN,
-	Data(8)          =>  df_eod,
+	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
+	Data(8)          =>  df_eod_q,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
 	WrEn             =>  df_wr_en,
@@ -174,20 +180,30 @@ begin
 	end if;
 end process DF_QQ_PROC;
 
-PC_READY_OUT <= '1' when save_current_state = IDLE and df_full = '0' else '0';
+READY_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		--if (save_current_state = IDLE and df_full = '0') then
+		if (df_full = '0') then
+			PC_READY_OUT <= '1';
+		else
+			PC_READY_OUT <= '0';
+		end if;
+	end if;	
+end process READY_PROC;
 
 --*****
 -- subevent headers
-
-SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3 --fifo_512x8 --fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_512x8 --fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
-	WrClock       =>  CLK,
-	RdClock		=> CLK,
+	Clock       => CLK,
+	--WrClock       =>  CLK,
+	--RdClock		=> CLK,
 	WrEn        =>  shf_wr_en,
 	RdEn        =>  shf_rd_en,
 	Reset       =>  RESET,
-	RPReset		=> RESET,
+	--RPReset		=> RESET,
 	Q           =>  shf_q,
 	Empty       =>  shf_empty,
 	Full        =>  shf_full
@@ -281,7 +297,7 @@ begin
 	end if;
 end process SUB_INT_CTR_PROC;
 
-SUB_SIZE_TO_SAVE_PROC : process (CLK) is
+SUB_SIZE_TO_SAVE_PROC : process (CLK)
 begin
 	if rising_edge(CLK) then
 		if (PC_PADDING_IN = '0') then
@@ -398,7 +414,8 @@ begin
 				queue_size <= queue_size;
 			end if;
 		else
-			if (save_current_state = IDLE) then
+			--if (save_current_state = IDLE) then
+			if (PC_START_OF_SUB_IN = '1') then
 				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
 			elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
@@ -428,7 +445,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod, term_ctr)
 begin
 	case (load_current_state) is
 	

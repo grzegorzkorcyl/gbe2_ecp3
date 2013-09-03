@@ -373,15 +373,6 @@ begin
 	end if;
 end process TX_FIFO_SYNC_PROC;
 
---TC_WR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		tc_wr <= tx_fifo_rd;
---		
---		TC_WR_EN_OUT <= tc_wr;
---	end if;
---end process TC_WR_PROC;
-
 TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
