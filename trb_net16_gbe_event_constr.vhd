@@ -167,7 +167,7 @@ port map(
 	Data(8)          =>  df_eod_q,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
-	WrEn             =>  df_wr_en,
+	WrEn             =>  df_wr_en_qq,
 	RdEn             =>  df_rd_en,
 	Reset            =>  RESET,
 	RPReset          =>  RESET,
