@@ -681,27 +681,27 @@ end process DISSECT_MACHINE;
 
 
 -- reset request packet detection
-RESET_DETECTED_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = CLEANUP) then
-			reset_detected <= '0';
-		elsif (PS_DATA_IN(7 downto 0) = x"80" and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
-			reset_detected <= '1';
-		end if;
-	end if;
-end process RESET_DETECTED_PROC;
-
-MAKE_RESET_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			make_reset <= '0';
-		elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
-			make_reset <= '1';
-		end if;
-	end if;
-end process MAKE_RESET_PROC;
+-- RESET_DETECTED_PROC : process(CLK)
+-- begin
+	-- if rising_edge(CLK) then
+		-- if (RESET = '1' or dissect_current_state = CLEANUP) then
+			-- reset_detected <= '0';
+		-- elsif (PS_DATA_IN(7 downto 0) = x"80" and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
+			-- reset_detected <= '1';
+		-- end if;
+	-- end if;
+-- end process RESET_DETECTED_PROC;
+-- 
+-- MAKE_RESET_PROC : process(CLK)
+-- begin
+	-- if rising_edge(CLK) then
+		-- if (RESET = '1') then
+			-- make_reset <= '0';
+		-- elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
+			-- make_reset <= '1';
+		-- end if;
+	-- end if;
+-- end process MAKE_RESET_PROC;
 
 
 
@@ -822,7 +822,7 @@ end process REPLY_CTR_PROC;
 ---- end of statistics
 --
 ---- **** debug
-DEBUG_OUT(3 downto 0)   <= state;
+--DEBUG_OUT(3 downto 0)   <= state;
 --DEBUG_OUT(4)            <= '0';
 --DEBUG_OUT(7 downto 5)   <= "000";
 --DEBUG_OUT(8)            <= '0';
