@@ -118,6 +118,8 @@ signal link_ok_125          : std_logic;
 -- gk 09.12.10
 signal delay_ctr            : std_logic_vector(31 downto 0);
 signal frame_delay_reg      : std_logic_vector(31 downto 0);
+signal fpf_data_q           : std_logic_vector(7 downto 0);
+signal fpf_wr_en_q, fpf_eod : std_logic;
 
 begin
 
@@ -380,7 +382,6 @@ begin
 	end if;
 end process putUdpHeadersProc;
 
---TODO: sync with clock
 fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
 begin
 	if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
@@ -425,6 +426,16 @@ begin
 	end case;
 end process fpfDataProc;
 
+syncProc : process(CLK)
+begin
+	if rising_edge(CLK) then
+		fpf_data_q  <= fpf_data;
+		fpf_wr_en_q <= fpf_wr_en;
+		fpf_eod     <= END_OF_DATA_IN;
+	end if;
+end process syncProc;
+		
+
 
 readyFramesCtrProc: process( CLK )
 begin
@@ -451,11 +462,11 @@ end process fpfResetProc;
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
-	Data(7 downto 0)    => fpf_data,
-	Data(8)             => END_OF_DATA_IN,
+	Data(7 downto 0)    => fpf_data_q,
+	Data(8)             => fpf_eod, --END_OF_DATA_IN,
 	WrClock             => CLK,
 	RdClock             => RD_CLK,
-	WrEn                => fpf_wr_en,
+	WrEn                => fpf_wr_en_q,
 	RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
 	Reset               => fpf_reset,
 	RPReset             => fpf_reset,
