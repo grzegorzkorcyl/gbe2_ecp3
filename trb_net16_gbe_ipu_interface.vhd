@@ -344,8 +344,8 @@ port map(
 	--AmFullThresh      => b"111_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
-	WCNT              => open,
-	RCNT              => open,
+	--WCNT              => open,
+	--RCNT              => open,
 	Empty             => sf_empty,
 	--AlmostEmpty       => open,
 	Full              => sf_afull,  -- WARNING, JUST FOR DEBUG
