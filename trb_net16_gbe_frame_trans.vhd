@@ -92,17 +92,19 @@ signal resetAddr		: std_logic;
 signal FifoEmpty		: std_logic;
 signal debug			: std_logic_vector(63 downto 0);
 signal sent_ctr                 : std_logic_vector(31 downto 0);
-signal link_ok_125, link_ok_q      : std_logic;
+signal link_ok_125      : std_logic;
 
 begin
 
-process(TX_MAC_CLK)
-begin
-	if rising_edge(TX_MAC_CLK) then
-		link_ok_q <= LINK_OK_IN;
-		link_ok_125 <= link_ok_q;
-	end if;
-end process;
+linkOkSync : pulse_sync
+port map(
+	CLK_A_IN    => CLK,
+	RESET_A_IN  => RESET,
+	PULSE_A_IN  => LINK_OK_IN,
+	CLK_B_IN    => TX_MAC_CLK,
+	RESET_B_IN  => RESET,
+	PULSE_B_OUT => link_ok_125
+);
 
 -- Fakes
 debug(63 downto 32) <= (others => '0');
@@ -112,7 +114,7 @@ debug(63 downto 32) <= (others => '0');
 TransmitStateMachineProc : process (TX_MAC_CLK)
 begin
 	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
+		if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;
@@ -153,7 +155,7 @@ end process TransmitStateMachine;
 FifoAvailProc : process (TX_MAC_CLK)
 begin
 	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
+		if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
 			tx_fifoavail_i <= '0';
 		elsif (transmitCurrentState = T_TRANSMIT) then
 			tx_fifoavail_i <= '1';
@@ -165,7 +167,7 @@ end process FifoAvailProc;
 
 FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
 begin
-	if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
+	if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
 		FifoEmpty <= '1';
 	elsif    (transmitCurrentState = T_WAITFORFIFO) then
 		FifoEmpty <= '1';
@@ -181,29 +183,29 @@ end process FifoEmptyProc;
 tx_fifoeof_i <= '1' when ((DATA_ENDFLAG_IN = '1') and (transmitCurrentState = T_TRANSMIT)) 
 					else '0';
 					
---SENT_CTR_PROC : process(TX_MAC_CLK)
---begin
---	if rising_edge(TX_MAC_CLK) then
---		if (RESET = '1') then
---			sent_ctr <= (others => '0');
---		elsif (TX_DONE_IN = '1') and (TX_STAT_EN_IN = '1') and (TX_STATVEC_IN(0) = '1')  then
---			sent_ctr <= sent_ctr + x"1";
---		end if;
---	end if;
---end process SENT_CTR_PROC;
---
---sync1 : signal_sync
---generic map(
---	WIDTH => 32,
---	DEPTH => 2
---)
---port map (
---	RESET => RESET,
---	CLK0  => CLK,
---	CLK1  => CLK,
---	D_IN  => sent_ctr,
---	D_OUT => debug(31 downto 0)
---);
+SENT_CTR_PROC : process(TX_MAC_CLK)
+begin
+	if rising_edge(TX_MAC_CLK) then
+		if (RESET = '1') then
+			sent_ctr <= (others => '0');
+		elsif (TX_DONE_IN = '1') and (TX_STAT_EN_IN = '1') and (TX_STATVEC_IN(0) = '1')  then
+			sent_ctr <= sent_ctr + x"1";
+		end if;
+	end if;
+end process SENT_CTR_PROC;
+
+sync1 : signal_sync
+generic map(
+	WIDTH => 32,
+	DEPTH => 2
+)
+port map (
+	RESET => RESET,
+	CLK0  => CLK,
+	CLK1  => CLK,
+	D_IN  => sent_ctr,
+	D_OUT => debug(31 downto 0)
+);
 
 TX_FIFOAVAIL_OUT   <= tx_fifoavail_i;
 TX_FIFOEOF_OUT     <= tx_fifoeof_i;
