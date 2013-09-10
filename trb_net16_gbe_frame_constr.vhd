@@ -506,7 +506,7 @@ port map(
 transmitMachineProc: process( RD_CLK )
 begin
 	if( rising_edge(RD_CLK) ) then
-		if( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+		if( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;
@@ -534,9 +534,9 @@ begin
 		when T_TRANSMIT =>
 			bsm_trans <= x"2";
 			-- gk 03.08.10
-			if ((link_ok_125 = '1') and ((FT_TX_DONE_IN = '1') or (FT_TX_DISCFRM_IN = '1')))then
+			if ((LINK_OK_IN = '1') and ((FT_TX_DONE_IN = '1') or (FT_TX_DISCFRM_IN = '1')))then
 				transmitNextState <= T_CLEANUP;
-			elsif (link_ok_125 = '0') then
+			elsif (LINK_OK_IN = '0') then
 				transmitNextState <= T_PAUSE;
 			else
 				transmitNextState <= T_TRANSMIT;
@@ -557,7 +557,7 @@ end process transmitMachine;
 sopProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
 			ft_sop <= '0';
 		elsif ((transmitCurrentState = T_IDLE) and (sent_frames_ctr /= ready_frames_ctr_q)) then
 			ft_sop <= '1';
@@ -570,7 +570,7 @@ end process sopProc;
 sentFramesCtrProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
 			sent_frames_ctr <= (others => '0');
 		-- gk 03.08.10
 		elsif( FT_TX_DONE_IN = '1' ) or (FT_TX_DISCFRM_IN = '1') then

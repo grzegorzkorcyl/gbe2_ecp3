@@ -477,7 +477,6 @@ port map(
 	VALID_OUT		 => frame_type_valid
 );
 
---TODO put here a larger fifo maybe (for sure!)
 receive_fifo : fifo_4096x9
 port map( 
 	Data(7 downto 0)    => MAC_RXD_IN,
