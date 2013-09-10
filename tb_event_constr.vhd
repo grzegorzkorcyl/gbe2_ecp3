@@ -76,6 +76,12 @@ SIGNAL FEE_READ_OUT :  std_logic;
 SIGNAL FEE_STATUS_BITS_IN :  std_logic_vector(31 downto 0);
 SIGNAL FEE_BUSY_IN :  std_logic;
 
+
+signal ft_data : std_logic_vector(8 downto 0);
+signal ft_tx_empty, ft_start_of_packet : std_logic;
+
+signal mac_tx_done, mac_fifoeof : std_logic;
+
 begin
 
 MAIN_CONTROL : trb_net16_gbe_main_control
@@ -264,10 +270,10 @@ port map(
 	FRAME_DELAY_IN          => x"0000_0000",
 	-- ports for packetTransmitter
 	RD_CLK                  => RX_MAC_CLK,
-	FT_DATA_OUT             => open,
-	FT_TX_EMPTY_OUT         => open,
+	FT_DATA_OUT             => ft_data,
+	FT_TX_EMPTY_OUT         => ft_tx_empty,
 	FT_TX_RD_EN_IN          => '1',
-	FT_START_OF_PACKET_OUT  => open,
+	FT_START_OF_PACKET_OUT  => ft_start_of_packet,
 	FT_TX_DONE_IN           => '1',
 	FT_TX_DISCFRM_IN	=> '0',
 	-- debug ports
@@ -276,6 +282,34 @@ port map(
 	DEBUG_OUT               => open
 );
 
+FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
+port map( 
+	CLK				=> CLK,
+	RESET				=> RESET,
+	LINK_OK_IN			=> '1', --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
+	TX_MAC_CLK			=> RX_MAC_CLK,
+	TX_EMPTY_IN			=> ft_tx_empty,
+	START_OF_PACKET_IN		=> ft_start_of_packet,
+	DATA_ENDFLAG_IN			=> ft_data(8),  -- ft_eod -- gk 04.05.10
+	
+	TX_FIFOAVAIL_OUT		=> open,
+	TX_FIFOEOF_OUT			=> mac_fifoeof,
+	TX_FIFOEMPTY_OUT		=> open,
+	TX_DONE_IN				=> mac_tx_done,	
+	TX_STAT_EN_IN			=> '0',
+	TX_STATVEC_IN			=> (others => '0'),
+	TX_DISCFRM_IN			=> '0',
+	-- Debug
+	BSM_INIT_OUT			=> open,
+	BSM_MAC_OUT			=> open,
+	BSM_TRANS_OUT			=> open,
+	DBG_RD_DONE_OUT			=> open,
+	DBG_INIT_DONE_OUT		=> open,
+	DBG_ENABLED_OUT			=> open,
+	DEBUG_OUT			=> open
+	--DEBUG_OUT(31 downto 0)		=> open,
+	--DEBUG_OUT(63 downto 32)		=> open
+);  
 
 g_MAX_FRAME_SIZE <= x"0578";
 
@@ -293,6 +327,17 @@ begin
 	CLK <= '1'; wait for 5.0 ns;
 	CLK <= '0'; wait for 5.0 ns;
 end process CLOCK_GEN_PROC;
+
+
+process
+begin
+
+	mac_tx_done <= '0';
+	wait until rising_edge(mac_fifoeof);
+	wait until rising_edge(rx_mac_clk);
+	mac_tx_done <= '1';
+	wait until rising_edge(rx_mac_clk);
+end process;
 
 testbench_proc : process
 -- test data from TRBnet
