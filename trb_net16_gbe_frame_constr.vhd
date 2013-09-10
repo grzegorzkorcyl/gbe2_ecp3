@@ -113,7 +113,7 @@ signal ready_frames_ctr_q   : std_logic_vector(15 downto 0);
 signal ip_cs_temp_right     : std_logic_vector(15 downto 0); -- gk 29.03.10
 
 signal fpf_reset            : std_logic;  -- gk 01.01.01
-signal link_ok_125          : std_logic;
+signal link_ok_125, link_ok_q : std_logic;
 
 -- gk 09.12.10
 signal delay_ctr            : std_logic_vector(31 downto 0);
@@ -511,18 +511,13 @@ transferToRdClock : signal_sync
 	  D_OUT    => ready_frames_ctr_q
 	  );
 
-linkOkSync : signal_sync
-	generic map(
-	  DEPTH => 2,
-	  WIDTH => 1
-	  )
-	port map(
-	  RESET    => RESET,
-	  D_IN     => LINK_OK_IN,
-	  CLK0     => RD_CLK,
-	  CLK1     => RD_CLK,
-	  D_OUT    => link_ok_125
-	  );
+process(RD_CLK)
+begin
+	if rising_edge(RD_CLK) then
+		link_ok_q <= LINK_OK_IN;
+		link_ok_125 <= link_ok_q;
+	end if;
+end process;
 
 transmitMachineProc: process( RD_CLK )
 begin
