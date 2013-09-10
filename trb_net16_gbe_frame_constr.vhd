@@ -466,17 +466,17 @@ begin
 	end if;
 end process readyFramesCtrProc;
 
-fpfResetProc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or LINK_OK_IN = '0') then
-			fpf_reset <= '1';
-		else
-			fpf_reset <= '0';
-		end if;
-	end if;
-end process fpfResetProc;
---fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
+--fpfResetProc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or LINK_OK_IN = '0') then
+--			fpf_reset <= '1';
+--		else
+--			fpf_reset <= '0';
+--		end if;
+--	end if;
+--end process fpfResetProc;
+fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
