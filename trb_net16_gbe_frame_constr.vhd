@@ -476,7 +476,7 @@ end process readyFramesCtrProc;
 --		end if;
 --	end if;
 --end process fpfResetProc;
-fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
+--fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
@@ -486,8 +486,8 @@ port map(
 	RdClock             => RD_CLK,
 	WrEn                => fpf_wr_en_q,
 	RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
-	Reset               => fpf_reset,
-	RPReset             => fpf_reset,
+	Reset               => RESET, --fpf_reset,
+	RPReset             => RESET, --fpf_reset,
 	Q                   => fpf_q,
 	Empty               => fpf_empty,
 	Full                => fpf_full
