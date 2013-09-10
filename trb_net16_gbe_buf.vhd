@@ -597,8 +597,8 @@ begin
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
 
 -- gk 23.04.10
-LED_PACKET_SENT_OUT <= timeout_noticed; --pc_ready;
-LED_AN_DONE_N_OUT   <= not link_ok; --not pcs_an_complete;
+LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
+LED_AN_DONE_N_OUT   <= '0'; --not link_ok; --not pcs_an_complete;
 
 fc_ihl_version      <= x"45";
 fc_tos              <= x"10";
