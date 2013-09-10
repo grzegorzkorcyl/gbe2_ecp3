@@ -228,9 +228,9 @@ begin
   end if;
 end process HADDR_PROC;
 
-HDATA_PROC : process(mac_conf_current_state)
+HDATA_PROC : process(CLK) --process(mac_conf_current_state)
 begin
-
+if rising_edge(CLK) then
   case mac_conf_current_state is
 
     when WRITE_TX_RX_CTRL =>
@@ -258,7 +258,7 @@ begin
       TSM_HDATA_OUT <= (others => '0');
 
   end case;
-
+end if;
 end process HDATA_PROC;
 
 -- delay hready by one clock cycle to keep hcs and hwrite active during hready
@@ -269,14 +269,38 @@ begin
   end if;
 end process HREADY_Q_PROC;
 
-hdata_pointer <= 1 when haddr(0) = '1' else 0;
-
-hcs_n       <= '0' when (mac_conf_current_state /= IDLE) and (mac_conf_current_state /= SKIP) and (mac_conf_current_state /= READY) and (hready_n_q = '1')
-	    else '1';  -- should also support reading
-
-hwrite_n    <= hcs_n when (mac_conf_current_state /= IDLE) else '1'; -- active only during writing
-
-tsmac_ready <= '1' when (mac_conf_current_state = READY) else '0';
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		hdata_pointer <= haddr(0);
+		
+		if (mac_conf_current_state /= IDLE) and (mac_conf_current_state /= SKIP) and (mac_conf_current_state /= READY) and (hready_n_q = '1') then
+			hcs_n <= '0';
+		else
+			hcs_n <= '1';
+		end if;
+		
+		if (mac_conf_current_state /= IDLE) then
+			hwrite_n <= hcs_n;
+		else
+			hwrite_n <= '1';
+		end if;
+		
+		if (mac_conf_current_state = READY) then
+			tsmac_ready <= '1';
+		else
+			tsmac_ready <= '0';
+		end if;
+	end if;
+end process;
+--hdata_pointer <= 1 when haddr(0) = '1' else 0;
+--
+--hcs_n       <= '0' when (mac_conf_current_state /= IDLE) and (mac_conf_current_state /= SKIP) and (mac_conf_current_state /= READY) and (hready_n_q = '1')
+--	    else '1';  -- should also support reading
+--
+--hwrite_n    <= hcs_n when (mac_conf_current_state /= IDLE) else '1'; -- active only during writing
+--
+--tsmac_ready <= '1' when (mac_conf_current_state = READY) else '0';
 
 TSM_HADDR_OUT      <= haddr;
 TSM_HCS_N_OUT      <= hcs_n;

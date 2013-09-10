@@ -693,35 +693,30 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 --****************
 -- TRI SPEED MAC CONTROLLER
 
---TSMAC_CONTROLLER : trb_net16_gbe_mac_control
---port map(
---	CLK			=> CLK,
---	RESET			=> RESET,
---
----- signals to/from main controller
---	MC_TSMAC_READY_OUT	=> tsm_ready,
---	MC_RECONF_IN		=> tsm_reconf,
---	MC_GBE_EN_IN		=> '1',
---	MC_RX_DISCARD_FCS	=> '0',
---	MC_PROMISC_IN		=> '1',
---	MC_MAC_ADDR_IN		=> g_MY_MAC, --x"001122334455",
---
----- signal to/from Host interface of TriSpeed MAC
---	TSM_HADDR_OUT		=> tsm_haddr,
---	TSM_HDATA_OUT		=> tsm_hdata,
---	TSM_HCS_N_OUT		=> tsm_hcs_n,
---	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
---	TSM_HREAD_N_OUT		=> tsm_hread_n,
---	TSM_HREADY_N_IN		=> TSM_HREADY_N_IN,
---	TSM_HDATA_EN_N_IN	=> TSM_HDATA_EN_N_IN,
---
---	DEBUG_OUT		=> mac_control_debug
---);
+TSMAC_CONTROLLER : trb_net16_gbe_mac_control
+port map(
+	CLK			=> CLK,
+	RESET			=> RESET,
 
-tsm_ready <= '1';
-tsm_hread_n <= '1';
-tsm_hwrite_n <= '1';
-tsm_hcs_n <= '1';
+-- signals to/from main controller
+	MC_TSMAC_READY_OUT	=> tsm_ready,
+	MC_RECONF_IN		=> tsm_reconf,
+	MC_GBE_EN_IN		=> '1',
+	MC_RX_DISCARD_FCS	=> '0',
+	MC_PROMISC_IN		=> '1',
+	MC_MAC_ADDR_IN		=> g_MY_MAC, --x"001122334455",
+
+-- signal to/from Host interface of TriSpeed MAC
+	TSM_HADDR_OUT		=> tsm_haddr,
+	TSM_HDATA_OUT		=> tsm_hdata,
+	TSM_HCS_N_OUT		=> tsm_hcs_n,
+	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
+	TSM_HREAD_N_OUT		=> tsm_hread_n,
+	TSM_HREADY_N_IN		=> TSM_HREADY_N_IN,
+	TSM_HDATA_EN_N_IN	=> TSM_HDATA_EN_N_IN,
+
+	DEBUG_OUT		=> mac_control_debug
+);
 
 --DEBUG_OUT <= mac_control_debug;
 
