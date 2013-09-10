@@ -327,7 +327,7 @@ begin
 end process FEE_READ_PROC;
 
 
-THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
+THE_SPLIT_FIFO: fifo_4kx18x9 --fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
 	Data(7 downto 0)  => sf_data(15 downto 8),
