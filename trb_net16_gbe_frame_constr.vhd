@@ -463,11 +463,11 @@ fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
-	Data(7 downto 0)    => fpf_data,
-	Data(8)             => END_OF_DATA_IN,
+	Data(7 downto 0)    => fpf_data_q,
+	Data(8)             => fpf_eod, --END_OF_DATA_IN,
 	WrClock             => CLK,
 	RdClock             => RD_CLK,
-	WrEn                => fpf_wr_en,
+	WrEn                => fpf_wr_en_q,
 	RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
 	Reset               => fpf_reset,
 	RPReset             => fpf_reset,
