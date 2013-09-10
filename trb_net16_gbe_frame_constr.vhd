@@ -466,16 +466,16 @@ begin
 	end if;
 end process readyFramesCtrProc;
 
---fpfResetProc : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1' or LINK_OK_IN = '0') then
---			fpf_reset <= '1';
---		else
---			fpf_reset <= '0';
---		end if;
---	end if;
---end process fpfResetProc;
+fpfResetProc : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or LINK_OK_IN = '0') then
+			fpf_reset <= '1';
+		else
+			fpf_reset <= '0';
+		end if;
+	end if;
+end process fpfResetProc;
 --fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
@@ -486,16 +486,16 @@ port map(
 	RdClock             => RD_CLK,
 	WrEn                => fpf_wr_en_q,
 	RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
-	Reset               => RESET, --fpf_reset,
-	RPReset             => RESET, --fpf_reset,
+	Reset               => fpf_reset,
+	RPReset             => fpf_reset,
 	Q                   => fpf_q,
 	Empty               => fpf_empty,
 	Full                => fpf_full
 );
 
 --fpf_rd_en <= FT_TX_RD_EN_IN;
-fpf_rd_en <= '1' when ((LINK_OK_IN = '1') and (FT_TX_RD_EN_IN = '1'))
-		    or (LINK_OK_IN = '0')  -- clear the fifo if link is down
+fpf_rd_en <= '1' when ((link_ok_125 = '1') and (FT_TX_RD_EN_IN = '1'))
+		    or (link_ok_125 = '0')  -- clear the fifo if link is down
 		    else '0';
 
 transferToRdClock : signal_sync
@@ -511,20 +511,23 @@ transferToRdClock : signal_sync
 	  D_OUT    => ready_frames_ctr_q
 	  );
 
-linkOkSync : pulse_sync
-port map(
-	CLK_A_IN    => CLK,
-	RESET_A_IN  => RESET,
-	PULSE_A_IN  => LINK_OK_IN,
-	CLK_B_IN    => RD_CLK,
-	RESET_B_IN  => RESET,
-	PULSE_B_OUT => link_ok_125
-);
+linkOkSync : signal_sync
+	generic map(
+	  DEPTH => 2,
+	  WIDTH => 1
+	  )
+	port map(
+	  RESET    => RESET,
+	  D_IN     => LINK_OK_IN,
+	  CLK0     => RD_CLK,
+	  CLK1     => RD_CLK,
+	  D_OUT    => link_ok_125
+	  );
 
 transmitMachineProc: process( RD_CLK )
 begin
 	if( rising_edge(RD_CLK) ) then
-		if( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;
@@ -552,9 +555,9 @@ begin
 		when T_TRANSMIT =>
 			bsm_trans <= x"2";
 			-- gk 03.08.10
-			if ((LINK_OK_IN = '1') and ((FT_TX_DONE_IN = '1') or (FT_TX_DISCFRM_IN = '1')))then
+			if ((link_ok_125 = '1') and ((FT_TX_DONE_IN = '1') or (FT_TX_DISCFRM_IN = '1')))then
 				transmitNextState <= T_CLEANUP;
-			elsif (LINK_OK_IN = '0') then
+			elsif (link_ok_125 = '0') then
 				transmitNextState <= T_PAUSE;
 			else
 				transmitNextState <= T_TRANSMIT;
@@ -575,7 +578,7 @@ end process transmitMachine;
 sopProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if   ( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
 			ft_sop <= '0';
 		elsif ((transmitCurrentState = T_IDLE) and (sent_frames_ctr /= ready_frames_ctr_q)) then
 			ft_sop <= '1';
