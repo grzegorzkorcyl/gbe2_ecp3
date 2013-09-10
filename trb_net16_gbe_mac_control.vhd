@@ -272,7 +272,11 @@ end process HREADY_Q_PROC;
 process(CLK)
 begin
 	if rising_edge(CLK) then
-		hdata_pointer <= haddr(0);
+		if haddr(0) = '1' then
+			hdata_pointer <= '1';
+		else
+			hdata_pointer <= '0';
+		end if; 
 		
 		if (mac_conf_current_state /= IDLE) and (mac_conf_current_state /= SKIP) and (mac_conf_current_state /= READY) and (hready_n_q = '1') then
 			hcs_n <= '0';
