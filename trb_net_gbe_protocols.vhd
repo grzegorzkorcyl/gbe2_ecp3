@@ -20,7 +20,7 @@ signal g_MAX_FRAME_SIZE     : std_logic_vector(15 downto 0) := x"0200"; -- set u
 --signal g_MAX_PACKET_SIZE    : std_logic_vector(15 downto 0);
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
-constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5; --4; --5;
+constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 2; --5; --4; --5;
 constant c_MAX_IP_PROTOCOLS   : integer range 1 to 16 := 2;
 constant c_MAX_UDP_PROTOCOLS  : integer range 1 to 16 := 4;
 
