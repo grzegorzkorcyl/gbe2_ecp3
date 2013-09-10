@@ -165,18 +165,16 @@ end process FifoAvailProc;
 
 FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
 begin
-	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
-			FifoEmpty <= '1';
-		elsif    (transmitCurrentState = T_WAITFORFIFO) then
-			FifoEmpty <= '1';
-		elsif (transmitCurrentState = T_TRANSMIT) then
-			FifoEmpty <= TX_EMPTY_IN;
-		elsif (((transmitCurrentState = T_IDLE) or (transmitCurrentState = T_WAITFORFIFO)) and (START_OF_PACKET_IN = '1')) then
-			FifoEmpty <= '0';
-		else
-			FifoEmpty <= '1';
-		end if;
+	if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
+		FifoEmpty <= '1';
+	elsif    (transmitCurrentState = T_WAITFORFIFO) then
+		FifoEmpty <= '1';
+	elsif (transmitCurrentState = T_TRANSMIT) then
+		FifoEmpty <= TX_EMPTY_IN;
+	elsif (((transmitCurrentState = T_IDLE) or (transmitCurrentState = T_WAITFORFIFO)) and (START_OF_PACKET_IN = '1')) then
+		FifoEmpty <= '0';
+	else
+		FifoEmpty <= '1';
 	end if;
 end process FifoEmptyProc;
 
