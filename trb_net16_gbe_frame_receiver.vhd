@@ -109,12 +109,24 @@ signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
 signal rx_data                              : std_logic_vector(8 downto 0);
 
+signal link_ok_125                          : std_logic;
+
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
 attribute syn_keep of rec_fifo_empty, rec_fifo_full, state, sizes_fifo_empty, sizes_fifo_full : signal is true;
 attribute syn_preserve of rec_fifo_empty, rec_fifo_full, state, sizes_fifo_empty, sizes_fifo_full : signal is true;
 
 begin
+
+linkOkSync : pulse_sync
+port map(
+	CLK_A_IN    => CLK,
+	RESET_A_IN  => RESET,
+	PULSE_A_IN  => LINK_OK_IN,
+	CLK_B_IN    => RX_MAC_CLK,
+	RESET_B_IN  => RESET,
+	PULSE_B_OUT => link_ok_125
+);
 
 DEBUG_OUT(0)            <= rec_fifo_empty;
 DEBUG_OUT(1)            <= rec_fifo_full;
@@ -158,14 +170,14 @@ begin
 	end if;
 end process FILTER_MACHINE_PROC;
 
-FILTER_MACHINE : process(filter_current_state, saved_frame_type, saved_proto, g_MY_MAC, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
+FILTER_MACHINE : process(filter_current_state, saved_frame_type, link_ok_125, saved_proto, g_MY_MAC, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
 begin
 
 	case filter_current_state is
 		
 		when IDLE =>
 			state <= x"1";
-			if (new_frame = '1') and (ALLOW_RX_IN = '1') and (LINK_OK_IN = '1') then
+			if (new_frame = '1') and (ALLOW_RX_IN = '1') and (link_ok_125 = '1') then
 				filter_next_state <= REMOVE_DEST;
 			else
 				filter_next_state <= IDLE;
