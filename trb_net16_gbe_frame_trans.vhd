@@ -163,7 +163,7 @@ begin
 	end if;
 end process FifoAvailProc;
 
-FifoEmptyProc : process(TX_MAC_CLK) --process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
+FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
 begin
 	if rising_edge(TX_MAC_CLK) then
 		if (RESET = '1') or (link_ok_q = '0') then -- gk 01.10.10
