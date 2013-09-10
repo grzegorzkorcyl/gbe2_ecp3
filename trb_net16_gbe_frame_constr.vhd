@@ -127,11 +127,12 @@ begin
 udp_checksum  <= x"0000";  -- no checksum test needed
 --debug         <= (others => '0');
 
+--TODO: put a clock here
 ready         <= '1' when (constructCurrentState = IDLE)
 					 else '0';
 headers_ready <= '1' when (constructCurrentState = SAVE_DATA)
 					 else '0';
-
+--TODO: put a clock here
 sizeProc: process( put_udp_headers, IP_F_SIZE_IN, UDP_P_SIZE_IN, DEST_UDP_PORT_IN)
 begin
 	if( put_udp_headers = '1' ) and (DEST_UDP_PORT_IN /= x"0000") then
@@ -448,17 +449,17 @@ begin
 	end if;
 end process readyFramesCtrProc;
 
-fpfResetProc : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or LINK_OK_IN = '0') then
-			fpf_reset <= '1';
-		else
-			fpf_reset <= '0';
-		end if;
-	end if;
-end process fpfResetProc;
---fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
+--fpfResetProc : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1' or LINK_OK_IN = '0') then
+--			fpf_reset <= '1';
+--		else
+--			fpf_reset <= '0';
+--		end if;
+--	end if;
+--end process fpfResetProc;
+fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
@@ -475,10 +476,10 @@ port map(
 	Full                => fpf_full
 );
 
-fpf_rd_en <= FT_TX_RD_EN_IN;
---fpf_rd_en <= '1' when ((LINK_OK_IN = '1') and (FT_TX_RD_EN_IN = '1'))
---		    or (LINK_OK_IN = '0')  -- clear the fifo if link is down
---		    else '0';
+--fpf_rd_en <= FT_TX_RD_EN_IN;
+fpf_rd_en <= '1' when ((LINK_OK_IN = '1') and (FT_TX_RD_EN_IN = '1'))
+		    or (LINK_OK_IN = '0')  -- clear the fifo if link is down
+		    else '0';
 
 transferToRdClock : signal_sync
 	generic map(

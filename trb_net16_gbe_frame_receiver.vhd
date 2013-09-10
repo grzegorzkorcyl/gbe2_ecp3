@@ -170,14 +170,14 @@ begin
 	end if;
 end process FILTER_MACHINE_PROC;
 
-FILTER_MACHINE : process(filter_current_state, saved_frame_type, link_ok_125, saved_proto, g_MY_MAC, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
+FILTER_MACHINE : process(filter_current_state, saved_frame_type, LINK_OK_IN, saved_proto, g_MY_MAC, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
 begin
 
 	case filter_current_state is
 		
 		when IDLE =>
 			state <= x"1";
-			if (new_frame = '1') and (ALLOW_RX_IN = '1') and (link_ok_125 = '1') then
+			if (new_frame = '1') and (ALLOW_RX_IN = '1') and (LINK_OK_IN = '1') then
 				filter_next_state <= REMOVE_DEST;
 			else
 				filter_next_state <= IDLE;
