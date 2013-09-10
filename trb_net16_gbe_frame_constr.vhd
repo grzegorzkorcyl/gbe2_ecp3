@@ -127,20 +127,37 @@ begin
 udp_checksum  <= x"0000";  -- no checksum test needed
 --debug         <= (others => '0');
 
---TODO: put a clock here
-ready         <= '1' when (constructCurrentState = IDLE)
-					 else '0';
-headers_ready <= '1' when (constructCurrentState = SAVE_DATA)
-					 else '0';
---TODO: put a clock here
-sizeProc: process( put_udp_headers, IP_F_SIZE_IN, UDP_P_SIZE_IN, DEST_UDP_PORT_IN)
+process(CLK)
 begin
-	if( put_udp_headers = '1' ) and (DEST_UDP_PORT_IN /= x"0000") then
-		ip_size  <= IP_F_SIZE_IN + x"14" + x"8";
-		udp_size <= UDP_P_SIZE_IN + x"8";
-	else
-		ip_size  <= IP_F_SIZE_IN + x"14";
-		udp_size <= UDP_P_SIZE_IN;
+	if rising_edge(CLK) then
+		if constructCurrentState = IDLE then
+			ready <= '1';
+		else
+			ready <= '0';
+		end if;
+		
+		if (constructCurrentState = SAVE_DATA) then
+			headers_ready <= '1';
+		else
+			headers_ready <= '0';
+		end if;
+	end if;
+end process;
+--ready         <= '1' when (constructCurrentState = IDLE)
+--					 else '0';
+--headers_ready <= '1' when (constructCurrentState = SAVE_DATA)
+--					 else '0';
+					 
+sizeProc: process(CLK) -- put_udp_headers, IP_F_SIZE_IN, UDP_P_SIZE_IN, DEST_UDP_PORT_IN)
+begin
+	if rising_edge(CLK) then
+		if( put_udp_headers = '1' ) and (DEST_UDP_PORT_IN /= x"0000") then
+			ip_size  <= IP_F_SIZE_IN + x"14" + x"8";
+			udp_size <= UDP_P_SIZE_IN + x"8";
+		else
+			ip_size  <= IP_F_SIZE_IN + x"14";
+			udp_size <= UDP_P_SIZE_IN;
+		end if;
 	end if;
 end process sizeProc;
 
@@ -449,17 +466,17 @@ begin
 	end if;
 end process readyFramesCtrProc;
 
---fpfResetProc : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1' or LINK_OK_IN = '0') then
---			fpf_reset <= '1';
---		else
---			fpf_reset <= '0';
---		end if;
---	end if;
---end process fpfResetProc;
-fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
+fpfResetProc : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or LINK_OK_IN = '0') then
+			fpf_reset <= '1';
+		else
+			fpf_reset <= '0';
+		end if;
+	end if;
+end process fpfResetProc;
+--fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
 FINAL_PACKET_FIFO: fifo_4096x9
 port map( 
