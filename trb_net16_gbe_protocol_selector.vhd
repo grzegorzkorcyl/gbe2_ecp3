@@ -271,13 +271,6 @@ port map (
 	 
 	DEBUG_OUT		        => PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
  );
- 
-resp_ready(2) <= '0';
-busy(2) <= '0';
-resp_ready(3) <= '0';
-busy(3) <= '0';
-resp_ready(4) <= '0';
-busy(4) <= '0';
 
 -- protocol No. 3 Ping
 --Ping : trb_net16_gbe_response_constructor_Ping
