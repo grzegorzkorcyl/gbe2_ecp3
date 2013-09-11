@@ -41,7 +41,7 @@ port map(
 	TSM_HCS_N_OUT		=> tsm_hcs_n,
 	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
 	TSM_HREAD_N_OUT		=> tsm_hread_n,
-	TSM_HREADY_N_IN		=> '1',
+	TSM_HREADY_N_IN		=> '0',
 	TSM_HDATA_EN_N_IN	=> '1',
 
 	DEBUG_OUT		=> open
