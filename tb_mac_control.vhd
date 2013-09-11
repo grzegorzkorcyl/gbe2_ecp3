@@ -18,7 +18,7 @@ END aa_tb_mac_control;
 ARCHITECTURE behavior OF aa_tb_mac_control IS
 
 signal clk, reset,RX_MAC_CLK : std_logic;
-signal tsm_ready, tsm_reconf, tsm_hcs_n, tsm_hwrite_n, tsm_hread_n, tsm_hready_n : std_logic;
+signal tsm_ready, reconf, tsm_hcs_n, tsm_hwrite_n, tsm_hread_n, tsm_hready_n : std_logic;
 signal tsm_haddr, tsm_hdata : std_logic_vector(7 downto 0);
 begin
 
@@ -29,7 +29,7 @@ port map(
 
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
-	MC_RECONF_IN		=> '0',
+	MC_RECONF_IN		=> reconf,
 	MC_GBE_EN_IN		=> '1',
 	MC_RX_DISCARD_FCS	=> '0',
 	MC_PROMISC_IN		=> '1',
@@ -68,6 +68,7 @@ end process;
 testbench_proc : process
 begin
 	reset <= '1';
+	reconf <= '0';
 	wait for 100 ns;
 	reset <= '0';
 	wait;

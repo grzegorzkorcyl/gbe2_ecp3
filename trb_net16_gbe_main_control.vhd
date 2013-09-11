@@ -695,7 +695,7 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 
 TSMAC_CONTROLLER : trb_net16_gbe_mac_control
 port map(
-	CLK			=> CLK,
+	CLK				=> CLK,
 	RESET			=> RESET,
 
 -- signals to/from main controller
@@ -715,7 +715,7 @@ port map(
 	TSM_HREADY_N_IN		=> TSM_HREADY_N_IN,
 	TSM_HDATA_EN_N_IN	=> TSM_HDATA_EN_N_IN,
 
-	DEBUG_OUT		=> mac_control_debug
+	DEBUG_OUT		=> open
 );
 
 --DEBUG_OUT <= mac_control_debug;
