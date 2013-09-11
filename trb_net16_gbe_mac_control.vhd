@@ -89,7 +89,7 @@ reg_tx_rx_ctrl1(0)           <= MC_PROMISC_IN; -- promiscuous mode
 MAC_CONF_MACHINE_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
-    if (RESET = '1') or (MC_RECONF_IN = '1') then
+    if (RESET = '1') then
       mac_conf_current_state <= IDLE;
     else
       mac_conf_current_state <= mac_conf_next_state;
@@ -97,13 +97,17 @@ begin
   end if;
 end process MAC_CONF_MACHINE_PROC;
 
-MAC_CONF_MACHINE : process(mac_conf_current_state, TSM_HREADY_N_IN)
+MAC_CONF_MACHINE : process(mac_conf_current_state, MC_RECONF_IN, TSM_HREADY_N_IN)
 begin
 
   case mac_conf_current_state is
 
     when IDLE =>
-		mac_conf_next_state <= DISABLE;
+    	if (MC_RECONF_IN = '1') then
+			mac_conf_next_state <= DISABLE;
+		else
+			mac_conf_next_state <= IDLE;
+		end if;
 
     when DISABLE =>
     	if (TSM_HREADY_N_IN = '0') then
@@ -134,7 +138,11 @@ begin
 		end if;
 
     when READY =>
-		mac_conf_next_state <= READY;
+    	if (MC_RECONF_IN = '1') then
+			mac_conf_next_state <= DISABLE;
+		else
+			mac_conf_next_state <= READY;
+		end if;			
 
   end case;
 
