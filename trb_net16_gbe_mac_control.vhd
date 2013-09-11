@@ -190,8 +190,8 @@ begin
 			hcs_n <= '0';
 			hwrite_n <= '0';
 		else
-			hcs_n <= hcs_n;
-			hwrite_n <= hwrite_n;
+			hcs_n <= '1';
+			hwrite_n <= '1';
 		end if;
 		
 		if (mac_conf_current_state = READY) then
