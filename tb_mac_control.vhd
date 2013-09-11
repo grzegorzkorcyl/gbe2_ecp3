@@ -18,7 +18,7 @@ END aa_tb_mac_control;
 ARCHITECTURE behavior OF aa_tb_mac_control IS
 
 signal clk, reset,RX_MAC_CLK : std_logic;
-signal tsm_ready, tsm_reconf, tsm_hcs_n, tsm_hwrite_n, tsm_hread_n : std_logic;
+signal tsm_ready, tsm_reconf, tsm_hcs_n, tsm_hwrite_n, tsm_hread_n, tsm_hready_n : std_logic;
 signal tsm_haddr, tsm_hdata : std_logic_vector(7 downto 0);
 begin
 
@@ -41,7 +41,7 @@ port map(
 	TSM_HCS_N_OUT		=> tsm_hcs_n,
 	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
 	TSM_HREAD_N_OUT		=> tsm_hread_n,
-	TSM_HREADY_N_IN		=> '0',
+	TSM_HREADY_N_IN		=> tsm_hready_n,
 	TSM_HDATA_EN_N_IN	=> '1',
 
 	DEBUG_OUT		=> open
@@ -53,6 +53,18 @@ begin
 	wait for 5 ns;
 	clk <= '1';
 	wait for 5 ns;
+end process;
+
+process
+begin
+	if (tsm_hcs_n = '0' and tsm_hwrite_n = '0') then
+		wait until rising_edge(clk);
+		wait until rising_edge(clk);
+		wait until rising_edge(clk);
+		tsm_hready_n <= '0';
+	else
+		tsm_hready_n <= '1';
+	end if;
 end process;
 
 testbench_proc : process
