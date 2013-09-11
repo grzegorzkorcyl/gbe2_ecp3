@@ -29,11 +29,11 @@ port map(
 
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
-	MC_RECONF_IN		=> tsm_reconf,
+	MC_RECONF_IN		=> '0',
 	MC_GBE_EN_IN		=> '1',
 	MC_RX_DISCARD_FCS	=> '0',
 	MC_PROMISC_IN		=> '1',
-	MC_MAC_ADDR_IN		=> g_MY_MAC, --x"001122334455",
+	MC_MAC_ADDR_IN		=> x"001122334455",
 
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		=> tsm_haddr,
