@@ -71,6 +71,11 @@ begin
 	reconf <= '0';
 	wait for 100 ns;
 	reset <= '0';
+	
+	wait for 100 ns;
+	reconf <= '1';
+	wait until rising_edge(CLK);
+	reconf <= '0';
 	wait;
 end process testbench_proc;
 
