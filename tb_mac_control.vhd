@@ -57,14 +57,12 @@ end process;
 
 process
 begin
-	if (tsm_hcs_n = '0' and tsm_hwrite_n = '0') then
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		tsm_hready_n <= '0';
-	else
-		tsm_hready_n <= '1';
-	end if;
+	tsm_hready_n <= '1';
+	wait until falling_edge(tsm_hcs_n);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	tsm_hready_n <= '0';
+	wait until rising_edge(clk);
 end process;
 
 testbench_proc : process
