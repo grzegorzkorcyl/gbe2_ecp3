@@ -110,8 +110,9 @@ signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 signal rx_data, fr_q                        : std_logic_vector(8 downto 0);
 
 signal fr_src_ip, fr_dest_ip : std_logic_vector(31 downto 0);
-signal fr_ip_proto, fr_dest_udp, fr_src_udp, fr_frame_size, fr_frame_proto : std_logic_vector(15 downto 0);
+signal fr_dest_udp, fr_src_udp, fr_frame_size, fr_frame_proto : std_logic_vector(15 downto 0);
 signal fr_dest_mac, fr_src_mac : std_logic_vector(47 downto 0);
+signal fr_ip_proto : std_logic_vector(7 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
