@@ -55,31 +55,57 @@ begin
 -- DO NOT TOUCH
 IP_RESULTS_GEN : for i in 0 to c_MAX_IP_PROTOCOLS - 1 generate
 
-	ip_result(i) <= '1' when (
-					IP_PROTOCOLS(i) = IP_PROTOCOLS_IN and
-					ALLOWED_IP_PROTOCOLS_IN(i) = '1'
-				) else '0';
-				
-				
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if IP_PROTOCOLS(i) = IP_PROTOCOLS_IN and ALLOWED_IP_PROTOCOLS_IN(i) = '1' then
+			ip_result(i) <= '1';
+		else
+			ip_result(i) <= '0';
+		end if;
+	end if;
+end process;
+--	ip_result(i) <= '1' when (
+--					IP_PROTOCOLS(i) = IP_PROTOCOLS_IN and
+--					ALLOWED_IP_PROTOCOLS_IN(i) = '1'
+--				) else '0';
 
 end generate IP_RESULTS_GEN;
 
 UDP_RESULTS_GEN : for i in 0 to c_MAX_UDP_PROTOCOLS - 1 generate
-
-	udp_result(i) <= '1' when (
-					UDP_PROTOCOLS(i) = UDP_PROTOCOL_IN and
-					ALLOWED_UDP_PROTOCOLS_IN(i) = '1'
-				) else '0';
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if UDP_PROTOCOLS(i) = UDP_PROTOCOL_IN and ALLOWED_UDP_PROTOCOLS_IN(i) = '1' then
+			udp_result(i) <= '1';
+		else
+			udp_result(i) <= '0';
+		end if;
+	end if;
+end process;
+--	udp_result(i) <= '1' when (
+--					UDP_PROTOCOLS(i) = UDP_PROTOCOL_IN and
+--					ALLOWED_UDP_PROTOCOLS_IN(i) = '1'
+--				) else '0';
 
 end generate UDP_RESULTS_GEN;
 
 
 RESULT_GEN : for i in 0 to c_MAX_FRAME_TYPES - 1 generate
-
-	result(i) <= '1' when (
-				FRAME_TYPES(i) = FRAME_TYPE_IN and 
-				ALLOWED_TYPES_IN(i) = '1'
-			) else '0';
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if FRAME_TYPES(i) = FRAME_TYPE_IN and ALLOWED_TYPES_IN(i) = '1' then
+			result(i) <= '1';
+		else
+			result(i) <= '0';
+		end if;
+	end if;
+end process;
+--	result(i) <= '1' when (
+--				FRAME_TYPES(i) = FRAME_TYPE_IN and 
+--				ALLOWED_TYPES_IN(i) = '1'
+--			) else '0';
 
 end generate RESULT_GEN;
 
@@ -102,9 +128,9 @@ begin
 	end if;
 end process PARTIALLY_VALID_PROC;
 
-VALID_OUT_PROC : process(partially_valid, SAVED_VLAN_ID_IN, VLAN_ID_IN)
+VALID_OUT_PROC : process(CLK) --partially_valid, SAVED_VLAN_ID_IN, VLAN_ID_IN)
 begin
-	--if rising_edge(CLK) then
+	if rising_edge(CLK) then
 	--	if (RESET = '1') then
 	--		VALID_OUT <= '0';
 		if (partially_valid = '1') then
@@ -120,7 +146,7 @@ begin
 		else
 			VALID_OUT <= '0';
 		end if;
-	--end if;
+	end if;
 end process VALID_OUT_PROC;
 
 	--if rising_edge(CLK) then
