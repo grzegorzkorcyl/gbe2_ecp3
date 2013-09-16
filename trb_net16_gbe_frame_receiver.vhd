@@ -468,9 +468,9 @@ port map(
 
 receive_fifo : fifo_4096x9
 port map( 
-	Data(7 downto 0)    => MAC_RXD_IN,
-	Data(8)             => MAC_RX_EOF_IN,
---	Data                => rx_data,
+--	Data(7 downto 0)    => MAC_RXD_IN,
+--	Data(8)             => MAC_RX_EOF_IN,
+	Data                => rx_data,
 	WrClock             => RX_MAC_CLK,
 	RdClock             => CLK,
 	WrEn                => fifo_wr_en,
