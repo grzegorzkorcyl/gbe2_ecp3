@@ -69,7 +69,7 @@ architecture trb_net16_gbe_receive_control of trb_net16_gbe_receive_control is
 --attribute HGROUP of trb_net16_gbe_receive_control : architecture is "GBE_MAIN_group";
 attribute syn_encoding : string;
 
-type load_states is (IDLE, PREPARE, READY);
+type load_states is (IDLE, PREPARE, WAIT_ONE, READY);
 signal load_current_state, load_next_state : load_states;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -114,10 +114,10 @@ reset_prioritizer <= '1' when load_current_state = IDLE else '0';
 --RC_FRAME_PROTO_OUT <= proto_code when (and_all(proto_code) = '0') else (others => '0');
 RC_FRAME_PROTO_OUT <= proto_code;  -- no more ones as the incorrect value, last slot for Trash
 
-DEBUG_OUT(3 downto 0)   <= state;
-DEBUG_OUT(11 downto 4)  <= frames_received_ctr(7 downto 0);
-DEBUG_OUT(19 downto 12) <= frames_readout_ctr(7 downto 0);
-DEBUG_OUT(31 downto 20) <= bytes_rec_ctr(11 downto 0);
+--DEBUG_OUT(3 downto 0)   <= state;
+--DEBUG_OUT(11 downto 4)  <= frames_received_ctr(7 downto 0);
+--DEBUG_OUT(19 downto 12) <= frames_readout_ctr(7 downto 0);
+--DEBUG_OUT(31 downto 20) <= bytes_rec_ctr(11 downto 0);
 
 LOAD_MACHINE_PROC : process(CLK)
 begin
@@ -144,7 +144,10 @@ begin
 
     when PREPARE =>  -- prepare frame size
       state <= x"2";
-      load_next_state <= READY;
+      load_next_state <= WAIT_ONE; --READY;
+      
+    when WAIT_ONE =>
+    	load_next_state <= READY;
 
     when READY => -- wait for reading out the whole frame
       state <= x"3";
@@ -167,12 +170,12 @@ begin
 		end if;
 		
 		if (load_current_state = READY and RC_LOADING_DONE_IN = '0') then
-			frame_waiting <= '1';
+			RC_FRAME_WAITING_OUT <= '1';
 		else
-			frame_waiting <= '0';
+			RC_FRAME_WAITING_OUT <= '0';
 		end if;
 		
-		RC_FRAME_WAITING_OUT <= frame_waiting;
+		--RC_FRAME_WAITING_OUT <= frame_waiting;
 	end if;
 end process;
 
@@ -182,16 +185,16 @@ end process;
 --RC_FRAME_WAITING_OUT <= '1' when (load_current_state = READY)
 --		      else '0';
 
-SYNC_PROC : process(CLK)
-begin
-  if rising_edge(CLK) then
-    FRAMES_RECEIVED_OUT              <= frames_received_ctr;
-    --BYTES_RECEIVED_OUT               <= bytes_rec_ctr;
-    BYTES_RECEIVED_OUT(15 downto 0)  <= bytes_rec_ctr(15 downto 0);
-    BYTES_RECEIVED_OUT(16 + c_MAX_PROTOCOLS - 1 downto 16) <= saved_proto;
-    BYTES_RECEIVED_OUT(31 downto 16 + c_MAX_PROTOCOLS) <= (others => '0');
-  end if;
-end process SYNC_PROC;
+--SYNC_PROC : process(CLK)
+--begin
+--  if rising_edge(CLK) then
+--    FRAMES_RECEIVED_OUT              <= frames_received_ctr;
+--    --BYTES_RECEIVED_OUT               <= bytes_rec_ctr;
+--    BYTES_RECEIVED_OUT(15 downto 0)  <= bytes_rec_ctr(15 downto 0);
+--    BYTES_RECEIVED_OUT(16 + c_MAX_PROTOCOLS - 1 downto 16) <= saved_proto;
+--    BYTES_RECEIVED_OUT(31 downto 16 + c_MAX_PROTOCOLS) <= (others => '0');
+--  end if;
+--end process SYNC_PROC;
 
 FRAMES_REC_CTR_PROC : process(CLK)
 begin
@@ -215,6 +218,7 @@ begin
   end if;
 end process FRAMES_READOUT_CTR_PROC;
 
+-- debug only
 BYTES_REC_CTR_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
@@ -226,7 +230,6 @@ begin
   end if;
 end process BYTES_REC_CTR_PROC;
 
--- debug only
 SAVED_PROTO_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
