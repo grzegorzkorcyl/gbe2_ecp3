@@ -331,7 +331,7 @@ port map(
 	TC_SRC_MAC_IN		   => mc_src_mac,
 	TC_SRC_IP_IN		   => mc_src_ip,
 	TC_SRC_UDP_IN		   => mc_src_udp,
-	TC_TRANSMISSION_DONE_OUT => MC_FRAME_SIZE_OUT,
+	TC_TRANSMISSION_DONE_OUT => MC_TRANSMIT_DONE_IN,
 	TC_IDENT_IN            => mc_ident,
 
 -- signal to/from frame constructor
