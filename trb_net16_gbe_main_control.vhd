@@ -186,7 +186,7 @@ signal frame_waiting_ctr            : std_logic_vector(15 downto 0);
 signal ps_busy_q                    : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal rc_frame_proto_q             : std_Logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
-type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, FINISH, CLEANUP);
+type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, WAIT_ONE, FINISH, CLEANUP);
 signal redirect_current_state, redirect_next_state : redirect_states;
 attribute syn_encoding of redirect_current_state : signal is "onehot";
 
@@ -389,7 +389,7 @@ begin
 		when DROP =>
 			redirect_state <= x"7";
 			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
-				redirect_next_state <= FINISH;
+				redirect_next_state <= WAIT_ONE; --FINISH;
 			else
 				redirect_next_state <= DROP;
 			end if;
@@ -405,7 +405,7 @@ begin
 		when LOAD =>
 			redirect_state <= x"2";
 			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
-				redirect_next_state <= FINISH;
+				redirect_next_state <= WAIT_ONE; --FINISH;
 			else
 				redirect_next_state <= LOAD;
 			end if;
@@ -417,6 +417,10 @@ begin
 			else
 				redirect_next_state <= BUSY;
 			end if;
+			
+		when WAIT_ONE =>
+			redirect_state <= x"f";
+			redirect_next_state <= FINISH;
 		
 		when FINISH =>
 			redirect_state <= x"4";
