@@ -254,6 +254,8 @@ begin
 			state <= x"6";
 			if (frame_type_valid = '1') then
 				filter_next_state <= SAVE_FRAME;
+			elsif (saved_frame_type = x"0806") then
+				filter_next_state <= SAVE_FRAME;
 			else
 				filter_next_state <= DROP_FRAME;
 			end if;	

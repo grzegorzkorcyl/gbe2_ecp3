@@ -49,6 +49,7 @@ signal result                  : std_logic_vector(c_MAX_FRAME_TYPES - 1 downto 0
 signal ip_result               : std_logic_vector(c_MAX_IP_PROTOCOLS - 1 downto 0);
 signal udp_result              : std_logic_vector(c_MAX_UDP_PROTOCOLS - 1 downto 0);
 signal partially_valid         : std_logic;  -- only protocols, vlan to be checked
+signal zeros                   : std_logic_vector(c_MAX_FRAME_TYPES - 1 downto 0);
 
 begin
 
@@ -122,8 +123,10 @@ begin
 			else  -- do not accept other protocols than udp and icmp inside ip
 				partially_valid <= '0';
 			end if;
-		else -- other frame
-			partially_valid <= or_all(result);			
+		elsif (result /= zeros) then-- other frame
+			partially_valid <= '1'; --or_all(result);
+		else
+			partially_valid <= '0';			
 		end if;
 	end if;
 end process PARTIALLY_VALID_PROC;
