@@ -321,8 +321,8 @@ port map(
 -- signal to/from main controller
 	TC_DATAREADY_IN        => MC_TRANSMIT_CTRL_OUT,
 	TC_RD_EN_OUT		   => MC_RD_EN_IN,
-	TC_DATA_IN		       => MC_TRANSMIT_CTRL_OUT,
-	TC_FRAME_SIZE_IN	   => MC_RD_EN_IN,
+	TC_DATA_IN		       => MC_DATA_OUT(7 downto 0),
+	TC_FRAME_SIZE_IN	   => MC_FRAME_SIZE_OUT,
 	TC_FRAME_TYPE_IN	   => mc_type,
 	TC_IP_PROTOCOL_IN	   => mc_ip_proto,	
 	TC_DEST_MAC_IN		   => mc_dest_mac,
