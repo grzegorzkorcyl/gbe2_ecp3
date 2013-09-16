@@ -544,7 +544,6 @@ begin
 	case (select_current_state) is
 	
 		when IDLE =>
-			state <= x"1";
 			if (MC_BUSY_IN = '0') then
 				select_next_state <= LOOP_OVER;
 			else
@@ -552,20 +551,18 @@ begin
 			end if;
 		
 		when LOOP_OVER =>
-			state <= x"2";
-			--if (or_all(resp_ready) = '1') then
-			if (resp_ready /= zeros) then
-				if (resp_ready(index) = '1') then
-					select_next_state <= SELECT_ONE;
-				elsif (index = c_MAX_PROTOCOLS) then
-					select_next_state <= CLEANUP;
-				end if;
-			else
-				select_next_state <= CLEANUP;
-			end if;			
+--			if (resp_ready /= zeros) then
+--				if (resp_ready(index) = '1') then
+--					select_next_state <= SELECT_ONE;
+--				elsif (index = c_MAX_PROTOCOLS) then
+--					select_next_state <= CLEANUP;
+--				end if;
+--			else
+--				select_next_state <= CLEANUP;
+--			end if;
+			select_next_state <= SELECT_ONE;
 		
 		when SELECT_ONE =>
-			state <= x"3";
 			if (MC_BUSY_IN = '1') then
 				select_next_state <= PROCESS_REQUEST;
 			else
@@ -573,7 +570,6 @@ begin
 			end if;
 			
 		when PROCESS_REQUEST =>
-			state <= x"4";
 			if (MC_BUSY_IN = '0') then
 				select_next_state <= CLEANUP;
 			else
@@ -581,7 +577,6 @@ begin
 			end if;
 		
 		when CLEANUP =>
-			state <= x"5";
 			select_next_state <= IDLE;
 	
 	end case;
