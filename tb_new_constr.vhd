@@ -748,13 +748,13 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"c0";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"a8";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
-	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"10";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"c0";
 	wait until rising_edge(RX_MAC_CLK);
