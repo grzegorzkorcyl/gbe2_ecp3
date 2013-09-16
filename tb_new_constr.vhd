@@ -453,7 +453,7 @@ begin
 	RESET <= '0';
 	wait for 50 ns;
 	
-	wait for 5 us;
+	wait for 10 us;
 	
 --	--for i in 0 to 1000 loop
 --	
