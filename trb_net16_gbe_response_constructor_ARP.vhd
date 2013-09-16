@@ -209,28 +209,28 @@ begin
 		elsif (dissect_current_state = READ_FRAME) then
 			case (data_ctr) is
 				
-				when 7 =>
+				when 6 =>
 					saved_opcode(7 downto 0) <= PS_DATA_IN(7 downto 0);
-				when 8 =>
+				when 7 =>
 					saved_opcode(15 downto 8) <= PS_DATA_IN(7 downto 0);
 					
 				
-				when 14 =>
+				when 13 =>
 					saved_sender_ip(7 downto 0) <= PS_DATA_IN(7 downto 0);
-				when 15 =>
+				when 14 =>
 					saved_sender_ip(15 downto 8) <= PS_DATA_IN(7 downto 0);
-				when 16 =>
+				when 15 =>
 					saved_sender_ip(23 downto 16) <= PS_DATA_IN(7 downto 0);
-				when 17 =>
+				when 16 =>
 					saved_sender_ip(31 downto 24) <= PS_DATA_IN(7 downto 0);
 					
-				when 24 =>
+				when 23 =>
 					saved_target_ip(7 downto 0) <= PS_DATA_IN(7 downto 0);
-				when 25 =>
+				when 24 =>
 					saved_target_ip(15 downto 8) <= PS_DATA_IN(7 downto 0);
-				when 26 =>
+				when 25 =>
 					saved_target_ip(23 downto 16) <= PS_DATA_IN(7 downto 0);
-				when 27 =>
+				when 26 =>
 					saved_target_ip(31 downto 24) <= PS_DATA_IN(7 downto 0);
 					
 				when others => null;
