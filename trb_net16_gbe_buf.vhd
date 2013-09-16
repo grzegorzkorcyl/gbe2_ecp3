@@ -594,7 +594,7 @@ signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
 signal self_reset_ctr : std_logic_vector(15 downto 0) := x"0000";
 signal make_self_reset : std_logic;
-signal reset_i : std_logic;
+signal reset_i, gsr_i : std_logic;
 
 begin
 
@@ -623,6 +623,7 @@ begin
 end process;
 
 reset_i <= '1' when RESET = '1' or make_self_reset = '1' else '0';
+gsr_i <= '0' when GSR_N = '0' or make_self_reset = '1' else '1';
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
@@ -1367,7 +1368,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
 		rxmac_clk			=> serdes_rx_clk, --serdes_clk_125,
-		reset_n				=> GSR_N,
+		reset_n				=> gsr_i, --GSR_N,
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
@@ -1467,7 +1468,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		)
 		port map(
 			RESET				=> RESET_i,
-			GSR_N				=> GSR_N,
+			GSR_N				=> gsr_i, --GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
 			CLK_125_IN			=> CLK_125_IN,
