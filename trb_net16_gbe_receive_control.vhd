@@ -165,7 +165,7 @@ begin
 			FR_GET_FRAME_OUT <= '0';
 		end if;
 		
-		if (load_current_state = READY) then
+		if (load_current_state = READY and RC_LOADING_DONE_IN = '0') then
 			RC_FRAME_WAITING_OUT <= '1';
 		else
 			RC_FRAME_WAITING_OUT <= '0';
