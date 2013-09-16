@@ -80,6 +80,7 @@ signal bytes_rec_ctr             : std_logic_vector(31 downto 0);
 signal state                     : std_logic_vector(3 downto 0);
 signal proto_code                : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 signal reset_prioritizer         : std_logic;
+signal frame_waiting             : std_logic;
 
 -- debug only
 signal saved_proto               : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
@@ -166,10 +167,12 @@ begin
 		end if;
 		
 		if (load_current_state = READY and RC_LOADING_DONE_IN = '0') then
-			RC_FRAME_WAITING_OUT <= '1';
+			frame_waiting <= '1';
 		else
-			RC_FRAME_WAITING_OUT <= '0';
+			frame_waiting <= '0';
 		end if;
+		
+		RC_FRAME_WAITING_OUT <= frame_waiting;
 	end if;
 end process;
 
