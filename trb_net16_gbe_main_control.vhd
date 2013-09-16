@@ -437,7 +437,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			RC_LOADING_DONE_OUT <= '0';
-		elsif (RC_DATA_IN(8) = '1' and ps_wr_en = '1') then
+		elsif (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
 			RC_LOADING_DONE_OUT <= '1';
 		else
 			RC_LOADING_DONE_OUT <= '0';
