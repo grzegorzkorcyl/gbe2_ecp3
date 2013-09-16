@@ -552,7 +552,11 @@ begin
 		
 		when LOOP_OVER =>
 			if (resp_ready /= zeros) then
-				select_next_state <= SELECT_ONE;
+				if (resp_ready(index) = '1') then
+					select_next_state <= SELECT_ONE;
+				else
+					select_next_state <= CLEANUP;
+				end if;
 			else
 				select_next_state <= CLEANUP;
 			end if;
