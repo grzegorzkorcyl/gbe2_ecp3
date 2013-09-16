@@ -483,36 +483,36 @@ port map(
 );
 
 -- BUG HERE, probably more lost bytes in the fifo in other conditions
---fifo_wr_en <= '1' when (MAC_RX_EN_IN = '1') and ((filter_current_state = SAVE_FRAME) or 
---			--( (filter_current_state = REMOVE_TYPE and remove_ctr = x"b" and saved_frame_type /= x"8100" and saved_frame_type /= x"0800") or
---				((filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") or
---				(filter_current_state = DECIDE and frame_type_valid = '1')))
---	      else '0';
+fifo_wr_en <= '1' when (MAC_RX_EN_IN = '1') and ((filter_current_state = SAVE_FRAME) or 
+			--( (filter_current_state = REMOVE_TYPE and remove_ctr = x"b" and saved_frame_type /= x"8100" and saved_frame_type /= x"0800") or
+				((filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") or
+				(filter_current_state = DECIDE and frame_type_valid = '1')))
+	      else '0';
 
-RX_FIFO_SYNC : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		
-		rx_data(8) <= MAC_RX_EOF_IN;
-		rx_data(7 downto 0) <= MAC_RXD_IN;
-		
-		if (MAC_RX_EN_IN = '1') then
-			if (filter_current_state = SAVE_FRAME) then
-				fifo_wr_en <= '1';
-			elsif (filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") then
-				fifo_wr_en <= '1';
-			elsif (filter_current_state = DECIDE and frame_type_valid = '1') then
-				fifo_wr_en <= '1';
-			else
-				fifo_wr_en <= '0';
-			end if;
-		else
-			fifo_wr_en <= '0';
-		end if;
-		
-		MAC_RX_FIFO_FULL_OUT <= rec_fifo_full;
-	end if;
-end process RX_FIFO_SYNC;
+--RX_FIFO_SYNC : process(RX_MAC_CLK)
+--begin
+--	if rising_edge(RX_MAC_CLK) then
+--		
+--		rx_data(8) <= MAC_RX_EOF_IN;
+--		rx_data(7 downto 0) <= MAC_RXD_IN;
+--		
+--		if (MAC_RX_EN_IN = '1') then
+--			if (filter_current_state = SAVE_FRAME) then
+--				fifo_wr_en <= '1';
+--			elsif (filter_current_state = REMOVE_VTYPE and remove_ctr = x"f") then
+--				fifo_wr_en <= '1';
+--			elsif (filter_current_state = DECIDE and frame_type_valid = '1') then
+--				fifo_wr_en <= '1';
+--			else
+--				fifo_wr_en <= '0';
+--			end if;
+--		else
+--			fifo_wr_en <= '0';
+--		end if;
+--		
+--		MAC_RX_FIFO_FULL_OUT <= rec_fifo_full;
+--	end if;
+--end process RX_FIFO_SYNC;
 	      
 	      
 
