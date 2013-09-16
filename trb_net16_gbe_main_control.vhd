@@ -636,16 +636,21 @@ begin
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
 		end if;
 		
---		if (link_current_state = ACTIVE or link_current_state = GET_ADDRESS) then
---			link_ok <= '1';
---		else
---			link_ok <= '0';
---		end if;
+		if (link_current_state = ACTIVE or link_current_state = GET_ADDRESS) then
+			link_ok <= '1';
+		else
+			link_ok <= '0';
+		end if;
+		
+		if (link_current_state = GET_ADDRESS) then
+			dhcp_start <= '1';
+		else
+			dhcp_start <= '0';
+		end if;
 	end if;
 end process LINK_OK_CTR_PROC;
 
---link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) or (link_current_state = WAIT_FOR_BOOT) else '0';
-link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) else '0';
+--link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) else '0';
 
 WAIT_CTR_PROC : process(CLK)
 begin
@@ -658,7 +663,7 @@ begin
 	end if;
 end process WAIT_CTR_PROC;
 
-dhcp_start <= '1' when link_current_state = GET_ADDRESS else '0';
+--dhcp_start <= '1' when link_current_state = GET_ADDRESS else '0';
 
 --LINK_DOWN_CTR_PROC : process(CLK)
 --begin
