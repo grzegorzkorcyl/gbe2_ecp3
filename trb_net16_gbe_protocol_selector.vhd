@@ -554,8 +554,10 @@ begin
 			if (resp_ready /= zeros) then
 				if (resp_ready(index) = '1') then
 					select_next_state <= SELECT_ONE;
-				else
+				elsif (index = c_MAX_PROTOCOLS) then
 					select_next_state <= CLEANUP;
+				else
+					select_next_state <= LOOP_OVER;
 				end if;
 			else
 				select_next_state <= CLEANUP;
