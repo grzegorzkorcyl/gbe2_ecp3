@@ -551,6 +551,11 @@ begin
 			end if;
 		
 		when LOOP_OVER =>
+			if (resp_ready /= zeros) then
+				select_next_state <= SELECT_ONE;
+			else
+				select_next_state <= CLEANUP;
+			end if;
 --			if (resp_ready /= zeros) then
 --				if (resp_ready(index) = '1') then
 --					select_next_state <= SELECT_ONE;
@@ -560,7 +565,6 @@ begin
 --			else
 --				select_next_state <= CLEANUP;
 --			end if;
-			select_next_state <= SELECT_ONE;
 		
 		when SELECT_ONE =>
 			if (MC_BUSY_IN = '1') then
