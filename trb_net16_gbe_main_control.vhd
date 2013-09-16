@@ -190,7 +190,7 @@ type redirect_states is (IDLE, CHECK_TYPE, DROP, CHECK_BUSY, LOAD, BUSY, FINISH,
 signal redirect_current_state, redirect_next_state : redirect_states;
 attribute syn_encoding of redirect_current_state : signal is "onehot";
 
-signal disable_redirect, ps_wr_en_q : std_logic;
+signal disable_redirect, ps_wr_en_q, ps_wr_en_qq : std_logic;
 
 type stats_states is (IDLE, LOAD_VECTOR, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
@@ -232,7 +232,7 @@ port map(
 	RESET			=> RESET,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
-	PS_WR_EN_IN		=> ps_wr_en_q, --ps_wr_en,
+	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,
 	PS_PROTO_SELECT_IN	=> proto_select,
 	PS_BUSY_OUT		=> ps_busy,
 	PS_FRAME_SIZE_IN	=> RC_FRAME_SIZE_IN,
@@ -448,8 +448,9 @@ end process LOADING_DONE_PROC;
 PS_WR_EN_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		ps_wr_en   <= rc_rd_en;
-		ps_wr_en_q <= ps_wr_en;
+		ps_wr_en    <= rc_rd_en;
+		ps_wr_en_q  <= ps_wr_en;
+		ps_wr_en_qq <= ps_wr_en_q;
 	end if;
 end process PS_WR_EN_PROC;
 
