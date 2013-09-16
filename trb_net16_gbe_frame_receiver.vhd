@@ -107,7 +107,11 @@ signal state                                : std_logic_vector(3 downto 0);
 signal parsed_frames_ctr                    : std_logic_vector(15 downto 0);
 signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
-signal rx_data                              : std_logic_vector(8 downto 0);
+signal rx_data, fr_q                        : std_logic_vector(8 downto 0);
+
+signal fr_src_ip, fr_dest_ip : std_logic_vector(31 downto 0);
+signal fr_ip_proto, fr_dest_udp, fr_src_udp, fr_frame_size, fr_frame_proto : std_logic_vector(15 downto 0);
+signal fr_dest_mac, fr_src_mac : std_logic_vector(47 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -479,7 +483,7 @@ port map(
 	RdEn                => FR_RD_EN_IN,
 	Reset               => RESET,
 	RPReset             => RESET,
-	Q                   => FR_Q_OUT,
+	Q                   => fr_q, --FR_Q_OUT,
 	Empty               => rec_fifo_empty,
 	Full                => rec_fifo_full
 );
@@ -528,8 +532,8 @@ port map(
 	RdEn                => FR_GET_FRAME_IN,
 	Reset               => RESET,
 	RPReset             => RESET,
-	Q(15 downto 0)      => FR_FRAME_SIZE_OUT,
-	Q(31 downto 16)     => FR_FRAME_PROTO_OUT,
+	Q(15 downto 0)      => fr_frame_size, --FR_FRAME_SIZE_OUT,
+	Q(31 downto 16)     => fr_frame_proto, --FR_FRAME_PROTO_OUT,
 	Empty               => sizes_fifo_empty,
 	Full                => sizes_fifo_full
 );
@@ -545,8 +549,8 @@ port map(
 	RdEn                => FR_GET_FRAME_IN,
 	Reset               => RESET,
 	RPReset             => RESET,
-	Q(47 downto 0)      => FR_SRC_MAC_ADDRESS_OUT,
-	Q(63 downto 48)     => FR_SRC_UDP_PORT_OUT,
+	Q(47 downto 0)      => fr_src_mac, --FR_SRC_MAC_ADDRESS_OUT,
+	Q(63 downto 48)     => fr_src_udp, --FR_SRC_UDP_PORT_OUT,
 	Q(71 downto 64)     => dump2,
 	Empty               => open,
 	Full                => open
@@ -563,8 +567,8 @@ port map(
 	RdEn                => FR_GET_FRAME_IN,
 	Reset               => RESET,
 	RPReset             => RESET,
-	Q(47 downto 0)      => FR_DEST_MAC_ADDRESS_OUT,
-	Q(63 downto 48)     => FR_DEST_UDP_PORT_OUT,
+	Q(47 downto 0)      => fr_dest_mac, --FR_DEST_MAC_ADDRESS_OUT,
+	Q(63 downto 48)     => fr_dest_udp, --FR_DEST_UDP_PORT_OUT,
 	Q(71 downto 64)     => dump,
 	Empty               => open,
 	Full                => open
@@ -581,12 +585,28 @@ port map(
 	RdEn                => FR_GET_FRAME_IN,
 	Reset               => RESET,
 	RPReset             => RESET,
-	Q(31 downto 0)      => FR_SRC_IP_ADDRESS_OUT,
-	Q(63 downto 32)     => FR_DEST_IP_ADDRESS_OUT,
-	Q(71 downto 64)     => FR_IP_PROTOCOL_OUT,
+	Q(31 downto 0)      => fr_src_ip, --FR_SRC_IP_ADDRESS_OUT,
+	Q(63 downto 32)     => fr_dest_ip, --FR_DEST_IP_ADDRESS_OUT,
+	Q(71 downto 64)     => fr_ip_proto, --FR_IP_PROTOCOL_OUT,
 	Empty               => open,
 	Full                => open
 );
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		FR_SRC_IP_ADDRESS_OUT <= fr_src_ip;
+		FR_DEST_IP_ADDRESS_OUT <= fr_dest_ip;
+		FR_IP_PROTOCOL_OUT <=  fr_ip_proto;
+		FR_DEST_UDP_PORT_OUT <= fr_dest_udp;
+		FR_DEST_MAC_ADDRESS_OUT <= fr_dest_mac;
+		FR_SRC_MAC_ADDRESS_OUT <= fr_src_mac;
+		FR_SRC_UDP_PORT_OUT <= fr_src_udp;
+		FR_FRAME_PROTO_OUT <= fr_frame_proto;
+		FR_FRAME_SIZE_OUT <=  fr_frame_size;
+		FR_Q_OUT <= fr_q;
+	end if;
+end process;
 
 FRAME_VALID_PROC : process(RX_MAC_CLK)
 begin
