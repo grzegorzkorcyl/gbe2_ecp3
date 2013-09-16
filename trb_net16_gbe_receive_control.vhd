@@ -98,14 +98,14 @@ RC_DEST_UDP_PORT_OUT    <= FR_DEST_UDP_PORT_IN;
 
 protocol_prioritizer : trb_net16_gbe_protocol_prioritizer
 port map(
-	CLK			=> CLK,
-	RESET			=> reset_prioritizer,
+	CLK			        => CLK,
+	RESET			    => reset_prioritizer,
 	
 	FRAME_TYPE_IN		=> FR_FRAME_PROTO_IN,
 	PROTOCOL_CODE_IN	=> FR_IP_PROTOCOL_IN,
 	UDP_PROTOCOL_IN		=> FR_DEST_UDP_PORT_IN,
 	
-	CODE_OUT		=> proto_code
+	CODE_OUT		    => proto_code
 );
 
 reset_prioritizer <= '1' when load_current_state = IDLE else '0';
@@ -156,11 +156,28 @@ begin
   end case;
 end process LOAD_MACHINE;
 
-FR_GET_FRAME_OUT <= '1' when (load_current_state = PREPARE)
-		  else '0';
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = PREPARE) then
+			FR_GET_FRAME_OUT <= '1';
+		else
+			FR_GET_FRAME_OUT <= '0';
+		end if;
+		
+		if (load_current_state = READY) then
+			RC_FRAME_WAITING_OUT <= '1';
+		else
+			RC_FRAME_WAITING_OUT <= '0';
+		end if;
+	end if;
+end process;
 
-RC_FRAME_WAITING_OUT <= '1' when (load_current_state = READY)
-		      else '0';
+--FR_GET_FRAME_OUT <= '1' when (load_current_state = PREPARE)
+--		  else '0';
+--
+--RC_FRAME_WAITING_OUT <= '1' when (load_current_state = READY)
+--		      else '0';
 
 SYNC_PROC : process(CLK)
 begin
