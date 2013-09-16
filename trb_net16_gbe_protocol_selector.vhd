@@ -562,16 +562,7 @@ begin
 			else
 				select_next_state <= CLEANUP;
 			end if;
---			if (resp_ready /= zeros) then
---				if (resp_ready(index) = '1') then
---					select_next_state <= SELECT_ONE;
---				elsif (index = c_MAX_PROTOCOLS) then
---					select_next_state <= CLEANUP;
---				end if;
---			else
---				select_next_state <= CLEANUP;
---			end if;
-		
+			
 		when SELECT_ONE =>
 			if (MC_BUSY_IN = '1') then
 				select_next_state <= PROCESS_REQUEST;

@@ -488,7 +488,6 @@ end process FIRST_BYTE_PROC;
 --*********************
 --	DATA FLOW CONTROL
 
---TODO: do I really need this crap?
 FLOW_MACHINE_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
@@ -531,11 +530,27 @@ begin
 	end case;
 end process FLOW_MACHINE;
 
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (flow_current_state = IDLE and ps_response_ready = '1') then
+			TC_TRANSMIT_CTRL_OUT <= '1';
+		else
+			TC_TRANSMIT_CTRL_OUT <= '0';
+		end if;
+		
+		if (flow_current_state = TRANSMIT_CTRL or flow_current_state = WAIT_FOR_FC) then
+			mc_busy <= '1';
+		else
+			mc_busy <= '0';
+		end if;
+	end if;
+end process;
 --TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
-TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = IDLE and ps_response_ready = '1') else '0';
+--TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = IDLE and ps_response_ready = '1') else '0';
 
 --mc_busy <= '0' when flow_current_state = IDLE else '1';
-mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL or flow_current_state = WAIT_FOR_FC else '0';
+--mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL or flow_current_state = WAIT_FOR_FC else '0';
 
 --***********************
 --	LINK STATE CONTROL
