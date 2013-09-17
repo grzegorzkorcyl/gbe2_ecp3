@@ -461,7 +461,7 @@ TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8);
 TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0);
 TC_SRC_MAC_OUT     <= g_MY_MAC;
 TC_SRC_IP_OUT      <= g_MY_IP;
-TC_SRC_UDP_OUT     <= x"9065"; --x"a861";
+TC_SRC_UDP_OUT     <= x"a861"; --x"9065"; --x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
