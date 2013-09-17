@@ -162,7 +162,7 @@ begin
 end process DF_WR_EN_PROC;
 
 
-DATA_FIFO : fifo_4096x9 --fifo_64kx9
+DATA_FIFO : fifo_64kx9 --fifo_4096x9 --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
 	Data(8)          =>  df_eod_qq,

@@ -172,7 +172,7 @@ RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then-- and saved_hdr_ctr = "100") then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
@@ -314,7 +314,7 @@ begin
 end process PACKET_NUM_PROC;
 
 --temporairly changed to a smaller fifo
-transmit_fifo : fifo_4kx18x9 --fifo_65536x18x9
+transmit_fifo : fifo_65536x18x9 --fifo_4kx18x9 --fifo_65536x18x9
   PORT map(
     Reset             => tx_fifo_reset,
 	RPReset           => tx_fifo_reset,
@@ -333,20 +333,20 @@ begin
 	if rising_edge(CLK) then
 		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
 			tx_fifo_wr <= '1';
-		elsif (saved_hdr_ctr = "010") then
-			tx_fifo_wr <= '1';
+--		elsif (saved_hdr_ctr = "010") then
+--			tx_fifo_wr <= '1';
 		else
 			tx_fifo_wr <= '0';
 		end if;
 		
-		if (saved_hdr_ctr = "010") then
-			tx_fifo_data <= '0' & PS_DATA_IN(7 downto 0) & '0' & x"02";
-		else
+--		if (saved_hdr_ctr = "010") then
+--			tx_fifo_data <= '0' & PS_DATA_IN(7 downto 0) & '0' & x"02";
+--		else
 			tx_fifo_data(7 downto 0)  <= GSC_REPLY_DATA_IN(15 downto 8);
 			tx_fifo_data(8)           <= '0';
 			tx_fifo_data(16 downto 9) <= GSC_REPLY_DATA_IN(7 downto 0);
 			tx_fifo_data(17)          <= '0';
-		end if;
+--		end if;
 	end if;
 end process TX_FIFO_WR_SYNC;
 

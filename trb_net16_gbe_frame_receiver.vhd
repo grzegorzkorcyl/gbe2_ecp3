@@ -121,21 +121,6 @@ attribute syn_preserve of rec_fifo_empty, rec_fifo_full, state, sizes_fifo_empty
 
 begin
 
-
-DEBUG_OUT(0)            <= rec_fifo_empty;
-DEBUG_OUT(1)            <= rec_fifo_full;
-DEBUG_OUT(2)            <= sizes_fifo_empty;
-DEBUG_OUT(3)            <= sizes_fifo_full;
-DEBUG_OUT(7 downto 4)   <= state;
--- DEBUG_OUT(19 downto 8)  <= dbg_rec_frames(11 downto 0);
--- DEBUG_OUT(31 downto 20) <= parsed_frames_ctr(11 downto 0);
--- 
--- DEBUG_OUT(47 downto 32) <= dbg_ack_frames;
--- DEBUG_OUT(63 downto 48) <= dbg_drp_frames;
--- DEBUG_OUT(79 downto 64) <= error_frames_ctr;
--- DEBUG_OUT(95 downto 80) <= ok_frames_ctr;
-
-
 -- new_frame is asserted when first byte of the frame arrives
 NEW_FRAME_PROC : process(RX_MAC_CLK)
 begin
