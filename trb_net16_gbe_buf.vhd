@@ -592,9 +592,6 @@ signal tc_data_not_valid : std_logic;
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
 signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
-signal self_reset_ctr : std_logic_vector(15 downto 0) := x"0000";
-signal make_self_reset : std_logic;
-signal reset_i, gsr_i : std_logic;
 
 begin
 
@@ -608,28 +605,11 @@ fc_ihl_version      <= x"45";
 fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
-
-process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (self_reset_ctr /= x"ffff") then
-			self_reset_ctr <= self_reset_ctr + x"1";
-			make_self_reset <= '1';
-		else
-			self_reset_ctr <= self_reset_ctr;
-			make_self_reset <= '0';
-		end if;
-	end if;
-end process;
-
-reset_i <= '1' when RESET = '1' or make_self_reset = '1' else '0';
-gsr_i <= '0' when GSR_N = '0' or make_self_reset = '1' else '1';
-
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
-	  RESET			=> RESET_i,
+	  RESET			=> RESET,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
@@ -735,13 +715,13 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  DEBUG_OUT		=> dbg_mc
   );
   
-  MAKE_RESET_OUT <= make_reset or idle_too_long;
+  MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
 
 
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET_i,
+	RESET			=> RESET,
 
 -- signal to/from main controller
 --	MC_TRANSMIT_CTRL_IN	=> mc_transmit_ctrl,
@@ -819,7 +799,7 @@ setup_imp_gen : if (DO_SIMULATION = 0) generate
 SETUP : gbe_setup
 port map(
 	CLK                       => CLK,
-	RESET                     => RESET_i,
+	RESET                     => RESET,
 
 	-- gk 26.04.10
 	-- interface to regio bus
@@ -1171,7 +1151,7 @@ end generate;
 FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
-	RESET				=> RESET_i,
+	RESET				=> RESET,
 	CLK				=> CLK,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	--
@@ -1217,7 +1197,7 @@ port map(
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET_i,
+	RESET			=> RESET,
 
 -- signals to/from frame_receiver
 	RC_DATA_IN		=> fr_q,
@@ -1262,7 +1242,7 @@ dbg_q(15 downto 9) <= (others  => '0');
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
 	CLK				=> CLK,
-	RESET				=> RESET_i,
+	RESET				=> RESET,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	TX_MAC_CLK			=> serdes_clk_125,
 	TX_EMPTY_IN			=> ft_tx_empty,
@@ -1291,7 +1271,7 @@ port map(
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
 	  CLK			=> CLK,
-	  RESET			=> RESET_i,
+	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
 	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
@@ -1341,7 +1321,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	TIMEOUT_CTR_PROC : process(CLK)
 	begin
 		if rising_edge(CLK) then
-			if (RESET_i = '1' or mac_tx_done = '1') then
+			if (RESET = '1' or mac_tx_done = '1') then
 				timeout_ctr <= (others => '0');
 			else
 				timeout_ctr <= timeout_ctr + x"1";
@@ -1352,7 +1332,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	TIMEOUT_NOTICED_PROC : process(CLK)
 	begin
 		if rising_edge(CLK) then
-			if (RESET_i = '1') then
+			if (RESET = '1') then
 				timeout_noticed <= '0';
 			elsif (timeout_ctr(30) = '1') then
 				timeout_noticed <= '1';
@@ -1368,7 +1348,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
 		rxmac_clk			=> serdes_rx_clk, --serdes_clk_125,
-		reset_n				=> gsr_i, --GSR_N,
+		reset_n				=> GSR_N,
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
@@ -1467,8 +1447,8 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 0
 		)
 		port map(
-			RESET				=> RESET_i,
-			GSR_N				=> gsr_i, --GSR_N,
+			RESET				=> RESET,
+			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
 			CLK_125_IN			=> CLK_125_IN,
@@ -1498,7 +1478,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			MR_AN_LP_ABILITY_OUT		=> pcs_an_lp_ability,
 			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
 			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
-			MR_RESET_IN			=> RESET_i,
+			MR_RESET_IN			=> RESET,
 			MR_MODE_IN			=> '0', --MR_MODE_IN,
 			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
 			MR_RESTART_AN_IN		=> '0', --MR_RESTART_IN,
