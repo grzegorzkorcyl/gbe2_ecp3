@@ -136,7 +136,7 @@ signal tc_wr                   : std_logic;
 signal state                   : std_logic_vector(3 downto 0);
 signal saved_hdr_1              : std_logic_vector(7 downto 0) := x"ab";
 signal saved_hdr_2              : std_logic_vector(7 downto 0) := x"cd";
-signal saved_hdr_ctr            : std_logic_vector(2 downto 0);
+signal saved_hdr_ctr            : std_logic_vector(3 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -172,7 +172,7 @@ RX_FIFO_WR_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then
+		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and (saved_hdr_ctr = "0100" or saved_hdr_ctr = "1000")) then
 			rx_fifo_wr <= '1';
 		else
 			rx_fifo_wr <= '0';
@@ -186,8 +186,8 @@ SAVED_HDR_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (dissect_current_state = IDLE and PS_WR_EN_IN = '0' and PS_ACTIVATE_IN = '0') then
-			saved_hdr_ctr <= "001";
-		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "100") then
+			saved_hdr_ctr <= "0001";
+		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "0100") then
 			saved_hdr_ctr(2 downto 0) <= saved_hdr_ctr(1 downto 0) & '0';
 		else
 			saved_hdr_ctr <= saved_hdr_ctr;
@@ -333,7 +333,7 @@ begin
 	if rising_edge(CLK) then
 		if (GSC_REPLY_DATAREADY_IN = '1' and gsc_reply_read = '1') then
 			tx_fifo_wr <= '1';
-		elsif (saved_hdr_ctr = "010") then
+		elsif (saved_hdr_ctr = "0010") then
 			tx_fifo_wr <= '1';
 		else
 			tx_fifo_wr <= '0';
@@ -564,15 +564,6 @@ begin
 		when WAIT_FOR_HUB =>
 			state <= x"5";
 			if (GSC_INIT_READ_IN = '1') then
---				if (rx_fifo_q(17) = '1') then
---					if (reset_detected = '0') then
---						dissect_next_state <= WAIT_FOR_RESPONSE;
---					else
---						dissect_next_state <= CLEANUP;
---					end if;
---				else
---					dissect_next_state <= LOAD_A_WORD;
---				end if;
 				dissect_next_state <= LOAD_TO_HUB;
 			else
 				dissect_next_state <= WAIT_FOR_HUB;
@@ -625,29 +616,10 @@ begin
 			else
 				dissect_next_state <= LOAD_FRAME;
 			end if;
---			if (tx_loaded_ctr = tx_data_ctr + x"1") then
---				dissect_next_state <= CLEANUP;
---			elsif (tx_frame_loaded = g_MAX_FRAME_SIZE) then
---				dissect_next_state <= DIVIDE;
---			else
---				dissect_next_state <= LOAD_FRAME;
---			end if;
-
---		when DIVIDE =>
---			state <= x"a";
---			if (PS_SELECTED_IN = '1') then
---				dissect_next_state <= LOAD_FRAME;
---			else
---				dissect_next_state <= DIVIDE;
---			end if;
 		
 		when CLEANUP =>
 			state <= x"b";
 			dissect_next_state <= IDLE;
-			
---		when others =>
---			state <= x"f";
---			dissect_next_state <= IDLE;
 	
 	end case;
 end process DISSECT_MACHINE;
@@ -686,7 +658,7 @@ end process DISSECT_MACHINE;
 	 if rising_edge(CLK) then
 		 if (RESET = '1' or dissect_current_state = CLEANUP) then
 			 reset_detected <= '0';
-		 elsif (PS_DATA_IN(7 downto 0) = x"80" and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "100") then--and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
+		 elsif (PS_DATA_IN(7 downto 0) = x"80" and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "0100") then--and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
 			 reset_detected <= '1';
 		 end if;
 	 end if;
