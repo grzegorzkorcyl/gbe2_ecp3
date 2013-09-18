@@ -188,7 +188,7 @@ begin
 		if (dissect_current_state = IDLE and PS_WR_EN_IN = '0' and PS_ACTIVATE_IN = '0') then
 			saved_hdr_ctr <= "0001";
 		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "1000") then
-			saved_hdr_ctr(2 downto 0) <= saved_hdr_ctr(1 downto 0) & '0';
+			saved_hdr_ctr(3 downto 0) <= saved_hdr_ctr(2 downto 0) & '0';
 		else
 			saved_hdr_ctr <= saved_hdr_ctr;
 		end if;
@@ -199,10 +199,10 @@ SAVED_HDR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-			if (saved_hdr_ctr = "001") then
+			if (saved_hdr_ctr = "0001") then
 				saved_hdr_1 <= PS_DATA_IN(7 downto 0);
 				saved_hdr_2 <= saved_hdr_2;
-			elsif (saved_hdr_ctr = "010") then
+			elsif (saved_hdr_ctr = "0010") then
 				saved_hdr_2 <= PS_DATA_IN(7 downto 0);
 				saved_hdr_1 <= saved_hdr_1;
 			else
