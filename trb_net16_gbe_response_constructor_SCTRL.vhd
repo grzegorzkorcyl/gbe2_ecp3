@@ -187,7 +187,7 @@ begin
 	if rising_edge(CLK) then
 		if (dissect_current_state = IDLE and PS_WR_EN_IN = '0' and PS_ACTIVATE_IN = '0') then
 			saved_hdr_ctr <= "0001";
-		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "0100") then
+		elsif (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr /= "1000") then
 			saved_hdr_ctr(2 downto 0) <= saved_hdr_ctr(1 downto 0) & '0';
 		else
 			saved_hdr_ctr <= saved_hdr_ctr;
