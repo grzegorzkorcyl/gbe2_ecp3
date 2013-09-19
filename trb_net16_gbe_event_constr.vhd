@@ -87,6 +87,7 @@ signal tc_data : std_logic_vector(7 downto 0);
 signal df_data : std_logic_vector(7 downto 0);
 signal df_eod_q, df_eod_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
+signal qsf_full : std_logic;
 
 begin
 
@@ -188,26 +189,27 @@ READY_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		--if (save_current_state = IDLE and df_full = '0') then
-		if (df_full = '0') then
-			PC_READY_OUT <= '1';
-		else
-			PC_READY_OUT <= '0';
-		end if;
+--		if (df_full = '0') then
+--			PC_READY_OUT <= '1';
+--		else
+--			PC_READY_OUT <= '0';
+--		end if;
+		PC_READY_OUT <= not qsf_full;
 	end if;	
 end process READY_PROC;
 
 --*****
 -- subevent headers
-SUBEVENT_HEADERS_FIFO : fifo_512x8 --fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3
 port map(
 	Data        =>  shf_data,
-	Clock       => CLK,
-	--WrClock       =>  CLK,
-	--RdClock		=> CLK,
+	--Clock       => CLK,
+	WrClock       =>  CLK,
+	RdClock		=> CLK,
 	WrEn        =>  shf_wr_en,
 	RdEn        =>  shf_rd_en,
 	Reset       =>  RESET,
-	--RPReset		=> RESET,
+	RPReset		=> RESET,
 	Q           =>  shf_q,
 	Empty       =>  shf_empty,
 	Full        =>  shf_full
@@ -352,7 +354,7 @@ port map(
 	RPReset     =>  RESET,
 	Q           =>  qsf_q,
 	Empty       =>  qsf_empty,
-	Full        =>  open
+	Full        =>  qsf_full
 );
 
 qsf_wr <= qsf_wr_en or qsf_wr_en_q or qsf_wr_en_qq;
