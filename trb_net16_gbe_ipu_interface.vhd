@@ -71,7 +71,7 @@ signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
 --type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, LOAD_LAST_ONE, LOAD_LAST_TWO, DROP, CLOSE);
-type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, DROP, CLOSE);
+type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, WAIT_FOR_LOAD, LOAD, CLOSE);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -327,7 +327,7 @@ begin
 end process FEE_READ_PROC;
 
 
-THE_SPLIT_FIFO: fifo_4kx18x9 --fifo_32kx16x8_mb2 --fifo_16kx18x9
+THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
 	Data(7 downto 0)  => sf_data(15 downto 8),
@@ -340,16 +340,16 @@ port map(
 	RdEn              => sf_rd_en,
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
-	--AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
-	--AmFullThresh      => b"111_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
+	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
+	AmFullThresh      => b"111_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
 	--WCNT              => open,
 	--RCNT              => open,
 	Empty             => sf_empty,
-	--AlmostEmpty       => open,
-	Full              => sf_afull  -- WARNING, JUST FOR DEBUG
-	--AlmostFull        => sf_afull
+	AlmostEmpty       => open,
+	Full              => open, --sf_afull  -- WARNING, JUST FOR DEBUG
+	AlmostFull        => sf_afull
 );
 
 SF_RESET_PROC : process(CLK_IPU)
@@ -409,10 +409,7 @@ begin
 			load_next_state <= DECIDE;
 		
 		when DECIDE =>
-			load_next_state <= WAIT_FOR_LOAD; --CALC_PADDING;
-			
---		when CALC_PADDING =>
---			load_next_state <= WAIT_FOR_LOAD;
+			load_next_state <= WAIT_FOR_LOAD;
 			
 		when WAIT_FOR_LOAD =>
 			if (PC_READY_IN = '1') then
@@ -544,7 +541,7 @@ begin
 		if (load_current_state = IDLE or load_current_state = DECIDE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (sf_rd_en = '1') then
-			if (load_current_state = REMOVE or load_current_state = LOAD or load_current_state = DROP) then
+			if (load_current_state = REMOVE or load_current_state = LOAD) then
 				loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
 			else
 				loaded_bytes_ctr <= loaded_bytes_ctr;
@@ -624,7 +621,6 @@ end process PC_WR_EN_PROC;
 PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		--if (load_current_state = CALC_PADDING) then
 		if (load_current_state = DECIDE) then
 			PC_SOS_OUT <= '1';
 		else
