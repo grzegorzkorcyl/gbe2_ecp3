@@ -100,7 +100,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  RC_DATA_IN		=> ps_data,
 	  RC_RD_EN_OUT		=> ps_rd_en,
 	  RC_FRAME_SIZE_IN	=> ps_frame_size,
-	  RC_FRAME_PROTO_IN	=> ps_proto,
+	  RC_FRAME_PROTO_IN	=> (others => '0'),
 
 	RC_SRC_MAC_ADDRESS_IN	=> x"001122334455",
 	RC_DEST_MAC_ADDRESS_IN  => x"001122334455",
