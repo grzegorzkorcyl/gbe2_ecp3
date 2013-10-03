@@ -592,10 +592,8 @@ signal tc_data_not_valid : std_logic;
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
 signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
-signal hard_reset : std_logic;
 
 begin
-hard_reset <= not GSR_N;
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
 
@@ -611,7 +609,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
-	  RESET			=> hard_reset,
+	  RESET			=> RESET,
+	  GSR_N         => GSR_N,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
@@ -723,7 +722,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
 port map(
 	CLK			=> CLK,
-	RESET			=> hard_reset, --RESET,
+	RESET			=> RESET,
 
 -- signal to/from main controller
 	TC_DATAREADY_IN        => mc_transmit_ctrl,
@@ -773,7 +772,7 @@ setup_imp_gen : if (DO_SIMULATION = 0) generate
 SETUP : gbe_setup
 port map(
 	CLK                       => CLK,
-	RESET                     => hard_reset, --RESET,
+	RESET                     => RESET,
 
 	-- gk 26.04.10
 	-- interface to regio bus
@@ -869,7 +868,7 @@ setup_sim_gen : if (DO_SIMULATION = 1) generate
 SETUP : gbe_setup
 port map(
 	CLK                       => CLK,
-	RESET                     => hard_reset, --RESET,
+	RESET                     => RESET,
 
 	-- gk 26.04.10
 	-- interface to regio bus
@@ -970,7 +969,7 @@ end generate;
 FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
-	RESET				=> hard_reset, --RESET,
+	RESET				=> RESET,
 	CLK				=> CLK,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	--
@@ -1016,7 +1015,7 @@ port map(
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
 	CLK			=> CLK,
-	RESET			=> hard_reset, --RESET,
+	RESET			=> RESET,
 
 -- signals to/from frame_receiver
 	RC_DATA_IN		=> fr_q,
@@ -1061,7 +1060,7 @@ dbg_q(15 downto 9) <= (others  => '0');
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
 	CLK				=> CLK,
-	RESET				=> hard_reset, --RESET,
+	RESET				=> RESET,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	TX_MAC_CLK			=> serdes_clk_125,
 	TX_EMPTY_IN			=> ft_tx_empty,
@@ -1090,7 +1089,7 @@ port map(
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
 	  CLK			=> CLK,
-	  RESET			=> hard_reset, --RESET,
+	  RESET			=> RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
 	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
@@ -1140,7 +1139,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	TIMEOUT_CTR_PROC : process(CLK)
 	begin
 		if rising_edge(CLK) then
-			if (hard_reset = '1' or mac_tx_done = '1') then
+			if (RESET = '1' or mac_tx_done = '1') then
 				timeout_ctr <= (others => '0');
 			else
 				timeout_ctr <= timeout_ctr + x"1";
@@ -1151,7 +1150,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	TIMEOUT_NOTICED_PROC : process(CLK)
 	begin
 		if rising_edge(CLK) then
-			if (hard_reset = '1') then
+			if (RESET = '1') then
 				timeout_noticed <= '0';
 			elsif (timeout_ctr(30) = '1') then
 				timeout_noticed <= '1';
@@ -1250,7 +1249,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 	dbg_statevec_proc : process(serdes_clk_125)
 	begin
 		if rising_edge(serdes_clk_125) then
-			if (hard_reset = '1') then
+			if (RESET = '1') then
 				dbg_ft1              <= (others => '0');
 			elsif (mac_tx_staten = '1') then
 				dbg_ft1(30 downto 0) <= mac_tx_statevec;
@@ -1266,7 +1265,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 0
 		)
 		port map(
-			RESET				=> hard_reset, --RESET,
+			RESET				=> RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
@@ -1297,7 +1296,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			MR_AN_LP_ABILITY_OUT		=> pcs_an_lp_ability,
 			MR_AN_PAGE_RX_OUT		=> pcs_an_page_rx,
 			MR_AN_COMPLETE_OUT		=> pcs_an_complete,
-			MR_RESET_IN			=> hard_reset, --RESET,
+			MR_RESET_IN			=> RESET,
 			MR_MODE_IN			=> '0', --MR_MODE_IN,
 			MR_AN_ENABLE_IN			=> '1', -- do autonegotiation
 			MR_RESTART_AN_IN		=> '0', --MR_RESTART_IN,
@@ -1316,7 +1315,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 1
 		)
 		port map(
-			RESET				=> hard_reset, --RESET,
+			RESET				=> RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk,
@@ -1491,42 +1490,42 @@ begin
 	end if;
 end process MON_PROC;
 
----- gk 28.07.10
---BYTES_SENT_CTR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (RESET = '1') then
---			bytes_sent_ctr <= (others => '0');
---		elsif (fc_wr_en = '1') then
---			bytes_sent_ctr <= bytes_sent_ctr + x"1";
---		end if;
---	end if;
---end process BYTES_SENT_CTR_PROC;
---
----- gk 02.08.10
---DISCFRM_PROC : process(serdes_clk_125)
---begin
---	if rising_edge(serdes_clk_125) then
---		if (RESET = '1') then
---			discfrm_ctr <= (others => '0');
---		elsif (mac_tx_discfrm = '1') then
---			discfrm_ctr <= discfrm_ctr + x"1";
---		end if;
---	end if;
---end process DISCFRM_PROC;
---
---discfrm_sync : signal_sync
---	generic map(
---	  DEPTH => 2,
---	  WIDTH => 32
---	  )
---	port map(
---	  RESET    => RESET,
---	  D_IN     => discfrm_ctr,
---	  CLK0     => serdes_clk_125,
---	  CLK1     => CLK,
---	  D_OUT    => monitor_discfrm
---	  );
+-- gk 28.07.10
+BYTES_SENT_CTR_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			bytes_sent_ctr <= (others => '0');
+		elsif (fc_wr_en = '1') then
+			bytes_sent_ctr <= bytes_sent_ctr + x"1";
+		end if;
+	end if;
+end process BYTES_SENT_CTR_PROC;
+
+-- gk 02.08.10
+DISCFRM_PROC : process(serdes_clk_125)
+begin
+	if rising_edge(serdes_clk_125) then
+		if (RESET = '1') then
+			discfrm_ctr <= (others => '0');
+		elsif (mac_tx_discfrm = '1') then
+			discfrm_ctr <= discfrm_ctr + x"1";
+		end if;
+	end if;
+end process DISCFRM_PROC;
+
+discfrm_sync : signal_sync
+	generic map(
+	  DEPTH => 2,
+	  WIDTH => 32
+	  )
+	port map(
+	  RESET    => RESET,
+	  D_IN     => discfrm_ctr,
+	  CLK0     => serdes_clk_125,
+	  CLK1     => CLK,
+	  D_OUT    => monitor_discfrm
+	  );
 
 
 ------------------------------------------------------------------------------------------------

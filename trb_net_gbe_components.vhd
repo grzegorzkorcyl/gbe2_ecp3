@@ -402,6 +402,7 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
+	GSR_N           : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
