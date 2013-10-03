@@ -610,7 +610,6 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
-	  GSR_N         => GSR_N,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
