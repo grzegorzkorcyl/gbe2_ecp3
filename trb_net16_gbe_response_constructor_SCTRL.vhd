@@ -544,7 +544,11 @@ begin
 		when READ_FRAME =>
 			state <= x"1";
 			if (PS_DATA_IN(8) = '1') then
-				dissect_next_state <= WAIT_FOR_HUB;
+				if (reset_detected = '1') then
+					dissect_next_state <= CLEANUP;
+				else
+					dissect_next_state <= WAIT_FOR_HUB;
+				end if;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
@@ -572,11 +576,11 @@ begin
 		when LOAD_TO_HUB =>
 			state <= x"3";
 			if (rx_fifo_q(17) = '1') then
-				if (reset_detected = '1') then
-					dissect_next_state <= CLEANUP;
-				else
+--				if (reset_detected = '1') then
+--					dissect_next_state <= CLEANUP;
+--				else
 					dissect_next_state <= WAIT_FOR_RESPONSE;
-				end if;
+--				end if;
 			else
 				dissect_next_state <= LOAD_TO_HUB;
 			end if;	
