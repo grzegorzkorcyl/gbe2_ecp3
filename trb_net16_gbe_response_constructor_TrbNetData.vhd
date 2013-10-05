@@ -122,6 +122,7 @@ signal tc_rd_en					: std_logic;
 signal tc_data					: std_logic_vector(8 downto 0);
 signal tc_size					: std_logic_vector(15 downto 0);
 signal tc_sod					: std_logic;
+signal pc_trig_type             : std_logic_vector(3 downto 0);
 
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
@@ -224,6 +225,7 @@ port map(
 	PC_EOD_OUT				 => pc_eod,
 	PC_SUB_SIZE_OUT			 => pc_sub_size,
 	PC_TRIG_NR_OUT			 => pc_trig_nr,
+	PC_TRIGGER_TYPE_OUT      => pc_trig_type,
 	PC_PADDING_OUT			 => pc_padding,
 	MONITOR_OUT              => open,
 	DEBUG_OUT                => open
@@ -247,6 +249,7 @@ port map(
 	PC_DECODING_IN			=> x"0002_0001", --pc_decoding,
 	PC_EVENT_ID_IN			=> x"0000_8000", --pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
+	PC_TRIGGER_TYPE_IN      => pc_trig_type,
 	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
 	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",

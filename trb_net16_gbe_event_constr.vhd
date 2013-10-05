@@ -31,6 +31,7 @@ port(
 	PC_DECODING_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_EVENT_ID_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_TRIG_NR_IN           : in    std_logic_vector(31 downto 0); -- store and swap!
+	PC_TRIGGER_TYPE_IN      : in	std_logic_vector(3 downto 0);
 	PC_QUEUE_DEC_IN         : in    std_logic_vector(31 downto 0); -- swap
 	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
 	PC_MAX_QUEUE_SIZE_IN    : in    std_logic_vector(31 downto 0);
@@ -326,7 +327,13 @@ begin
 				shf_data <= sub_size_to_save(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
 			
 			when SAVE_DECODING =>
-				shf_data <= PC_DECODING_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
+				--shf_data <= PC_DECODING_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
+				if (sub_int_ctr = 0) then
+					shf_data(3 downto 0) <= PC_DECODING_IN(3 downto 0);
+					shf_data(7 downto 4) <= PC_TRIGGER_TYPE_IN;
+				else
+					shf_data <= PC_DECODING_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);
+				end if;
 			
 			when SAVE_ID =>
 				shf_data <= PC_EVENT_ID_IN(sub_int_ctr * 8 + 7 downto sub_int_ctr * 8);

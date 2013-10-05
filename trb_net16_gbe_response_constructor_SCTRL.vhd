@@ -137,7 +137,6 @@ signal state                   : std_logic_vector(3 downto 0);
 signal saved_hdr_1              : std_logic_vector(7 downto 0) := x"ab";
 signal saved_hdr_2              : std_logic_vector(7 downto 0) := x"cd";
 signal saved_hdr_ctr            : std_logic_vector(3 downto 0);
-signal rx_fifo_reset           : std_logic;
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -151,8 +150,8 @@ MAKE_RESET_OUT <= make_reset;
 
 receive_fifo : fifo_2048x8x16
   PORT map(
-    Reset            => rx_fifo_reset,
-	RPReset          => rx_fifo_reset,
+    Reset            => RESET,
+	RPReset          => RESET,
     WrClock          => CLK,
 	RdClock          => CLK,
     Data             => rx_fifo_data,
@@ -162,17 +161,6 @@ receive_fifo : fifo_2048x8x16
     Full             => rx_full,
     Empty            => rx_empty
   );
-  
-process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1' or reset_detected = '1') then
-			rx_fifo_reset <= '1';
-		else
-			rx_fifo_reset <= '0';
-		end if;	
-	end if;
-end process;
 
 --TODO: change to synchronous
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
@@ -556,11 +544,7 @@ begin
 		when READ_FRAME =>
 			state <= x"1";
 			if (PS_DATA_IN(8) = '1') then
-				if (reset_detected = '1') then
-					dissect_next_state <= CLEANUP;
-				else
-					dissect_next_state <= WAIT_FOR_HUB;
-				end if;
+				dissect_next_state <= WAIT_FOR_HUB;
 			else
 				dissect_next_state <= READ_FRAME;
 			end if;
@@ -588,11 +572,11 @@ begin
 		when LOAD_TO_HUB =>
 			state <= x"3";
 			if (rx_fifo_q(17) = '1') then
---				if (reset_detected = '1') then
---					dissect_next_state <= CLEANUP;
---				else
+				if (reset_detected = '1') then
+					dissect_next_state <= CLEANUP;
+				else
 					dissect_next_state <= WAIT_FOR_RESPONSE;
---				end if;
+				end if;
 			else
 				dissect_next_state <= LOAD_TO_HUB;
 			end if;	

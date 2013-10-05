@@ -76,6 +76,7 @@ port(
 	PC_DECODING_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_EVENT_ID_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_TRIG_NR_IN           : in    std_logic_vector(31 downto 0); -- store and swap!
+	PC_TRIGGER_TYPE_IN      : in	std_logic_vector(3 downto 0);
 	PC_QUEUE_DEC_IN         : in    std_logic_vector(31 downto 0); -- swap
 	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
 	PC_MAX_QUEUE_SIZE_IN    : in    std_logic_vector(31 downto 0);
@@ -134,6 +135,7 @@ component trb_net16_gbe_ipu_interface is
 	PC_SUB_SIZE_OUT             : out   std_logic_vector(31 downto 0);
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
 	PC_PADDING_OUT              : out   std_logic;
+	PC_TRIGGER_TYPE_OUT         : out	std_logic_vector(3 downto 0);
 	MONITOR_OUT                 : out   std_logic_vector(223 downto 0);
 	DEBUG_OUT                   : out   std_logic_vector(383 downto 0)
 	);

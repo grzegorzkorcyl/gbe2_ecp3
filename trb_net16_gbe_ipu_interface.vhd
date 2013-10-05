@@ -57,6 +57,7 @@ entity trb_net16_gbe_ipu_interface is
 	PC_SUB_SIZE_OUT             : out   std_logic_vector(31 downto 0);
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
 	PC_PADDING_OUT              : out   std_logic;
+	PC_TRIGGER_TYPE_OUT         : out	std_logic_vector(3 downto 0);
 	MONITOR_OUT                 : out   std_logic_vector(223 downto 0);
 	DEBUG_OUT                   : out   std_logic_vector(383 downto 0)
 	);
@@ -88,6 +89,7 @@ signal loaded_bytes_ctr : std_Logic_vector(15 downto 0);
 signal trigger_random : std_logic_vector(7 downto 0);
 signal trigger_number : std_logic_vector(15 downto 0);
 signal subevent_size : std_logic_vector(17 downto 0);
+signal trigger_type : std_logic;
 
 signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
@@ -202,11 +204,12 @@ end process SF_WR_EN_PROC;
 SF_DATA_EOD_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		case (save_current_state) is
+		case (save_current_state) is 
 		
 			when SAVE_EVT_ADDR =>
 				sf_data(3 downto 0)  <= CTS_INFORMATION_IN(3 downto 0);
-				sf_data(15 downto 4) <= x"abc";
+				sf_data(7 downto 4)  <= CTS_READOUT_TYPE_IN;
+				sf_data(15 downto 8) <= x"ab";
 				save_eod <= '0';
 				
 			when SAVE_DATA =>
@@ -516,6 +519,19 @@ begin
 	end if;
 end process SUBEVENT_SIZE_PROC;
 
+TRIGGER_TYPE_PROC : process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			trigger_type <= x"0";
+		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0003") then
+			trigger_type <= pc_data(7 downto 4);
+		else
+			trigger_type <= trigger_type;
+		end if;
+	end if;
+end process TRIGGER_TYPE_PROC;
+
 -- end of extraction
 --*****
 
@@ -659,6 +675,8 @@ PC_DATA_OUT <= pc_data;
 PC_SUB_SIZE_OUT <= b"0000_0000_0000_00" & subevent_size;
 
 PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random;
+
+PC_TRIGGER_TYPE_OUT <= trigger_type;
 
 PC_PADDING_OUT <= '0'; --padding_needed; not used anymore
 
