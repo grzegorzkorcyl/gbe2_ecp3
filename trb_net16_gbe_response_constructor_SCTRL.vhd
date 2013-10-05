@@ -137,6 +137,7 @@ signal state                   : std_logic_vector(3 downto 0);
 signal saved_hdr_1              : std_logic_vector(7 downto 0) := x"ab";
 signal saved_hdr_2              : std_logic_vector(7 downto 0) := x"cd";
 signal saved_hdr_ctr            : std_logic_vector(3 downto 0);
+signal rx_fifo_reset           : std_logic;
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -150,8 +151,8 @@ MAKE_RESET_OUT <= make_reset;
 
 receive_fifo : fifo_2048x8x16
   PORT map(
-    Reset            => RESET,
-	RPReset          => RESET,
+    Reset            => rx_fifo_reset,
+	RPReset          => rx_fifo_reset,
     WrClock          => CLK,
 	RdClock          => CLK,
     Data             => rx_fifo_data,
@@ -161,6 +162,17 @@ receive_fifo : fifo_2048x8x16
     Full             => rx_full,
     Empty            => rx_empty
   );
+  
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1' or reset_detected = '1') then
+			rx_fifo_reset <= '1';
+		else
+			rx_fifo_reset <= '0';
+		end if;	
+	end if;
+end process;
 
 --TODO: change to synchronous
 rx_fifo_rd              <= '1' when (gsc_init_dataready = '1' and dissect_current_state = LOAD_TO_HUB) or 
