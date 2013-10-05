@@ -89,7 +89,7 @@ signal loaded_bytes_ctr : std_Logic_vector(15 downto 0);
 signal trigger_random : std_logic_vector(7 downto 0);
 signal trigger_number : std_logic_vector(15 downto 0);
 signal subevent_size : std_logic_vector(17 downto 0);
-signal trigger_type : std_logic;
+signal trigger_type : std_logic_vector(3 downto 0);
 
 signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
