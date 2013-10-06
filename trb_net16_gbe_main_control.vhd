@@ -215,8 +215,6 @@ signal dbg_ps                       : std_Logic_vector(63 downto 0);
 
 signal tc_data                      : std_logic_vector(8 downto 0);
 
-signal reset_i : std_logic;
-
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
 attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
@@ -226,14 +224,12 @@ signal mc_busy                      : std_logic;
 
 begin
 
-reset_i <= not RESET;
-
 unique_id <= MC_UNIQUE_ID_IN;
 
 protocol_selector : trb_net16_gbe_protocol_selector
 port map(
 	CLK			=> CLK,
-	RESET			=> reset_i, --RESET,
+	RESET			=> RESET,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
 	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,
@@ -335,7 +331,7 @@ proto_select <= RC_FRAME_PROTO_IN when disable_redirect = '0' else (others => '0
 DISABLE_REDIRECT_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') then
+		if (RESET = '1') then
 			disable_redirect <= '0';
 		elsif (redirect_current_state = CHECK_TYPE) then
 			if (link_current_state /= ACTIVE and link_current_state /= GET_ADDRESS) then
@@ -362,7 +358,7 @@ end process SYNC_PROC;
 REDIRECT_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') then
+		if (RESET = '1') then
 			redirect_current_state <= IDLE;
 		else
 			redirect_current_state <= redirect_next_state;
@@ -445,7 +441,7 @@ RC_RD_EN_OUT <= rc_rd_en;
 LOADING_DONE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') then
+		if (RESET = '1') then
 			RC_LOADING_DONE_OUT <= '0';
 		elsif (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
 			RC_LOADING_DONE_OUT <= '1';
@@ -467,7 +463,7 @@ end process PS_WR_EN_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') or (redirect_current_state = IDLE) then
+		if (RESET = '1') or (redirect_current_state = IDLE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (redirect_current_state = LOAD or redirect_current_state = DROP) and (rc_rd_en = '1') then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
@@ -483,7 +479,7 @@ begin
 		first_byte_q  <= first_byte;
 		first_byte_qq <= first_byte_q;
 		
-		if (reset_i = '1') then
+		if (RESET = '1') then
 			first_byte <= '0';
 		elsif (redirect_current_state = IDLE) then
 			first_byte <= '1';
@@ -499,7 +495,7 @@ end process FIRST_BYTE_PROC;
 FLOW_MACHINE_PROC : process(CLK)
 begin
   if rising_edge(CLK) then
-    if (reset_i = '1') then
+    if (RESET = '1') then
       flow_current_state <= IDLE;
     else
       flow_current_state <= flow_next_state;
@@ -566,7 +562,7 @@ end process;
 LINK_STATE_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') then
+		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
 				link_current_state <= INACTIVE;
 			else
@@ -658,7 +654,7 @@ end process LINK_STATE_MACHINE;
 LINK_OK_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') or (link_current_state /= TIMEOUT) then
+		if (RESET = '1') or (link_current_state /= TIMEOUT) then
 			link_ok_timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
@@ -683,7 +679,7 @@ end process LINK_OK_CTR_PROC;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (reset_i = '1') or (link_current_state = INACTIVE) then
+		if (RESET = '1') or (link_current_state = INACTIVE) then
 			wait_ctr <= (others => '0');
 		elsif (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
@@ -696,7 +692,7 @@ end process WAIT_CTR_PROC;
 --LINK_DOWN_CTR_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
---		if (reset_i = '1') then
+--		if (RESET = '1') then
 --			link_down_ctr      <= (others => '0');
 --			link_down_ctr_lock <= '0';
 --		elsif (PCS_AN_COMPLETE_IN = '1') then
@@ -729,7 +725,7 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 TSMAC_CONTROLLER : trb_net16_gbe_mac_control
 port map(
 	CLK				=> CLK,
-	RESET			=> reset_i, --RESET,
+	RESET			=> RESET,
 
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
@@ -784,7 +780,7 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --	CTR_PROC : process(CLK)
 --	begin
 --		if rising_edge(CLK) then
---			if (reset_i = '1') then
+--			if (RESET = '1') then
 --				arr(n) <= (others => '0');
 --			elsif (rx_stat_en_q = '1' and rx_stat_vec_q(16 + n) = '1') then
 --				arr(n) <= arr(n) + x"1";
@@ -822,7 +818,7 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --STATS_MACHINE_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
---		if (reset_i = '1') then
+--		if (RESET = '1') then
 --			stats_current_state <= IDLE;
 --		else
 --			stats_current_state <= stats_next_state;
@@ -860,7 +856,7 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --STATS_CTR_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
---		if (reset_i = '1') or (stats_current_state = IDLE) then
+--		if (RESET = '1') or (stats_current_state = IDLE) then
 --			stats_ctr <= 0;
 --		elsif (stats_current_state = LOAD_VECTOR and stat_ack ='1') then
 --			stats_ctr <= stats_ctr + 1;
@@ -884,7 +880,7 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --FRAME_WAITING_CTR_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
---		if (reset_i = '1') then
+--		if (RESET = '1') then
 --			frame_waiting_ctr <= (others => '0');
 --		elsif (RC_FRAME_WAITING_IN = '1') then
 --			frame_waiting_ctr <= frame_waiting_ctr + x"1";
@@ -895,7 +891,7 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --SAVE_VALUES_PROC : process(CLK)
 --begin
 --	if rising_edge(CLK) then
---		if (reset_i = '1') then
+--		if (RESET = '1') then
 --			ps_busy_q <= (others => '0');
 --			rc_frame_proto_q <= (others => '0');
 --		elsif (redirect_current_state = IDLE and RC_FRAME_WAITING_IN = '1') then
