@@ -589,8 +589,10 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') or (select_current_state = IDLE) then
 			index <= 0;
-		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0') then -- and (or_all(resp_ready) = '1' or mult = '1')) then
+		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0') then
 			index <= index + 1;
+		else
+			index <= index;
 		end if;
 	end if;
 end process INDEX_PROC;
