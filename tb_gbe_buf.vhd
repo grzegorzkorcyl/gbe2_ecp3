@@ -513,7 +513,7 @@ begin
 --				fee_dataready_in <= '1';
 --			else
 				fee_dataready_in <= '1';
-			end if;
+		--	end if;
  				--fee_dataready_in <= '1';
 		end loop MY_DATA_LOOP;
 		-- there must be padding words to get multiple of four LWs
