@@ -493,25 +493,25 @@ begin
 			test_data := test_data + 1;
 			wait until rising_edge(clk);
 			fee_data_in <= std_logic_vector(test_data); 
-			if( (test_data MOD 5) = 0 ) then
-				fee_dataready_in <= '0';
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				fee_dataready_in <= '1';
-			else
+--			if( (test_data MOD 5) = 0 ) then
+--				fee_dataready_in <= '0';
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				wait until rising_edge(clk);
+--				fee_dataready_in <= '1';
+--			else
 				fee_dataready_in <= '1';
 			end if;
  				--fee_dataready_in <= '1';
