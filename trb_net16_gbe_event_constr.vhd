@@ -495,8 +495,7 @@ begin
 			
 		when LOAD_DATA =>
 			if (load_eod = '1' and term_ctr = 33) then
-				--if (size_for_padding(2) = '1') then
-				if (actual_q_size(2) = '1') then
+				if (size_for_padding(2) = '1') then
 					load_next_state <= LOAD_PADDING;
 				else
 					load_next_state <= LOAD_TERM;
@@ -531,12 +530,11 @@ begin
 		if (load_current_state = IDLE) then
 			header_ctr <= 3;
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
-			header_ctr <= 7;
+			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
-			--if (size_for_padding(2) = '1') then
-			if (actual_q_size(2) = '1') then
+			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
 			else
 				header_ctr <= 31;
