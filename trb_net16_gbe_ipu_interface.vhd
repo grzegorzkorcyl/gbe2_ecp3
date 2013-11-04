@@ -67,7 +67,7 @@ architecture RTL of trb_net16_gbe_ipu_interface is
 
 attribute syn_encoding : string;
 
-type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, RESET_FIFO, CLEANUP, DROP_SUBEVENT);
+type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
@@ -148,11 +148,7 @@ begin
 			
 		when CLOSE => 
 			if (CTS_START_READOUT_IN = '0') then
-				if (sf_afull = '0') then
-					save_next_state <= ADD_SUBSUB1;
-				else
-					save_next_state <= DROP_SUBEVENT;
-				end if;
+				save_next_state <= ADD_SUBSUB1;
 			else
 				save_next_state <= CLOSE;
 			end if;
@@ -171,13 +167,6 @@ begin
 			
 		when CLEANUP =>
 			save_next_state <= IDLE;
-			
-		when DROP_SUBEVENT =>
-			save_next_state <= IDLE;
-		
-		--TODO: complete with reset fifo state
-			
-		when others => save_next_state <= IDLE; 
 		 
 	end case;
 end process SAVE_MACHINE;
@@ -355,18 +344,20 @@ port map(
 	AlmostFull        => sf_afull
 );
 
-SF_RESET_PROC : process(CLK_IPU)
-begin
-	if rising_edge(CLK_IPU) then
-		if (RESET = '1') then
-			sf_reset <= '1';
-		elsif (save_current_state = DROP_SUBEVENT) then
-			sf_reset <= '1';
-		else
-			sf_reset <= '0';
-		end if;
-	end if;
-end process SF_RESET_PROC;
+sf_reset <= RESET;
+
+--SF_RESET_PROC : process(CLK_IPU)
+--begin
+--	if rising_edge(CLK_IPU) then
+--		if (RESET = '1') then
+--			sf_reset <= '1';
+--		elsif (save_current_state = DROP_SUBEVENT) then
+--			sf_reset <= '1';
+--		else
+--			sf_reset <= '0';
+--		end if;
+--	end if;
+--end process SF_RESET_PROC;
 
 --*********
 -- LOADING PART
