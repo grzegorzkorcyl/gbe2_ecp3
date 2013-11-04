@@ -604,7 +604,7 @@ begin
 	end if;
 end process QUEUE_FIFO_RD_PROC;
 
-qsf_rd_en <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' else qsf_rd_en_q;
+qsf_rd_en <= '1' when load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' and header_ctr /= 0 else qsf_rd_en_q;
 
 ACTUAL_Q_SIZE_PROC : process(CLK)
 begin
