@@ -362,7 +362,7 @@ begin
 -- Loop the transmissions
 -------------------------------------------------------------------------------
 	trigger_counter := x"4710";
-	trigger_loop    := 0;
+	trigger_loop    := 5000;
 	
 	wait until rising_edge(test_clk);
 
@@ -418,7 +418,7 @@ begin
 		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
 		
 		--test_data_len := 9685;
-		test_data_len := 29; -- + (1 - J) * 200;
+		test_data_len := 2000; -- + (1 - J) * 200;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
