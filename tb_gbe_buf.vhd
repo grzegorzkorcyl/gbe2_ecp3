@@ -491,7 +491,7 @@ begin
 		test_data     := x"ffff";
 		MY_DATA_LOOP: for J in 0 to test_loop_len loop
 			test_data := test_data + 1;
-			wait until rising_edge(clk);
+			wait until rising_edge(clk) and (fee_read_out = '1');
 			fee_data_in <= std_logic_vector(test_data); 
 --			if( (test_data MOD 5) = 0 ) then
 --				fee_dataready_in <= '0';
