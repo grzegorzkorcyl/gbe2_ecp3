@@ -599,13 +599,13 @@ QUEUE_FIFO_RD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = GET_Q_SIZE and header_ctr /= 0) then
-			qsf_rd_en_q <= '1';
+			qsf_rd_en <= '1';
 		elsif (load_current_state = IDLE and qsf_empty = '0') then
-			qsf_rd_en_q <= '1';
+			qsf_rd_en <= '1';
 		elsif (load_current_state = LOAD_Q_HEADERS and TC_RD_EN_IN = '1' and header_ctr /= 0) then
-			qsf_rd_en_q <= '1';
+			qsf_rd_en <= '1';
 		else 
-			qsf_rd_en_q <= '0';
+			qsf_rd_en <= '0';
 		end if;
 	end if;
 end process QUEUE_FIFO_RD_PROC;
