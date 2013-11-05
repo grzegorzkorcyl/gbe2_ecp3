@@ -288,7 +288,7 @@ variable seed2 : positive; -- seed for random generator
 variable rand : real; -- random value (0.0 ... 1.0)
 variable int_rand : integer; -- random value, scaled to your needs
 variable cts_random_number : std_logic_vector(7 downto 0);
-
+variable up_down_switch : integer := 0;
 variable stim : std_logic_vector(15 downto 0);
 
 -- RND test
@@ -547,6 +547,8 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
+		
+		test_data_len <= test_data_len + 1;
 		
 		--wait for 8 us;
 
