@@ -72,7 +72,6 @@ type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, 
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
---type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, CALC_PADDING, WAIT_FOR_LOAD, LOAD, LOAD_LAST_ONE, LOAD_LAST_TWO, DROP, CLOSE);
 type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, WAIT_FOR_LOAD, LOAD, CLOSE);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
@@ -334,7 +333,7 @@ port map(
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
 	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
-	AmFullThresh      => b"111_1111_1110_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
+	AmFullThresh      => b"000_0000_0000_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
 	--WCNT              => open,
@@ -415,17 +414,10 @@ begin
 		
 		when LOAD =>
 			if (sf_eod = '1') then
-				load_next_state <= CLOSE; --LOAD_LAST_ONE;
+				load_next_state <= CLOSE;
 			else
 				load_next_state <= LOAD;
 			end if;
-		
---		when LOAD_LAST_ONE =>
---			load_next_state <= LOAD_LAST_TWO;
---		
---		when LOAD_LAST_TWO =>
---			load_next_state <= CLOSE;
-		--when DROP =>
 		
 		when CLOSE =>
 			load_next_state <= IDLE;
@@ -618,8 +610,6 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = LOAD) then
 			PC_WR_EN_OUT <= '1';
---		elsif (load_current_state = LOAD_LAST_ONE or load_current_state = LOAD_LAST_TWO) then
---			PC_WR_EN_OUT <= '1';
 		else
 			PC_WR_EN_OUT <= '0';
 		end if;
