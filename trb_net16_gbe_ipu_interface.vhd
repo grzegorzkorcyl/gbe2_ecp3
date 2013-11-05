@@ -333,7 +333,7 @@ port map(
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
 	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
-	AmFullThresh      => b"001_1111_1111_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
+	AmFullThresh      => b"111_1111_0111_1111", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
 	--WCNT              => open,
