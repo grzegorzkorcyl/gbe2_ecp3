@@ -75,7 +75,7 @@ signal fc_data : std_logic_vector(7 downto 0);
 
 signal qsf_data : std_logic_vector(31 downto 0);
 signal qsf_q, qsf_qq : std_logic_vector(7 downto 0);
-signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
+signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_wr_en_qqq, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
 
@@ -364,23 +364,25 @@ port map(
 	Full        =>  qsf_full
 );
 
-qsf_wr <= qsf_wr_en or qsf_wr_en_q or qsf_wr_en_qq;
+qsf_wr <= qsf_wr_en_qqq or qsf_wr_en_q or qsf_wr_en_qq;
 
-QSF_DATA_PROC : process(qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq)
+QSF_DATA_PROC : process(CLK)
 begin
-	-- queue size is saved twice in a row to facilitate readout and packet construction 
-	if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
-		qsf_data(7 downto 0)   <= queue_size(31 downto 24);
-		qsf_data(15 downto 8)  <= queue_size(23 downto 16);
-		qsf_data(23 downto 16) <= queue_size(15 downto 8);
-		qsf_data(31 downto 24) <= queue_size(7 downto 0);
-	elsif (qsf_wr_en_qq = '1') then
-		qsf_data(7 downto 0)   <= PC_QUEUE_DEC_IN(31 downto 24);
-		qsf_data(15 downto 8)  <= PC_QUEUE_DEC_IN(23 downto 16);
-		qsf_data(23 downto 16) <= PC_QUEUE_DEC_IN(15 downto 8);
-		qsf_data(31 downto 24) <= PC_QUEUE_DEC_IN(7 downto 0);
-	else
-		qsf_data <= (others => '1');
+	if rising_edge(CLK) then
+		-- queue size is saved twice in a row to facilitate readout and packet construction 
+		if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
+			qsf_data(7 downto 0)   <= queue_size(31 downto 24);
+			qsf_data(15 downto 8)  <= queue_size(23 downto 16);
+			qsf_data(23 downto 16) <= queue_size(15 downto 8);
+			qsf_data(31 downto 24) <= queue_size(7 downto 0);
+		elsif (qsf_wr_en_qq = '1') then
+			qsf_data(7 downto 0)   <= PC_QUEUE_DEC_IN(31 downto 24);
+			qsf_data(15 downto 8)  <= PC_QUEUE_DEC_IN(23 downto 16);
+			qsf_data(23 downto 16) <= PC_QUEUE_DEC_IN(15 downto 8);
+			qsf_data(31 downto 24) <= PC_QUEUE_DEC_IN(7 downto 0);
+		else
+			qsf_data <= (others => '1');
+		end if;
 	end if;
 end process QSF_DATA_PROC;
 
@@ -388,8 +390,9 @@ QSF_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 	
-		qsf_wr_en_q  <= qsf_wr_en;
-		qsf_wr_en_qq <= qsf_wr_en_q;
+		qsf_wr_en_q   <= qsf_wr_en;
+		qsf_wr_en_qq  <= qsf_wr_en_q;
+		qsf_wr_en_qqq <= qsf_wr_en_qq;
 	
 		if (MULT_EVT_ENABLE_IN = '1') then
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
@@ -464,7 +467,7 @@ begin
 	
 		when IDLE =>
 			if (qsf_empty = '0') then -- something in queue sizes fifo means entire queue is waiting
-				load_next_state <= GET_Q_SIZE; --PUT_Q_HEADERS;
+				load_next_state <= GET_Q_SIZE;
 			else
 				load_next_state <= IDLE;
 			end if;
