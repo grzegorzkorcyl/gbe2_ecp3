@@ -532,7 +532,7 @@ begin
 		elsif (load_current_state = GET_Q_SIZE and header_ctr = 0) then
 			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
-			header_ctr <= 14;
+			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
 			if (size_for_padding(2) = '1') then
 				header_ctr <= 3;
@@ -560,7 +560,7 @@ end process HEADER_CTR_PROC;
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = LOAD_SUB and header_ctr = 11) then
+		if (load_current_state = LOAD_SUB and header_ctr = 12) then
 			size_for_padding <= shf_q;
 		else
 			size_for_padding <= size_for_padding;
@@ -587,7 +587,7 @@ df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1') or
 					--(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1')
 					else '0';
 
-shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1') or
+shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1')
 					else '0';
 
