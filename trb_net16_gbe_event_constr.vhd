@@ -592,7 +592,7 @@ begin
 --		end if;
 		if (load_current_state = IDLE) then
 			insert_padding <= '0';
-		elsif (load_current_state = GET_Q_SIZE and header_ctr = 3) then
+		elsif (load_current_state = GET_Q_SIZE and header_ctr = 2) then
 			insert_padding <= qsf_q(7);
 		else
 			insert_padding <= insert_padding;
