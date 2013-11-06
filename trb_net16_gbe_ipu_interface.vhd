@@ -445,10 +445,14 @@ port map(
 SF_RD_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = REMOVE) then
-			sf_rd_en <= '1';
-		elsif (load_current_state = LOAD) then
-			sf_rd_en <= '1';
+		if (PC_READY_IN = '1') then
+			if (load_current_state = REMOVE) then
+				sf_rd_en <= '1';
+			elsif (load_current_state = LOAD) then
+				sf_rd_en <= '1';
+			else
+				sf_rd_en <= '0';
+			end if;
 		else
 			sf_rd_en <= '0';
 		end if;

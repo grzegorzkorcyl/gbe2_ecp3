@@ -197,7 +197,7 @@ begin
 --		else
 --			PC_READY_OUT <= '0';
 --		end if;
-		PC_READY_OUT <= not qsf_full;
+		PC_READY_OUT <= not df_full; --not qsf_full;
 	end if;	
 end process READY_PROC;
 
