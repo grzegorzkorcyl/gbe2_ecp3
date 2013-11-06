@@ -93,7 +93,8 @@ signal trigger_type : std_logic_vector(3 downto 0);
 
 signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
-	
+signal pc_ready_q : std_logic;
+
 begin
 
 --*********
@@ -612,7 +613,8 @@ end process START_CONFIG_PROC;
 PC_WR_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (PC_READY_IN = '1') then
+		pc_ready_q <= PC_READY_IN;
+		if (pc_ready_q = '1') then
 			if (load_current_state = LOAD) then
 				PC_WR_EN_OUT <= '1';
 			else
