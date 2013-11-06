@@ -373,9 +373,12 @@ begin
 	if rising_edge(CLK) then
 		-- queue size is saved twice in a row to facilitate readout and packet construction 
 		if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
-			--qsf_data(7 downto 0)   <= queue_size(31 downto 24);
-			qsf_data(7)            <= padding_needed;
-			qsf_data(6 downto 0)   <= (others => '0');
+			if (qsf_wr_en = '1' and qsf_wr_en_q = '0') then	
+				qsf_data(7)            <= padding_needed;
+				qsf_data(6 downto 0)   <= (others => '0');
+			else
+				qsf_data(7 downto 0)   <= queue_size(31 downto 24);
+			end if;
 			qsf_data(15 downto 8)  <= queue_size(23 downto 16);
 			qsf_data(23 downto 16) <= queue_size(15 downto 8);
 			qsf_data(31 downto 24) <= queue_size(7 downto 0);
