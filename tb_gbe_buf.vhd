@@ -549,7 +549,12 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		test_data_len := test_data_len + 1;
+		if (test_data_len = 2000) then
+			--test_data_len := test_data_len + 1;
+			test_data_len := 200;
+		else
+			test_data_len := test_data_len;
+		end if;
 		
 		--wait for 8 us;
 
