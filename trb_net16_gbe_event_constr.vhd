@@ -88,7 +88,7 @@ signal tc_data : std_logic_vector(7 downto 0);
 signal df_data : std_logic_vector(7 downto 0);
 signal df_eod_q, df_eod_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
-signal qsf_full : std_logic;
+signal qsf_full, df_afull : std_logic;
 
 signal padding_needed, insert_padding : std_logic;
 
@@ -165,7 +165,7 @@ begin
 	end if;
 end process DF_WR_EN_PROC;
 
-DATA_FIFO : fifo_32k_9 --fifo_64kx9
+DATA_FIFO : fifo_32kx9xflags --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
 	Data(8)          =>  df_eod_qq,
@@ -178,7 +178,8 @@ port map(
 	Q(7 downto 0)    =>  df_q,
 	Q(8)             =>  load_eod,
 	Empty            =>  df_empty,
-	Full             =>  df_full
+	Full             =>  df_full,
+	AFull            =>  df_afull
 );
 
 DF_QQ_PROC : process(CLK)
@@ -197,7 +198,7 @@ begin
 --		else
 --			PC_READY_OUT <= '0';
 --		end if;
-		PC_READY_OUT <= not df_full; --not qsf_full;
+		PC_READY_OUT <= not df_afull; --not qsf_full;
 	end if;	
 end process READY_PROC;
 
