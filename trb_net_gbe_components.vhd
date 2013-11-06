@@ -1242,7 +1242,7 @@ component fifo_32kx9xflags is
         Q: out  std_logic_vector(8 downto 0); 
         Empty: out  std_logic; 
         Full: out  std_logic;
-        AFull : out std_logic);
+        AlmostFull : out std_logic);
 end component;
 
 

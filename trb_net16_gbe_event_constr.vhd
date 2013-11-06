@@ -179,7 +179,7 @@ port map(
 	Q(8)             =>  load_eod,
 	Empty            =>  df_empty,
 	Full             =>  df_full,
-	AFull            =>  df_afull
+	AlmostFull            =>  df_afull
 );
 
 DF_QQ_PROC : process(CLK)
