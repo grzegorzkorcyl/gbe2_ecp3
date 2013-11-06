@@ -90,6 +90,8 @@ signal df_eod_q, df_eod_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
 signal qsf_full : std_logic;
 
+signal padding_needed : std_logic;
+
 begin
 
 --*******
@@ -371,7 +373,9 @@ begin
 	if rising_edge(CLK) then
 		-- queue size is saved twice in a row to facilitate readout and packet construction 
 		if (qsf_wr_en = '1' or qsf_wr_en_q = '1') then
-			qsf_data(7 downto 0)   <= queue_size(31 downto 24);
+			--qsf_data(7 downto 0)   <= queue_size(31 downto 24);
+			qsf_data(7)            <= padding_needed;
+			qsf_data(6 downto 0)   <= (others => '0');
 			qsf_data(15 downto 8)  <= queue_size(23 downto 16);
 			qsf_data(23 downto 16) <= queue_size(15 downto 8);
 			qsf_data(31 downto 24) <= queue_size(7 downto 0);
@@ -439,12 +443,29 @@ begin
 				else
 					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
 				end if;
+			else
+				queue_size <= queue_size;
 			end if;			
 		end if;
 	end if;
 end process QUEUE_SIZE_PROC;
 
-
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (PC_START_OF_SUB_IN = '1') then
+			padding_needed <= '0';
+		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+			if (PC_SUB_SIZE_IN(2) = '1') then
+				padding_needed <= '1';
+			else
+				padding_needed <= '0';
+			end if;
+		else
+			padding_needed <= padding_needed;
+		end if;
+	end if;
+end process;
 
 --*******
 -- LOADING PART
@@ -563,9 +584,8 @@ end process HEADER_CTR_PROC;
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		--if (load_current_state = LOAD_SUB and header_ctr = 12) then
 		if (load_current_state = START_TRANSFER) then
-			size_for_padding <= qsf_q; --shf_q;
+			size_for_padding <= qsf_q;
 		else
 			size_for_padding <= size_for_padding;
 		end if;
