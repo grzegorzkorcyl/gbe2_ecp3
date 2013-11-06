@@ -264,7 +264,7 @@ end process CLOCK_GEN_PROC;
 CLOCK2_GEN_PROC: process
 begin
 	test_clk <= '1'; wait for 4.0 ns;
-	test_clk <= '0'; wait for 3.0 ns;
+	test_clk <= '0'; wait for 4.0 ns;
 end process CLOCK2_GEN_PROC;
 
 -- Testbench
