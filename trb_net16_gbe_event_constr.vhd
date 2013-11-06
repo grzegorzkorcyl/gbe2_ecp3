@@ -90,7 +90,7 @@ signal df_eod_q, df_eod_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
 signal qsf_full : std_logic;
 
-signal padding_needed : std_logic;
+signal padding_needed, insert_padding : std_logic;
 
 begin
 
@@ -482,7 +482,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod, term_ctr)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod, term_ctr, insert_padding)
 begin
 	case (load_current_state) is
 	
@@ -519,7 +519,8 @@ begin
 			
 		when LOAD_DATA =>
 			if (load_eod = '1' and term_ctr = 33) then
-				if (size_for_padding(2) = '0') then
+				--if (size_for_padding(2) = '0') then
+				if (insert_padding = '1') then
 					load_next_state <= LOAD_PADDING;
 				else
 					load_next_state <= LOAD_TERM;
@@ -558,7 +559,7 @@ begin
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
 		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
-			if (size_for_padding(2) = '0') then
+			if (insert_padding = '1') then
 				header_ctr <= 3;
 			else
 				header_ctr <= 31;
@@ -584,10 +585,17 @@ end process HEADER_CTR_PROC;
 SIZE_FOR_PADDING_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (load_current_state = START_TRANSFER) then
-			size_for_padding <= qsf_q;
+--		if (load_current_state = START_TRANSFER) then
+--			size_for_padding <= qsf_q;
+--		else
+--			size_for_padding <= size_for_padding;
+--		end if;
+		if (load_current_state = IDLE) then
+			insert_padding <= '0';
+		elsif (load_current_state = GET_Q_SIZE and header_ctr = 3) then
+			insert_padding <= qsf_q(7);
 		else
-			size_for_padding <= size_for_padding;
+			insert_padding <= insert_padding;
 		end if;
 	end if;
 end process SIZE_FOR_PADDING_PROC;
