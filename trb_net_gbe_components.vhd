@@ -1230,7 +1230,7 @@ component fifo_16kx18x9 is
         AlmostFull: out  std_logic);
 end component;
 
-component fifo_32kx9xflags is
+component fifo_32kx9_flags is
     port (
         Data: in  std_logic_vector(8 downto 0); 
         WrClock: in  std_logic; 
