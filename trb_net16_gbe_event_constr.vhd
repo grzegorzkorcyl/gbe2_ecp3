@@ -707,7 +707,7 @@ begin
 			when LOAD_SUB       => tc_data <= shf_q;
 			when LOAD_DATA      => tc_data <= df_q;
 			when LOAD_PADDING   => tc_data <= x"aa";
-			when LOAD_TERM      => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
+			when LOAD_TERM      => tc_data <= termination((header_ctr + 2) * 8 - 1 downto  header_ctr + 1 * 8);
 			when others         => tc_data <= x"cc";
 		end case;
 	end if;
