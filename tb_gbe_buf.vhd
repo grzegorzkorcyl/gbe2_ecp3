@@ -549,7 +549,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		--test_data_len := test_data_len + 10;
+		test_data_len := test_data_len + 11;
 		
 		--wait for 8 us;
 
