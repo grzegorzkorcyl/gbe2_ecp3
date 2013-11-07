@@ -574,10 +574,10 @@ begin
 			if (insert_padding = '1') then
 				header_ctr <= 3;
 			else
-				header_ctr <= 31;
+				header_ctr <= 30;
 			end if;
 		elsif (load_current_state = LOAD_PADDING and header_ctr = 0) then
-			header_ctr <= 31;
+			header_ctr <= 30;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
@@ -663,7 +663,7 @@ begin
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
-TC_EVENT_SIZE_OUT <= actual_q_size - x"1";
+TC_EVENT_SIZE_OUT <= actual_q_size - x"2";
 
 TERMINATION_PROC : process(CLK)
 begin
