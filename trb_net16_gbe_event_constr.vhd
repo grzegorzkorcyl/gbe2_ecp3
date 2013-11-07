@@ -627,8 +627,8 @@ end process TC_SOD_PROC;
 -- read from fifos
 
 df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' and load_eod_q = '0') or 
-					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1')
+					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1')
+					--(load_current_state = LOAD_SUB and header_ctr = 1 and TC_RD_EN_IN = '1')
 					else '0';
 
 shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
