@@ -168,7 +168,7 @@ end process DF_WR_EN_PROC;
 DATA_FIFO : fifo_32kx9_flags --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
-	Data(8)          =>  df_eod, --_qq,
+	Data(8)          =>  df_eod_qq,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
 	WrEn             =>  df_wr_en_qq,
@@ -655,7 +655,7 @@ begin
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
-TC_EVENT_SIZE_OUT <= actual_q_size - x"1";
+TC_EVENT_SIZE_OUT <= actual_q_size;
 
 TERMINATION_PROC : process(CLK)
 begin

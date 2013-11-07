@@ -229,11 +229,11 @@ begin
 			
 			when ADD_SUBSUB3 =>
 				sf_data <= FEE_STATUS_BITS_IN(31 downto 16);
-				save_eod <= '0';
+				save_eod <= '1';
 			
 			when ADD_SUBSUB4 =>
 				sf_data <= FEE_STATUS_BITS_IN(15 downto 0);
-				save_eod <= '1';
+				save_eod <= '0';
 				
 			when others => sf_data <= (others => '0'); save_eod <= '0';
 			
@@ -337,9 +337,9 @@ THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
 	Data(7 downto 0)  => sf_data(15 downto 8),
-	Data(8)           => save_eod, --'0',
+	Data(8)           => '0',
 	Data(16 downto 9) => sf_data(7 downto 0),
-	Data(17)          => '0', --save_eod,
+	Data(17)          => save_eod,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
 	WrEn              => sf_wr_en,
@@ -462,7 +462,7 @@ begin
 		if (PC_READY_IN = '1') then
 			if (load_current_state = REMOVE) then
 				sf_rd_en <= '1';
-			elsif (load_current_state = LOAD and sf_eod = '0') then
+			elsif (load_current_state = LOAD) then
 				sf_rd_en <= '1';
 			else
 				sf_rd_en <= '0';
@@ -628,7 +628,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		pc_ready_q <= PC_READY_IN;
 		if (pc_ready_q = '1') then
-			if (load_current_state = LOAD or load_current_state = CLOSE) then
+			if (load_current_state = LOAD) then
 				PC_WR_EN_OUT <= '1';
 			else
 				PC_WR_EN_OUT <= '0';
