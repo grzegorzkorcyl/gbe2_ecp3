@@ -177,19 +177,30 @@ SF_WR_EN_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
 		sf_afull_q <= sf_afull;
-		if (sf_afull_q = '0') then
-			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
-				sf_wr_en <= '1';
-			elsif (save_current_state = SAVE_EVT_ADDR) then
-				sf_wr_en <= '1';
-			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
-				sf_wr_en <= '1';
-			else
-				sf_wr_en <= '0';
-			end if;
+		
+		if (sf_afull_q = '0' and save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
+			sf_wr_en <= '1';
+		elsif (save_current_state = SAVE_EVT_ADDR) then
+			sf_wr_en <= '1';
+		elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
+			sf_wr_en <= '1';
 		else
 			sf_wr_en <= '0';
 		end if;
+		
+--		if (sf_afull_q = '0') then
+--			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
+--				sf_wr_en <= '1';
+--			elsif (save_current_state = SAVE_EVT_ADDR) then
+--				sf_wr_en <= '1';
+--			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
+--				sf_wr_en <= '1';
+--			else
+--				sf_wr_en <= '0';
+--			end if;
+--		else
+--			sf_wr_en <= '0';
+--		end if;
 	end if;
 end process SF_WR_EN_PROC;
 
