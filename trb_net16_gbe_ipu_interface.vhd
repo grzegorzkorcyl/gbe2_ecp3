@@ -462,7 +462,7 @@ begin
 		if (PC_READY_IN = '1') then
 			if (load_current_state = REMOVE) then
 				sf_rd_en <= '1';
-			elsif (load_current_state = LOAD) then
+			elsif (load_current_state = LOAD and sf_eod = '0') then
 				sf_rd_en <= '1';
 			else
 				sf_rd_en <= '0';
