@@ -390,7 +390,7 @@ begin
 --		--wait for 3 us;
 --
 --	end loop RECEIVE_LOOP;
-		test_data_len := INTEGER(TRUNC(rand*30000.0)); --20; -- + (1 - J) * 200;
+		test_data_len := 20; -- + (1 - J) * 200;
 
 	MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
 		-- generate a real random byte for CTS
@@ -420,6 +420,7 @@ begin
 		
 		--test_data_len := 9685;
 --		test_data_len := 2000; -- + (1 - J) * 200;
+		test_data_len := INTEGER(TRUNC(rand*30000.0)); --20; -- + (1 - J) * 200;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
