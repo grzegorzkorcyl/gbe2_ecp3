@@ -673,14 +673,14 @@ begin
 		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
-			for I in 0 to 7 loop
+			for I in 0 to 7 generate
 				case (load_current_state) is
 					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
 					when LOAD_SUB  => termination(I) <= shf_q(I);
 					when LOAD_DATA => termination(I) <= df_q(I);
 					when others    => termination(I) <= '0';
 				end case;
-			end loop;
+			end generate;
 			
 		else
 			termination <= termination;
@@ -707,7 +707,7 @@ begin
 			when LOAD_SUB       => tc_data <= shf_q;
 			when LOAD_DATA      => tc_data <= df_q;
 			when LOAD_PADDING   => tc_data <= x"aa";
-			when LOAD_TERM      => tc_data <= termination((header_ctr + 2) * 8 - 1 downto  header_ctr + 1 * 8);
+			when LOAD_TERM      => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
 			when others         => tc_data <= x"cc";
 		end case;
 	end if;
