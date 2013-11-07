@@ -574,10 +574,10 @@ begin
 			if (insert_padding = '1') then
 				header_ctr <= 3;
 			else
-				header_ctr <= 30;
+				header_ctr <= 31;
 			end if;
 		elsif (load_current_state = LOAD_PADDING and header_ctr = 0) then
-			header_ctr <= 30;
+			header_ctr <= 31;
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
@@ -673,14 +673,14 @@ begin
 		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
 			termination(255 downto 8) <= termination(247 downto 0);
 			
-			term_gen : for I in 0 to 7 generate
+			for I in 0 to 7 loop
 				case (load_current_state) is
 					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
 					when LOAD_SUB  => termination(I) <= shf_q(I);
 					when LOAD_DATA => termination(I) <= df_q(I);
 					when others    => termination(I) <= '0';
 				end case;
-			end generate term_gen;
+			end loop;
 			
 		else
 			termination <= termination;
