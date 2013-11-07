@@ -628,7 +628,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		pc_ready_q <= PC_READY_IN;
 		if (pc_ready_q = '1') then
-			if (load_current_state = LOAD) then
+			if (load_current_state = LOAD or load_current_state = CLOSE) then
 				PC_WR_EN_OUT <= '1';
 			else
 				PC_WR_EN_OUT <= '0';
