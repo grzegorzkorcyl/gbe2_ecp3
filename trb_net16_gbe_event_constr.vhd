@@ -542,7 +542,7 @@ begin
 			end if;			
 			
 		when LOAD_TERM =>
-			if (header_ctr = 1) then
+			if (header_ctr = 0) then
 				load_next_state <= CLEANUP;
 			else
 				load_next_state <= LOAD_TERM;
@@ -663,7 +663,7 @@ begin
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
-TC_EVENT_SIZE_OUT <= actual_q_size - x"1";
+TC_EVENT_SIZE_OUT <= actual_q_size;
 
 TERMINATION_PROC : process(CLK)
 begin
