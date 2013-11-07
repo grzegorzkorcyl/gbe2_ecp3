@@ -91,6 +91,7 @@ signal df_wr_en_q, df_wr_en_qq : std_logic;
 signal qsf_full, df_afull : std_logic;
 
 signal padding_needed, insert_padding : std_logic;
+signal load_eod_q : std_logic;
 
 begin
 
@@ -522,7 +523,7 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod = '1' and term_ctr = 33) then
+			if (load_eod_q = '1' and term_ctr = 33) then
 				--if (size_for_padding(2) = '0') then
 				if (insert_padding = '1') then
 					load_next_state <= LOAD_PADDING;
@@ -552,6 +553,13 @@ begin
 		
 	end case;
 end process LOAD_MACHINE;
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		load_eod_q <= load_eod;
+	end if;
+end process;
 
 HEADER_CTR_PROC : process(CLK)
 begin
