@@ -390,7 +390,7 @@ begin
 --		--wait for 3 us;
 --
 --	end loop RECEIVE_LOOP;
-		test_data_len := 2000; -- + (1 - J) * 200;
+		test_data_len := 20; -- + (1 - J) * 200;
 
 	MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
 		-- generate a real random byte for CTS
@@ -549,7 +549,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		test_data_len := test_data_len + 1;
+		test_data_len := test_data_len + 10;
 		
 		--wait for 8 us;
 
