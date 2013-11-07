@@ -94,6 +94,7 @@ signal trigger_type : std_logic_vector(3 downto 0);
 signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
 signal pc_ready_q : std_logic;
+signal sf_afull_q : std_logic;
 
 begin
 
@@ -175,7 +176,8 @@ end process SAVE_MACHINE;
 SF_WR_EN_PROC : process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		if (sf_afull = '0') then
+		sf_afull_q <= sf_afull;
+		if (sf_afull_q = '0') then
 			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
 				sf_wr_en <= '1';
 			elsif (save_current_state = SAVE_EVT_ADDR) then
