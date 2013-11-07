@@ -542,7 +542,7 @@ begin
 			end if;			
 			
 		when LOAD_TERM =>
-			if (header_ctr = 0) then
+			if (header_ctr = 1) then
 				load_next_state <= CLEANUP;
 			else
 				load_next_state <= LOAD_TERM;
