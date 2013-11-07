@@ -494,28 +494,28 @@ begin
 			test_data := test_data + 1;
 			wait until rising_edge(clk) and (fee_read_out = '1');
 			fee_data_in <= std_logic_vector(test_data); 
-			if( (test_data MOD 5) = 0 ) then
-				fee_dataready_in <= '0';
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
-				wait until rising_edge(clk);
+--			if( (test_data MOD 5) = 0 ) then
+--				fee_dataready_in <= '0';
 --				wait until rising_edge(clk);
 --				wait until rising_edge(clk);
 --				wait until rising_edge(clk);
 --				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
-				fee_dataready_in <= '1';
-			else
-				fee_dataready_in <= '1';
-			end if;
- 				--fee_dataready_in <= '1';
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+----				wait until rising_edge(clk);
+--				fee_dataready_in <= '1';
+--			else
+--				fee_dataready_in <= '1';
+--			end if;
+ 				fee_dataready_in <= '1';
 		end loop MY_DATA_LOOP;
 		-- there must be padding words to get multiple of four LWs
 	
@@ -549,7 +549,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		--test_data_len := test_data_len + 1;
+		test_data_len := test_data_len + 1;
 		
 		--wait for 8 us;
 
