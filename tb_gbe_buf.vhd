@@ -290,7 +290,7 @@ variable int_rand : integer; -- random value, scaled to your needs
 variable cts_random_number : std_logic_vector(7 downto 0);
 variable up_down_switch : integer := 0;
 variable stim : std_logic_vector(15 downto 0);
-
+variable random_size : integer := 1;
 -- RND test
 --UNIFORM(seed1, seed2, rand);
 --int_rand := INTEGER(TRUNC(rand*65536.0));
@@ -390,7 +390,7 @@ begin
 --		--wait for 3 us;
 --
 --	end loop RECEIVE_LOOP;
-		test_data_len := 20; -- + (1 - J) * 200;
+		test_data_len := INTEGER(TRUNC(rand*30000.0)); --20; -- + (1 - J) * 200;
 
 	MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
 		-- generate a real random byte for CTS
