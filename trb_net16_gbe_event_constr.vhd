@@ -168,7 +168,7 @@ end process DF_WR_EN_PROC;
 DATA_FIFO : fifo_32kx9_flags --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
-	Data(8)          =>  df_eod_qq,
+	Data(8)          =>  df_eod, --_qq,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
 	WrEn             =>  df_wr_en_qq,
