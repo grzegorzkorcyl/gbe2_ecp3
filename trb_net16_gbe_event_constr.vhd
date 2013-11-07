@@ -655,7 +655,7 @@ begin
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
-TC_EVENT_SIZE_OUT <= actual_q_size - x"3";
+TC_EVENT_SIZE_OUT <= actual_q_size - x"2";
 
 TERMINATION_PROC : process(CLK)
 begin
