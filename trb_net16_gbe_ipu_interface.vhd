@@ -337,9 +337,9 @@ THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
 	Data(7 downto 0)  => sf_data(15 downto 8),
-	Data(8)           => '0',
+	Data(8)           => save_eod, --'0',
 	Data(16 downto 9) => sf_data(7 downto 0),
-	Data(17)          => save_eod,
+	Data(17)          => '0', --save_eod,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
 	WrEn              => sf_wr_en,

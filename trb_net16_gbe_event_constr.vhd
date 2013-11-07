@@ -570,8 +570,8 @@ begin
 			end if;
 		elsif (load_current_state = LOAD_PADDING and header_ctr = 0) then
 			header_ctr <= 31;
---		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
---			header_ctr <= 3;
+		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
+			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
