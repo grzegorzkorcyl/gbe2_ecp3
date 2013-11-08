@@ -714,10 +714,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TSM_RX_STAT_VEC_IN  => mac_rx_stat_vec,
 	  TSM_RX_STAT_EN_IN   => mac_rx_stat_en,
 	  
-	  SELECT_REC_FRAMES_OUT		=> dbg_select_rec,
-	  SELECT_REC_BYTES_OUT      => dbg_select_rec_bytes,
-	  SELECT_SENT_BYTES_OUT     => dbg_select_sent_bytes,
-	  SELECT_SENT_FRAMES_OUT	=> dbg_select_sent
+	  MONITOR_SELECT_REC_FRAMES_OUT		=> dbg_select_rec,
+	  MONITOR_SELECT_REC_BYTES_OUT      => dbg_select_rec_bytes,
+	  MONITOR_SELECT_SENT_BYTES_OUT     => dbg_select_sent_bytes,
+	  MONITOR_SELECT_SENT_FRAMES_OUT	=> dbg_select_sent
   );
   
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
