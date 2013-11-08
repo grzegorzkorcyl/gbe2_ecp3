@@ -85,7 +85,7 @@ begin
 		BUS_ACK_OUT               <= ack_q;
 		ack_q                     <= ack;
 		BUS_DATA_OUT              <= data_out;
-		GBE_ALLOW_RX_OUT          <= allow_rx;
+		GBE_ALLOW_RX_OUT          <= '1'; --allow_rx;
 	end if;
 end process OUT_PROC;
 
