@@ -594,6 +594,7 @@ signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
 signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
 signal monitor_tx_packets : std_logic_vector(31 downto 0);
+signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames : std_logic_vector(31 downto 0);
 
 begin
 
