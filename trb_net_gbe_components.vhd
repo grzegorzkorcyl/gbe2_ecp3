@@ -364,7 +364,7 @@ port (
 	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);  
 	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);  
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);  
-	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0);  
+	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);  
 	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
 	
 	-- input for statistics from outside	
