@@ -593,6 +593,7 @@ signal tc_data_not_valid : std_logic;
 signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
 signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
+signal monitor_tx_packets : std_logic_vector(31 downto 0);
 
 begin
 
@@ -805,7 +806,7 @@ port map(
 	MONITOR_SELECT_REC_IN	      => dbg_select_rec,
 	MONITOR_SELECT_REC_BYTES_IN   => dbg_select_rec_bytes,
 	MONITOR_SELECT_SENT_BYTES_IN  => dbg_select_sent_bytes,
-	MONITOR_SELECT_SENT_IN	      => dbg_select_sent,
+	MONITOR_SELECT_SENT_IN	      => dbg_select_sent
 );
 end generate;
 
