@@ -45,10 +45,9 @@ port(
 	FT_START_OF_PACKET_OUT  : out   std_logic;
 	FT_TX_DONE_IN           : in    std_logic;
 	FT_TX_DISCFRM_IN	: in	std_logic;
-	-- debug ports
-	BSM_CONSTR_OUT          : out   std_logic_vector(7 downto 0);
-	BSM_TRANS_OUT           : out   std_logic_vector(3 downto 0);
-	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
+	
+	MONITOR_TX_BYTES_OUT    : out std_logic_vector(31 downto 0);
+	MONITOR_TX_FRAMES_OUT   : out std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_frame_constr;
 
@@ -120,6 +119,8 @@ signal delay_ctr            : std_logic_vector(31 downto 0);
 signal frame_delay_reg      : std_logic_vector(31 downto 0);
 signal fpf_data_q           : std_logic_vector(7 downto 0);
 signal fpf_wr_en_q, fpf_eod : std_logic;
+
+signal mon_sent_frames, mon_sent_bytes : std_logic_vector(31 downto 0);
 
 begin
 
@@ -588,33 +589,40 @@ begin
 	if rising_edge(RD_CLK) then
 		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
 			sent_frames_ctr <= (others => '0');
-		-- gk 03.08.10
+			mon_sent_frames <= (others => '0');
 		elsif( FT_TX_DONE_IN = '1' ) or (FT_TX_DISCFRM_IN = '1') then
 			sent_frames_ctr <= sent_frames_ctr + 1;
+			mon_sent_frames <= mon_sent_frames + x"1";
+		else
+			sent_frames_ctr <= sent_frames_ctr;
+			mon_sent_frames <= mon_sent_frames;
 		end if;
 	end if;
 end process sentFramesCtrProc;
 
-debug(7 downto 0)      <= bsm_constr;
-debug(11 downto 8)     <= bsm_trans;
-debug(27 downto 12)    <= sent_frames_ctr;
-debug(28)              <= fpf_full;
-debug(29)              <= fpf_empty;
-debug(30)              <= ready;
-debug(31)              <= headers_ready;
-debug(47 downto 32)    <= ready_frames_ctr_q;
-debug(48)              <= '0';
 
 
--- Output
 FT_DATA_OUT            <= fpf_q;
 FT_TX_EMPTY_OUT        <= fpf_empty;
 FT_START_OF_PACKET_OUT <= ft_sop;
 READY_OUT              <= ready;
 HEADERS_READY_OUT      <= headers_ready;
 
-BSM_CONSTR_OUT         <= bsm_constr;
-BSM_TRANS_OUT          <= bsm_trans;
-DEBUG_OUT              <= debug;
+	
+MONITOR_TX_BYTES_OUT    <= mon_sent_frames;
+MONITOR_TX_FRAMES_OUT   <= mon_sent_bytes;
+
+process(RD_CLK)
+begin
+	if rising_edge(RD_CLK) then
+		if (RESET = '1') or (LINK_OK_IN = '0') then
+			mon_sent_bytes <= (others => '0');
+		elsif (fpf_rd_en = '1') then
+			mon_sent_bytes <= mon_sent_bytes + x"1";
+		else
+			mon_sent_bytes <= mon_sent_bytes;
+		end if;
+	end if;
+end process;
 
 end trb_net16_gbe_frame_constr;

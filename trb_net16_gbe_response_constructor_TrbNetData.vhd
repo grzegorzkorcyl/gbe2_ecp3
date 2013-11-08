@@ -47,8 +47,6 @@ port (
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
 	STAT_DATA_ACK_IN  : in std_logic;
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         : in    std_logic;
@@ -80,12 +78,19 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_GBE_ENABLE_IN            : in std_logic;                    
+	CFG_IPU_ENABLE_IN            : in std_logic;                    
+	CFG_MULT_ENABLE_IN           : in std_logic;                    
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0);
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;
 
--- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_response_constructor_TrbNetData;
 
@@ -133,6 +138,8 @@ attribute syn_encoding of dissect_current_state : signal is "onehot";
 signal event_bytes : std_logic_vector(15 downto 0);
 signal loaded_bytes : std_logic_vector(15 downto 0);
 signal sent_packets : std_logic_vector(15 downto 0);
+
+signal mon_sent_frames, mon_sent_bytes : std_logic_vector(31 downto 0);
 
 begin
 
@@ -215,8 +222,8 @@ port map(
 	MULT_EVT_ENABLE_IN		 => '0', --CFG_MULT_ENABLE_IN,
 	MAX_MESSAGE_SIZE_IN		 => x"0000_0fd0",
 	MIN_MESSAGE_SIZE_IN		 => x"0000_0007",
-	READOUT_CTR_IN			 => x"00_0000",
-	READOUT_CTR_VALID_IN	 => '0',
+	READOUT_CTR_IN			 => CFG_READOUT_CTR_IN, --x"00_0000",
+	READOUT_CTR_VALID_IN	 => CFG_READOUT_CTR_VALID_IN, --'0',
 	ALLOW_LARGE_IN			 => '0',
 	-- PacketConstructor interface
 	PC_WR_EN_OUT			 => pc_wr_en,
@@ -238,7 +245,7 @@ PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,
-	MULT_EVT_ENABLE_IN		=> '0',
+	MULT_EVT_ENABLE_IN		=> '0', --CFG_MULT_ENABLE_IN
 	PC_WR_EN_IN				=> pc_wr_en,
 	PC_DATA_IN				=> pc_data,
 	PC_READY_OUT			=> pc_ready,
@@ -248,13 +255,13 @@ port map(
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	PC_SUB_SIZE_IN			=> pc_sub_size,
 	PC_PADDING_IN			=> pc_padding,
-	PC_DECODING_IN			=> x"0002_0001", --pc_decoding,
-	PC_EVENT_ID_IN			=> x"0000_8000", --pc_event_id,
+	PC_DECODING_IN			=> CFG_SUBEVENT_DEC_IN, --x"0002_0001", --pc_decoding,
+	PC_EVENT_ID_IN			=> CFG_SUBEVENT_ID_IN, --x"0000_8000", --pc_event_id,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_TRIGGER_TYPE_IN      => pc_trig_type,
-	PC_QUEUE_DEC_IN			=> x"0003_0062", --pc_queue_dec,
+	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN, --x"0003_0062", --pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
-	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
+	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",  -- not used for the moment
 	PC_DELAY_IN             => (others => '0'),
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
@@ -368,6 +375,38 @@ begin
 	end if;
 end process SENT_PACKETS_PROC;
 
+-- monitoring
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			mon_sent_frames <= (others => '0');
+		elsif (dissect_current_state = LOAD and event_bytes = loaded_bytes) then
+			mon_sent_frames <= mon_sent_frames + x"1";
+		else
+			mon_sent_frames <= mon_sent_frames;
+		end if;
+	end if;
+end process;
+MONITOR_SELECT_SENT_OUT      <= mon_sent_frames;
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			mon_sent_bytes <= (others => '0');
+		elsif (tc_rd_en = '1') then
+			mon_sent_bytes <= mon_sent_bytes + x"1";
+		else
+			mon_sent_bytes <= mon_sent_bytes;
+		end if;
+	end if;
+end process;
+MONITOR_SELECT_SENT_BYTES_OUT <= mon_sent_bytes;
+
+
+MONITOR_SELECT_REC_BYTES_OUT  <= (others => '0');
+MONITOR_SELECT_REC_OUT        <= (others => '0');
 
 end trb_net16_gbe_response_constructor_TrbNetData;
 

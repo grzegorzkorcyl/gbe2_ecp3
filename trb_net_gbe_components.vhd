@@ -52,8 +52,7 @@ port (
 	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
 	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
 
--- debug
-	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
+	MONITOR_TX_PACKETS_OUT : out std_logic_vector(31 downto 0)
 );
 end component;
 
@@ -369,7 +368,10 @@ port (
 	STAT_DATA_RDY_IN         : in std_logic;
 	STAT_DATA_ACK_OUT        : out std_logic;
 	
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0) 	
 );
 end component;
 
@@ -488,6 +490,11 @@ port (
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;
 	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0); 
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0); 
+	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
@@ -503,11 +510,10 @@ port (
 	TSM_RX_STAT_EN_IN   : in	std_logic;
 
 	
-	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end component;
 
@@ -651,10 +657,12 @@ port (
 	FR_DEST_MAC_ADDRESS_OUT : out	std_logic_vector(47 downto 0);
 	FR_SRC_IP_ADDRESS_OUT	: out	std_logic_vector(31 downto 0);
 	FR_DEST_IP_ADDRESS_OUT	: out	std_logic_vector(31 downto 0);
-	FR_SRC_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
+	FR_SRC_UDP_PORT_OUT	    : out	std_logic_vector(15 downto 0);
 	FR_DEST_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
 
-	DEBUG_OUT		: out	std_logic_vector(95 downto 0)
+	MONITOR_RX_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_RX_FRAMES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_DROPPED_OUT   : out	std_logic_vector(31 downto 0)
 );
 end component;
 
@@ -785,10 +793,9 @@ port(
 	FT_START_OF_PACKET_OUT  : out   std_logic;
 	FT_TX_DONE_IN           : in    std_logic;
 	FT_TX_DISCFRM_IN	: in	std_logic;
-	-- debug ports
-	BSM_CONSTR_OUT          : out   std_logic_vector(7 downto 0);
-	BSM_TRANS_OUT           : out   std_logic_vector(3 downto 0);
-	DEBUG_OUT               : out   std_logic_vector(63 downto 0)
+	
+	MONITOR_TX_BYTES_OUT    : out std_logic_vector(31 downto 0);
+	MONITOR_TX_FRAMES_OUT   : out std_logic_vector(31 downto 0)
 );
 end component;
 
@@ -878,89 +885,40 @@ end component;
 
 component gbe_setup is
 port(
-	CLK                      : in std_logic;
-	RESET                    : in std_logic;
+	CLK                       : in std_logic;
+	RESET                     : in std_logic;
 
 	-- interface to regio bus
 	BUS_ADDR_IN               : in std_logic_vector(7 downto 0);
 	BUS_DATA_IN               : in std_logic_vector(31 downto 0);
-	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);  -- gk 26.04.10
-	BUS_WRITE_EN_IN           : in std_logic;  -- gk 26.04.10
-	BUS_READ_EN_IN            : in std_logic;  -- gk 26.04.10
-	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
-
-	GBE_TRIG_NR_IN            : in std_logic_vector(31 downto 0);
+	BUS_DATA_OUT              : out std_logic_vector(31 downto 0);
+	BUS_WRITE_EN_IN           : in std_logic;
+	BUS_READ_EN_IN            : in std_logic;
+	BUS_ACK_OUT               : out std_logic;
 
 	-- output to gbe_buf
 	GBE_SUBEVENT_ID_OUT       : out std_logic_vector(31 downto 0);
 	GBE_SUBEVENT_DEC_OUT      : out std_logic_vector(31 downto 0);
 	GBE_QUEUE_DEC_OUT         : out std_logic_vector(31 downto 0);
-	GBE_MAX_PACKET_OUT        : out std_logic_vector(31 downto 0);
-	GBE_MIN_PACKET_OUT        : out std_logic_vector(31 downto 0);
 	GBE_MAX_FRAME_OUT         : out std_logic_vector(15 downto 0);
 	GBE_USE_GBE_OUT           : out std_logic;
 	GBE_USE_TRBNET_OUT        : out std_logic;
 	GBE_USE_MULTIEVENTS_OUT   : out std_logic;
-	GBE_READOUT_CTR_OUT       : out std_logic_vector(23 downto 0);  -- gk 26.04.10
-	GBE_READOUT_CTR_VALID_OUT : out std_logic;  -- gk 26.04.10
-	GBE_DELAY_OUT             : out std_logic_vector(31 downto 0);
-	GBE_ALLOW_LARGE_OUT       : out std_logic;
+	GBE_READOUT_CTR_OUT       : out std_logic_vector(23 downto 0);
+	GBE_READOUT_CTR_VALID_OUT : out std_logic;
 	GBE_ALLOW_RX_OUT          : out std_logic;
-	GBE_ALLOW_BRDCST_ETH_OUT  : out std_logic;
-	GBE_ALLOW_BRDCST_IP_OUT   : out std_logic;
-	GBE_FRAME_DELAY_OUT	  : out std_logic_vector(31 downto 0);
-	GBE_ALLOWED_TYPES_OUT	  : out	std_logic_vector(31 downto 0);
-	GBE_ALLOWED_IP_OUT	  : out	std_logic_vector(31 downto 0);
-	GBE_ALLOWED_UDP_OUT	  : out	std_logic_vector(31 downto 0);
-	GBE_VLAN_ID_OUT           : out std_logic_vector(31 downto 0);
-	-- gk 28.07.10
-	MONITOR_BYTES_IN          : in std_logic_vector(31 downto 0);
-	MONITOR_SENT_IN           : in std_logic_vector(31 downto 0);
-	MONITOR_DROPPED_IN        : in std_logic_vector(31 downto 0);
-	MONITOR_SM_IN             : in std_logic_vector(31 downto 0);
-	MONITOR_LR_IN             : in std_logic_vector(31 downto 0);
-	MONITOR_HDR_IN            : in std_logic_vector(31 downto 0);
-	MONITOR_FIFOS_IN          : in std_logic_vector(31 downto 0);
-	MONITOR_DISCFRM_IN        : in std_logic_vector(31 downto 0);
-	MONITOR_LINK_DWN_IN       : in std_logic_vector(31 downto 0);  -- gk 30.09.10
-	MONITOR_EMPTY_IN          : in std_logic_vector(31 downto 0);  -- gk 01.10.10
-	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
+	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
-	MONITOR_RX_BYTES_R_IN     : in std_logic_vector(31 downto 0);
-	-- gk 01.06.10
-	DBG_IPU2GBE1_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE2_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE3_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE4_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE5_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE6_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE7_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE8_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE9_IN          : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE10_IN         : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE11_IN         : in std_logic_vector(31 downto 0);
-	DBG_IPU2GBE12_IN         : in std_logic_vector(31 downto 0);
-	DBG_PC1_IN               : in std_logic_vector(31 downto 0);
-	DBG_PC2_IN               : in std_logic_vector(31 downto 0);
-	DBG_FC1_IN               : in std_logic_vector(31 downto 0);
-	DBG_FC2_IN               : in std_logic_vector(31 downto 0);
-	DBG_FT1_IN               : in std_logic_vector(31 downto 0);
-	DBG_FT2_IN               : in std_logic_vector(31 downto 0);
-	DBG_FR_IN                : in std_logic_vector(63 downto 0);
-	DBG_RC_IN                : in std_logic_vector(63 downto 0);
-	DBG_MC_IN                : in std_logic_vector(63 downto 0);
-	DBG_TC_IN                : in std_logic_vector(31 downto 0);
-	DBG_FIFO_RD_EN_OUT        : out std_logic;
+	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
+	MONITOR_TX_BYTES_IN       : in std_logic_vector(31 downto 0);
+	MONITOR_TX_FRAMES_IN      : in std_logic_vector(31 downto 0);
+	MONITOR_TX_PACKETS_IN     : in std_logic_vector(31 downto 0);
+	MONITOR_DROPPED_IN        : in std_logic_vector(31 downto 0);
 	
-	DBG_SELECT_REC_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	DBG_SELECT_SENT_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	DBG_SELECT_PROTOS_IN	: in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
-	SCTRL_DUMMY_SIZE_OUT      : out std_logic_vector(15 downto 0);
-	SCTRL_DUMMY_PAUSE_OUT     : out std_logic_vector(31 downto 0);
-	
-	DBG_FIFO_Q_IN             : in std_logic_vector(15 downto 0)
-	--DBG_FIFO_RESET_OUT       : out std_logic
+	MONITOR_SELECT_REC_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_IN   : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_IN  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end component;
 

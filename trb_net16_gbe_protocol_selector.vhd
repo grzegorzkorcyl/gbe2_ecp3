@@ -53,11 +53,6 @@ port (
 	
 	MC_BUSY_IN      : in	std_logic;
 	
-	-- counters from response constructors
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
@@ -103,17 +98,25 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
-
+	CFG_GBE_ENABLE_IN            : in std_logic;                      
+	CFG_IPU_ENABLE_IN            : in std_logic;                      
+	CFG_MULT_ENABLE_IN           : in std_logic;                      
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);  
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);  
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);  
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0);  
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;                      
+	
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
 	STAT_ADDR_IN             : in std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_IN         : in std_logic;
 	STAT_DATA_ACK_OUT        : out std_logic;
 
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0) 
 );
 end trb_net16_gbe_protocol_selector;
 
@@ -216,9 +219,9 @@ port map (
 	STAT_ADDR_OUT 			=> stat_addr(1 * 8 - 1 downto 0 * 8),
 	STAT_DATA_RDY_OUT 		=> stat_rdy(0),
 	STAT_DATA_ACK_IN  		=> stat_ack(0),
-	RECEIVED_FRAMES_OUT		=> RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
-	SENT_FRAMES_OUT			=> SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
-	DEBUG_OUT				=> PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	RECEIVED_FRAMES_OUT		=> open, --RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
+	SENT_FRAMES_OUT			=> open, --SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
+	DEBUG_OUT				=> open, --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
 -- END OF INTERFACE 
 );
 
@@ -263,14 +266,14 @@ port map (
 	STAT_ADDR_OUT           => stat_addr(2 * 8 - 1 downto 1 * 8),
 	STAT_DATA_RDY_OUT       => stat_rdy(1),
 	STAT_DATA_ACK_IN        => stat_ack(1),
-	RECEIVED_FRAMES_OUT	    => RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
-	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
+	RECEIVED_FRAMES_OUT	    => open, --RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
+	SENT_FRAMES_OUT		    => open, --SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 -- END OF INTERFACE
 
 	DHCP_START_IN		    => DHCP_START_IN,
 	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
 	 
-	DEBUG_OUT		        => PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT		        => open, --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
  );
 
 -- protocol No. 3 Ping
@@ -360,8 +363,6 @@ port map (
 	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
 	STAT_DATA_RDY_OUT       => stat_rdy(2),
 	STAT_DATA_ACK_IN        => stat_ack(2),
-	RECEIVED_FRAMES_OUT	    => RECEIVED_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
-	SENT_FRAMES_OUT		    => SENT_FRAMES_OUT(3 * 16 - 1 downto 2 * 16),
 	-- END OF INTERFACE
 	
 	GSC_CLK_IN              => GSC_CLK_IN,
@@ -377,8 +378,10 @@ port map (
 	
 	MAKE_RESET_OUT          => MAKE_RESET_OUT,
 	
-	
-	DEBUG_OUT		        => PROTOS_DEBUG_OUT(3 * 32 - 1 downto 2 * 32)
+	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(3 * 32 - 1 downto 2 * 32),
 );
 
 TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
@@ -419,8 +422,6 @@ port map (
 	STAT_ADDR_OUT 				=> stat_addr(4 * 8 - 1 downto 3 * 8),
 	STAT_DATA_RDY_OUT 			=> stat_rdy(3),
 	STAT_DATA_ACK_IN  			=> stat_ack(3),
-	RECEIVED_FRAMES_OUT			=> RECEIVED_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
-	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         => '0',
@@ -451,13 +452,20 @@ port map (
 	SLV_ACK_OUT                 => SLV_ACK_OUT,
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
-	
-	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
-	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
-	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
 
--- debug
-	DEBUG_OUT					=> open
+	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,       
+	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,       
+	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,      
+	CFG_SUBEVENT_ID_IN			=> CFG_SUBEVENT_ID_IN,		
+	CFG_SUBEVENT_DEC_IN         => CFG_SUBEVENT_DEC_IN,     
+	CFG_QUEUE_DEC_IN            => CFG_QUEUE_DEC_IN,        
+	CFG_READOUT_CTR_IN          => CFG_READOUT_CTR_IN,      
+	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN,
+
+	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(4 * 32 - 1 downto 3 * 32),
+	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT(4 * 32 - 1 downto 3 * 32),
+	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(4 * 32 - 1 downto 3 * 32),
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(4 * 32 - 1 downto 3 * 32),
 );
 
 --stat_gen : if g_SIMULATE = 0 generate

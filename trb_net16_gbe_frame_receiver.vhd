@@ -54,7 +54,9 @@ port (
 	FR_SRC_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
 	FR_DEST_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
 
-	DEBUG_OUT		: out	std_logic_vector(95 downto 0)
+	MONITOR_RX_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_RX_FRAMES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_DROPPED_OUT   : out	std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_frame_receiver;
 
@@ -100,12 +102,9 @@ signal dump2                                : std_logic_vector(7 downto 0);
 signal error_frames_ctr                     : std_logic_vector(15 downto 0);
 
 -- debug signals
-signal dbg_rec_frames                       : std_logic_vector(15 downto 0);
-signal dbg_ack_frames                       : std_logic_vector(15 downto 0);
-signal dbg_drp_frames                       : std_logic_vector(15 downto 0);
+signal dbg_rec_frames                       : std_logic_vector(31 downto 0);
+signal dbg_drp_frames                       : std_logic_vector(31 downto 0);
 signal state                                : std_logic_vector(3 downto 0);
-signal parsed_frames_ctr                    : std_logic_vector(15 downto 0);
-signal ok_frames_ctr                        : std_logic_vector(15 downto 0);
 
 signal rx_data, fr_q                        : std_logic_vector(8 downto 0);
 
@@ -609,35 +608,12 @@ RX_BYTES_CTR_PROC : process(RX_MAC_CLK)
 begin
   if rising_edge(RX_MAC_CLK) then
     if (RESET = '1') or (delayed_frame_valid_q = '1') then
-    --if (RESET = '1') or (frame_valid_q = '1') then
       rx_bytes_ctr <= x"0001";
     elsif (fifo_wr_en = '1') then
       rx_bytes_ctr <= rx_bytes_ctr + x"1";
     end if;
   end if;
 end process;
-
-PARSED_FRAMES_CTR_PROC : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			parsed_frames_ctr <= (others => '0');
-		elsif (filter_current_state = IDLE and new_frame = '1' and ALLOW_RX_IN = '1') then
-			parsed_frames_ctr <= parsed_frames_ctr + x"1";
-		end if;
-	end if;
-end process PARSED_FRAMES_CTR_PROC;
-
-FRAMEOK_FRAMES_CTR_PROC : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			ok_frames_ctr <= (others => '0');
-		elsif (MAC_RX_STAT_EN_IN = '1' and MAC_RX_STAT_VEC_IN(23) = '1') then
-			ok_frames_ctr <= ok_frames_ctr + x"1";
-		end if;
-	end if;
-end process FRAMEOK_FRAMES_CTR_PROC;
 
 ERROR_FRAMES_CTR_PROC : process(RX_MAC_CLK)
 begin
@@ -685,17 +661,6 @@ begin
 	end if;
 end process RECEIVED_FRAMES_CTR;
 
-ACK_FRAMES_CTR : process(RX_MAC_CLK)
-begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			dbg_ack_frames <= (others => '0');
-		elsif (filter_current_state = DECIDE and frame_type_valid = '1') then
-			dbg_ack_frames <= dbg_ack_frames + x"1";
-		end if;
-	end if;
-end process ACK_FRAMES_CTR;
-
 DROPPED_FRAMES_CTR : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
@@ -709,7 +674,7 @@ end process DROPPED_FRAMES_CTR;
 
 sync1 : signal_sync
 generic map (
-	WIDTH => 16,
+	WIDTH => 31,
 	DEPTH => 2
 )
 port map (
@@ -717,73 +682,22 @@ port map (
 	CLK0  => CLK,
 	CLK1  => CLK,
 	D_IN  => dbg_drp_frames,
-	D_OUT => DEBUG_OUT(63 downto 48)
-);
-
-sync2 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => dbg_ack_frames,
-	D_OUT => DEBUG_OUT(47 downto 32)
+	D_OUT => MONITOR_DROPPED_OUT
 );
 
 sync3 : signal_sync
 generic map (
-	WIDTH => 12,
+	WIDTH => 31,
 	DEPTH => 2
 )
 port map (
 	RESET => RESET,
 	CLK0  => CLK,
 	CLK1  => CLK,
-	D_IN  => dbg_rec_frames(11 downto 0),
-	D_OUT => DEBUG_OUT(19 downto 8)
+	D_IN  => dbg_rec_frames,
+	D_OUT => MONITOR_RX_FRAMES_OUT
 );
 
-sync4 : signal_sync
-generic map (
-	WIDTH => 12,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => parsed_frames_ctr(11 downto 0),
-	D_OUT => DEBUG_OUT(31 downto 20)
-);
-
-sync5 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => error_frames_ctr,
-	D_OUT => DEBUG_OUT(79 downto 64)
-);
-
-sync6 : signal_sync
-generic map (
-	WIDTH => 16,
-	DEPTH => 2
-)
-port map (
-	RESET => RESET,
-	CLK0  => CLK,
-	CLK1  => CLK,
-	D_IN  => ok_frames_ctr,
-	D_OUT => DEBUG_OUT(95 downto 80)
-);
 
 -- end of debug counters
 -- ****

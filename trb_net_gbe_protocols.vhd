@@ -445,9 +445,6 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 		STAT_DATA_RDY_OUT : out std_logic;
 		STAT_DATA_ACK_IN  : in std_logic;
-		
-		RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-		SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 	-- END OF INTERFACE
 	
 	-- protocol specific ports
@@ -463,9 +460,11 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
 	-- end of protocol specific ports
-	
-	-- debug
-		DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+
+		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
+		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0) 
 	);
 end component;
 
@@ -562,8 +561,6 @@ port (
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
 	STAT_DATA_ACK_IN  : in std_logic;
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(15 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         : in    std_logic;
@@ -595,12 +592,19 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_GBE_ENABLE_IN            : in std_logic;                    
+	CFG_IPU_ENABLE_IN            : in std_logic;                    
+	CFG_MULT_ENABLE_IN           : in std_logic;                    
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0);
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;
 
--- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0) 
 );
 end component;
 

@@ -108,9 +108,14 @@ port (
 	CFG_GBE_ENABLE_IN            : in std_logic;
 	CFG_IPU_ENABLE_IN            : in std_logic;
 	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0); 
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0); 
+	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
 	
 	MAKE_RESET_OUT           : out std_logic;
-
+	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
 	TSM_HDATA_OUT		: out	std_logic_vector(7 downto 0);
@@ -122,11 +127,11 @@ port (
 	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
 	TSM_RX_STAT_EN_IN   : in	std_logic;
 
-	SELECT_REC_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_SENT_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SELECT_PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
+	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end trb_net16_gbe_main_control;
 
@@ -260,10 +265,6 @@ port map(
 	
 	MC_BUSY_IN      => mc_busy,
 	
-	RECEIVED_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,
-	SENT_FRAMES_OUT		=> SELECT_SENT_FRAMES_OUT,
-	PROTOS_DEBUG_OUT	=> SELECT_PROTOS_DEBUG_OUT,
-	
 	DHCP_START_IN		=> dhcp_start,
 	DHCP_DONE_OUT		=> dhcp_done,
 	
@@ -307,9 +308,14 @@ port map(
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,
-	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,
-	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,
+	CFG_GBE_ENABLE_IN           => CFG_GBE_ENABLE_IN,        
+	CFG_IPU_ENABLE_IN           => CFG_IPU_ENABLE_IN,        
+	CFG_MULT_ENABLE_IN          => CFG_MULT_ENABLE_IN,       
+	CFG_SUBEVENT_ID_IN			=> CFG_SUBEVENT_ID_IN,		 
+	CFG_SUBEVENT_DEC_IN         => CFG_SUBEVENT_DEC_IN,      
+	CFG_QUEUE_DEC_IN            => CFG_QUEUE_DEC_IN,         
+	CFG_READOUT_CTR_IN          => CFG_READOUT_CTR_IN,       
+	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN, 
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,
@@ -317,8 +323,11 @@ port map(
 	STAT_DATA_RDY_IN   => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack,
 
-	
-	DEBUG_OUT		=> dbg_ps
+
+	SELECT_REC_FRAMES_OUT	=> SELECT_REC_FRAMES_OUT,	
+	SELECT_REC_BYTES_OUT    => SELECT_REC_BYTES_OUT,  
+	SELECT_SENT_BYTES_OUT   => SELECT_SENT_BYTES_OUT, 
+	SELECT_SENT_FRAMES_OUT	=> SELECT_SENT_FRAMES_OUT
 );
 
 TC_DATA_OUT <= tc_data;
@@ -900,16 +909,6 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 --		end if;
 --	end if;
 --end process SAVE_VALUES_PROC;
---
---
---DEBUG_OUT(3 downto 0)   <= link_state;
---DEBUG_OUT(7 downto 4)   <= state;
---DEBUG_OUT(11 downto 8)  <= redirect_state;
---DEBUG_OUT(15 downto 12) <= link_state;
---DEBUG_OUT(23 downto 16) <= frame_waiting_ctr(7 downto 0);
---DEBUG_OUT(27 downto 24) <= (others => '0'); --ps_busy_q;
---DEBUG_OUT(31 downto 28) <= (others => '0'); --rc_frame_proto_q;
---DEBUG_OUT(63 downto 32) <= dbg_ps(31 downto 0) or dbg_ps(63 downto 32);
 
 
 -- ****

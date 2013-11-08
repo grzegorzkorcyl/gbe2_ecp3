@@ -55,8 +55,7 @@ port (
 	SRC_IP_ADDRESS_OUT   : out    std_logic_vector(31 downto 0);
 	SRC_UDP_PORT_OUT     : out    std_logic_vector(15 downto 0);
 
--- debug
-	DEBUG_OUT		     : out	std_logic_vector(63 downto 0)
+	MONITOR_TX_PACKETS_OUT : out std_logic_vector(31 downto 0)
 );
 end trb_net16_gbe_transmit_control2;
 
@@ -75,6 +74,7 @@ signal local_end : std_logic_vector(15 downto 0);
 signal actual_frame_bytes, full_packet_size, ip_size, packet_loaded_bytes : std_logic_vector(15 downto 0);
 signal go_to_divide, more_fragments : std_logic;
 signal first_frame : std_logic;
+signal mon_packets_sent_ctr : std_logic_vector(31 downto 0); 
 
 begin
 
@@ -289,6 +289,23 @@ SRC_MAC_ADDRESS_OUT  <= TC_SRC_MAC_IN;
 SRC_IP_ADDRESS_OUT   <= TC_SRC_IP_IN;
 SRC_UDP_PORT_OUT     <= TC_SRC_UDP_IN;
 FC_IDENT_OUT         <= TC_IDENT_IN;
+
+-- monitoring
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (RESET = '1') then
+			mon_packets_sent_ctr <= (others => '0');
+		elsif (transmit_current_state = CLEANUP) then
+			mon_packets_sent_ctr <= mon_packets_sent_ctr + x"1";
+		else
+			mon_packets_sent_ctr <= mon_packets_sent_ctr;
+		end if;
+	end if;
+end process;
+
+MONITOR_TX_PACKETS_OUT <= mon_packets_sent_ctr;
 
 end trb_net16_gbe_transmit_control2;
 

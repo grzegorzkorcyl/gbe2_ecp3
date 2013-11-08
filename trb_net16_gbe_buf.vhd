@@ -530,9 +530,10 @@ signal fr_allowed_udp                : std_logic_vector(31 downto 0);
 signal fr_frame_proto                : std_logic_vector(15 downto 0);
 signal rc_frame_proto                : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
 
-signal dbg_select_rec                : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-signal dbg_select_sent               : std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-signal dbg_select_protos             : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_rec                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_sent               : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_rec_bytes          : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_sent_bytes         : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 signal serdes_rx_clk                 : std_logic;
 
@@ -696,6 +697,11 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	CFG_GBE_ENABLE_IN           => use_gbe,
 	CFG_IPU_ENABLE_IN           => use_trbnet,
 	CFG_MULT_ENABLE_IN          => use_multievents,
+	CFG_SUBEVENT_ID_IN			=> pc_event_id,
+	CFG_SUBEVENT_DEC_IN         => pc_decoding,
+	CFG_QUEUE_DEC_IN            => pc_queue_dec,
+	CFG_READOUT_CTR_IN          => readout_ctr,
+	CFG_READOUT_CTR_VALID_IN    => readout_ctr_valid,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -709,10 +715,9 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TSM_RX_STAT_EN_IN   => mac_rx_stat_en,
 	  
 	  SELECT_REC_FRAMES_OUT		=> dbg_select_rec,
-	  SELECT_SENT_FRAMES_OUT	=> dbg_select_sent,
-	  SELECT_PROTOS_DEBUG_OUT	=> dbg_select_protos,
-
-	  DEBUG_OUT		=> dbg_mc
+	  SELECT_REC_BYTES_OUT      => dbg_select_rec_bytes,
+	  SELECT_SENT_BYTES_OUT     => dbg_select_sent_bytes,
+	  SELECT_SENT_FRAMES_OUT	=> dbg_select_sent
   );
   
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
@@ -760,208 +765,54 @@ port map(
 	SRC_IP_ADDRESS_OUT      => fc_src_ip,
 	SRC_UDP_PORT_OUT        => fc_src_udp,
 
-
--- debug
-	DEBUG_OUT		=> dbg_tc
+	MONITOR_TX_PACKETS_OUT  => monitor_tx_packets
 );
 
 
 setup_imp_gen : if (DO_SIMULATION = 0) generate
--- gk 22.04.10 new entity to set values via slow control
 SETUP : gbe_setup
 port map(
-	CLK                       => CLK,
-	RESET                     => RESET,
+	CLK                         => CLK,  
+	RESET                       => RESET,
 
-	-- gk 26.04.10
 	-- interface to regio bus
-	BUS_ADDR_IN               => BUS_ADDR_IN,
-	BUS_DATA_IN               => BUS_DATA_IN,
-	BUS_DATA_OUT              => BUS_DATA_OUT,
-	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
-	BUS_READ_EN_IN            => BUS_READ_EN_IN,
-	BUS_ACK_OUT               => BUS_ACK_OUT,
-
-	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
+	BUS_ADDR_IN                 => BUS_ADDR_IN,     
+	BUS_DATA_IN                 => BUS_DATA_IN,     
+	BUS_DATA_OUT                => BUS_DATA_OUT,    
+	BUS_WRITE_EN_IN             => BUS_WRITE_EN_IN, 
+	BUS_READ_EN_IN              => BUS_READ_EN_IN,  
+	BUS_ACK_OUT                 => BUS_ACK_OUT,     
 
 	-- output to gbe_buf
-	GBE_SUBEVENT_ID_OUT       => pc_event_id,
-	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
-	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
-	GBE_MAX_PACKET_OUT        => max_packet,
-	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
-	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
-	GBE_USE_GBE_OUT           => use_gbe,
-	GBE_USE_TRBNET_OUT        => use_trbnet,
-	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
-	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
-	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
-	GBE_DELAY_OUT             => pc_delay,
-	GBE_ALLOW_LARGE_OUT       => allow_large,  -- gk 21.07.10
-	GBE_ALLOW_RX_OUT          => allow_rx,
-	GBE_ALLOW_BRDCST_ETH_OUT  => open,
-	GBE_ALLOW_BRDCST_IP_OUT   => open,
-	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
-	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
-	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
-	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
-	GBE_VLAN_ID_OUT	          => vlan_id,
-	-- gk 28.07.10
-	MONITOR_BYTES_IN          => bytes_sent_ctr,
-	MONITOR_SENT_IN           => monitor_sent,
-	MONITOR_DROPPED_IN        => monitor_dropped,
-	MONITOR_SM_IN             => monitor_sm,
-	MONITOR_LR_IN             => monitor_lr,
-	MONITOR_HDR_IN            => monitor_hr,
-	MONITOR_FIFOS_IN          => monitor_fifos_q,
-	MONITOR_DISCFRM_IN        => monitor_discfrm,
-	MONITOR_EMPTY_IN          => monitor_empty,
-	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
-	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
-	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
-	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
-	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
-	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
-	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
-	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
-	-- gk 01.06.10
-	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
-	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
-	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
-	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
-	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
-	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
-	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
-	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
-	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
-	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
-	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
-	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
-	DBG_PC1_IN                => dbg_pc1,
-	DBG_PC2_IN                => dbg_pc2,
-	DBG_FC1_IN                => dbg_fc1,
-	DBG_FC2_IN                => dbg_fc2,
-	DBG_FT1_IN                => dbg_ft1,
-	DBG_FT2_IN                => dbg_ft(31 downto 0),
-	DBG_FR_IN                 => dbg_fr(63 downto 0),
-	DBG_RC_IN                 => dbg_rc,
-	DBG_MC_IN                 => dbg_mc,
-	DBG_TC_IN                 => dbg_tc(31 downto 0),
-	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
+	GBE_SUBEVENT_ID_OUT         => pc_event_id,
+	GBE_SUBEVENT_DEC_OUT        => pc_decoding,
+	GBE_QUEUE_DEC_OUT           => pc_queue_dec,
+	GBE_MAX_FRAME_OUT           => pc_max_frame_size,
+	GBE_USE_GBE_OUT             => use_gbe,        
+	GBE_USE_TRBNET_OUT          => use_trbnet,     
+	GBE_USE_MULTIEVENTS_OUT     => use_multievents,
+	GBE_READOUT_CTR_OUT         => readout_ctr,
+	GBE_READOUT_CTR_VALID_OUT   => readout_ctr_valid,
+	GBE_ALLOW_RX_OUT            => allow_rx,
 	
-	DBG_SELECT_REC_IN	=> dbg_select_rec,
-	DBG_SELECT_SENT_IN	=> dbg_select_sent,
-	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
+	MONITOR_RX_BYTES_IN         => monitor_rx_bytes,
+	MONITOR_RX_FRAMES_IN        => monitor_rx_frames,
+	MONITOR_TX_BYTES_IN         => monitor_tx_bytes,
+	MONITOR_TX_FRAMES_IN        => monitor_tx_frames,
+	MONITOR_TX_PACKETS_IN       => monitor_tx_packets,
+	MONITOR_DROPPED_IN          => monitor_dropped,
 	
-	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
-	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
-	
-	DBG_FIFO_Q_IN             => dbg_q
-	
-	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
+	MONITOR_SELECT_REC_IN	      => dbg_select_rec,
+	MONITOR_SELECT_REC_BYTES_IN   => dbg_select_rec_bytes,
+	MONITOR_SELECT_SENT_BYTES_IN  => dbg_select_sent_bytes,
+	MONITOR_SELECT_SENT_IN	      => dbg_select_sent,
 );
 end generate;
 
 setup_sim_gen : if (DO_SIMULATION = 1) generate
--- gk 22.04.10 new entity to set values via slow control
-SETUP : gbe_setup
-port map(
-	CLK                       => CLK,
-	RESET                     => RESET,
-
-	-- gk 26.04.10
-	-- interface to regio bus
-	BUS_ADDR_IN               => BUS_ADDR_IN,
-	BUS_DATA_IN               => BUS_DATA_IN,
-	BUS_DATA_OUT              => BUS_DATA_OUT,
-	BUS_WRITE_EN_IN           => BUS_WRITE_EN_IN,
-	BUS_READ_EN_IN            => BUS_READ_EN_IN,
-	BUS_ACK_OUT               => BUS_ACK_OUT,
-
-	GBE_TRIG_NR_IN            => pc_trig_nr, -- gk 26.04.10
-
-	-- output to gbe_buf
-	GBE_SUBEVENT_ID_OUT       => pc_event_id,
-	GBE_SUBEVENT_DEC_OUT      => pc_decoding,
-	GBE_QUEUE_DEC_OUT         => pc_queue_dec,
-	GBE_MAX_PACKET_OUT        => max_packet,
-	GBE_MIN_PACKET_OUT        => min_packet,  -- gk 20.07.10
-	GBE_MAX_FRAME_OUT         => pc_max_frame_size,
-	GBE_USE_GBE_OUT           => open, --use_gbe,
-	GBE_USE_TRBNET_OUT        => use_trbnet,
-	GBE_USE_MULTIEVENTS_OUT   => use_multievents,
-	GBE_READOUT_CTR_OUT       => readout_ctr,  -- gk 26.04.10
-	GBE_READOUT_CTR_VALID_OUT => readout_ctr_valid,  -- gk 26.04.10
-	GBE_DELAY_OUT             => pc_delay,
-	GBE_ALLOW_LARGE_OUT       => open,
-	GBE_ALLOW_RX_OUT          => open,
-	GBE_ALLOW_BRDCST_ETH_OUT  => open,
-	GBE_ALLOW_BRDCST_IP_OUT   => open,
-	GBE_FRAME_DELAY_OUT       => frame_delay, -- gk 09.12.10
-	GBE_ALLOWED_TYPES_OUT     => fr_allowed_types,
-	GBE_ALLOWED_IP_OUT	  => fr_allowed_ip,
-	GBE_ALLOWED_UDP_OUT	  => fr_allowed_udp,
-	GBE_VLAN_ID_OUT	          => vlan_id,
-	-- gk 28.07.10
-	MONITOR_BYTES_IN          => bytes_sent_ctr,
-	MONITOR_SENT_IN           => monitor_sent,
-	MONITOR_DROPPED_IN        => monitor_dropped,
-	MONITOR_SM_IN             => monitor_sm,
-	MONITOR_LR_IN             => monitor_lr,
-	MONITOR_HDR_IN            => monitor_hr,
-	MONITOR_FIFOS_IN          => monitor_fifos_q,
-	MONITOR_DISCFRM_IN        => monitor_discfrm,
-	MONITOR_EMPTY_IN          => monitor_empty,
-	MONITOR_LINK_DWN_IN(15 downto 0)  => link_down_ctr,  -- gk 30.09.10
-	MONITOR_LINK_DWN_IN(19 downto 16) => link_state,
-	MONITOR_LINK_DWN_IN(23 downto 20) => ft_bsm_trans,
-	MONITOR_LINK_DWN_IN(27 downto 24) => fc_bsm_trans,
-	MONITOR_LINK_DWN_IN(31 downto 28) => (others => '0'),
-	MONITOR_RX_FRAMES_IN      => rc_frames_rec_ctr,
-	MONITOR_RX_BYTES_IN       => rc_bytes_rec,
-	MONITOR_RX_BYTES_R_IN     => rc_debug(31 downto 0),
-	
-	SCTRL_DUMMY_SIZE_OUT      => dummy_size,
-	SCTRL_DUMMY_PAUSE_OUT     => dummy_pause,
-	
-	-- gk 01.06.10
-	DBG_IPU2GBE1_IN           => dbg_ipu2gbe1,
-	DBG_IPU2GBE2_IN           => dbg_ipu2gbe2,
-	DBG_IPU2GBE3_IN           => dbg_ipu2gbe3,
-	DBG_IPU2GBE4_IN           => dbg_ipu2gbe4,
-	DBG_IPU2GBE5_IN           => dbg_ipu2gbe5,
-	DBG_IPU2GBE6_IN           => dbg_ipu2gbe6,
-	DBG_IPU2GBE7_IN           => dbg_ipu2gbe7,
-	DBG_IPU2GBE8_IN           => dbg_ipu2gbe8,
-	DBG_IPU2GBE9_IN           => dbg_ipu2gbe9,
-	DBG_IPU2GBE10_IN          => dbg_ipu2gbe10,
-	DBG_IPU2GBE11_IN          => dbg_ipu2gbe11,
-	DBG_IPU2GBE12_IN          => dbg_ipu2gbe12,
-	DBG_PC1_IN                => dbg_pc1,
-	DBG_PC2_IN                => dbg_pc2,
-	DBG_FC1_IN                => dbg_fc1,
-	DBG_FC2_IN                => dbg_fc2,
-	DBG_FT1_IN                => dbg_ft1,
-	DBG_FT2_IN                => dbg_ft(31 downto 0),
-	DBG_FR_IN                 => dbg_fr(63 downto 0),
-	DBG_RC_IN                 => dbg_rc,
-	DBG_MC_IN                 => dbg_mc,
-	DBG_TC_IN                 => dbg_tc(31 downto 0),
-	DBG_FIFO_RD_EN_OUT        => dbg_rd_en,
-		
-	DBG_SELECT_REC_IN	=> dbg_select_rec,
-	DBG_SELECT_SENT_IN	=> dbg_select_sent,
-	DBG_SELECT_PROTOS_IN	=> dbg_select_protos,
-	
-	DBG_FIFO_Q_IN             => dbg_q
-	--DBG_FIFO_RESET_OUT        => dbg_reset_fifo  -- gk 28.09.10
-);
-
-use_gbe <= '1';
-
-allow_rx <= '1';
-allow_large <= '0';
-
+	use_gbe <= '1';
+	allow_rx <= '1';
+	allow_large <= '0';
 end generate;
 
 -- Third stage: Frame Constructor
@@ -969,8 +820,8 @@ FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
 	RESET				=> RESET,
-	CLK				=> CLK,
-	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
+	CLK				    => CLK,
+	LINK_OK_IN			=> link_ok,
 	--
 	WR_EN_IN			=> fc_wr_en,
 	DATA_IN				=> fc_data,
@@ -993,21 +844,18 @@ port map(
 	FLAGS_OFFSET_IN			=> fc_flags_offset,
 	TTL_IN				=> fc_ttl,
 	PROTOCOL_IN			=> fc_protocol,
-	FRAME_DELAY_IN			=> frame_delay, -- gk 09.12.10
-	-- ports for packetTransmitter
+	FRAME_DELAY_IN			=> frame_delay,
+	
 	RD_CLK				=> serdes_clk_125,
 	FT_DATA_OUT 			=> ft_data,
-	--FT_EOD_OUT			=> ft_eod, -- gk 04.05.10
 	FT_TX_EMPTY_OUT			=> ft_tx_empty,
 	FT_TX_RD_EN_IN			=> mac_tx_read,
 	FT_START_OF_PACKET_OUT		=> ft_start_of_packet,
 	FT_TX_DONE_IN			=> mac_tx_done,
 	FT_TX_DISCFRM_IN		=> mac_tx_discfrm,
-	-- debug ports
-	BSM_CONSTR_OUT			=> fc_bsm_constr,
-	BSM_TRANS_OUT			=> fc_bsm_trans,
-	DEBUG_OUT(31 downto 0)		=> dbg_fc1,
-	DEBUG_OUT(63 downto 32)         => dbg_fc2
+	
+	MONITOR_TX_BYTES_OUT    => monitor_tx_bytes,
+	MONITOR_TX_FRAMES_OUT   => monitor_tx_frames
 );
 
 
@@ -1122,7 +970,9 @@ port map(
 	FR_SRC_UDP_PORT_OUT	=> fr_src_udp,
 	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
 
-	  DEBUG_OUT		=> dbg_fr
+	  MONITOR_RX_BYTES_OUT  => monitor_rx_bytes,
+	  MONITOR_RX_FRAMES_OUT => monitor_rx_frames,
+	  MONITOR_DROPPED_OUT   => monitor_dropped
   );
 
 
