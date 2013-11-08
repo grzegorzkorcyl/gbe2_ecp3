@@ -519,7 +519,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			if (g_SIMULATE = 0) then
-				dissect_current_state <= WAIT_FOR_RESPONSE; --IDLE;
+				dissect_current_state <= IDLE;
 			else
 				dissect_current_state <= WAIT_FOR_RESPONSE;
 			end if;
@@ -535,12 +535,12 @@ begin
 	
 		when IDLE =>
 			state <= x"0";
---			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
---				dissect_next_state <= READ_FRAME;
---			else
---				dissect_next_state <= IDLE;
---			end if;
-dissect_next_state <= WAIT_FOR_RESPONSE;
+			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+				dissect_next_state <= READ_FRAME;
+			else
+				dissect_next_state <= IDLE;
+			end if;
+--dissect_next_state <= WAIT_FOR_RESPONSE;
 		
 		when READ_FRAME =>
 			state <= x"1";
