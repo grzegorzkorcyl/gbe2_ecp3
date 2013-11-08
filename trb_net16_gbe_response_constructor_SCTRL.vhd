@@ -619,7 +619,7 @@ begin
 		
 		when CLEANUP =>
 			state <= x"b";
-			dissect_next_state <= IDLE;
+			dissect_next_state <= WAIT_FOR_RESPONSE; --IDLE;
 	
 	end case;
 end process DISSECT_MACHINE;
