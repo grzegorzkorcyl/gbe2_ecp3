@@ -422,7 +422,7 @@ begin
 --		test_data_len := 2000; -- + (1 - J) * 200;
 
 		--test_data_len := INTEGER(TRUNC(rand*7500.0)); --20; -- + (1 - J) * 200;
-		test_data_len := 355;
+		test_data_len := 349;
 		
 		-- calculate the needed variables
 		test_loop_len := 2*(test_data_len - 1) + 1;
