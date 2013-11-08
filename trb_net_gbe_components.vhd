@@ -358,9 +358,14 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
+	CFG_GBE_ENABLE_IN            : in std_logic;                      
+	CFG_IPU_ENABLE_IN            : in std_logic;                      
+	CFG_MULT_ENABLE_IN           : in std_logic;                      
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);  
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);  
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);  
+	CFG_READOUT_CTR_IN           : in std_logic_vector(15 downto 0);  
+	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
 	
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
