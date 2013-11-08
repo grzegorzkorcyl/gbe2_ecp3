@@ -423,7 +423,7 @@ port map (
 	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
 -- END OF INTERFACE
 
-	TRANSMITTER_BUSY_IN         => 
+	TRANSMITTER_BUSY_IN         => '0',
 
 	-- CTS interface
 	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
