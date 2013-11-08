@@ -221,7 +221,7 @@ port map (
 	STAT_DATA_ACK_IN  		=> stat_ack(0),
 	RECEIVED_FRAMES_OUT		=> open, --RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
 	SENT_FRAMES_OUT			=> open, --SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
-	DEBUG_OUT				=> open, --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT				=> open --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
 -- END OF INTERFACE 
 );
 
