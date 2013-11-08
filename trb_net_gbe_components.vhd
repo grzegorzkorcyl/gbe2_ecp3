@@ -308,11 +308,6 @@ port (
 	TC_SRC_UDP_OUT		: out	std_logic_vector(15 downto 0);
 	MC_BUSY_IN          : in	std_logic;
 	
-	-- counters from response constructors
-	RECEIVED_FRAMES_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	SENT_FRAMES_OUT		: out	std_logic_vector(c_MAX_PROTOCOLS * 16 - 1 downto 0);
-	PROTOS_DEBUG_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	
 	-- misc signals for response constructors
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
