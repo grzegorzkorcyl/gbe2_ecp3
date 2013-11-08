@@ -104,8 +104,6 @@ end process ACK_PROC;
 
 WRITE_PROC : process(CLK)
 begin
-	DBG_FIFO_RD_EN_OUT <= '0';
-
 	if rising_edge(CLK) then
 		if ( (RESET = '1') or (reset_values = '1') ) then
 			subevent_id       <= x"0000_00cf";

@@ -638,7 +638,7 @@ begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			mon_sent_bytes <= (others => '0');
-		elsif (tx_fifo_rd) then
+		elsif (tx_fifo_rd = '1') then
 			mon_sent_bytes <= mon_sent_bytes + x"1";
 		else
 			mon_sent_bytes <= mon_sent_bytes;
