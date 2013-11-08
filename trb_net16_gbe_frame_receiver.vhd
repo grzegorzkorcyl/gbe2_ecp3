@@ -674,7 +674,7 @@ end process DROPPED_FRAMES_CTR;
 
 sync1 : signal_sync
 generic map (
-	WIDTH => 31,
+	WIDTH => 32,
 	DEPTH => 2
 )
 port map (
@@ -687,7 +687,7 @@ port map (
 
 sync3 : signal_sync
 generic map (
-	WIDTH => 31,
+	WIDTH => 32,
 	DEPTH => 2
 )
 port map (
