@@ -541,7 +541,7 @@ begin
 	end if;
 end process SELECT_MACHINE_PROC;
 
-SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index, zeros)
+SELECT_MACHINE : process(select_current_state, MC_BUSY_IN, resp_ready, index, zeros, busy)
 begin
 	
 	case (select_current_state) is
@@ -574,7 +574,7 @@ begin
 			end if;
 			
 		when PROCESS_REQUEST =>
-			if (MC_BUSY_IN = '0') then
+			if (busy(index) = '0') then --if (MC_BUSY_IN = '0') then
 				select_next_state <= CLEANUP;
 			else
 				select_next_state <= PROCESS_REQUEST;
