@@ -160,6 +160,9 @@ ARCHITECTURE behavior OF testbench IS
 	signal MAC_RX_EOF_IN		:	std_logic;
 	signal MAC_RXD_IN		:	std_logic_vector(7 downto 0);
 	signal MAC_RX_EN_IN		:	std_logic;
+	
+	signal reply_busy, reply_dataready : std_logic;
+	signal reply_data : std_logic_vector(15 downto 0);
 
 BEGIN
 
@@ -235,11 +238,11 @@ BEGIN
 		GSC_INIT_DATA_OUT        => open,
 		GSC_INIT_PACKET_NUM_OUT  => open,
 		GSC_INIT_READ_IN         => '0',
-		GSC_REPLY_DATAREADY_IN   => '0',
-		GSC_REPLY_DATA_IN        => (others => '0'),
+		GSC_REPLY_DATAREADY_IN   => reply_dataready,
+		GSC_REPLY_DATA_IN        => reply_data, --(others => '0'),
 		GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
 		GSC_REPLY_READ_OUT       => open,
-		GSC_BUSY_IN              => '0',
+		GSC_BUSY_IN              => reply_busy,
 		
 		MAKE_RESET_OUT           => open,
 		
@@ -266,6 +269,38 @@ begin
 	test_clk <= '1'; wait for 4.0 ns;
 	test_clk <= '0'; wait for 4.0 ns;
 end process CLOCK2_GEN_PROC;
+
+
+SCTRL_TESTBENCH_PROC : process
+begin
+
+	reply_dataready <= '0';
+	reply_busy <= '0';
+	reply_data <= (others => '0');
+	
+	wait for 76 us;
+	
+	for i in 0 to 100 loop
+	
+		wait until rising_edge(clk);
+		reply_dataready <= '1';
+		reply_busy <= '1';
+		reply_data <= std_logic_vector(to_unsigned(i, 16));
+			
+	end loop;
+	wait until rising_edge(clk);
+	reply_dataready <= '0';
+	reply_busy <= '0';
+	
+	wait;
+
+end process SCTRL_TESTBENCH_PROC;
+
+
+
+
+
+
 
 -- Testbench
 TESTBENCH_PROC: process

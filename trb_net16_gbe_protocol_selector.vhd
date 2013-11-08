@@ -170,6 +170,7 @@ attribute syn_keep : boolean;
 attribute syn_keep of state, mult : signal is true;
 attribute syn_preserve of state, mult : signal is true;
 
+
 begin
 
 zeros <= (others => '0');
@@ -421,6 +422,8 @@ port map (
 	RECEIVED_FRAMES_OUT			=> RECEIVED_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
 	SENT_FRAMES_OUT				=> SENT_FRAMES_OUT(4 * 16 - 1 downto 3 * 16),
 -- END OF INTERFACE
+
+	TRANSMITTER_BUSY_IN         => 
 
 	-- CTS interface
 	CTS_NUMBER_IN				=> CTS_NUMBER_IN,

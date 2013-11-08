@@ -51,6 +51,8 @@ port (
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
+	TRANSMITTER_BUSY_IN         : in    std_logic;
+
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
