@@ -273,7 +273,7 @@ port map (
 	DHCP_START_IN		    => DHCP_START_IN,
 	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
 	 
-	DEBUG_OUT		        => open, --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT		        => open --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
  );
 
 -- protocol No. 3 Ping
