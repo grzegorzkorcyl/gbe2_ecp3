@@ -535,11 +535,12 @@ begin
 	
 		when IDLE =>
 			state <= x"0";
-			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
-				dissect_next_state <= READ_FRAME;
-			else
-				dissect_next_state <= IDLE;
-			end if;
+--			if (PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
+--				dissect_next_state <= READ_FRAME;
+--			else
+--				dissect_next_state <= IDLE;
+--			end if;
+dissect_next_state <= WAIT_FOR_RESPONSE;
 		
 		when READ_FRAME =>
 			state <= x"1";
@@ -619,7 +620,7 @@ begin
 		
 		when CLEANUP =>
 			state <= x"b";
-			dissect_next_state <= WAIT_FOR_RESPONSE; --IDLE;
+			dissect_next_state <= IDLE;
 	
 	end case;
 end process DISSECT_MACHINE;
