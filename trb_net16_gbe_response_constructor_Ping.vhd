@@ -248,12 +248,31 @@ begin
 			else
 				checksum_r <= checksum_r + PS_DATA_IN(7 downto 0);
 			end if;
+			checksum_ll  <= checksum_ll;
+			checksum_lll <= checksum_lll;
+			checksum_rr  <= checksum_rr;
+			checksum_rrr <= checksum_rrr;
 		elsif (dissect_current_state = WAIT_FOR_LOAD) then
-				checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
-				checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
+			checksum_ll <= x"0000" + checksum_l(7 downto 0) + checksum_r(19 downto 8);
+			checksum_rr <= x"0000" + checksum_r(7 downto 0) + checksum_l(19 downto 8);
+			checksum_l   <= checksum_l;
+			checksum_lll <= checksum_lll;
+			checksum_r   <= checksum_r;
+			checksum_rrr <= checksum_rrr;
 		elsif (dissect_current_state = LOAD_FRAME and data_ctr = 2) then
-				checksum_lll <= x"0000" + checksum_ll(7 downto 0) + checksum_rr(15 downto 8);
-				checksum_rrr <= x"0000" + checksum_rr(7 downto 0) + checksum_ll(15 downto 8);
+			checksum_lll <= x"0000" + checksum_ll(7 downto 0) + checksum_rr(15 downto 8);
+			checksum_rrr <= x"0000" + checksum_rr(7 downto 0) + checksum_ll(15 downto 8);
+			checksum_l  <= checksum_l;
+			checksum_ll <= checksum_ll;
+			checksum_r  <= checksum_r;
+			checksum_rr <= checksum_rr;
+		else
+			checksum_l   <= checksum_l;
+			checksum_ll  <= checksum_ll;
+			checksum_lll <= checksum_lll;
+			checksum_r   <= checksum_r;
+			checksum_rr  <= checksum_rr;
+			checksum_rrr <= checksum_rrr;
 		end if;
 	end if;
 end process CS_PROC;
