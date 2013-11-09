@@ -699,7 +699,7 @@ port map (
 	D_OUT => MONITOR_RX_FRAMES_OUT
 );
 
-sync3 : signal_sync
+sync4 : signal_sync
 generic map (
 	WIDTH => 32,
 	DEPTH => 2
