@@ -112,7 +112,9 @@ port (
 	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0); 
-	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
@@ -315,7 +317,9 @@ port map(
 	CFG_SUBEVENT_DEC_IN         => CFG_SUBEVENT_DEC_IN,      
 	CFG_QUEUE_DEC_IN            => CFG_QUEUE_DEC_IN,         
 	CFG_READOUT_CTR_IN          => CFG_READOUT_CTR_IN,       
-	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN, 
+	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN,  
+	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,
+	CFG_INSERT_TTYPE_IN         => CFG_INSERT_TTYPE_IN,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,

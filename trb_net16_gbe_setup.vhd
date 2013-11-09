@@ -36,6 +36,8 @@ port(
 	GBE_READOUT_CTR_OUT       : out std_logic_vector(23 downto 0);
 	GBE_READOUT_CTR_VALID_OUT : out std_logic;
 	GBE_ALLOW_RX_OUT          : out std_logic;
+	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
+	GBE_INSERT_TTYPE_OUT      : out std_logic;
 	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
 	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
@@ -67,6 +69,8 @@ signal ack               : std_logic;
 signal ack_q             : std_logic;
 signal data_out          : std_logic_vector(31 downto 0);
 signal allow_rx          : std_logic;
+signal additional_hdr    : std_logic;
+signal insert_ttype      : std_logic;
 
 begin
 
@@ -86,6 +90,8 @@ begin
 		ack_q                     <= ack;
 		BUS_DATA_OUT              <= data_out;
 		GBE_ALLOW_RX_OUT          <= '1'; --allow_rx;
+		GBE_INSERT_TTYPE_OUT      <= insert_ttype;
+		GBE_ADDITIONAL_HDR_OUT    <= additional_hdr;
 	end if;
 end process OUT_PROC;
 
@@ -116,7 +122,9 @@ begin
 			reset_values      <= '0';
 			readout_ctr       <= x"00_0000";
 			readout_ctr_valid <= '0';
-			allow_rx          <= '1';	
+			allow_rx          <= '1';
+			insert_ttype      <= '0';
+			additional_hdr    <= '1';	
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 			case BUS_ADDR_IN is
@@ -161,6 +169,12 @@ begin
 					
 				when x"09" =>
 					allow_rx         <= BUS_DATA_IN(0);
+					
+				when x"0a" =>
+					additional_hdr   <= BUS_DATA_IN(0);
+					
+				when x"0b" =>
+					insert_ttype     <= BUS_DATA_IN(0);
 
 				when x"ff" =>
 					if (BUS_DATA_IN = x"ffff_ffff") then
@@ -181,6 +195,8 @@ begin
 					readout_ctr        <= readout_ctr;
 					readout_ctr_valid  <= readout_ctr_valid;
 					allow_rx           <= allow_rx;
+					additional_hdr     <= additional_hdr;
+					insert_ttype       <= insert_ttype;
 			end case;
 		else
 			reset_values      <= '0';
@@ -235,7 +251,13 @@ begin
 					data_out(0) <= allow_rx;
 					data_out(31 downto 1) <= (others => '0');
 					
+				when x"0a" =>
+					data_out(0) <= additional_hdr;
+					data_out(31 downto 1) <= (others => '0');
 					
+				when x"0b" =>
+					data_out(0) <= insert_ttype;
+					data_out(31 downto 1) <= (others => '0');
 					
 				when x"e0" =>
 					data_out <= MONITOR_RX_BYTES_IN;

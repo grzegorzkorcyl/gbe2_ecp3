@@ -595,6 +595,7 @@ signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
 
 signal monitor_tx_packets : std_logic_vector(31 downto 0);
 signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames : std_logic_vector(31 downto 0);
+signal insert_ttype, additional_hdr : std_logic;
 
 begin
 
@@ -704,6 +705,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	CFG_QUEUE_DEC_IN            => pc_queue_dec,
 	CFG_READOUT_CTR_IN          => readout_ctr,
 	CFG_READOUT_CTR_VALID_IN    => readout_ctr_valid,
+	CFG_ADDITIONAL_HDR_IN       => additional_hdr,
+	CFG_INSERT_TTYPE_IN         => insert_ttype,
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -796,6 +799,8 @@ port map(
 	GBE_READOUT_CTR_OUT         => readout_ctr,
 	GBE_READOUT_CTR_VALID_OUT   => readout_ctr_valid,
 	GBE_ALLOW_RX_OUT            => allow_rx,
+	GBE_ADDITIONAL_HDR_OUT      => additional_hdr,
+	GBE_INSERT_TTYPE_OUT        => insert_ttype,
 	
 	MONITOR_RX_BYTES_IN         => monitor_rx_bytes,
 	MONITOR_RX_FRAMES_IN        => monitor_rx_frames,

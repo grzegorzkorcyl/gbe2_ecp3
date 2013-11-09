@@ -360,7 +360,9 @@ port (
 	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);  
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);  
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);  
-	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 	
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
@@ -495,6 +497,8 @@ port (
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0); 
 	CFG_READOUT_CTR_VALID_IN     : in std_logic; 
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
@@ -907,6 +911,8 @@ port(
 	GBE_READOUT_CTR_OUT       : out std_logic_vector(23 downto 0);
 	GBE_READOUT_CTR_VALID_OUT : out std_logic;
 	GBE_ALLOW_RX_OUT          : out std_logic;
+	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
+	GBE_INSERT_TTYPE_OUT      : out std_logic;
 	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
 	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
