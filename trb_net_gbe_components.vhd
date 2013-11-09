@@ -80,6 +80,7 @@ port(
 	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
 	PC_MAX_QUEUE_SIZE_IN    : in    std_logic_vector(31 downto 0);
 	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
+	PC_INSERT_TTYPE_IN      : in    std_logic;
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
 	TC_DATA_OUT             : out   std_logic_vector(8 downto 0);

@@ -459,6 +459,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_READ_OUT       : out std_logic;
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
+		CFG_ADDITIONAL_HDR_IN    : in std_logic;
 	-- end of protocol specific ports
 
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
@@ -599,7 +600,8 @@ port (
 	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
-	CFG_READOUT_CTR_VALID_IN     : in std_logic;
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);

@@ -86,6 +86,7 @@ port (
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
 	CFG_READOUT_CTR_VALID_IN     : in std_logic;
+	CFG_INSERT_TTYPE_IN          : in std_logic;
 
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
@@ -263,6 +264,7 @@ port map(
 	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
 	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",  -- not used for the moment
 	PC_DELAY_IN             => (others => '0'),
+	PC_INSERT_TTYPE_IN      => CFG_INSERT_TTYPE_IN,
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
 	TC_EVENT_SIZE_OUT		=> tc_size,

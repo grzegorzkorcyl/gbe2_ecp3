@@ -64,6 +64,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		GSC_REPLY_READ_OUT       : out std_logic;
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
+		CFG_ADDITIONAL_HDR_IN    : in std_logic;
 	-- end of protocol specific ports
 	
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
