@@ -609,8 +609,8 @@ READY_OUT              <= ready;
 HEADERS_READY_OUT      <= headers_ready;
 
 	
-MONITOR_TX_BYTES_OUT    <= mon_sent_frames;
-MONITOR_TX_FRAMES_OUT   <= mon_sent_bytes;
+MONITOR_TX_BYTES_OUT    <= mon_sent_bytes;
+MONITOR_TX_FRAMES_OUT   <= mon_sent_frames;
 
 process(RD_CLK)
 begin
