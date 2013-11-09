@@ -112,6 +112,7 @@ signal fr_src_ip, fr_dest_ip : std_logic_vector(31 downto 0);
 signal fr_dest_udp, fr_src_udp, fr_frame_size, fr_frame_proto : std_logic_vector(15 downto 0);
 signal fr_dest_mac, fr_src_mac : std_logic_vector(47 downto 0);
 signal fr_ip_proto : std_logic_vector(7 downto 0);
+signal mon_rec_bytes : std_logic_vector(31 downto 0);
 
 attribute syn_preserve : boolean;
 attribute syn_keep : boolean;
@@ -698,6 +699,31 @@ port map (
 	D_OUT => MONITOR_RX_FRAMES_OUT
 );
 
+sync3 : signal_sync
+generic map (
+	WIDTH => 32,
+	DEPTH => 2
+)
+port map (
+	RESET => RESET,
+	CLK0  => CLK,
+	CLK1  => CLK,
+	D_IN  => mon_rec_bytes,
+	D_OUT => MONITOR_RX_BYTES_OUT
+);
+
+process(RX_MAC_CLK)
+begin
+	if rising_edge(RX_MAC_CLK) then
+		if (RESET = '1') then
+			mon_rec_bytes <= (others => '0');
+		elsif (fifo_wr_en = '1') then
+			mon_rec_bytes <= mon_rec_bytes + x"1";
+		else
+			mon_rec_bytes <= mon_rec_bytes;		
+		end if;
+	end if;
+end process;
 
 -- end of debug counters
 -- ****
