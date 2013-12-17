@@ -828,7 +828,7 @@ port map(
 	-- ports for user logic
 	RESET				=> RESET,
 	CLK				    => CLK,
-	LINK_OK_IN			=> link_ok,
+	LINK_OK_IN			=> '1', --link_ok,
 	--
 	WR_EN_IN			=> fc_wr_en,
 	DATA_IN				=> fc_data,
