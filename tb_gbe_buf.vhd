@@ -163,8 +163,13 @@ ARCHITECTURE behavior OF testbench IS
 	
 	signal reply_busy, reply_dataready : std_logic;
 	signal reply_data : std_logic_vector(15 downto 0);
+	
+	signal RX_MAC_CLK : std_logic;
+
 
 BEGIN
+
+RX_MAC_CLK <= test_clk;
 
 -- Please check and add your generic clause manually
 	uut: trb_net16_gbe_buf
@@ -403,6 +408,168 @@ begin
 	trigger_loop    := 5000;
 	
 	wait until rising_edge(test_clk);
+	
+		-- FIRST FRAME UDP - DHCP Offer
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RX_EN_IN <= '1';
+-- dest mac
+	MAC_RXD_IN		<= x"02";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"be";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+-- src mac
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"aa";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"bb";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"cc";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"dd";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"ee";
+	wait until rising_edge(RX_MAC_CLK);
+-- frame type
+	MAC_RXD_IN		<= x"08";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+-- ip headers
+	MAC_RXD_IN		<= x"45";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"10";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"01";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"5a";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"49";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"ff";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"11";  -- udp
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"cc";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"cc";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"c0";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"a8";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"01";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"c0";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"a8";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"02";
+-- udp headers
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"43";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"44";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"02";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"2c";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"aa";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"bb";
+-- dhcp data
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"02";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"01";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"06";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"de";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"ad";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"fa";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"ce";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"c0";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"a8";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"10";
+	
+	for i in 0 to 219 loop
+		wait until rising_edge(RX_MAC_CLK);
+		MAC_RXD_IN		<= x"00";
+	end loop;
+	
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"35";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"01";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"02";
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RXD_IN		<= x"00";
+	wait until rising_edge(RX_MAC_CLK);
+		MAC_RX_EOF_IN <= '1';
+	
+	wait until rising_edge(RX_MAC_CLK);
+	MAC_RX_EN_IN <='0';
+	MAC_RX_EOF_IN <= '0';
+	
+	wait for 1 us;
+	
+	
+	
+	
+	
+	
+	
 
 --	RECEIVE_LOOP: for J in 0 to 1 loop
 --
@@ -430,171 +597,171 @@ begin
 --	end loop RECEIVE_LOOP;
 		test_data_len := 20; -- + (1 - J) * 200;
 
-	MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
-		-- generate a real random byte for CTS
-		UNIFORM(seed1, seed2, rand);
-		int_rand := INTEGER(TRUNC(rand*256.0));
-		cts_random_number := std_logic_vector(to_unsigned(int_rand, cts_random_number'LENGTH));
-	
-		-- IPU transmission starts
-		wait until rising_edge(clk);
-		cts_number_in <= std_logic_vector( trigger_counter );
-		cts_code_in <= cts_random_number;
-		cts_information_in <= x"d2"; -- cts_information_in <= x"de"; -- gk 29.03.10
-		cts_readout_type_in <= x"1";
-		cts_start_readout_in <= '1';
-		wait until rising_edge(clk);
-		wait for 400 ns;
-
-		wait until rising_edge(clk);
-		fee_busy_in <= '1';
-		wait for 300 ns;
-		wait until rising_edge(clk);
-
-		-- ONE DATA TRANSMISSION
-		-- dice a length
-		UNIFORM(seed1, seed2, rand);
-		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
-		
-		--test_data_len := 9685;
---		test_data_len := 2000; -- + (1 - J) * 200;
-
-		--test_data_len := INTEGER(TRUNC(rand*7500.0)); --20; -- + (1 - J) * 200;
-		test_data_len := 349;
-		
-		-- calculate the needed variables
-		test_loop_len := 2*(test_data_len - 1) + 1;
-		test_hdr_len := to_unsigned( test_data_len + 1, 16 );
-		test_evt_len := to_unsigned( test_data_len, 16 );
-
-		-- original data block (trigger 1, random 0xaa, number 0x4711, source 0x21)
-		fee_dataready_in <= '1';
-		fee_data_in <= x"1111"; --x"10" & cts_random_number;
-		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of first data word
-		fee_dataready_in <= '0';
-		wait until rising_edge(clk); -- BLA
-		wait until rising_edge(clk); -- BLA
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		fee_dataready_in <= '1';
-		fee_data_in <= x"2222"; --std_logic_vector( trigger_counter );
-		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of second data word
-		fee_dataready_in <= '0';
-		wait until rising_edge(clk); -- BLA
-		wait until rising_edge(clk); -- BLA
-		wait until rising_edge(clk); -- BLA
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		fee_dataready_in <= '1';
-		fee_data_in <= std_logic_vector( test_hdr_len );
-		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of third data word
-		fee_data_in <= x"3333"; --x"ff21";
-		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of fourth data word
-		fee_dataready_in <= '0';
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		fee_dataready_in <= '1';
-		fee_data_in <= std_logic_vector( test_evt_len );
-		wait until rising_edge(clk) and (fee_read_out = '1');
-		fee_data_in <= x"ff22";	
-		wait until rising_edge(clk) and (fee_read_out = '1');
-		fee_dataready_in <= '0';
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-
-		test_data     := x"ffff";
-		MY_DATA_LOOP: for J in 0 to test_loop_len loop
-			test_data := test_data + 1;
-			wait until rising_edge(clk) and (fee_read_out = '1');
-			fee_data_in <= std_logic_vector(test_data); 
---			if( (test_data MOD 5) = 0 ) then
---				fee_dataready_in <= '0';
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
---				wait until rising_edge(clk);
+--	MY_TRIGGER_LOOP: for J in 0 to trigger_loop loop
+--		-- generate a real random byte for CTS
+--		UNIFORM(seed1, seed2, rand);
+--		int_rand := INTEGER(TRUNC(rand*256.0));
+--		cts_random_number := std_logic_vector(to_unsigned(int_rand, cts_random_number'LENGTH));
+--	
+--		-- IPU transmission starts
+--		wait until rising_edge(clk);
+--		cts_number_in <= std_logic_vector( trigger_counter );
+--		cts_code_in <= cts_random_number;
+--		cts_information_in <= x"d2"; -- cts_information_in <= x"de"; -- gk 29.03.10
+--		cts_readout_type_in <= x"1";
+--		cts_start_readout_in <= '1';
+--		wait until rising_edge(clk);
+--		wait for 400 ns;
+--
+--		wait until rising_edge(clk);
+--		fee_busy_in <= '1';
+--		wait for 300 ns;
+--		wait until rising_edge(clk);
+--
+--		-- ONE DATA TRANSMISSION
+--		-- dice a length
+--		UNIFORM(seed1, seed2, rand);
+--		--test_data_len := INTEGER(TRUNC(rand * 800.0)) + 1;
+--		
+--		--test_data_len := 9685;
+----		test_data_len := 2000; -- + (1 - J) * 200;
+--
+--		--test_data_len := INTEGER(TRUNC(rand*7500.0)); --20; -- + (1 - J) * 200;
+--		test_data_len := 349;
+--		
+--		-- calculate the needed variables
+--		test_loop_len := 2*(test_data_len - 1) + 1;
+--		test_hdr_len := to_unsigned( test_data_len + 1, 16 );
+--		test_evt_len := to_unsigned( test_data_len, 16 );
+--
+--		-- original data block (trigger 1, random 0xaa, number 0x4711, source 0x21)
+--		fee_dataready_in <= '1';
+--		fee_data_in <= x"1111"; --x"10" & cts_random_number;
+--		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of first data word
+--		fee_dataready_in <= '0';
+--		wait until rising_edge(clk); -- BLA
+--		wait until rising_edge(clk); -- BLA
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		fee_dataready_in <= '1';
+--		fee_data_in <= x"2222"; --std_logic_vector( trigger_counter );
+--		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of second data word
+--		fee_dataready_in <= '0';
+--		wait until rising_edge(clk); -- BLA
+--		wait until rising_edge(clk); -- BLA
+--		wait until rising_edge(clk); -- BLA
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		fee_dataready_in <= '1';
+--		fee_data_in <= std_logic_vector( test_hdr_len );
+--		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of third data word
+--		fee_data_in <= x"3333"; --x"ff21";
+--		wait until rising_edge(clk) and (fee_read_out = '1'); -- transfer of fourth data word
+--		fee_dataready_in <= '0';
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		fee_dataready_in <= '1';
+--		fee_data_in <= std_logic_vector( test_evt_len );
+--		wait until rising_edge(clk) and (fee_read_out = '1');
+--		fee_data_in <= x"ff22";	
+--		wait until rising_edge(clk) and (fee_read_out = '1');
+--		fee_dataready_in <= '0';
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--
+--		test_data     := x"ffff";
+--		MY_DATA_LOOP: for J in 0 to test_loop_len loop
+--			test_data := test_data + 1;
+--			wait until rising_edge(clk) and (fee_read_out = '1');
+--			fee_data_in <= std_logic_vector(test_data); 
+----			if( (test_data MOD 5) = 0 ) then
+----				fee_dataready_in <= '0';
 ----				wait until rising_edge(clk);
 ----				wait until rising_edge(clk);
 ----				wait until rising_edge(clk);
 ----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
-----				wait until rising_edge(clk);
---				fee_dataready_in <= '1';
---			else
---				fee_dataready_in <= '1';
---			end if;
- 				fee_dataready_in <= '1';
-		end loop MY_DATA_LOOP;
-		-- there must be padding words to get multiple of four LWs
-	
-		wait until rising_edge(clk);
-		fee_dataready_in <= '0';
-		fee_data_in <= x"0000";	
-
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		fee_busy_in <= '0';
-
-
-		trigger_loop    := trigger_loop + 1;
-		trigger_counter := trigger_counter + 1;
-
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		cts_read_in <= '1';
-		wait until rising_edge(clk);
-		cts_read_in <= '0';
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		cts_start_readout_in <= '0';
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);
-		wait until rising_edge(clk);	
-		
-		test_data_len := test_data_len + 111;
-		
-		--wait for 8 us;
-
-	end loop MY_TRIGGER_LOOP;
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+------				wait until rising_edge(clk);
+----				fee_dataready_in <= '1';
+----			else
+----				fee_dataready_in <= '1';
+----			end if;
+-- 				fee_dataready_in <= '1';
+--		end loop MY_DATA_LOOP;
+--		-- there must be padding words to get multiple of four LWs
+--	
+--		wait until rising_edge(clk);
+--		fee_dataready_in <= '0';
+--		fee_data_in <= x"0000";	
+--
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		fee_busy_in <= '0';
+--
+--
+--		trigger_loop    := trigger_loop + 1;
+--		trigger_counter := trigger_counter + 1;
+--
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		cts_read_in <= '1';
+--		wait until rising_edge(clk);
+--		cts_read_in <= '0';
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		cts_start_readout_in <= '0';
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);
+--		wait until rising_edge(clk);	
+--		
+--		test_data_len := test_data_len + 111;
+--		
+--		--wait for 8 us;
+--
+--	end loop MY_TRIGGER_LOOP;
 
 
 

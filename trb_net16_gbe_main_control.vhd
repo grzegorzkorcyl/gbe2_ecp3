@@ -579,7 +579,7 @@ begin
 			if (g_SIMULATE = 0) then
 				link_current_state <= INACTIVE;
 			else
-				link_current_state <= ACTIVE; --GET_ADDRESS; --ACTIVE;
+				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
 			end if;
 		else
 			link_current_state <= link_next_state;
