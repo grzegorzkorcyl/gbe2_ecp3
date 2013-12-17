@@ -851,7 +851,7 @@ port map(
 	FLAGS_OFFSET_IN			=> fc_flags_offset,
 	TTL_IN				=> fc_ttl,
 	PROTOCOL_IN			=> fc_protocol,
-	FRAME_DELAY_IN			=> frame_delay,
+	FRAME_DELAY_IN			=> (others => '0'),
 	
 	RD_CLK				=> serdes_clk_125,
 	FT_DATA_OUT 			=> ft_data,
