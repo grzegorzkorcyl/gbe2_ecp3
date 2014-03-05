@@ -577,7 +577,8 @@ end process;
 LINK_STATE_MACHINE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
+		--if (RESET = '1') then
+		if (RESET_FOR_DHCP = '1') then
 			if (g_SIMULATE = 0) then
 				link_current_state <= INACTIVE;
 			else
@@ -669,7 +670,8 @@ end process LINK_STATE_MACHINE;
 LINK_OK_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state /= TIMEOUT) then
+		--if (RESET = '1') or (link_current_state /= TIMEOUT) then
+		if (RESET_FOR_DHCP = '1') or (link_current_state /= TIMEOUT) then
 			link_ok_timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
@@ -694,7 +696,8 @@ end process LINK_OK_CTR_PROC;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (link_current_state = INACTIVE) then
+		--if (RESET = '1') or (link_current_state = INACTIVE) then
+		if (RESET_FOR_DHCP = '1') or (link_current_state = INACTIVE) then
 			wait_ctr <= (others => '0');
 		elsif (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
@@ -740,7 +743,7 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 TSMAC_CONTROLLER : trb_net16_gbe_mac_control
 port map(
 	CLK				=> CLK,
-	RESET			=> RESET,
+	RESET			=> RESET_FOR_DHCP, --RESET,
 
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
