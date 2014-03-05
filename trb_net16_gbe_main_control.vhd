@@ -23,6 +23,7 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
+	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
@@ -237,6 +238,7 @@ protocol_selector : trb_net16_gbe_protocol_selector
 port map(
 	CLK			=> CLK,
 	RESET			=> RESET,
+	RESET_FOR_DHCP => RESET_FOR_DHCP,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
 	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,

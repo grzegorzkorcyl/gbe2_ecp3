@@ -21,6 +21,7 @@ entity trb_net16_gbe_protocol_selector is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
+	RESET_FOR_DHCP : in std_logic;
 
 -- signals to/from main controller
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0); 
@@ -233,7 +234,7 @@ generic map( STAT_ADDRESS_BASE => 0
 )
 port map (
 	CLK			            => CLK,
-	RESET			        => RESET,
+	RESET			        => RESET_FOR_DHCP, --RESET,
 	
 -- INTERFACE	
 	PS_DATA_IN		        => PS_DATA_IN,

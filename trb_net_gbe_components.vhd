@@ -278,6 +278,7 @@ component trb_net16_gbe_protocol_selector is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
+	RESET_FOR_DHCP : in std_logic;
 
 -- signals to/from main controller
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0); 
@@ -409,6 +410,7 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
+	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;

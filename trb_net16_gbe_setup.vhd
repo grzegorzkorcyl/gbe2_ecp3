@@ -296,7 +296,14 @@ begin
 					data_out <= MONITOR_SELECT_SENT_IN(4 * 32 - 1 downto 3 * 32);
 				when x"b3" =>
 					data_out <= MONITOR_SELECT_SENT_BYTES_IN(4 * 32 - 1 downto 3 * 32);
-
+				
+				-- for older network monitors	
+				when x"f3" =>
+					data_out <= MONITOR_TX_BYTES_IN;
+					
+				when x"f4" =>
+					data_out <= MONITOR_TX_FRAMES_IN;
+					
 				when others =>
 					data_out <= (others => '0');
 			end case;
