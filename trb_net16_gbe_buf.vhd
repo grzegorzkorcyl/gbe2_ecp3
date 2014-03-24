@@ -610,14 +610,14 @@ fc_ihl_version      <= x"45";
 fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
-reset_dhcp <= not GSR_N;
+--reset_dhcp <= not GSR_N;
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
-	  RESET_FOR_DHCP => reset_dhcp,
+	  RESET_FOR_DHCP => '0', --reset_dhcp,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
