@@ -534,6 +534,7 @@ signal dbg_select_rec                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1
 signal dbg_select_sent               : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 signal dbg_select_rec_bytes          : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 signal dbg_select_sent_bytes         : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_gen                : std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 signal serdes_rx_clk                 : std_logic;
 
@@ -726,7 +727,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  MONITOR_SELECT_REC_OUT		 => dbg_select_rec,
 	  MONITOR_SELECT_REC_BYTES_OUT   => dbg_select_rec_bytes,
 	  MONITOR_SELECT_SENT_BYTES_OUT  => dbg_select_sent_bytes,
-	  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent
+	  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent,
+	  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen
   );
   
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
@@ -816,7 +818,8 @@ port map(
 	MONITOR_SELECT_REC_IN	      => dbg_select_rec,
 	MONITOR_SELECT_REC_BYTES_IN   => dbg_select_rec_bytes,
 	MONITOR_SELECT_SENT_BYTES_IN  => dbg_select_sent_bytes,
-	MONITOR_SELECT_SENT_IN	      => dbg_select_sent
+	MONITOR_SELECT_SENT_IN	      => dbg_select_sent,
+	MONITOR_SELECT_GEN_DBG_IN     => dbg_select_gen
 );
 end generate;
 

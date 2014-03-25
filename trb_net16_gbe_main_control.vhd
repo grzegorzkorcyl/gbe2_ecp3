@@ -134,7 +134,8 @@ port (
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0)
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end trb_net16_gbe_main_control;
 
@@ -329,11 +330,11 @@ port map(
 	STAT_DATA_RDY_IN   => stat_rdy,
 	STAT_DATA_ACK_OUT  => stat_ack,
 
-
 	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT,	
 	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT,  
 	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT, 
-	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT,
+	MONITOR_SELECT_GEN_DBG_OUT    => MONITOR_SELECT_GEN_DBG_OUT
 );
 
 TC_DATA_OUT <= tc_data;

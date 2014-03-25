@@ -49,7 +49,8 @@ port(
 	MONITOR_SELECT_REC_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_REC_BYTES_IN   : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_IN  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0)
+	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end entity;
 
@@ -286,7 +287,11 @@ begin
 					data_out <= MONITOR_SELECT_SENT_IN(3 * 32 - 1 downto 2 * 32);
 				when x"a3" =>
 					data_out <= MONITOR_SELECT_SENT_BYTES_IN(3 * 32 - 1 downto 2 * 32);
-					
+				when x"a4" =>
+					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 - 32 downto 2 * 64);
+				when x"a5" =>
+					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 downto 2 * 64 + 32);
+						
 				-- TrbnetData
 				when x"b0" =>
 					data_out <= MONITOR_SELECT_REC_IN(4 * 32 - 1 downto 3 * 32);
@@ -296,6 +301,10 @@ begin
 					data_out <= MONITOR_SELECT_SENT_IN(4 * 32 - 1 downto 3 * 32);
 				when x"b3" =>
 					data_out <= MONITOR_SELECT_SENT_BYTES_IN(4 * 32 - 1 downto 3 * 32);
+				when x"b4" =>
+					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 - 32 downto 3 * 64);
+				when x"b5" =>
+					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 downto 3 * 64 + 32);
 				
 				-- for older network monitors	
 				when x"f3" =>

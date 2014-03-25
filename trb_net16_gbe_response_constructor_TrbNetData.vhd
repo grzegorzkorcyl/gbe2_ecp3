@@ -47,6 +47,8 @@ port (
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
 	STAT_DATA_ACK_IN  : in std_logic;
+	
+	DEBUG_OUT		  : out std_logic_vector(63 downto 0);
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         : in    std_logic;

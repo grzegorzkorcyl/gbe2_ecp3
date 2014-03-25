@@ -50,6 +50,8 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 		STAT_DATA_RDY_OUT : out std_logic;
 		STAT_DATA_ACK_IN  : in std_logic;
+		
+		DEBUG_OUT		  : out std_logic_vector(63 downto 0);
 	-- END OF INTERFACE
 	
 	-- protocol specific ports
@@ -505,7 +507,7 @@ begin
 			end if;
 			
 		when WAIT_FOR_HUB =>
-			state <= x"5";
+			state <= x"2";
 			if (GSC_INIT_READ_IN = '1') then
 				dissect_next_state <= LOAD_TO_HUB;
 			else
@@ -525,7 +527,7 @@ begin
 			end if;	
 			
 		when WAIT_FOR_RESPONSE =>
-			state <= x"6";
+			state <= x"4";
 			if (GSC_REPLY_DATAREADY_IN = '1') then
 				dissect_next_state <= SAVE_RESPONSE;
 			else
@@ -533,7 +535,7 @@ begin
 			end if;
 			
 		when SAVE_RESPONSE =>
-			state <= x"7";
+			state <= x"5";
 			if (GSC_REPLY_DATAREADY_IN = '0' and GSC_BUSY_IN = '0') then
 				if (too_much_data = '0') then
 					dissect_next_state <= WAIT_FOR_LOAD;
@@ -545,7 +547,7 @@ begin
 			end if;			
 			
 		when WAIT_FOR_LOAD =>
-			state <= x"8";
+			state <= x"6";
 			if (PS_SELECTED_IN = '1') then
 				dissect_next_state <= LOAD_FRAME;
 			else
@@ -553,7 +555,7 @@ begin
 			end if;
 			
 		when LOAD_FRAME =>
-			state <= x"9";
+			state <= x"7";
 			if (tx_loaded_ctr = tx_data_ctr) then
 				dissect_next_state <= CLEANUP;
 			else
@@ -561,7 +563,7 @@ begin
 			end if;
 		
 		when CLEANUP =>
-			state <= x"b";
+			state <= x"8";
 			dissect_next_state <= IDLE;
 	
 	end case;
@@ -592,6 +594,17 @@ end process DISSECT_MACHINE;
 
 
 -- monitoring
+
+
+DEBUG_OUT(0) <= rx_full;
+DEBUG_OUT(1) <= rx_empty;
+DEBUG_OUT(2) <= tx_full;
+DEBUG_OUT(3) <= tx_empty;
+
+DEBUG_OUT(7 downto 4) <= state;
+
+DEBUG_OUT(63 downto 8) <= (others => '0');
+
 process(CLK)
 begin
 	if rising_edge(CLK) then

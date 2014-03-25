@@ -74,7 +74,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -122,7 +122,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -163,7 +163,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -215,7 +215,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -265,7 +265,7 @@ port (
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -313,7 +313,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -361,7 +361,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -403,7 +403,7 @@ port (
 -- END OF INTERFACE
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -445,6 +445,8 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 		STAT_DATA_RDY_OUT : out std_logic;
 		STAT_DATA_ACK_IN  : in std_logic;
+		
+		DEBUG_OUT		: out	std_logic_vector(63 downto 0);
 	-- END OF INTERFACE
 	
 	-- protocol specific ports
@@ -522,7 +524,7 @@ port (
 	STAT_DATA_ACK_OUT : out std_logic_vector((c_MAX_PROTOCOLS + 1) - 1 downto 0);
 
 -- debug
-	DEBUG_OUT		: out	std_logic_vector(31 downto 0)
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0)
 );
 end component;
 
@@ -562,6 +564,9 @@ port (
 	STAT_ADDR_OUT : out std_logic_vector(7 downto 0);
 	STAT_DATA_RDY_OUT : out std_logic;
 	STAT_DATA_ACK_IN  : in std_logic;
+	
+	DEBUG_OUT		: out	std_logic_vector(63 downto 0);
+	
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         : in    std_logic;

@@ -119,7 +119,8 @@ port (
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0) 
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0)
 );
 end trb_net16_gbe_protocol_selector;
 
@@ -224,7 +225,7 @@ port map (
 	STAT_DATA_ACK_IN  		=> stat_ack(0),
 	RECEIVED_FRAMES_OUT		=> open, --RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
 	SENT_FRAMES_OUT			=> open, --SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
-	DEBUG_OUT				=> open --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(1 * 64 - 1 downto 0 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
 -- END OF INTERFACE 
 );
 
@@ -276,7 +277,7 @@ port map (
 	DHCP_START_IN		    => DHCP_START_IN,
 	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
 	 
-	DEBUG_OUT		        => open --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+	DEBUG_OUT		        => MONITOR_SELECT_GEN_DBG_OUT(2 * 64 - 1 downto 1 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
  );
 
  --protocol No. 3 Ping
@@ -322,7 +323,7 @@ port map (
 	STAT_DATA_ACK_IN        => '0',
 	RECEIVED_FRAMES_OUT  	=> open,
 	SENT_FRAMES_OUT		    => open,
-	DEBUG_OUT		        => open
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(5 * 64 - 1 downto 4 * 64)
 -- END OF INTERFACE
 );
 
@@ -366,6 +367,8 @@ port map (
 	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
 	STAT_DATA_RDY_OUT       => stat_rdy(2),
 	STAT_DATA_ACK_IN        => stat_ack(2),
+	
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(3 * 64 - 1 downto 2 * 64),
 	-- END OF INTERFACE
 	
 	GSC_CLK_IN              => GSC_CLK_IN,
@@ -425,6 +428,8 @@ port map (
 	STAT_ADDR_OUT 				=> stat_addr(4 * 8 - 1 downto 3 * 8),
 	STAT_DATA_RDY_OUT 			=> stat_rdy(3),
 	STAT_DATA_ACK_IN  			=> stat_ack(3),
+	
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(4 * 64 - 1 downto 3 * 64),
 -- END OF INTERFACE
 
 	TRANSMITTER_BUSY_IN         => '0',
