@@ -925,5 +925,3 @@ TSM_HWRITE_N_OUT  <= tsm_hwrite_n;
 
 
 end trb_net16_gbe_main_control;
-
-
