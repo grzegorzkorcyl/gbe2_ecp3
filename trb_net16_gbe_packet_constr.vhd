@@ -276,7 +276,7 @@ begin
 				constructNextState <= WAIT_FOR_LOAD;
 			end if;
 		when others =>
-			constr_state <= x"4";
+			constr_state <= x"f";
 			constructNextState <= CIDLE;
 	end case;
 end process constructMachine;
@@ -327,35 +327,35 @@ loadMachine : process(loadCurrentState, constructCurrentState, all_int_ctr, df_e
 begin
 	case loadCurrentState is
 		when LIDLE =>
-			load_state <= x"0";
+			load_state <= x"1";
 			if ((constructCurrentState = WAIT_FOR_LOAD) and (df_empty = '0')) then
 				loadNextState <= WAIT_FOR_FC;
 			else
 				loadNextState <= LIDLE;
 			end if;
 		when WAIT_FOR_FC =>
-			load_state <= x"1";
+			load_state <= x"2";
 			if (TC_H_READY_IN = '1') then
 				loadNextState <= PUT_Q_LEN;
 			else
 				loadNextState <= WAIT_FOR_FC;
 			end if;
 		when PUT_Q_LEN =>
-			load_state <= x"2";
+			load_state <= x"3";
 			if (all_int_ctr = 3) then
 				loadNextState <= PUT_Q_DEC;
 			else
 				loadNextState <= PUT_Q_LEN;
 			end if;
 		when PUT_Q_DEC =>
-			load_state <= x"3";
+			load_state <= x"4";
 			if (all_int_ctr = 3) then
 				loadNextState <= LOAD_SUB;
 			else
 				loadNextState <= PUT_Q_DEC;
 			end if;
 		when LOAD_SUB =>
-			load_state <= x"4";
+			load_state <= x"5";
 			if (bytes_loaded = max_frame_size - 1) then
 				loadNextState <= DIVIDE;
 			elsif (all_int_ctr = 15) then
@@ -364,10 +364,10 @@ begin
 				loadNextState <= LOAD_SUB;
 			end if;
 		when PREP_DATA =>
-			load_state <= x"5";
+			load_state <= x"6";
 			loadNextState <= LOAD_DATA;
 		when LOAD_DATA =>
-			load_state <= x"6";
+			load_state <= x"7";
 -- 			if (bytes_loaded = max_frame_size - 1) then
 -- 				loadNextState <= DIVIDE;
 -- 			-- gk 07.10.10
@@ -403,7 +403,7 @@ begin
 				loadNextState <= LOAD_DATA;
 			end if;
 		when DIVIDE =>
-			load_state <= x"7";
+			load_state <= x"8";
 			if (TC_H_READY_IN = '1') then
 				if (divide_position = "00") then
 					loadNextState <= PREP_DATA;
@@ -416,7 +416,7 @@ begin
 				loadNextState <= DIVIDE;
 			end if;
 		when LOAD_TERM =>
-			load_state <= x"8";
+			load_state <= x"9";
 			if (bytes_loaded = max_frame_size - 1) and (all_int_ctr /= 31) then
 				loadNextState <= DIVIDE;
 			elsif (all_int_ctr = 31) then
@@ -426,7 +426,7 @@ begin
 			end if;
 		-- gk 28.04.10
 		when CLEANUP =>
-			load_state <= x"9";
+			load_state <= x"a";
 			if (PC_DELAY_IN = x"0000_0000") then
 				loadNextState <= LIDLE;
 			else
@@ -434,7 +434,7 @@ begin
 			end if;
 		-- gk 28.04.10
 		when DELAY =>
-			load_state <= x"a";
+			load_state <= x"b";
 			if (delay_ctr = x"0000_0000") then
 				loadNextState <= LIDLE;
 			else
@@ -953,7 +953,7 @@ saveSubMachine : process(saveSubCurrentState, PC_START_OF_SUB_IN, sub_int_ctr, l
 begin
 	case saveSubCurrentState is
 		when SIDLE =>
-			save_state <= x"0";
+			save_state <= x"1";
 			if (PC_START_OF_SUB_IN = '1') then
 				saveSubNextState <= SAVE_SIZE;
 			-- this branch is dangerous!
@@ -963,35 +963,35 @@ begin
 				saveSubNextState <= SIDLE;
 			end if;
 		when SAVE_SIZE =>
-			save_state <= x"1";
+			save_state <= x"2";
 			if (sub_int_ctr = 3) then
 				saveSubNextState <= SAVE_DECODING;
 			else
 				saveSubNextState <= SAVE_SIZE;
 			end if;
 		when SAVE_DECODING =>
-			save_state <= x"2";
+			save_state <= x"3";
 			if (sub_int_ctr = 3) then
 				saveSubNextState <= SAVE_ID;
 			else
 				saveSubNextState <= SAVE_DECODING;
 			end if;
 		when SAVE_ID =>
-			save_state <= x"3";
+			save_state <= x"4";
 			if (sub_int_ctr = 3) then
 				saveSubNextState <= SAVE_TRIG_NR;
 			else
 				saveSubNextState <= SAVE_ID;
 			end if;
 		when SAVE_TRIG_NR =>
-			save_state <= x"4";
+			save_state <= x"5";
 			if (sub_int_ctr = 3) then
 				saveSubNextState <= SIDLE;
 			else
 				saveSubNextState <= SAVE_TRIG_NR;
 			end if;
 		when SAVE_TERM =>
-			save_state <= x"5";
+			save_state <= x"6";
 			if (sub_int_ctr = 31) then
 				saveSubNextState <= SIDLE;
 			else

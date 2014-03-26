@@ -595,13 +595,16 @@ end process DISSECT_MACHINE;
 
 -- monitoring
 
-
-DEBUG_OUT(0) <= rx_full;
-DEBUG_OUT(1) <= rx_empty;
-DEBUG_OUT(2) <= tx_full;
-DEBUG_OUT(3) <= tx_empty;
-
-DEBUG_OUT(7 downto 4) <= state;
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		DEBUG_OUT(0) <= rx_full;
+		DEBUG_OUT(1) <= rx_empty;
+		DEBUG_OUT(2) <= tx_full;
+		DEBUG_OUT(3) <= tx_empty;
+		DEBUG_OUT(7 downto 4) <= state;
+	end if;
+end process;
 
 DEBUG_OUT(63 downto 8) <= (others => '0');
 
