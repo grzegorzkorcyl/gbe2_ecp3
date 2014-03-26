@@ -283,10 +283,10 @@ begin
 				when 227 =>
 					data_out <= MONITOR_TX_FRAMES_IN;
 
-				when 228" =>
+				when 228 =>
 					data_out <= MONITOR_TX_PACKETS_IN;
 
-				when 229" =>
+				when 229 =>
 					data_out <= MONITOR_DROPPED_IN;
 					
 				-- Sctrl
