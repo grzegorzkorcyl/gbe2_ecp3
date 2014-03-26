@@ -367,7 +367,7 @@ port map(
 	--RCNT              => open,
 	Empty             => sf_empty,
 	AlmostEmpty       => sf_aempty,
-	Full              => sf_full  -- WARNING, JUST FOR DEBUG
+	Full              => sf_full,  -- WARNING, JUST FOR DEBUG
 	AlmostFull        => sf_afull
 );
 
