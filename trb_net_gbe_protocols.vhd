@@ -7,6 +7,8 @@ use work.trb_net_std.all;
 
 package trb_net_gbe_protocols is
 
+type hist_array is array(4 downto 0) of std_logic_vector(31 downto 0);
+
 signal g_SIMULATE             : integer range 0 to 1 := 0;
 
 -- g_MY_IP is being set by DHCP Response Constructor
@@ -611,7 +613,9 @@ port (
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0) 
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+	
+	DATA_HIST_OUT : out hist_array 
 );
 end component;
 

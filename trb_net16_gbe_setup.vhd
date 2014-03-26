@@ -50,7 +50,9 @@ port(
 	MONITOR_SELECT_REC_BYTES_IN   : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_IN  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0)
+	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	
+	DATA_HIST_IN : in hist_array
 );
 end entity;
 
@@ -207,110 +209,119 @@ begin
 end process WRITE_PROC;
 
 READ_PROC : process(CLK)
+	variable address : integer;
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
 			data_out <= (others => '0');
 		elsif (BUS_READ_EN_IN = '1') then
-			case BUS_ADDR_IN is
+		
+			address <= to_integer(unsigned(BUS_ADDR_IN));
+		
+			case address is
 
-				when x"00" =>
+				when 0 =>
 					data_out <= subevent_id;
 
-				when x"01" =>
+				when 1 =>
 					data_out <= subevent_dec;
 
-				when x"02" =>
+				when 2 =>
 					data_out <= queue_dec;
 
-				when x"04" =>
+				when 4 =>
 					data_out(15 downto 0) <= max_frame;
 					data_out(31 downto 16) <= (others => '0');
 
-				when x"05" =>
+				when 5 =>
 					if (use_gbe = '0') then
 						data_out <= x"0000_0000";
 					else
 						data_out <= x"0000_0001";
 					end if;
 
-				when x"06" =>
+				when 6 =>
 					if (use_trbnet = '0') then
 						data_out <= x"0000_0000";
 					else
 						data_out <= x"0000_0001";
 					end if;
 
-				when x"07" =>
+				when 7 =>
 					if (use_multievents = '0') then
 						data_out <= x"0000_0000";
 					else
 						data_out <= x"0000_0001";
 					end if;
 					
-				when x"09" =>
+				when 9 =>
 					data_out(0) <= allow_rx;
 					data_out(31 downto 1) <= (others => '0');
 					
-				when x"0a" =>
+				when 10 =>
 					data_out(0) <= additional_hdr;
 					data_out(31 downto 1) <= (others => '0');
 					
-				when x"0b" =>
+				when 11 =>
 					data_out(0) <= insert_ttype;
 					data_out(31 downto 1) <= (others => '0');
 					
-				when x"e0" =>
+				-- Histogram of data sizes
+				when 128 to 159 =>
+					data_out <= DATA_HIST_IN(128 - address);
+				
+				-- General statistics	
+				when 224 =>
 					data_out <= MONITOR_RX_BYTES_IN;
 
-				when x"e1" =>
+				when 225 =>
 					data_out <= MONITOR_RX_FRAMES_IN;
 
-				when x"e2" =>
+				when 226 =>
 					data_out <= MONITOR_TX_BYTES_IN;
 
-				when x"e3" =>
+				when 227 =>
 					data_out <= MONITOR_TX_FRAMES_IN;
 
-				when x"e4" =>
+				when 228" =>
 					data_out <= MONITOR_TX_PACKETS_IN;
 
-				when x"e5" =>
+				when 229" =>
 					data_out <= MONITOR_DROPPED_IN;
 					
 				-- Sctrl
-				when x"a0" =>
+				when 160 =>
 					data_out <= MONITOR_SELECT_REC_IN(3 * 32 - 1 downto 2 * 32);
-				when x"a1" =>
+				when 161 =>
 					data_out <= MONITOR_SELECT_REC_BYTES_IN(3 * 32 - 1 downto 2 * 32);
-				when x"a2" =>
+				when 162 =>
 					data_out <= MONITOR_SELECT_SENT_IN(3 * 32 - 1 downto 2 * 32);
-				when x"a3" =>
+				when 163 =>
 					data_out <= MONITOR_SELECT_SENT_BYTES_IN(3 * 32 - 1 downto 2 * 32);
-				when x"a4" =>
+				when 164 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 - 32 downto 2 * 64);
-				when x"a5" =>
+				when 165 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 downto 2 * 64 + 32);
 						
 				-- TrbnetData
-				when x"b0" =>
+				when 176 =>
 					data_out <= MONITOR_SELECT_REC_IN(4 * 32 - 1 downto 3 * 32);
-				when x"b1" =>
+				when 177 =>
 					data_out <= MONITOR_SELECT_REC_BYTES_IN(4 * 32 - 1 downto 3 * 32);
-				when x"b2" =>
+				when 178 =>
 					data_out <= MONITOR_SELECT_SENT_IN(4 * 32 - 1 downto 3 * 32);
-				when x"b3" =>
+				when 179 =>
 					data_out <= MONITOR_SELECT_SENT_BYTES_IN(4 * 32 - 1 downto 3 * 32);
-				when x"b4" =>
+				when 180 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 - 32 downto 3 * 64);
-				when x"b5" =>
+				when 181 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 downto 3 * 64 + 32);
 				
 				-- for older network monitors	
-				when x"f3" =>
+				when 243 =>
 					data_out <= MONITOR_TX_BYTES_IN;
 					
-				when x"f4" =>
+				when 244 =>
 					data_out <= MONITOR_TX_FRAMES_IN;
 					
 				when others =>

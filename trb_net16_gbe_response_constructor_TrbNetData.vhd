@@ -93,7 +93,9 @@ port (
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
-	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0)
+	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+	
+	DATA_HIST_OUT : out hist_array
 );
 end trb_net16_gbe_response_constructor_TrbNetData;
 
@@ -146,6 +148,7 @@ signal mon_sent_frames, mon_sent_bytes : std_logic_vector(31 downto 0);
 signal ipu_dbg : std_logic_vector(383 downto 0);
 signal constr_dbg : std_logic_vector(63 downto 0);
 
+signal hist_inst : hist_array;
 
 begin
 
@@ -383,6 +386,26 @@ begin
 end process SENT_PACKETS_PROC;
 
 -- monitoring
+
+
+HIST_PROC : process(CLK)
+begin
+	if rising_edge(CLK) then
+	
+		for i in 0 to 31 loop
+			hist_inst(i) <= hist_inst(i);
+		end loop;
+			
+		if (RESET = '1') then
+			hist_inst <= (others => (others => '0'));
+		elsif (tc_sod = '1') then
+			hist_inst(to_integer(unsigned(event_bytes(15 downto 11)))) <= hist_inst(to_integer(unsigned(event_bytes(15 downto 11)))) + x"1"; 
+		end if;
+	end if;
+end process;
+
+DATA_HIST_OUT <= hist_inst;
+
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -409,6 +432,7 @@ begin
 		end if;
 	end if;
 end process;
+
 MONITOR_SELECT_SENT_BYTES_OUT <= mon_sent_bytes;
 
 

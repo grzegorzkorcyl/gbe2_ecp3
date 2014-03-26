@@ -598,6 +598,7 @@ signal monitor_tx_packets : std_logic_vector(31 downto 0);
 signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames : std_logic_vector(31 downto 0);
 signal insert_ttype, additional_hdr : std_logic;
 signal reset_dhcp : std_logic;
+signal dbg_hist : hist_array;
 
 begin
 
@@ -728,7 +729,9 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  MONITOR_SELECT_REC_BYTES_OUT   => dbg_select_rec_bytes,
 	  MONITOR_SELECT_SENT_BYTES_OUT  => dbg_select_sent_bytes,
 	  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent,
-	  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen
+	  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen,
+	
+		DATA_HIST_OUT => dbg_hist
   );
   
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
@@ -819,7 +822,9 @@ port map(
 	MONITOR_SELECT_REC_BYTES_IN   => dbg_select_rec_bytes,
 	MONITOR_SELECT_SENT_BYTES_IN  => dbg_select_sent_bytes,
 	MONITOR_SELECT_SENT_IN	      => dbg_select_sent,
-	MONITOR_SELECT_GEN_DBG_IN     => dbg_select_gen
+	MONITOR_SELECT_GEN_DBG_IN     => dbg_select_gen,
+	
+	DATA_HIST_IN => dbg_hist
 );
 end generate;
 
@@ -1323,6 +1328,8 @@ end generate sim_gen;
 --***********************
 --	MONITORING & DEBUG
 --***********************
+
+
 
 
 -- gk 04.08.10

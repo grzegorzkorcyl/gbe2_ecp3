@@ -120,7 +120,9 @@ port (
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
-	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0)
+	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	
+	DATA_HIST_OUT : out hist_array
 );
 end trb_net16_gbe_protocol_selector;
 
@@ -474,7 +476,9 @@ port map (
 	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(4 * 32 - 1 downto 3 * 32),
 	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT(4 * 32 - 1 downto 3 * 32),
 	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(4 * 32 - 1 downto 3 * 32),
-	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(4 * 32 - 1 downto 3 * 32)
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(4 * 32 - 1 downto 3 * 32),
+	
+	DATA_HIST_OUT => DATA_HIST_OUT
 );
 
 --stat_gen : if g_SIMULATE = 0 generate
