@@ -143,6 +143,9 @@ signal loaded_bytes : std_logic_vector(15 downto 0);
 signal sent_packets : std_logic_vector(15 downto 0);
 
 signal mon_sent_frames, mon_sent_bytes : std_logic_vector(31 downto 0);
+signal ipu_dbg : std_logic_vector(383 downto 0);
+signal constr_dbg : std_logic_vector(63 downto 0);
+
 
 begin
 
@@ -240,7 +243,7 @@ port map(
 	PC_TRIGGER_TYPE_OUT      => pc_trig_type,
 	PC_PADDING_OUT			 => pc_padding,
 	MONITOR_OUT              => open,
-	DEBUG_OUT                => open
+	DEBUG_OUT                => ipu_dbg
 );
 
 --TODO: add missing values from setup
@@ -271,7 +274,7 @@ port map(
 	TC_DATA_OUT				=> tc_data,
 	TC_EVENT_SIZE_OUT		=> tc_size,
 	TC_SOD_OUT				=> tc_sod,
-	DEBUG_OUT				=> open
+	DEBUG_OUT				=> constr_dbg
 );
 
 tc_rd_en <= '1' when PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1' else '0'; 
@@ -411,6 +414,9 @@ MONITOR_SELECT_SENT_BYTES_OUT <= mon_sent_bytes;
 
 MONITOR_SELECT_REC_BYTES_OUT  <= (others => '0');
 MONITOR_SELECT_REC_OUT        <= (others => '0');
+
+DEBUG_OUT(31 downto 0) <= ipu_dbg(31 downto 0);
+DEBUG_OUT(63 downto 32) <= constr_dbg(31 downto 0);
 
 end trb_net16_gbe_response_constructor_TrbNetData;
 

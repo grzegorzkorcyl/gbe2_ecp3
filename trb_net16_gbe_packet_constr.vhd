@@ -252,7 +252,7 @@ constructMachine : process(constructCurrentState, PC_START_OF_SUB_IN, PC_WR_EN_I
 begin
 	case constructCurrentState is
 		when CIDLE =>
-			constr_state <= x"0";
+			constr_state <= x"1";
 			--if( PC_WR_EN_IN = '1' ) then
 			-- gk 04.12.10
 			if (PC_START_OF_SUB_IN = '1') then
@@ -262,21 +262,21 @@ begin
 				constructNextState <= CIDLE;
 			end if;
 		when SAVE_DATA =>
-			constr_state <= x"1";
+			constr_state <= x"2";
 			if( PC_END_OF_DATA_IN = '1') then
 				constructNextState <= WAIT_FOR_LOAD;
 			else
 				constructNextState <= SAVE_DATA;
 			end if;
 		when WAIT_FOR_LOAD =>
-			constr_state <= x"2";
+			constr_state <= x"3";
 			if( (df_empty = '1') and (loadCurrentState = LIDLE) ) then -- waits until the whole packet is transmitted
 				constructNextState <= CIDLE;
 			else
 				constructNextState <= WAIT_FOR_LOAD;
 			end if;
 		when others =>
-			constr_state <= x"f";
+			constr_state <= x"4";
 			constructNextState <= CIDLE;
 	end case;
 end process constructMachine;
@@ -1046,6 +1046,18 @@ TC_FLAGS_OFFSET_OUT           <= fc_flags_offset;
 TC_SOD_OUT                    <= fc_sod;
 TC_EOD_OUT                    <= fc_eod;
 
-DEBUG_OUT                     <= debug;
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		DEBUG_OUT(3 downto 0) <= constr_state;
+		DEBUG_OUT(7 downto 4) <= load_state;
+		DEBUG_OUT(11 downto 8) <= save_state;
+		DEBUG_OUT(12) <= df_full;
+		DEBUG_OUT(13) <= df_empty;
+		DEBUG_OUT(14) <= shf_full;
+		DEBUG_OUT(15) <= shf_empty;
+	end if;
+end process;
+DEBUG_OUT(63 downto 16) <= (others => '0');
 
 end trb_net16_gbe_packet_constr;

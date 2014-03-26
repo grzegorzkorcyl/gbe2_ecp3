@@ -95,6 +95,8 @@ signal bank_select : std_logic_vector(3 downto 0);
 signal readout_ctr : std_logic_vector(23 downto 0);
 signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
+signal sf_aempty : std_logic;
+signal rec_state, load_state : std_logic_vector(3 downto 0);
 
 begin
 
@@ -118,6 +120,7 @@ begin
 	case (save_current_state) is
 	
 		when IDLE =>
+			rec_state <= x"1";
 			if (CTS_START_READOUT_IN = '1') then
 				save_next_state <= SAVE_EVT_ADDR;
 			else
@@ -125,9 +128,11 @@ begin
 			end if;
 			
 		when SAVE_EVT_ADDR =>
+			rec_state <= x"2";
 			save_next_state <= WAIT_FOR_DATA;
 			
 		when WAIT_FOR_DATA =>
+			rec_state <= x"3";
 			if (FEE_BUSY_IN = '1') then
 				save_next_state <= SAVE_DATA;
 			else
@@ -135,6 +140,7 @@ begin
 			end if;  
 		
 		when SAVE_DATA =>
+			rec_state <= x"4";
 			if (FEE_BUSY_IN = '0') then
 				save_next_state <= TERMINATE;
 			else
@@ -142,6 +148,7 @@ begin
 			end if;
 		
 		when TERMINATE =>
+			rec_state <= x"5";
 			if (CTS_READ_IN = '1') then
 				save_next_state <= CLOSE;
 			else
@@ -149,6 +156,7 @@ begin
 			end if;
 			
 		when CLOSE => 
+			rec_state <= x"6";
 			if (CTS_START_READOUT_IN = '0') then
 				save_next_state <= ADD_SUBSUB1;
 			else
@@ -156,18 +164,23 @@ begin
 			end if;
 		
 		when ADD_SUBSUB1 =>
+			rec_state <= x"7";
 			save_next_state <= ADD_SUBSUB2;
 		
 		when ADD_SUBSUB2 =>
+			rec_state <= x"8";
 			save_next_state <= ADD_SUBSUB3;
 			
 		when ADD_SUBSUB3 =>
+			rec_state <= x"9";
 			save_next_state <= ADD_SUBSUB4;
 			
 		when ADD_SUBSUB4 =>
+			rec_state <= x"a";
 			save_next_state <= CLEANUP;
 			
 		when CLEANUP =>
+			rec_state <= x"b";
 			save_next_state <= IDLE;
 		 
 	end case;
@@ -353,8 +366,8 @@ port map(
 	--WCNT              => open,
 	--RCNT              => open,
 	Empty             => sf_empty,
-	AlmostEmpty       => open,
-	Full              => open, --sf_afull  -- WARNING, JUST FOR DEBUG
+	AlmostEmpty       => sf_aempty,
+	Full              => sf_full  -- WARNING, JUST FOR DEBUG
 	AlmostFull        => sf_afull
 );
 
@@ -400,6 +413,7 @@ begin
 	case (load_current_state) is
 
 		when IDLE =>
+			load_state <= x"1";
 			if (saved_events_ctr /= loaded_events_ctr) then
 				load_next_state <= REMOVE;
 			else
@@ -407,6 +421,7 @@ begin
 			end if;
 		
 		when REMOVE =>
+			load_state <= x"2";
 			if (loaded_bytes_ctr = x"0008") then
 				load_next_state <= WAIT_ONE;
 			else
@@ -414,12 +429,15 @@ begin
 			end if;
 			
 		when WAIT_ONE =>
+			load_state <= x"3";
 			load_next_state <= DECIDE;
 		
 		when DECIDE =>
+			load_state <= x"4";
 			load_next_state <= WAIT_FOR_LOAD;
 			
 		when WAIT_FOR_LOAD =>
+			load_state <= x"5";
 			if (PC_READY_IN = '1') then
 				load_next_state <= LOAD;
 			else
@@ -427,6 +445,7 @@ begin
 			end if;
 		
 		when LOAD =>
+			load_state <= x"6";
 			if (sf_eod = '1') then
 				load_next_state <= CLOSE;
 			else
@@ -434,6 +453,7 @@ begin
 			end if;
 		
 		when CLOSE =>
+			load_state <= x"7";
 			load_next_state <= IDLE;
 		
 		when others => load_next_state <= IDLE;
@@ -685,7 +705,20 @@ PC_TRIGGER_TYPE_OUT <= trigger_type;
 
 PC_PADDING_OUT <= '0'; --padding_needed; not used anymore
 
-DEBUG_OUT <= (others => '0');
+
+process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		DEBUG_OUT(3 downto 0) <= rec_state;
+		DEBUG_OUT(7 downto 4) <= load_state;
+		DEBUG_OUT(8) <= sf_empty;
+		DEBUG_OUT(9) <= sf_aempty;
+		DEBUG_OUT(10) <= sf_full;
+		DEBUG_OUT(11) <= sf_afull;
+	end if;
+end process;
+
+DEBUG_OUT(383 downto 12) <= (others => '0');
 MONITOR_OUT <= (others => '0');
 
 end architecture RTL;
