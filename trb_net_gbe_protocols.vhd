@@ -7,7 +7,7 @@ use work.trb_net_std.all;
 
 package trb_net_gbe_protocols is
 
-type hist_array is array(4 downto 0) of std_logic_vector(31 downto 0);
+type hist_array is array(31 downto 0) of std_logic_vector(31 downto 0);
 
 signal g_SIMULATE             : integer range 0 to 1 := 0;
 
