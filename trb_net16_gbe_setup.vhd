@@ -216,7 +216,7 @@ begin
 			data_out <= (others => '0');
 		elsif (BUS_READ_EN_IN = '1') then
 		
-			address <= to_integer(unsigned(BUS_ADDR_IN));
+			address := to_integer(unsigned(BUS_ADDR_IN));
 		
 			case address is
 
