@@ -401,7 +401,7 @@ hist_ctrs_gen : for i in 0 to 31 generate
 			end if;
 		end if;
 	end process;
-end generate hist_ctr_gen;
+end generate hist_ctrs_gen;
 
 DATA_HIST_OUT <= hist_inst;
 
