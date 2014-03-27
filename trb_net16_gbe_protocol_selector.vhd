@@ -392,7 +392,7 @@ port map (
 	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
 	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(3 * 32 - 1 downto 2 * 32),
 	
-	DATA_HIST_OUT => SCTRL_HIST_OUT;
+	DATA_HIST_OUT => SCTRL_HIST_OUT
 );
 
 TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
