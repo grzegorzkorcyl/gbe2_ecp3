@@ -388,21 +388,20 @@ end process SENT_PACKETS_PROC;
 -- monitoring
 
 
-HIST_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-	
-		for i in 0 to 31 loop
-			hist_inst(i) <= hist_inst(i);
-		end loop;
-			
-		if (RESET = '1') then
-			hist_inst <= (others => (others => '0'));
-		elsif (tc_sod = '1') then
-			hist_inst(to_integer(unsigned(event_bytes(15 downto 11)))) <= hist_inst(to_integer(unsigned(event_bytes(15 downto 11)))) + x"1"; 
+hist_ctrs_gen : for i in 0 to 31 generate
+	HIST_PROC : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (RESET = '1') then
+				hist_inst(i) <= (others => '0');
+			elsif (tc_sod = '1' and i = to_integer(unsigned(event_bytes(15 downto 11)))) then
+				hist_inst(i) <= hist_inst(i) + x"1"; 
+			else
+				hist_inst(i) <= hist_inst(i);
+			end if;
 		end if;
-	end if;
-end process;
+	end process;
+end hist_ctr_gen;
 
 DATA_HIST_OUT <= hist_inst;
 
