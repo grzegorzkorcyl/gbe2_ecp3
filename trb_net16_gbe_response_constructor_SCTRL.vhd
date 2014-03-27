@@ -72,7 +72,9 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 		MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 		MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
-		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0)
+		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+		
+		DATA_HIST_OUT : out hist_array
 	);
 end entity trb_net16_gbe_response_constructor_SCTRL;
 
@@ -147,6 +149,8 @@ attribute syn_keep : boolean;
 attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
 attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
 
+signal hist_inst : hist_array;
+signal tc_sod_flag : std_logic;
 
 begin
 
@@ -594,6 +598,24 @@ end process DISSECT_MACHINE;
 
 
 -- monitoring
+
+hist_ctrs_gen : for i in 0 to 31 generate
+	HIST_PROC : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (RESET = '1') then
+				hist_inst(i) <= (others => '0');
+			elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr and i = to_integer(unsigned(tx_data_ctr(15 downto 11)))) then
+				hist_inst(i) <= hist_inst(i) + x"1"; 
+			else
+				hist_inst(i) <= hist_inst(i);
+			end if;
+		end if;
+	end process;
+end generate hist_ctrs_gen;
+
+DATA_HIST_OUT <= hist_inst;
+
 
 process(CLK)
 begin

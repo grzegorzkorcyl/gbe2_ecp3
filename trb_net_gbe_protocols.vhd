@@ -469,7 +469,9 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 		MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 		MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
-		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0) 
+		MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+		
+		DATA_HIST_OUT : out hist_array 
 	);
 end component;
 

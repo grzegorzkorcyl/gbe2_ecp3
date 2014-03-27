@@ -52,7 +52,8 @@ port(
 	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	DATA_HIST_IN : in hist_array
+	DATA_HIST_IN : in hist_array;
+	SCTRL_HIST_IN : in hist_array
 );
 end entity;
 
@@ -266,7 +267,11 @@ begin
 					data_out(0) <= insert_ttype;
 					data_out(31 downto 1) <= (others => '0');
 					
-				-- Histogram of data sizes
+				-- Histogram of sctrl data sizes
+				when 96 to 127 =>
+					data_out <= SCTRL_HIST_IN(96 - address);
+					
+				-- Histogram of TrbNetData data sizes
 				when 128 to 159 =>
 					data_out <= DATA_HIST_IN(128 - address);
 				

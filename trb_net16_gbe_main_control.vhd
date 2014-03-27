@@ -137,7 +137,8 @@ port (
 	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
-	DATA_HIST_OUT : out hist_array
+	DATA_HIST_OUT : out hist_array;
+	SCTRL_HIST_OUT : out hist_array
 );
 end trb_net16_gbe_main_control;
 
@@ -338,7 +339,8 @@ port map(
 	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT,
 	MONITOR_SELECT_GEN_DBG_OUT    => MONITOR_SELECT_GEN_DBG_OUT,
 	
-	DATA_HIST_OUT => DATA_HIST_OUT
+	DATA_HIST_OUT => DATA_HIST_OUT,
+	SCTRL_HIST_OUT => SCTRL_HIST_OUT
 );
 
 TC_DATA_OUT <= tc_data;
