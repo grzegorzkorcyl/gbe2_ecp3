@@ -269,11 +269,11 @@ begin
 					
 				-- Histogram of sctrl data sizes
 				when 96 to 127 =>
-					data_out <= SCTRL_HIST_IN(96 - address);
+					data_out <= SCTRL_HIST_IN(address - 96);
 					
 				-- Histogram of TrbNetData data sizes
 				when 128 to 159 =>
-					data_out <= DATA_HIST_IN(128 - address);
+					data_out <= DATA_HIST_IN(address - 128);
 				
 				-- General statistics	
 				when 224 =>
