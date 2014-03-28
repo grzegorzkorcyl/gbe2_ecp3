@@ -150,7 +150,7 @@ attribute syn_keep of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx
 attribute syn_preserve of rx_fifo_wr, rx_fifo_rd, gsc_init_dataready, tx_fifo_wr, tx_fifo_rd, gsc_reply_read, state : signal is true;
 
 signal hist_inst : hist_array;
-signal tc_sod_flag : std_logic;
+signal reset_all_hist : std_logic_vector(31 downto 0);
 
 begin
 
@@ -600,10 +600,24 @@ end process DISSECT_MACHINE;
 -- monitoring
 
 hist_ctrs_gen : for i in 0 to 31 generate
-	HIST_PROC : process(CLK)
+
+	process(CLK)
 	begin
 		if rising_edge(CLK) then
 			if (RESET = '1') then
+				reset_all_hist(i) <= '1';
+			elsif (hist_inst(i) = x"ffff_ffff") then
+				reset_all_hist(i) <= '1';
+			else
+				reset_all_hist(i) <= '0';
+			end if;				
+		end if;
+	end process;
+
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (reset_all_hist /= x"0000_0000") then
 				hist_inst(i) <= (others => '0');
 			elsif (dissect_current_state = LOAD_FRAME and tx_loaded_ctr = tx_data_ctr and i = to_integer(unsigned(tx_data_ctr(15 downto 11)))) then
 				hist_inst(i) <= hist_inst(i) + x"1"; 
@@ -612,6 +626,7 @@ hist_ctrs_gen : for i in 0 to 31 generate
 			end if;
 		end if;
 	end process;
+	
 end generate hist_ctrs_gen;
 
 DATA_HIST_OUT <= hist_inst;

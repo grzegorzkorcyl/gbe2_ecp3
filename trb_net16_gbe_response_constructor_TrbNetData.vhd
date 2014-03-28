@@ -150,6 +150,7 @@ signal constr_dbg : std_logic_vector(63 downto 0);
 
 signal hist_inst : hist_array;
 signal tc_sod_flag : std_logic;
+signal reset_all_hist : std_logic_vector(31 downto 0);
 
 begin
 
@@ -403,10 +404,24 @@ begin
 end process;
 
 hist_ctrs_gen : for i in 0 to 31 generate
-	HIST_PROC : process(CLK)
+
+	process(CLK)
 	begin
 		if rising_edge(CLK) then
 			if (RESET = '1') then
+				reset_all_hist(i) <= '1';
+			elsif (hist_inst(i) = x"ffff_ffff") then
+				reset_all_hist(i) <= '1';
+			else
+				reset_all_hist(i) <= '0';
+			end if;				
+		end if;
+	end process;
+
+	HIST_PROC : process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (RESET = '1') or (reset_all_hist /= x"0000_0000") then
 				hist_inst(i) <= (others => '0');
 			elsif (tc_sod = '1' and tc_sod_flag = '0' and i = to_integer(unsigned(event_bytes(15 downto 11)))) then
 				hist_inst(i) <= hist_inst(i) + x"1"; 
