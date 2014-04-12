@@ -38,6 +38,7 @@ port(
 	GBE_ALLOW_RX_OUT          : out std_logic;
 	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
 	GBE_INSERT_TTYPE_OUT      : out std_logic;
+	GBE_SOFT_RESET_OUT        : out std_logic;
 	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
 	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
@@ -129,8 +130,12 @@ begin
 			allow_rx          <= '1';
 			insert_ttype      <= '0';
 			additional_hdr    <= '1';	
+			GBE_SOFT_RESET_OUT <= '0';
 
 		elsif (BUS_WRITE_EN_IN = '1') then
+		
+			GBE_SOFT_RESET_OUT <= '0';
+		
 			case BUS_ADDR_IN is
 
 				when x"00" =>
@@ -182,9 +187,11 @@ begin
 
 				when x"ff" =>
 					if (BUS_DATA_IN = x"ffff_ffff") then
-						reset_values <= '1';
+						reset_values <= '0';
+						GBE_SOFT_RESET_OUT <= '1';
 					else
 						reset_values <= '0';
+						GBE_SOFT_RESET_OUT <= '0';
 					end if;
 
 				when others =>
@@ -205,6 +212,7 @@ begin
 		else
 			reset_values      <= '0';
 			readout_ctr_valid <= '0';
+			GBE_SOFT_RESET_OUT <= '0';
 		end if;
 	end if;
 end process WRITE_PROC;

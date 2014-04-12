@@ -599,6 +599,7 @@ signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames 
 signal insert_ttype, additional_hdr : std_logic;
 signal reset_dhcp : std_logic;
 signal dbg_hist, dbg_hist2 : hist_array;
+signal soft_gbe_reset : std_logic;
 
 begin
 
@@ -619,7 +620,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
-	  RESET_FOR_DHCP => '0', --reset_dhcp,
+	  RESET_FOR_DHCP => soft_gbe_reset, --'0', --reset_dhcp,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
@@ -811,6 +812,7 @@ port map(
 	GBE_ALLOW_RX_OUT            => allow_rx,
 	GBE_ADDITIONAL_HDR_OUT      => additional_hdr,
 	GBE_INSERT_TTYPE_OUT        => insert_ttype,
+	GBE_SOFT_RESET_OUT          => soft_gbe_reset,
 	
 	MONITOR_RX_BYTES_IN         => monitor_rx_bytes,
 	MONITOR_RX_FRAMES_IN        => monitor_rx_frames,
@@ -1135,7 +1137,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 0
 		)
 		port map(
-			RESET				=> RESET,
+			RESET				=> soft_gbe_reset, --RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
@@ -1185,7 +1187,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 1
 		)
 		port map(
-			RESET				=> RESET,
+			RESET				=> soft_gbe_reset, --RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk,

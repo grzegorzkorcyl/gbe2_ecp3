@@ -924,6 +924,7 @@ port(
 	GBE_ALLOW_RX_OUT          : out std_logic;
 	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
 	GBE_INSERT_TTYPE_OUT      : out std_logic;
+	GBE_SOFT_RESET_OUT        : out std_logic;
 	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
 	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
