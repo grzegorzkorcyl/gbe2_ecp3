@@ -28,6 +28,7 @@ port (
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
+	MC_DHCP_DONE_OUT : out std_logic;
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -673,6 +674,8 @@ begin
 
 	end case;
 end process LINK_STATE_MACHINE;
+
+MC_DHCP_DONE_OUT <= '1' when link_current_state = ACTIVE else '0';
 
 LINK_OK_CTR_PROC : process(CLK)
 begin

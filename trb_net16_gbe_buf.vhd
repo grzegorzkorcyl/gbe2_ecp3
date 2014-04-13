@@ -599,7 +599,7 @@ signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames 
 signal insert_ttype, additional_hdr : std_logic;
 signal reset_dhcp : std_logic;
 signal dbg_hist, dbg_hist2 : hist_array;
-signal soft_gbe_reset, soft_rst : std_logic;
+signal soft_gbe_reset, soft_rst, dhcp_done : std_logic;
 signal rst_ctr : std_logic_vector(31 downto 0);
 
 begin
@@ -622,15 +622,13 @@ begin
 	if rising_edge(CLK) then
 		if (GSR_N = '0') then
 			rst_ctr <= x"0000_0000";
-		elsif (rst_ctr < x"0010_0000") then
+		else 
 			rst_ctr <= rst_ctr + x"1";
-		else
-			rst_ctr <= rst_ctr;
 		end if; 
 	end if;
 end process;
 
-soft_gbe_reset <= '1' when rst_ctr < x"0010_0000" or soft_rst = '1' else '0';
+soft_gbe_reset <= '1' when soft_rst = '1' or (dhcp_done = '0' and rst_ctr(20) = '1') else '0';
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
@@ -642,6 +640,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
 	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
+	  MC_DHCP_DONE_OUT => dhcp_done,
 
   -- signals to/from receive controller
 	  RC_FRAME_WAITING_IN	=> rc_frame_ready,
