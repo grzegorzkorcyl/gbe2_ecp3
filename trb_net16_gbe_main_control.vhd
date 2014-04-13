@@ -159,7 +159,7 @@ signal tsm_hcs_n                            : std_logic;
 signal tsm_hwrite_n                         : std_logic;
 signal tsm_hread_n                          : std_logic;
 
-type link_states is (ACTIVE, INACTIVE, ENABLE_MAC, TIMEOUT, FINALIZE, WAIT_FOR_BOOT, GET_ADDRESS);
+type link_states is (INACTIVE, ACTIVE, ENABLE_MAC, TIMEOUT, FINALIZE, WAIT_FOR_BOOT, GET_ADDRESS);
 signal link_current_state, link_next_state : link_states;
 attribute syn_encoding of link_current_state : signal is "onehot";
 
@@ -601,15 +601,7 @@ end process;
 LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr)
 begin
 	case link_current_state is
-
-		when ACTIVE =>
-			link_state <= x"1";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
-				link_next_state <= ACTIVE;
-			end if;
-
+		
 		when INACTIVE =>
 			link_state <= x"2";
 			if (PCS_AN_COMPLETE_IN = '1') then
@@ -617,7 +609,7 @@ begin
 			else
 				link_next_state <= INACTIVE;
 			end if;
-
+			
 		when TIMEOUT =>
 			link_state <= x"3";
 			if (PCS_AN_COMPLETE_IN = '0') then
@@ -670,6 +662,14 @@ begin
 				else
 					link_next_state <= GET_ADDRESS;
 				end if;
+			end if;
+			
+		when ACTIVE =>
+			link_state <= x"1";
+			if (PCS_AN_COMPLETE_IN = '0') then
+				link_next_state <= INACTIVE;
+			else
+				link_next_state <= ACTIVE;
 			end if;
 
 	end case;
