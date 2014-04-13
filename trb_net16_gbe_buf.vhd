@@ -599,7 +599,8 @@ signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames 
 signal insert_ttype, additional_hdr : std_logic;
 signal reset_dhcp : std_logic;
 signal dbg_hist, dbg_hist2 : hist_array;
-signal soft_gbe_reset : std_logic;
+signal soft_gbe_reset, soft_rst : std_logic;
+signal rst_ctr : std_logic_vector(31 downto 0);
 
 begin
 
@@ -614,6 +615,22 @@ fc_tos              <= x"10";
 fc_ttl              <= x"ff";
 
 --reset_dhcp <= not GSR_N;
+
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (GSR_N = '0') then
+			rst_ctr <= x"0000_0000";
+		elsif (rst_ctr < x"0010_0000") then
+			rst_ctr <= rst_ctr + x"1";
+		else
+			rst_ctr <= rst_ctr;
+		end if; 
+	end if;
+end process;
+
+soft_gbe_reset <= '1' when rst_ctr < x"0010_0000" or soft_rst = '1' else '0';
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
@@ -812,7 +829,7 @@ port map(
 	GBE_ALLOW_RX_OUT            => allow_rx,
 	GBE_ADDITIONAL_HDR_OUT      => additional_hdr,
 	GBE_INSERT_TTYPE_OUT        => insert_ttype,
-	GBE_SOFT_RESET_OUT          => soft_gbe_reset,
+	GBE_SOFT_RESET_OUT          => soft_rst,
 	
 	MONITOR_RX_BYTES_IN         => monitor_rx_bytes,
 	MONITOR_RX_FRAMES_IN        => monitor_rx_frames,
