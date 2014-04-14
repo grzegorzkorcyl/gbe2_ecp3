@@ -612,21 +612,22 @@ begin
 			
 		when TIMEOUT =>
 			link_state <= x"3";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--	link_next_state <= INACTIVE;
+			--else
 				if (link_ok_timeout_ctr = x"ffff") then
 					link_next_state <= ENABLE_MAC; --FINALIZE;
 				else
 					link_next_state <= TIMEOUT;
 				end if;
-			end if;
+			--end if;
 
 		when ENABLE_MAC =>
 			link_state <= x"4";
-			if (PCS_AN_COMPLETE_IN = '0') then
-			  link_next_state <= INACTIVE;
-			elsif (tsm_ready = '1') then
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--  link_next_state <= INACTIVE;
+			--elsif (tsm_ready = '1') then
+			if (tsm_ready = '1') then
 			  link_next_state <= FINALIZE; --INACTIVE;
 			else
 			  link_next_state <= ENABLE_MAC;
@@ -634,43 +635,43 @@ begin
 
 		when FINALIZE =>
 			link_state <= x"5";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--	link_next_state <= INACTIVE;
+			--else
 				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
-			end if;
+			--end if;
 			
 		when WAIT_FOR_BOOT =>
 			link_state <= x"6";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--	link_next_state <= INACTIVE;
+			--else
 				if (wait_ctr = x"0010_0000") then
 					link_next_state <= GET_ADDRESS;
 				else
 					link_next_state <= WAIT_FOR_BOOT;
 				end if;
-			end if;
+			--end if;
 		
 		when GET_ADDRESS =>
 			link_state <= x"7";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--	link_next_state <= INACTIVE;
+			--else
 				if (dhcp_done = '1') then
 					link_next_state <= ACTIVE;
 				else
 					link_next_state <= GET_ADDRESS;
 				end if;
-			end if;
+			--end if;
 			
 		when ACTIVE =>
 			link_state <= x"1";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+			--if (PCS_AN_COMPLETE_IN = '0') then
+			--	link_next_state <= INACTIVE;
+			--else
 				link_next_state <= ACTIVE;
-			end if;
+			--end if;
 
 	end case;
 end process LINK_STATE_MACHINE;
