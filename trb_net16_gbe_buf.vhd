@@ -628,14 +628,14 @@ begin
 	end if;
 end process;
 
-soft_gbe_reset <= '1' when soft_rst = '1' or (dhcp_done = '0' and rst_ctr(24) = '1') else '0';
+--soft_gbe_reset <= '1' when soft_rst = '1' or (dhcp_done = '0' and rst_ctr(24) = '1') else '0';
 
 MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> RESET,
-	  RESET_FOR_DHCP => soft_gbe_reset, --'0', --reset_dhcp,
+	  RESET_FOR_DHCP => '0', --soft_gbe_reset, --'0', --reset_dhcp,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
