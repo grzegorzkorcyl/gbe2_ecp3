@@ -133,6 +133,7 @@ begin
 			new_frame_lock <= '1';
 		else
 			new_frame <= '0';
+			new_frame_lock <= new_frame_lock;
 		end if;
 	end if;
 end process NEW_FRAME_PROC;
