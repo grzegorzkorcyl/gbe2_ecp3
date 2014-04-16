@@ -125,7 +125,7 @@ begin
 NEW_FRAME_PROC : process(RX_MAC_CLK)
 begin
 	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') or (MAC_RX_EOF_IN = '1') then
+		if (LINK_OK_IN = '0' or MAC_RX_EOF_IN = '1') then
 			new_frame <= '0';
 			new_frame_lock <= '0';
 		elsif (new_frame_lock = '0') and (MAC_RX_EN_IN = '1') then
