@@ -276,33 +276,33 @@ begin
 end process CLOCK2_GEN_PROC;
 
 
-SCTRL_TESTBENCH_PROC : process
-begin
-
-for j in 0 to 5000 loop
-
-	reply_dataready <= '0';
-	reply_busy <= '0';
-	reply_data <= (others => '0');
-	
-	wait for 76 us;
-	
-	for i in 0 to 1000 loop
-	
-		wait until rising_edge(clk);
-		reply_dataready <= '1';
-		reply_busy <= '1';
-		reply_data <= std_logic_vector(to_unsigned(i, 16));
-			
-	end loop;
-	wait until rising_edge(clk);
-	reply_dataready <= '0';
-	reply_busy <= '0';
-	
-	wait for 13 us;
-end loop;
-
-end process SCTRL_TESTBENCH_PROC;
+--SCTRL_TESTBENCH_PROC : process
+--begin
+--
+--for j in 0 to 5000 loop
+--
+--	reply_dataready <= '0';
+--	reply_busy <= '0';
+--	reply_data <= (others => '0');
+--	
+--	wait for 76 us;
+--	
+--	for i in 0 to 1000 loop
+--	
+--		wait until rising_edge(clk);
+--		reply_dataready <= '1';
+--		reply_busy <= '1';
+--		reply_data <= std_logic_vector(to_unsigned(i, 16));
+--			
+--	end loop;
+--	wait until rising_edge(clk);
+--	reply_dataready <= '0';
+--	reply_busy <= '0';
+--	
+--	wait for 13 us;
+--end loop;
+--
+--end process SCTRL_TESTBENCH_PROC;
 
 
 
