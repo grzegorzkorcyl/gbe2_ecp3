@@ -1341,7 +1341,10 @@ sim_gen: if (DO_SIMULATION = 1) generate
 	SFP_TXD_N_OUT                 <= '0';
 	SFP_TXDIS_OUT                 <= '0';
 	
-
+		mac_rxd <= MAC_RXD_IN;
+		mac_rx_eof <= MAC_RX_EOF_IN;
+		mac_rx_en <= MAC_RX_EN_IN;
+		
 end generate sim_gen;
 
 
