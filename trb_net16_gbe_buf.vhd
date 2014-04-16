@@ -1345,6 +1345,8 @@ sim_gen: if (DO_SIMULATION = 1) generate
 		mac_rx_eof <= MAC_RX_EOF_IN;
 		mac_rx_en <= MAC_RX_EN_IN;
 		
+		serdes_rx_clk <= TEST_CLK;
+		
 end generate sim_gen;
 
 
