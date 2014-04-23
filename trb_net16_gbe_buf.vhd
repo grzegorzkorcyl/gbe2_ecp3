@@ -898,49 +898,49 @@ port map(
 );
 
 
-RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
-port map(
-	CLK			=> CLK,
-	RESET			=> RESET,
-
--- signals to/from frame_receiver
-	RC_DATA_IN		=> fr_q,
-	FR_RD_EN_OUT		=> fr_rd_en,
-	FR_FRAME_VALID_IN	=> fr_frame_valid,
-	FR_GET_FRAME_OUT	=> fr_get_frame,
-	FR_FRAME_SIZE_IN	=> fr_frame_size,
-	FR_FRAME_PROTO_IN	=> fr_frame_proto,
-	FR_IP_PROTOCOL_IN	=> fr_ip_proto,
-	
-	FR_SRC_MAC_ADDRESS_IN	=> fr_src_mac,
-	FR_DEST_MAC_ADDRESS_IN  => fr_dest_mac,
-	FR_SRC_IP_ADDRESS_IN	=> fr_src_ip,
-	FR_DEST_IP_ADDRESS_IN	=> fr_dest_ip,
-	FR_SRC_UDP_PORT_IN	=> fr_src_udp,
-	FR_DEST_UDP_PORT_IN	=> fr_dest_udp,
-
--- signals to/from main controller
-	RC_RD_EN_IN		=> rc_rd_en,
-	RC_Q_OUT		=> rc_q,
-	RC_FRAME_WAITING_OUT	=> rc_frame_ready,
-	RC_LOADING_DONE_IN	=> rc_loading_done,
-	RC_FRAME_SIZE_OUT	=> rc_frame_size,
-	RC_FRAME_PROTO_OUT	=> rc_frame_proto,
-	
-	RC_SRC_MAC_ADDRESS_OUT	=> rc_src_mac,
-	RC_DEST_MAC_ADDRESS_OUT => rc_dest_mac,
-	RC_SRC_IP_ADDRESS_OUT	=> rc_src_ip,
-	RC_DEST_IP_ADDRESS_OUT	=> rc_dest_ip,
-	RC_SRC_UDP_PORT_OUT	=> rc_src_udp,
-	RC_DEST_UDP_PORT_OUT	=> rc_dest_udp,
-
--- statistics
-	FRAMES_RECEIVED_OUT	=> rc_frames_rec_ctr,
-	BYTES_RECEIVED_OUT      => rc_bytes_rec,
-
-
-	DEBUG_OUT		=> rc_debug
-);
+--RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
+--port map(
+--	CLK			=> CLK,
+--	RESET			=> RESET,
+--
+---- signals to/from frame_receiver
+--	RC_DATA_IN		=> fr_q,
+--	FR_RD_EN_OUT		=> fr_rd_en,
+--	FR_FRAME_VALID_IN	=> fr_frame_valid,
+--	FR_GET_FRAME_OUT	=> fr_get_frame,
+--	FR_FRAME_SIZE_IN	=> fr_frame_size,
+--	FR_FRAME_PROTO_IN	=> fr_frame_proto,
+--	FR_IP_PROTOCOL_IN	=> fr_ip_proto,
+--	
+--	FR_SRC_MAC_ADDRESS_IN	=> fr_src_mac,
+--	FR_DEST_MAC_ADDRESS_IN  => fr_dest_mac,
+--	FR_SRC_IP_ADDRESS_IN	=> fr_src_ip,
+--	FR_DEST_IP_ADDRESS_IN	=> fr_dest_ip,
+--	FR_SRC_UDP_PORT_IN	=> fr_src_udp,
+--	FR_DEST_UDP_PORT_IN	=> fr_dest_udp,
+--
+---- signals to/from main controller
+--	RC_RD_EN_IN		=> rc_rd_en,
+--	RC_Q_OUT		=> rc_q,
+--	RC_FRAME_WAITING_OUT	=> rc_frame_ready,
+--	RC_LOADING_DONE_IN	=> rc_loading_done,
+--	RC_FRAME_SIZE_OUT	=> rc_frame_size,
+--	RC_FRAME_PROTO_OUT	=> rc_frame_proto,
+--	
+--	RC_SRC_MAC_ADDRESS_OUT	=> rc_src_mac,
+--	RC_DEST_MAC_ADDRESS_OUT => rc_dest_mac,
+--	RC_SRC_IP_ADDRESS_OUT	=> rc_src_ip,
+--	RC_DEST_IP_ADDRESS_OUT	=> rc_dest_ip,
+--	RC_SRC_UDP_PORT_OUT	=> rc_src_udp,
+--	RC_DEST_UDP_PORT_OUT	=> rc_dest_udp,
+--
+---- statistics
+--	FRAMES_RECEIVED_OUT	=> rc_frames_rec_ctr,
+--	BYTES_RECEIVED_OUT      => rc_bytes_rec,
+--
+--
+--	DEBUG_OUT		=> rc_debug
+--);
 dbg_q(15 downto 9) <= (others  => '0');
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
@@ -972,47 +972,47 @@ port map(
 	--DEBUG_OUT(63 downto 32)		=> open
 );  
 
-  FRAME_RECEIVER : trb_net16_gbe_frame_receiver
-  port map(
-	  CLK			=> CLK,
-	  RESET			=> RESET,
-	  LINK_OK_IN		=> link_ok,
-	  ALLOW_RX_IN		=> allow_rx,
-	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
-
-  -- input signals from TS_MAC
-	  MAC_RX_EOF_IN		=> mac_rx_eof,
-	  MAC_RX_ER_IN		=> mac_rx_er,
-	  MAC_RXD_IN		=> mac_rxd,
-	  MAC_RX_EN_IN		=> mac_rx_en,
-	  MAC_RX_FIFO_ERR_IN	=> mac_rx_fifo_err,
-	  MAC_RX_FIFO_FULL_OUT	=> mac_rx_fifo_full,
-	  MAC_RX_STAT_EN_IN	=> mac_rx_stat_en,
-	  MAC_RX_STAT_VEC_IN	=> mac_rx_stat_vec,
-  -- output signal to control logic
-	  FR_Q_OUT		=> fr_q,
-	  FR_RD_EN_IN		=> fr_rd_en,
-	  FR_FRAME_VALID_OUT	=> fr_frame_valid,
-	  FR_GET_FRAME_IN	=> fr_get_frame,
-	  FR_FRAME_SIZE_OUT	=> fr_frame_size,
-	  FR_FRAME_PROTO_OUT	=> fr_frame_proto,
-	  FR_IP_PROTOCOL_OUT	=> fr_ip_proto,
-	  FR_ALLOWED_TYPES_IN   => (others => '1'), --fr_allowed_types,
-	  FR_ALLOWED_IP_IN      => (others => '1'), --fr_allowed_ip,
-	  FR_ALLOWED_UDP_IN     => (others => '1'), --fr_allowed_udp,
-	  FR_VLAN_ID_IN		=> (others => '0'), --vlan_id,
-	
-	FR_SRC_MAC_ADDRESS_OUT	=> fr_src_mac,
-	FR_DEST_MAC_ADDRESS_OUT => fr_dest_mac,
-	FR_SRC_IP_ADDRESS_OUT	=> fr_src_ip,
-	FR_DEST_IP_ADDRESS_OUT	=> fr_dest_ip,
-	FR_SRC_UDP_PORT_OUT	=> fr_src_udp,
-	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
-
-	  MONITOR_RX_BYTES_OUT  => monitor_rx_bytes,
-	  MONITOR_RX_FRAMES_OUT => monitor_rx_frames,
-	  MONITOR_DROPPED_OUT   => monitor_dropped
-  );
+--  FRAME_RECEIVER : trb_net16_gbe_frame_receiver
+--  port map(
+--	  CLK			=> CLK,
+--	  RESET			=> RESET,
+--	  LINK_OK_IN		=> link_ok,
+--	  ALLOW_RX_IN		=> allow_rx,
+--	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
+--
+--  -- input signals from TS_MAC
+--	  MAC_RX_EOF_IN		=> mac_rx_eof,
+--	  MAC_RX_ER_IN		=> mac_rx_er,
+--	  MAC_RXD_IN		=> mac_rxd,
+--	  MAC_RX_EN_IN		=> mac_rx_en,
+--	  MAC_RX_FIFO_ERR_IN	=> mac_rx_fifo_err,
+--	  MAC_RX_FIFO_FULL_OUT	=> mac_rx_fifo_full,
+--	  MAC_RX_STAT_EN_IN	=> mac_rx_stat_en,
+--	  MAC_RX_STAT_VEC_IN	=> mac_rx_stat_vec,
+--  -- output signal to control logic
+--	  FR_Q_OUT		=> fr_q,
+--	  FR_RD_EN_IN		=> fr_rd_en,
+--	  FR_FRAME_VALID_OUT	=> fr_frame_valid,
+--	  FR_GET_FRAME_IN	=> fr_get_frame,
+--	  FR_FRAME_SIZE_OUT	=> fr_frame_size,
+--	  FR_FRAME_PROTO_OUT	=> fr_frame_proto,
+--	  FR_IP_PROTOCOL_OUT	=> fr_ip_proto,
+--	  FR_ALLOWED_TYPES_IN   => (others => '1'), --fr_allowed_types,
+--	  FR_ALLOWED_IP_IN      => (others => '1'), --fr_allowed_ip,
+--	  FR_ALLOWED_UDP_IN     => (others => '1'), --fr_allowed_udp,
+--	  FR_VLAN_ID_IN		=> (others => '0'), --vlan_id,
+--	
+--	FR_SRC_MAC_ADDRESS_OUT	=> fr_src_mac,
+--	FR_DEST_MAC_ADDRESS_OUT => fr_dest_mac,
+--	FR_SRC_IP_ADDRESS_OUT	=> fr_src_ip,
+--	FR_DEST_IP_ADDRESS_OUT	=> fr_dest_ip,
+--	FR_SRC_UDP_PORT_OUT	=> fr_src_udp,
+--	FR_DEST_UDP_PORT_OUT	=> fr_dest_udp,
+--
+--	  MONITOR_RX_BYTES_OUT  => monitor_rx_bytes,
+--	  MONITOR_RX_FRAMES_OUT => monitor_rx_frames,
+--	  MONITOR_DROPPED_OUT   => monitor_dropped
+--  );
 
 
 -- in case of real hardware, we use the IP cores for MAC and PHY, and also put a SerDes in
