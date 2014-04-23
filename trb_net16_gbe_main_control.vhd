@@ -589,7 +589,7 @@ end process;
 LINK_STATE_MACHINE_PROC : process(CLK)
 begin
 	if RESET = '1' then
-		link_current_state <= INACTVE;
+		link_current_state <= INACTIVE;
 	elsif rising_edge(CLK) then
 --		--if (RESET = '1') then
 --		if (RESET_FOR_DHCP = '1') then
