@@ -186,214 +186,214 @@ begin
 zeros <= (others => '0');
 
 -- protocol Nr. 1 ARP
---ARP : trb_net16_gbe_response_constructor_ARP
---generic map( STAT_ADDRESS_BASE => 6
---)
---port map (
---	CLK						=> CLK,
---	RESET					=> RESET,
---	
+ARP : trb_net16_gbe_response_constructor_ARP
+generic map( STAT_ADDRESS_BASE => 6
+)
+port map (
+	CLK						=> CLK,
+	RESET					=> RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN				=> PS_DATA_IN,
+	PS_WR_EN_IN				=> PS_WR_EN_IN,
+	PS_ACTIVATE_IN			=> PS_PROTO_SELECT_IN(0),
+	PS_RESPONSE_READY_OUT	=> resp_ready(0),
+	PS_BUSY_OUT				=> busy(0),
+	PS_SELECTED_IN			=> selected(0),
+
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN		=> PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN		=> PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN 			=> TC_RD_EN_IN,
+	TC_DATA_OUT				=> tc_data(1 * 9 - 1 downto 0 * 9),
+	TC_FRAME_SIZE_OUT		=> tc_size(1 * 16 - 1 downto 0 * 16),
+	TC_FRAME_TYPE_OUT		=> tc_type(1 * 16 - 1 downto 0 * 16),
+	TC_IP_PROTOCOL_OUT		=> tc_ip_proto(1 * 8 - 1 downto 0 * 8),
+	TC_IDENT_OUT            => tc_ident(1 * 16 - 1 downto 0 * 16),
+	
+	TC_DEST_MAC_OUT			=> tc_mac(1 * 48 - 1 downto 0 * 48),
+	TC_DEST_IP_OUT			=> tc_ip(1 * 32 - 1 downto 0 * 32),
+	TC_DEST_UDP_OUT			=> tc_udp(1 * 16 - 1 downto 0 * 16),
+	TC_SRC_MAC_OUT			=> tc_src_mac(1 * 48 - 1 downto 0 * 48),
+	TC_SRC_IP_OUT			=> tc_src_ip(1 * 32 - 1 downto 0 * 32),
+	TC_SRC_UDP_OUT			=> tc_src_udp(1 * 16 - 1 downto 0 * 16),
+	
+	STAT_DATA_OUT 			=> stat_data(1 * 32 - 1 downto 0 * 32),
+	STAT_ADDR_OUT 			=> stat_addr(1 * 8 - 1 downto 0 * 8),
+	STAT_DATA_RDY_OUT 		=> stat_rdy(0),
+	STAT_DATA_ACK_IN  		=> stat_ack(0),
+	RECEIVED_FRAMES_OUT		=> open, --RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
+	SENT_FRAMES_OUT			=> open, --SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(1 * 64 - 1 downto 0 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+-- END OF INTERFACE 
+);
+
+-- protocol No. 2 DHCP
+DHCP : trb_net16_gbe_response_constructor_DHCP
+generic map( STAT_ADDRESS_BASE => 0
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET_FOR_DHCP, --RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN		        => PS_DATA_IN,
+	PS_WR_EN_IN		        => PS_WR_EN_IN,
+	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(1),
+	PS_RESPONSE_READY_OUT	=> resp_ready(1),
+	PS_BUSY_OUT		        => busy(1),
+	PS_SELECTED_IN		    => selected(1),
+	
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
+	 
+	TC_RD_EN_IN             => TC_RD_EN_IN,
+	TC_DATA_OUT		        => tc_data(2 * 9 - 1 downto 1 * 9),
+	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
+	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(2 * 8 - 1 downto 1 * 8),
+	TC_IDENT_OUT            => tc_ident(2 * 16 - 1 downto 1 * 16),
+	 
+	TC_DEST_MAC_OUT		    => tc_mac(2 * 48 - 1 downto 1 * 48),
+	TC_DEST_IP_OUT		    => tc_ip(2 * 32 - 1 downto 1 * 32),
+	TC_DEST_UDP_OUT		    => tc_udp(2 * 16 - 1 downto 1 * 16),
+	TC_SRC_MAC_OUT		    => tc_src_mac(2 * 48 - 1 downto 1 * 48),
+	TC_SRC_IP_OUT		    => tc_src_ip(2 * 32 - 1 downto 1 * 32),
+	TC_SRC_UDP_OUT		    => tc_src_udp(2 * 16 - 1 downto 1 * 16),
+	
+	STAT_DATA_OUT           => stat_data(2 * 32 - 1 downto 1 * 32),
+	STAT_ADDR_OUT           => stat_addr(2 * 8 - 1 downto 1 * 8),
+	STAT_DATA_RDY_OUT       => stat_rdy(1),
+	STAT_DATA_ACK_IN        => stat_ack(1),
+	RECEIVED_FRAMES_OUT	    => open, --RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
+	SENT_FRAMES_OUT		    => open, --SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
+-- END OF INTERFACE
+
+	DHCP_START_IN		    => DHCP_START_IN,
+	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
+	 
+	DEBUG_OUT		        => MONITOR_SELECT_GEN_DBG_OUT(2 * 64 - 1 downto 1 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
+ );
+
+ --protocol No. 3 Ping
+Ping : trb_net16_gbe_response_constructor_Ping
+generic map( STAT_ADDRESS_BASE => 3
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET,
+	
 ---- INTERFACE	
---	PS_DATA_IN				=> PS_DATA_IN,
---	PS_WR_EN_IN				=> PS_WR_EN_IN,
---	PS_ACTIVATE_IN			=> PS_PROTO_SELECT_IN(0),
---	PS_RESPONSE_READY_OUT	=> resp_ready(0),
---	PS_BUSY_OUT				=> busy(0),
---	PS_SELECTED_IN			=> selected(0),
---
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN		=> PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN		=> PS_DEST_UDP_PORT_IN,
---	
---	TC_RD_EN_IN 			=> TC_RD_EN_IN,
---	TC_DATA_OUT				=> tc_data(1 * 9 - 1 downto 0 * 9),
---	TC_FRAME_SIZE_OUT		=> tc_size(1 * 16 - 1 downto 0 * 16),
---	TC_FRAME_TYPE_OUT		=> tc_type(1 * 16 - 1 downto 0 * 16),
---	TC_IP_PROTOCOL_OUT		=> tc_ip_proto(1 * 8 - 1 downto 0 * 8),
---	TC_IDENT_OUT            => tc_ident(1 * 16 - 1 downto 0 * 16),
---	
---	TC_DEST_MAC_OUT			=> tc_mac(1 * 48 - 1 downto 0 * 48),
---	TC_DEST_IP_OUT			=> tc_ip(1 * 32 - 1 downto 0 * 32),
---	TC_DEST_UDP_OUT			=> tc_udp(1 * 16 - 1 downto 0 * 16),
---	TC_SRC_MAC_OUT			=> tc_src_mac(1 * 48 - 1 downto 0 * 48),
---	TC_SRC_IP_OUT			=> tc_src_ip(1 * 32 - 1 downto 0 * 32),
---	TC_SRC_UDP_OUT			=> tc_src_udp(1 * 16 - 1 downto 0 * 16),
---	
---	STAT_DATA_OUT 			=> stat_data(1 * 32 - 1 downto 0 * 32),
---	STAT_ADDR_OUT 			=> stat_addr(1 * 8 - 1 downto 0 * 8),
---	STAT_DATA_RDY_OUT 		=> stat_rdy(0),
---	STAT_DATA_ACK_IN  		=> stat_ack(0),
---	RECEIVED_FRAMES_OUT		=> open, --RECEIVED_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
---	SENT_FRAMES_OUT			=> open, --SENT_FRAMES_OUT(1 * 16 - 1 downto 0 * 16),
---	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(1 * 64 - 1 downto 0 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
----- END OF INTERFACE 
---);
---
----- protocol No. 2 DHCP
---DHCP : trb_net16_gbe_response_constructor_DHCP
---generic map( STAT_ADDRESS_BASE => 0
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET_FOR_DHCP, --RESET,
---	
----- INTERFACE	
---	PS_DATA_IN		        => PS_DATA_IN,
---	PS_WR_EN_IN		        => PS_WR_EN_IN,
---	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(1),
---	PS_RESPONSE_READY_OUT	=> resp_ready(1),
---	PS_BUSY_OUT		        => busy(1),
---	PS_SELECTED_IN		    => selected(1),
---	
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
---	 
---	TC_RD_EN_IN             => TC_RD_EN_IN,
---	TC_DATA_OUT		        => tc_data(2 * 9 - 1 downto 1 * 9),
---	TC_FRAME_SIZE_OUT	    => tc_size(2 * 16 - 1 downto 1 * 16),
---	TC_FRAME_TYPE_OUT	    => tc_type(2 * 16 - 1 downto 1 * 16),
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(2 * 8 - 1 downto 1 * 8),
---	TC_IDENT_OUT            => tc_ident(2 * 16 - 1 downto 1 * 16),
---	 
---	TC_DEST_MAC_OUT		    => tc_mac(2 * 48 - 1 downto 1 * 48),
---	TC_DEST_IP_OUT		    => tc_ip(2 * 32 - 1 downto 1 * 32),
---	TC_DEST_UDP_OUT		    => tc_udp(2 * 16 - 1 downto 1 * 16),
---	TC_SRC_MAC_OUT		    => tc_src_mac(2 * 48 - 1 downto 1 * 48),
---	TC_SRC_IP_OUT		    => tc_src_ip(2 * 32 - 1 downto 1 * 32),
---	TC_SRC_UDP_OUT		    => tc_src_udp(2 * 16 - 1 downto 1 * 16),
---	
---	STAT_DATA_OUT           => stat_data(2 * 32 - 1 downto 1 * 32),
---	STAT_ADDR_OUT           => stat_addr(2 * 8 - 1 downto 1 * 8),
---	STAT_DATA_RDY_OUT       => stat_rdy(1),
---	STAT_DATA_ACK_IN        => stat_ack(1),
---	RECEIVED_FRAMES_OUT	    => open, --RECEIVED_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
---	SENT_FRAMES_OUT		    => open, --SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
----- END OF INTERFACE
---
---	DHCP_START_IN		    => DHCP_START_IN,
---	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
---	 
---	DEBUG_OUT		        => MONITOR_SELECT_GEN_DBG_OUT(2 * 64 - 1 downto 1 * 64) --PROTOS_DEBUG_OUT(1 * 32 - 1 downto 0 * 32)
--- );
---
--- --protocol No. 3 Ping
---Ping : trb_net16_gbe_response_constructor_Ping
---generic map( STAT_ADDRESS_BASE => 3
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET,
---	
------- INTERFACE	
---	PS_DATA_IN		        => PS_DATA_IN,
---	PS_WR_EN_IN		        => PS_WR_EN_IN,
---	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(4),
---	PS_RESPONSE_READY_OUT	=> resp_ready(4),
---	PS_BUSY_OUT		        => busy(4),
---	PS_SELECTED_IN		    => selected(4),
---	
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
---	
---	TC_RD_EN_IN             => TC_RD_EN_IN,
---	TC_DATA_OUT		        => tc_data(5 * 9 - 1 downto 4 * 9),
---	TC_FRAME_SIZE_OUT	    => tc_size(5 * 16 - 1 downto 4 * 16),
---	TC_FRAME_TYPE_OUT	    => tc_type(5 * 16 - 1 downto 4 * 16),
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(5 * 8 - 1 downto 4 * 8),
---	TC_IDENT_OUT            => tc_ident(5 * 16 - 1 downto 4 * 16),
---	
---	TC_DEST_MAC_OUT		    => tc_mac(5 * 48 - 1 downto 4 * 48),
---	TC_DEST_IP_OUT	     	=> tc_ip(5 * 32 - 1 downto 4 * 32),
---	TC_DEST_UDP_OUT		    => tc_udp(5 * 16 - 1 downto 4 * 16),
---	TC_SRC_MAC_OUT		    => tc_src_mac(5 * 48 - 1 downto 4 * 48),
---	TC_SRC_IP_OUT		    => tc_src_ip(5 * 32 - 1 downto 4 * 32),
---	TC_SRC_UDP_OUT		    => tc_src_udp(5 * 16 - 1 downto 4 * 16),
---	
---	STAT_DATA_OUT           => open,
---	STAT_ADDR_OUT           => open,
---	STAT_DATA_RDY_OUT       => open,
---	STAT_DATA_ACK_IN        => '0',
---	RECEIVED_FRAMES_OUT  	=> open,
---	SENT_FRAMES_OUT		    => open,
---	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(5 * 64 - 1 downto 4 * 64)
----- END OF INTERFACE
---);
---
---SCTRL : trb_net16_gbe_response_constructor_SCTRL
---generic map( STAT_ADDRESS_BASE => 8
---)
---port map (
---	CLK			            => CLK,
---	RESET			        => RESET,
---	
----- INTERFACE	
---	PS_DATA_IN		        => PS_DATA_IN,
---	PS_WR_EN_IN		        => PS_WR_EN_IN,
---	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(2),
---	PS_RESPONSE_READY_OUT	=> resp_ready(2),
---	PS_BUSY_OUT		        => busy(2),
---	PS_SELECTED_IN		    => selected(2),
---	
---	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
---	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
---	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
---	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
---	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
---	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
---	
---	TC_RD_EN_IN             => TC_RD_EN_IN,
---	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
---	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
---	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
---	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
---	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
---	
---	TC_DEST_MAC_OUT		    => tc_mac(3 * 48 - 1 downto 2 * 48),
---	TC_DEST_IP_OUT		    => tc_ip(3 * 32 - 1 downto 2 * 32),
---	TC_DEST_UDP_OUT		    => tc_udp(3 * 16 - 1 downto 2 * 16),
---	TC_SRC_MAC_OUT		    => tc_src_mac(3 * 48 - 1 downto 2 * 48),
---	TC_SRC_IP_OUT		    => tc_src_ip(3 * 32 - 1 downto 2 * 32),
---	TC_SRC_UDP_OUT		    => tc_src_udp(3 * 16 - 1 downto 2 * 16),
---	
---	STAT_DATA_OUT           => stat_data(3 * 32 - 1 downto 2 * 32),
---	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
---	STAT_DATA_RDY_OUT       => stat_rdy(2),
---	STAT_DATA_ACK_IN        => stat_ack(2),
---	
---	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(3 * 64 - 1 downto 2 * 64),
---	-- END OF INTERFACE
---	
---	GSC_CLK_IN              => GSC_CLK_IN,
---	GSC_INIT_DATAREADY_OUT  => GSC_INIT_DATAREADY_OUT,
---	GSC_INIT_DATA_OUT       => GSC_INIT_DATA_OUT,
---	GSC_INIT_PACKET_NUM_OUT => GSC_INIT_PACKET_NUM_OUT,
---	GSC_INIT_READ_IN        => GSC_INIT_READ_IN,
---	GSC_REPLY_DATAREADY_IN  => GSC_REPLY_DATAREADY_IN,
---	GSC_REPLY_DATA_IN       => GSC_REPLY_DATA_IN,
---	GSC_REPLY_PACKET_NUM_IN => GSC_REPLY_PACKET_NUM_IN,
---	GSC_REPLY_READ_OUT      => GSC_REPLY_READ_OUT,
---	GSC_BUSY_IN             => GSC_BUSY_IN,
---	CFG_ADDITIONAL_HDR_IN   => CFG_ADDITIONAL_HDR_IN,
---	MAKE_RESET_OUT          => MAKE_RESET_OUT,
---	
---	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(3 * 32 - 1 downto 2 * 32),
---	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
---	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
---	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(3 * 32 - 1 downto 2 * 32),
---	
---	DATA_HIST_OUT => SCTRL_HIST_OUT
---);
+	PS_DATA_IN		        => PS_DATA_IN,
+	PS_WR_EN_IN		        => PS_WR_EN_IN,
+	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(4),
+	PS_RESPONSE_READY_OUT	=> resp_ready(4),
+	PS_BUSY_OUT		        => busy(4),
+	PS_SELECTED_IN		    => selected(4),
+	
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN             => TC_RD_EN_IN,
+	TC_DATA_OUT		        => tc_data(5 * 9 - 1 downto 4 * 9),
+	TC_FRAME_SIZE_OUT	    => tc_size(5 * 16 - 1 downto 4 * 16),
+	TC_FRAME_TYPE_OUT	    => tc_type(5 * 16 - 1 downto 4 * 16),
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(5 * 8 - 1 downto 4 * 8),
+	TC_IDENT_OUT            => tc_ident(5 * 16 - 1 downto 4 * 16),
+	
+	TC_DEST_MAC_OUT		    => tc_mac(5 * 48 - 1 downto 4 * 48),
+	TC_DEST_IP_OUT	     	=> tc_ip(5 * 32 - 1 downto 4 * 32),
+	TC_DEST_UDP_OUT		    => tc_udp(5 * 16 - 1 downto 4 * 16),
+	TC_SRC_MAC_OUT		    => tc_src_mac(5 * 48 - 1 downto 4 * 48),
+	TC_SRC_IP_OUT		    => tc_src_ip(5 * 32 - 1 downto 4 * 32),
+	TC_SRC_UDP_OUT		    => tc_src_udp(5 * 16 - 1 downto 4 * 16),
+	
+	STAT_DATA_OUT           => open,
+	STAT_ADDR_OUT           => open,
+	STAT_DATA_RDY_OUT       => open,
+	STAT_DATA_ACK_IN        => '0',
+	RECEIVED_FRAMES_OUT  	=> open,
+	SENT_FRAMES_OUT		    => open,
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(5 * 64 - 1 downto 4 * 64)
+-- END OF INTERFACE
+);
+
+SCTRL : trb_net16_gbe_response_constructor_SCTRL
+generic map( STAT_ADDRESS_BASE => 8
+)
+port map (
+	CLK			            => CLK,
+	RESET			        => RESET,
+	
+-- INTERFACE	
+	PS_DATA_IN		        => PS_DATA_IN,
+	PS_WR_EN_IN		        => PS_WR_EN_IN,
+	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(2),
+	PS_RESPONSE_READY_OUT	=> resp_ready(2),
+	PS_BUSY_OUT		        => busy(2),
+	PS_SELECTED_IN		    => selected(2),
+	
+	PS_SRC_MAC_ADDRESS_IN	=> PS_SRC_MAC_ADDRESS_IN,
+	PS_DEST_MAC_ADDRESS_IN  => PS_DEST_MAC_ADDRESS_IN,
+	PS_SRC_IP_ADDRESS_IN	=> PS_SRC_IP_ADDRESS_IN,
+	PS_DEST_IP_ADDRESS_IN	=> PS_DEST_IP_ADDRESS_IN,
+	PS_SRC_UDP_PORT_IN	    => PS_SRC_UDP_PORT_IN,
+	PS_DEST_UDP_PORT_IN	    => PS_DEST_UDP_PORT_IN,
+	
+	TC_RD_EN_IN             => TC_RD_EN_IN,
+	TC_DATA_OUT		        => tc_data(3 * 9 - 1 downto 2 * 9),
+	TC_FRAME_SIZE_OUT	    => tc_size(3 * 16 - 1 downto 2 * 16),
+	TC_FRAME_TYPE_OUT	    => tc_type(3 * 16 - 1 downto 2 * 16),
+	TC_IP_PROTOCOL_OUT	    => tc_ip_proto(3 * 8 - 1 downto 2 * 8),
+	TC_IDENT_OUT            => tc_ident(3 * 16 - 1 downto 2 * 16),
+	
+	TC_DEST_MAC_OUT		    => tc_mac(3 * 48 - 1 downto 2 * 48),
+	TC_DEST_IP_OUT		    => tc_ip(3 * 32 - 1 downto 2 * 32),
+	TC_DEST_UDP_OUT		    => tc_udp(3 * 16 - 1 downto 2 * 16),
+	TC_SRC_MAC_OUT		    => tc_src_mac(3 * 48 - 1 downto 2 * 48),
+	TC_SRC_IP_OUT		    => tc_src_ip(3 * 32 - 1 downto 2 * 32),
+	TC_SRC_UDP_OUT		    => tc_src_udp(3 * 16 - 1 downto 2 * 16),
+	
+	STAT_DATA_OUT           => stat_data(3 * 32 - 1 downto 2 * 32),
+	STAT_ADDR_OUT           => stat_addr(3 * 8 - 1 downto 2 * 8),
+	STAT_DATA_RDY_OUT       => stat_rdy(2),
+	STAT_DATA_ACK_IN        => stat_ack(2),
+	
+	DEBUG_OUT				=> MONITOR_SELECT_GEN_DBG_OUT(3 * 64 - 1 downto 2 * 64),
+	-- END OF INTERFACE
+	
+	GSC_CLK_IN              => GSC_CLK_IN,
+	GSC_INIT_DATAREADY_OUT  => GSC_INIT_DATAREADY_OUT,
+	GSC_INIT_DATA_OUT       => GSC_INIT_DATA_OUT,
+	GSC_INIT_PACKET_NUM_OUT => GSC_INIT_PACKET_NUM_OUT,
+	GSC_INIT_READ_IN        => GSC_INIT_READ_IN,
+	GSC_REPLY_DATAREADY_IN  => GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN       => GSC_REPLY_DATA_IN,
+	GSC_REPLY_PACKET_NUM_IN => GSC_REPLY_PACKET_NUM_IN,
+	GSC_REPLY_READ_OUT      => GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN             => GSC_BUSY_IN,
+	CFG_ADDITIONAL_HDR_IN   => CFG_ADDITIONAL_HDR_IN,
+	MAKE_RESET_OUT          => MAKE_RESET_OUT,
+	
+	MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT(3 * 32 - 1 downto 2 * 32),
+	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT(3 * 32 - 1 downto 2 * 32),
+	
+	DATA_HIST_OUT => SCTRL_HIST_OUT
+);
 
 TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 port map (

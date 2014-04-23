@@ -744,7 +744,7 @@ buf_stat_debug(11 downto 0)  <= sd_rx_debug(11 downto 0);
  
  SGMII_GBE_PCS : sgmii_gbe_pcs35 --sgmii_gbe_pcs36 --sgmii_gbe_pcs35
  port map(
- 	rst_n				=> GSR_N,
+ 	rst_n				=> rst_n, --GSR_N,
  	signal_detect			=> signal_detected,
  	gbe_mode			=> '1',
  	sgmii_mode			=> '0',
