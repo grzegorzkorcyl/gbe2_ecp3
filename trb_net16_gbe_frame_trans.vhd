@@ -113,8 +113,10 @@ debug(63 downto 32) <= (others => '0');
 
 TransmitStateMachineProc : process (TX_MAC_CLK)
 begin
-	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
+	if RESET = '1' then
+		transmitCurrentState <= T_IDLE;
+	elsif rising_edge(TX_MAC_CLK) then
+		if (LINK_OK_IN = '0') then -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;

@@ -245,12 +245,14 @@ end process ipCsProc;
 
 constructMachineProc: process( CLK )
 begin
-	if( rising_edge(CLK) ) then
-		if( RESET = '1' ) then
-			constructCurrentState <= IDLE;
-		else
+	if RESET = '1' then
+		constructCurrentState <= IDLE;
+	elsif( rising_edge(CLK) ) then
+--		if( RESET = '1' ) then
+--			constructCurrentState <= IDLE;
+--		else
 			constructCurrentState <= constructNextState;
-		end if;
+--		end if;
 	end if;
 end process constructMachineProc;
 
@@ -522,8 +524,10 @@ end process;
 
 transmitMachineProc: process( RD_CLK )
 begin
-	if( rising_edge(RD_CLK) ) then
-		if( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+	if RESET = '1' then
+		transmitCurrentState <= T_IDLE;
+	elsif( rising_edge(RD_CLK) ) then
+		if (link_ok_125 = '0') then  -- gk 01.10.10
 			transmitCurrentState <= T_IDLE;
 		else
 			transmitCurrentState <= transmitNextState;

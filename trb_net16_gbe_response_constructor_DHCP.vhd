@@ -175,12 +175,14 @@ end process SAVE_SERVER_ADDR_PROC;
 
 MAIN_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			main_current_state <= BOOTING;
-		else
+	if RESET = '1' then
+		main_current_state <= BOOTING;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			main_current_state <= BOOTING;
+--		else
 			main_current_state <= main_next_state;
-		end if;
+--		end if;
 	end if;
 end process MAIN_MACHINE_PROC;
 
@@ -439,8 +441,10 @@ end process SAVE_VALUES_PROC;
 
 CONSTRUCT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING) then
+	if RESET = '1' then
+			construct_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+		if (main_current_state = BOOTING) then
 			construct_current_state <= IDLE;
 		else
 			construct_current_state <= construct_next_state;

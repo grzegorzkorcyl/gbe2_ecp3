@@ -477,16 +477,18 @@ TC_FRAME_SIZE_OUT   <= tx_data_ctr;
 
 DISSECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			if (g_SIMULATE = 0) then
-				dissect_current_state <= IDLE;
-			else
-				dissect_current_state <= WAIT_FOR_RESPONSE;
-			end if;
-		else
+	if RESET = '1' then
+		dissect_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			if (g_SIMULATE = 0) then
+--				dissect_current_state <= IDLE;
+--			else
+--				dissect_current_state <= WAIT_FOR_RESPONSE;
+--			end if;
+--		else
 			dissect_current_state <= dissect_next_state;
-		end if;
+--		end if;
 	end if;
 end process DISSECT_MACHINE_PROC;
 

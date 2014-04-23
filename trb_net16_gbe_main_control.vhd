@@ -380,12 +380,14 @@ end process SYNC_PROC;
 
 REDIRECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
+	if RESET = '1' then
 			redirect_current_state <= IDLE;
-		else
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			redirect_current_state <= IDLE;
+--		else
 			redirect_current_state <= redirect_next_state;
-		end if;
+--		end if;
 	end if;
 end process REDIRECT_MACHINE_PROC;
 
@@ -517,12 +519,14 @@ end process FIRST_BYTE_PROC;
 
 FLOW_MACHINE_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      flow_current_state <= IDLE;
-    else
+	if RESET = '1' then
+			flow_current_state <= IDLE;
+  elsif rising_edge(CLK) then
+--    if (RESET = '1') then
+--      flow_current_state <= IDLE;
+--    else
       flow_current_state <= flow_next_state;
-    end if;
+--    end if;
   end if;
 end process FLOW_MACHINE_PROC;
 
@@ -584,17 +588,19 @@ end process;
 
 LINK_STATE_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		--if (RESET = '1') then
-		if (RESET_FOR_DHCP = '1') then
-			if (g_SIMULATE = 0) then
-				link_current_state <= INACTIVE;
-			else
-				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
-			end if;
-		else
+	if RESET = '1' then
+		link_current_state <= INACTVE;
+	elsif rising_edge(CLK) then
+--		--if (RESET = '1') then
+--		if (RESET_FOR_DHCP = '1') then
+--			if (g_SIMULATE = 0) then
+--				link_current_state <= INACTIVE;
+--			else
+--				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
+--			end if;
+--		else
 			link_current_state <= link_next_state;
-		end if;
+--		end if;
 	end if;
 end process;
 

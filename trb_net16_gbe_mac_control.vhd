@@ -88,12 +88,14 @@ reg_tx_rx_ctrl1(0)           <= MC_PROMISC_IN; -- promiscuous mode
 
 MAC_CONF_MACHINE_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      mac_conf_current_state <= IDLE;
-    else
+	if RESET = '1' then
+		mac_conf_current_state <= IDLE;
+  elsif rising_edge(CLK) then
+--    if (RESET = '1') then
+--      mac_conf_current_state <= IDLE;
+--    else
       mac_conf_current_state <= mac_conf_next_state;
-    end if;
+--    end if;
   end if;
 end process MAC_CONF_MACHINE_PROC;
 

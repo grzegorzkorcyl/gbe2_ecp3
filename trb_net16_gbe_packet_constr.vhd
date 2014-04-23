@@ -239,12 +239,14 @@ end process dfQProc;
 -- Construction state machine
 constructMachineProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			constructCurrentState <= CIDLE;
-		else
+	if RESET = '1' then
+		constructCurrentState <= CIDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			constructCurrentState <= CIDLE;
+--		else
 			constructCurrentState <= constructNextState;
-		end if;
+--		end if;
 	end if;
 end process constructMachineProc;
 
@@ -311,12 +313,14 @@ end process queueSizeProc;
 
 loadMachineProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
+	if RESET = '1' then
 			loadCurrentState <= LIDLE;
-		else
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			loadCurrentState <= LIDLE;
+--		else
 			loadCurrentState <= loadNextState;
-		end if;
+--		end if;
 	end if;
 end process loadMachineProc;
 
@@ -940,12 +944,14 @@ end process shfDataProc;
 
 saveSubMachineProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			saveSubCurrentState <= SIDLE;
-		else
+	if RESET = '1' then
+		saveSubCurrentState <= SIDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			saveSubCurrentState <= SIDLE;
+--		else
 			saveSubCurrentState <= saveSubNextState;
-		end if;
+--		end if;
 	end if;
 end process saveSubMachineProc;
 

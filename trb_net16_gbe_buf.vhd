@@ -602,10 +602,13 @@ signal dbg_hist, dbg_hist2 : hist_array;
 signal soft_gbe_reset, soft_rst, dhcp_done : std_logic;
 signal rst_ctr : std_logic_vector(24 downto 0);
 signal mac_reset : std_logic;
+signal global_reset : std_logic;
 
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
+
+global_reset <= not GSR_N;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
@@ -623,8 +626,8 @@ MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
-	  RESET			=> RESET,
-	  RESET_FOR_DHCP => '0', --soft_gbe_reset, --'0', --reset_dhcp,
+	  RESET			=> global_reset, --RESET,
+	  RESET_FOR_DHCP => global_reset, --'0', --soft_gbe_reset, --'0', --reset_dhcp,
 
 	  MC_LINK_OK_OUT	=> link_ok,
 	  MC_RESET_LINK_IN	=> '0',
@@ -747,7 +750,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET,
+	RESET			=> global_reset, --RESET,
 
 -- signal to/from main controller
 	TC_DATAREADY_IN        => mc_transmit_ctrl,
@@ -794,7 +797,7 @@ setup_imp_gen : if (DO_SIMULATION = 0) generate
 SETUP : gbe_setup
 port map(
 	CLK                         => CLK,  
-	RESET                       => RESET,
+	RESET                       => global_reset, --RESET,
 
 	-- interface to regio bus
 	BUS_ADDR_IN                 => BUS_ADDR_IN,     
@@ -847,7 +850,7 @@ end generate;
 FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
 port map( 
 	-- ports for user logic
-	RESET				=> RESET,
+	RESET				=> global_reset, --RESET,
 	CLK				    => CLK,
 	LINK_OK_IN			=> '1', --link_ok,
 	--
@@ -890,7 +893,7 @@ port map(
 RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET,
+	RESET			=> global_reset, --RESET,
 
 -- signals to/from frame_receiver
 	RC_DATA_IN		=> fr_q,
@@ -935,7 +938,7 @@ dbg_q(15 downto 9) <= (others  => '0');
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
 port map( 
 	CLK				=> CLK,
-	RESET				=> RESET,
+	RESET				=> global_reset, --RESET,
 	LINK_OK_IN			=> link_ok, --pcs_an_complete,  -- gk 03.08.10  -- gk 30.09.10
 	TX_MAC_CLK			=> serdes_clk_125,
 	TX_EMPTY_IN			=> ft_tx_empty,
@@ -964,7 +967,7 @@ port map(
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
 	  CLK			=> CLK,
-	  RESET			=> RESET,
+	  RESET			=> global_reset, --RESET,
 	  LINK_OK_IN		=> link_ok,
 	  ALLOW_RX_IN		=> allow_rx,
 	  RX_MAC_CLK		=> serdes_rx_clk, --serdes_clk_125,
@@ -1044,7 +1047,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 		hclk				=> CLK,
 		txmac_clk			=> serdes_clk_125,
 		rxmac_clk			=> serdes_rx_clk, --serdes_clk_125,
-		reset_n				=> mac_reset, --GSR_N,
+		reset_n				=> GSR_N,
 		txmac_clk_en			=> mac_tx_clk_en,
 		rxmac_clk_en			=> mac_rx_clk_en,
 	------------------- Input signals to the GMII ----------------  NOT USED
@@ -1143,7 +1146,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 0
 		)
 		port map(
-			RESET				=> soft_gbe_reset, --RESET,
+			RESET				=> global_reset, --soft_gbe_reset, --RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk, --open,
@@ -1193,7 +1196,7 @@ imp_gen: if (DO_SIMULATION = 0) generate
 			USE_125MHZ_EXTCLK		=> 1
 		)
 		port map(
-			RESET				=> soft_gbe_reset, --RESET,
+			RESET				=> global_reset, --soft_gbe_reset, --RESET,
 			GSR_N				=> GSR_N,
 			CLK_125_OUT			=> serdes_clk_125,
 			CLK_125_RX_OUT			=> serdes_rx_clk,

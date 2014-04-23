@@ -556,12 +556,14 @@ PS_BUSY_OUT <= busy;
 
 SELECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			select_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		select_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			select_current_state <= IDLE;
+--		else
 			select_current_state <= select_next_state;
-		end if;
+--		end if;
 	end if;
 end process SELECT_MACHINE_PROC;
 

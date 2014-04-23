@@ -80,12 +80,14 @@ begin
 
 TRANSMIT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			transmit_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		transmit_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			transmit_current_state <= IDLE;
+--		else
 			transmit_current_state <= transmit_next_state;
-		end if;
+--		end if;
 	end if;
 end process TRANSMIT_MACHINE_PROC;
 

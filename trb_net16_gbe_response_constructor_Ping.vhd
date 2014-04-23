@@ -109,12 +109,14 @@ begin
 
 DISSECT_MACHINE_PROC : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			dissect_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		dissect_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+--		if (RESET = '1') then
+--			dissect_current_state <= IDLE;
+--		else
 			dissect_current_state <= dissect_next_state;
-		end if;
+--		end if;
 	end if;
 end process DISSECT_MACHINE_PROC;
 

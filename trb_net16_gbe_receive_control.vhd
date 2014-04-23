@@ -121,12 +121,14 @@ RC_FRAME_PROTO_OUT <= proto_code;  -- no more ones as the incorrect value, last 
 
 LOAD_MACHINE_PROC : process(CLK)
 begin
-  if rising_edge(CLK) then
-    if (RESET = '1') then
-      load_current_state <= IDLE;
-    else
+	if RESET = '1' then
+		load_current_state <= IDLE;
+  elsif rising_edge(CLK) then
+--    if (RESET = '1') then
+--      load_current_state <= IDLE;
+--    else
       load_current_state <= load_next_state;
-    end if;
+--    end if;
   end if;
 end process LOAD_MACHINE_PROC;
 

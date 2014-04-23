@@ -106,12 +106,14 @@ begin
 
 SAVE_MACHINE_PROC : process(CLK_IPU)
 begin
-	if rising_edge(CLK_IPU) then
-		if (RESET = '1') then
+	if RESET = '1' then
 			save_current_state <= IDLE;
-		else
+	elsif rising_edge(CLK_IPU) then
+--		if (RESET = '1') then
+--			save_current_state <= IDLE;
+--		else
 			save_current_state <= save_next_state;
-		end if;
+--		end if;
 	end if;
 end process SAVE_MACHINE_PROC;
 
@@ -399,12 +401,14 @@ end process PC_DATA_PROC;
 
 LOAD_MACHINE_PROC : process(CLK_GBE)
 begin
-	if rising_edge(CLK_GBE) then
-		if (RESET = '1') then
-			load_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		load_current_state <= IDLE;
+	elsif rising_edge(CLK_GBE) then
+--		if (RESET = '1') then
+--			load_current_state <= IDLE;
+--		else
 			load_current_state <= load_next_state;
-		end if;
+--		end if;
 	end if;
 end process LOAD_MACHINE_PROC;
 

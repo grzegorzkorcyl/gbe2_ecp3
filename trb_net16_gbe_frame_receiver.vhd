@@ -141,12 +141,14 @@ end process NEW_FRAME_PROC;
 
 FILTER_MACHINE_PROC : process(RX_MAC_CLK)
 begin
-	if rising_edge(RX_MAC_CLK) then
-		if (RESET = '1') then
-			filter_current_state <= IDLE;
-		else
+	if RESET = '1' then
+		filter_current_state <= IDLE;
+	elsif rising_edge(RX_MAC_CLK) then
+--		if (RESET = '1') then
+--			filter_current_state <= IDLE;
+--		else
 			filter_current_state <= filter_next_state;
-		end if;
+--		end if;
 	end if;
 end process FILTER_MACHINE_PROC;
 
