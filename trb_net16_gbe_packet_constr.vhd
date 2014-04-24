@@ -810,7 +810,7 @@ end process actualQueueSizeProc;
 -- amount of bytes left to send in current packet
 sizeLeftProc : process(CLK)
 begin
-	if (RESET = '1') or 
+	if (RESET = '1') then 
 		size_left <= (others => '0');
 	elsif rising_edge(CLK) then
 		if (loadCurrentState = CLEANUP) then

@@ -341,7 +341,7 @@ begin
 		elsif (filter_current_state = REMOVE_IP) and (remove_ctr = x"11") then
 			saved_dest_ip(31 downto 24) <= MAC_RXD_IN;
 		else
-			saved_dest_ip;
+			saved_dest_ip <= saved_dest_ip;
 		end if;
 	end if;
 end process SAVED_DEST_IP_PROC;
