@@ -418,7 +418,7 @@ begin
 
 		when IDLE =>
 			load_state <= x"1";
-			if (saved_events_ctr /= loaded_events_ctr) then
+			if (saved_events_ctr_gbe /= loaded_events_ctr) then
 				load_next_state <= REMOVE;
 			else
 				load_next_state <= IDLE;
