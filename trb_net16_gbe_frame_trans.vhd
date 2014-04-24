@@ -157,7 +157,7 @@ end process TransmitStateMachine;
 FifoAvailProc : process (TX_MAC_CLK)
 begin
 	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
+		if (LINK_OK_IN = '0') then -- gk 01.10.10
 			tx_fifoavail_i <= '0';
 		elsif (transmitCurrentState = T_TRANSMIT) then
 			tx_fifoavail_i <= '1';
@@ -169,7 +169,7 @@ end process FifoAvailProc;
 
 FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
 begin
-	if (RESET = '1') or (LINK_OK_IN = '0') then -- gk 01.10.10
+	if (LINK_OK_IN = '0') then -- gk 01.10.10
 		FifoEmpty <= '1';
 	elsif    (transmitCurrentState = T_WAITFORFIFO) then
 		FifoEmpty <= '1';
@@ -187,11 +187,13 @@ tx_fifoeof_i <= '1' when ((DATA_ENDFLAG_IN = '1') and (transmitCurrentState = T_
 					
 SENT_CTR_PROC : process(TX_MAC_CLK)
 begin
-	if rising_edge(TX_MAC_CLK) then
-		if (RESET = '1') then
+	if (RESET = '1') then
 			sent_ctr <= (others => '0');
-		elsif (TX_DONE_IN = '1') and (TX_STAT_EN_IN = '1') and (TX_STATVEC_IN(0) = '1')  then
+	elsif rising_edge(TX_MAC_CLK) then
+		if (TX_DONE_IN = '1') and (TX_STAT_EN_IN = '1') and (TX_STATVEC_IN(0) = '1')  then
 			sent_ctr <= sent_ctr + x"1";
+		else
+			sent_ctr <= sent_ctr;
 		end if;
 	end if;
 end process SENT_CTR_PROC;

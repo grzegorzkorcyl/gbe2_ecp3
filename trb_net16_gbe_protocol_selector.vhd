@@ -616,7 +616,7 @@ end process SELECT_MACHINE;
 INDEX_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (select_current_state = IDLE) then
+		if (select_current_state = IDLE) then
 			index <= 0;
 		elsif (select_current_state = LOOP_OVER and resp_ready(index) = '0') then
 			index <= index + 1;
@@ -629,21 +629,7 @@ end process INDEX_PROC;
 SELECTOR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			TC_DATA_OUT           <= (others => '0');
-			TC_FRAME_SIZE_OUT     <= (others => '0');
-			TC_FRAME_TYPE_OUT     <= (others => '0');
-			TC_DEST_MAC_OUT       <= (others => '0');
-			TC_DEST_IP_OUT        <= (others => '0');
-			TC_DEST_UDP_OUT       <= (others => '0');
-			TC_SRC_MAC_OUT        <= (others => '0');
-			TC_SRC_IP_OUT         <= (others => '0');
-			TC_SRC_UDP_OUT        <= (others => '0');
-			TC_IP_PROTOCOL_OUT    <= (others => '0');
-			TC_IDENT_OUT          <= (others => '0');
-			PS_RESPONSE_READY_OUT <= '0';
-			selected              <= (others => '0');
-		elsif (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
+		if (select_current_state = SELECT_ONE or select_current_state = PROCESS_REQUEST) then
 			TC_DATA_OUT           <= tc_data((index + 1) * 9 - 1 downto index * 9);
 			TC_FRAME_SIZE_OUT     <= tc_size((index + 1) * 16 - 1 downto index * 16);
 			TC_FRAME_TYPE_OUT     <= tc_type((index + 1) * 16 - 1 downto index * 16);

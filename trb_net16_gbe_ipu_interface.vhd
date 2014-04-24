@@ -258,10 +258,10 @@ end process SF_DATA_EOD_PROC;
 
 SAVED_EVENTS_CTR_PROC : process(CLK_IPU)
 begin
-	if rising_edge(CLK_IPU) then
-		if (RESET = '1') then
-			saved_events_ctr <= (others => '0');
-		elsif (save_current_state = ADD_SUBSUB4) then
+	if (RESET = '1') then
+		saved_events_ctr <= (others => '0');
+	elsif rising_edge(CLK_IPU) then
+		if (save_current_state = ADD_SUBSUB4) then
 			saved_events_ctr <= saved_events_ctr + x"1";
 		else
 			saved_events_ctr <= saved_events_ctr;
@@ -566,10 +566,10 @@ end process TRIGGER_TYPE_PROC;
 
 LOADED_EVENTS_CTR_PROC : process(CLK_GBE)
 begin
-	if rising_edge(CLK_GBE) then
-		if (RESET = '1') then
-			loaded_events_ctr <= (others => '0');
-		elsif (load_current_state = CLOSE) then
+	if (RESET = '1') then
+		loaded_events_ctr <= (others => '0');
+	elsif rising_edge(CLK_GBE) then
+		if (load_current_state = CLOSE) then
 			loaded_events_ctr <= loaded_events_ctr + x"1";
 		else
 			loaded_events_ctr <= loaded_events_ctr;
@@ -597,7 +597,7 @@ end process LOADED_BYTES_CTR_PROC;
 READOUT_CTR_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (RESET = '1' or READOUT_CTR_VALID_IN = '1') then
+		if (READOUT_CTR_VALID_IN = '1') then
 			readout_ctr <= READOUT_CTR_IN;
 		elsif (load_current_state = DECIDE) then
 			readout_ctr <= readout_ctr + x"1";

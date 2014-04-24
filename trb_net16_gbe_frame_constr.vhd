@@ -165,7 +165,7 @@ end process sizeProc;
 ipCsProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (constructCurrentState = IDLE) then
+		if (constructCurrentState = IDLE) then
 			ip_checksum <= x"00000000";
 		else
 			case constructCurrentState is
@@ -334,7 +334,7 @@ end process constructMachine;
 delayCtrProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (constructCurrentState = IDLE) or (constructCurrentState = CLEANUP) then
+		if (constructCurrentState = IDLE) or (constructCurrentState = CLEANUP) then
 			delay_ctr <= (others => '0');
 		elsif (constructCurrentState = DELAY) then
 			delay_ctr <= delay_ctr + x"1";
@@ -378,7 +378,7 @@ end process;
 headersIntProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (constructCurrentState = IDLE) then
+		if (constructCurrentState = IDLE) then
 			headers_int_counter <= 0;
 		else
 			if (headers_int_counter = cur_max) then
@@ -395,7 +395,7 @@ end process headersIntProc;
 putUdpHeadersProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (FLAGS_OFFSET_IN(12 downto 0) = "0000000000000") then
+		if (FLAGS_OFFSET_IN(12 downto 0) = "0000000000000") then
 			put_udp_headers <= '1';
 		else
 			put_udp_headers <= '0';
@@ -405,7 +405,7 @@ end process putUdpHeadersProc;
 
 fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
 begin
-	if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
+	if (LINK_OK_IN = '0') then  -- gk 01.10.10
 		fpf_wr_en <= '0';
 	elsif (constructCurrentState /= IDLE) and (constructCurrentState /= CLEANUP) and (constructCurrentState /= SAVE_DATA)  and (constructCurrentState /= DELAY) then
 		fpf_wr_en <= '1';
@@ -461,10 +461,12 @@ end process syncProc;
 readyFramesCtrProc: process( CLK )
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if (LINK_OK_IN = '0') then  -- gk 01.10.10
 			ready_frames_ctr <= (others => '0');
 		elsif (constructCurrentState = CLEANUP) then
 			ready_frames_ctr <= ready_frames_ctr + 1;
+		else
+			ready_frames_ctr <= ready_frames_ctr;
 		end if;
 	end if;
 end process readyFramesCtrProc;
@@ -472,7 +474,7 @@ end process readyFramesCtrProc;
 fpfResetProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or LINK_OK_IN = '0') then
+		if (LINK_OK_IN = '0') then
 			fpf_reset <= '1';
 		else
 			fpf_reset <= '0';
@@ -578,7 +580,7 @@ end process transmitMachine;
 sopProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (link_ok_125 = '0') then  -- gk 01.10.10
+		if (link_ok_125 = '0') then  -- gk 01.10.10
 			ft_sop <= '0';
 		elsif ((transmitCurrentState = T_IDLE) and (sent_frames_ctr /= ready_frames_ctr_q)) then
 			ft_sop <= '1';
@@ -591,7 +593,7 @@ end process sopProc;
 sentFramesCtrProc: process( RD_CLK )
 begin
 	if rising_edge(RD_CLK) then
-		if   ( RESET = '1' ) or (LINK_OK_IN = '0') then  -- gk 01.10.10
+		if (LINK_OK_IN = '0') then  -- gk 01.10.10
 			sent_frames_ctr <= (others => '0');
 			mon_sent_frames <= (others => '0');
 		elsif( FT_TX_DONE_IN = '1' ) or (FT_TX_DISCFRM_IN = '1') then
@@ -619,7 +621,7 @@ MONITOR_TX_FRAMES_OUT   <= mon_sent_frames;
 process(RD_CLK)
 begin
 	if rising_edge(RD_CLK) then
-		if (RESET = '1') or (LINK_OK_IN = '0') then
+		if (LINK_OK_IN = '0') then
 			mon_sent_bytes <= (others => '0');
 		elsif (fpf_rd_en = '1') then
 			mon_sent_bytes <= mon_sent_bytes + x"1";

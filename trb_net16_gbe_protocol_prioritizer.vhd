@@ -37,12 +37,11 @@ begin
 
 PRIORITIZE : process(CLK, FRAME_TYPE_IN, PROTOCOL_CODE_IN)
 begin
-	
-	if rising_edge(CLK) then
+	if RESET = '1' then
+		CODE_OUT <= (others => '0');
+	elsif rising_edge(CLK) then
 	
 		CODE_OUT <= (others => '0');
-
-		if (RESET = '0') then
 				
 			--**** HERE ADD YOU PROTOCOL RECOGNITION AT WANTED PRIORITY LEVEL
 			-- priority level is the bit position in the CODE_OUT vector
@@ -79,8 +78,6 @@ begin
 			
 			end case;
 			
-		end if;
-		
 	end if;
 
 end process PRIORITIZE;

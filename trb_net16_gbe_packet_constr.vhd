@@ -178,12 +178,12 @@ pc_ready <= '1' when (constructCurrentState = CIDLE) and (df_empty = '1') else '
 THE_EVT_INFO_STORE_PROC: process( CLK )
 begin
 	if( rising_edge(CLK) ) then
-		if (RESET = '1') then  -- gk 31.05.10
-			pc_sub_size <= (others => '0');
-			pc_trig_nr <= (others => '0');
-		elsif( PC_START_OF_SUB_IN = '1' ) then
+		if( PC_START_OF_SUB_IN = '1' ) then
 			pc_sub_size <= PC_SUB_SIZE_IN;
 			pc_trig_nr  <= PC_TRIG_NR_IN;
+		else
+			pc_sub_size <= pc_sub_size;
+			pc_trig_nr  <= pc_trig_nr;
 		end if;
 	end if;
 end process;
@@ -214,11 +214,7 @@ port map(
 LOAD_EOD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			load_eod_q <= '0';
-		else
-			load_eod_q <= load_eod;
-		end if;
+		load_eod_q <= load_eod;
 	end if;
 end process LOAD_EOD_PROC;
 
@@ -296,12 +292,16 @@ sub_size_to_save <= (x"10" + pc_sub_size) when (PC_PADDING_IN = '0')
 -- gk 29.03.10 no changes here because the queue size should contain the padding bytes of subevents
 queueSizeProc : process(CLK)
 begin
-	if rising_edge(CLK) then
+	if (RESET = '1') then
+		queue_size <= x"00000028";  -- + 8B for queue headers and 32B for termination
+	elsif rising_edge(CLK) then
 		--if (RESET = '1') or (loadCurrentState = PUT_Q_DEC) then -- gk 07.10.10 -- (loadCurrentState = CLEANUP) then
-		if (RESET = '1') or (loadCurrentState = CLEANUP) then
+		if (loadCurrentState = CLEANUP) then
 			queue_size <= x"00000028";  -- + 8B for queue headers and 32B for termination
 		elsif (saveSubCurrentState = SAVE_SIZE) and (sub_int_ctr = 3) then
 			queue_size <= queue_size + pc_sub_size + x"10"; -- + 16B for each subevent headers
+		else
+			queue_size <= queue_size;
 		end if;
 	end if;
 end process queueSizeProc;
@@ -453,11 +453,15 @@ end process loadMachine;
 -- gk 04.12.10
 firstSubInMultiProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LOAD_TERM) then
+	if (RESET = '1') then
+		first_sub_in_multi <= '1';
+	elsif rising_edge(CLK) then
+		if (loadCurrentState = LOAD_TERM) then
 			first_sub_in_multi <= '1';
 		elsif (loadCurrentState = LOAD_DATA) then
 			first_sub_in_multi <= '0';
+		else
+			first_sub_in_multi <= first_sub_in_multi; 				
 		end if;
 	end if;
 end process;
@@ -465,13 +469,15 @@ end process;
 -- gk 04.12.10
 fromDivideStateProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			from_divide_state <= '0';
-		elsif (loadCurrentState = DIVIDE) then
+	if (RESET = '1') then
+		from_divide_state <= '0';
+	elsif rising_edge(CLK) then
+		if (loadCurrentState = DIVIDE) then
 			from_divide_state <= '1';
 		elsif (loadCurrentState = PREP_DATA) then
 			from_divide_state <= '0';
+		else
+			from_divide_state <= from_divide_state;
 		end if;
 	end if;
 end process fromDivideStateProc;
@@ -479,10 +485,11 @@ end process fromDivideStateProc;
 
 dividePositionProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			divide_position <= "00";
-		elsif (bytes_loaded = max_frame_size - 1) then
+	if (RESET = '1') then
+		divide_position <= "00";
+		disable_prep <= '0';
+	elsif rising_edge(CLK) then
+		if (bytes_loaded = max_frame_size - 1) then
 			if (loadCurrentState = LIDLE) then
 				divide_position <= "00";
 				disable_prep    <= '0';  -- gk 05.12.10
@@ -515,9 +522,16 @@ begin
 			elsif (loadCurrentState = LOAD_TERM) then
 				divide_position <= "11";
 				disable_prep    <= '0';  -- gk 05.12.10
+			else
+				divide_position <= divide_position;
+				disable_prep <= disable_prep;
 			end if;
 		elsif (loadCurrentState = PREP_DATA) then  -- gk 06.12.10 reset disable_prep
 			disable_prep <= '0';
+			divide_position <= divide_position;
+		else
+			divide_position <= divide_position;
+			disable_prep <= disable_prep;
 		end if;
 
 	end if;
@@ -525,10 +539,9 @@ end process dividePositionProc;
 
 allIntCtrProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then  -- gk 31.05.10
-			all_int_ctr <= 0;
-		else
+	if (RESET = '1') then  -- gk 31.05.10
+		all_int_ctr <= 0;
+	elsif rising_edge(CLK) then
 			case loadCurrentState is
 	
 				when LIDLE => all_int_ctr <= 0;
@@ -573,16 +586,13 @@ begin
 	
 				when DELAY => all_int_ctr <= 0;
 			end case;
-		end if;
 	end if;
 end process allIntCtrProc;
 
 dfRdEnProc : process(loadCurrentState, bytes_loaded, max_frame_size, sub_bytes_loaded, 
 					 sub_size_loaded, all_int_ctr, RESET, size_left, load_eod_q)
 begin
-	if (RESET = '1') then
-		df_rd_en <= '0';
-	elsif (loadCurrentState = LOAD_DATA) then
+	if (loadCurrentState = LOAD_DATA) then
 -- 		if (bytes_loaded = max_frame_size - x"1") then
 -- 			df_rd_en <= '0';
 -- 		-- gk 07.10.10
@@ -617,9 +627,7 @@ end process dfRdEnProc;
 
 shfRdEnProc : process(loadCurrentState, all_int_ctr, RESET)
 begin
-	if (RESET = '1') then  -- gk 31.05.10
-		shf_rd_en <= '0';
-	elsif (loadCurrentState = LOAD_SUB) then
+	if (loadCurrentState = LOAD_SUB) then
 		shf_rd_en <= '1';
 	elsif (loadCurrentState = LOAD_TERM) and (all_int_ctr < 31) then
 		shf_rd_en <= '1';
@@ -633,9 +641,7 @@ end process shfRdEnProc;
 
 fcWrEnProc : process(loadCurrentState, RESET, first_sub_in_multi, from_divide_state, MULT_EVT_ENABLE_IN, divide_position, disable_prep)
 begin
-	if (RESET = '1') then  -- gk 31.05.10
-		fc_wr_en <= '0';
-	elsif (loadCurrentState = PUT_Q_LEN) or (loadCurrentState = PUT_Q_DEC) then
+	if (loadCurrentState = PUT_Q_LEN) or (loadCurrentState = PUT_Q_DEC) then
 		fc_wr_en <= '1';
 	elsif (loadCurrentState = LOAD_SUB) or (loadCurrentState = LOAD_DATA) or (loadCurrentState = LOAD_TERM) then
 		fc_wr_en <= '1';
@@ -674,10 +680,12 @@ end process fcDataProc;
 DELAY_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if ((RESET = '1') or (loadCurrentState = LIDLE)) then
+		if (loadCurrentState = LIDLE) then
 			delay_ctr <= PC_DELAY_IN;
 		elsif ((loadCurrentState = DELAY) and (ticks_ctr(7) = '1')) then
 			delay_ctr <= delay_ctr - x"1";
+		else
+			delay_ctr <= delay_ctr;
 		end if;
 	end if;
 end process DELAY_CTR_PROC;
@@ -686,10 +694,12 @@ end process DELAY_CTR_PROC;
 TICKS_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if ((RESET = '1') or (loadCurrentState = LIDLE) or (ticks_ctr(7) = '1')) then
+		if ((loadCurrentState = LIDLE) or (ticks_ctr(7) = '1')) then
 			ticks_ctr <= x"00";
 		elsif (loadCurrentState = DELAY) then
 			ticks_ctr <= ticks_ctr + x"1";
+		else
+			ticks_ctr <= ticks_ctr;
 		end if;
 	end if;
 end process TICKS_CTR_PROC;
@@ -710,11 +720,7 @@ rst_after_sub_comb <= '1' when (loadCurrentState = LIDLE) or
 RST_AFTER_SUB_PROC : process(CLK)
 begin
 	if(rising_edge(CLK)) then
-		if(RESET = '1') then
-			rst_after_sub <= '0';
-		else
-			rst_after_sub <= rst_after_sub_comb;
-		end if;
+		rst_after_sub <= rst_after_sub_comb;
 	end if;
 end process RST_AFTER_SUB_PROC;
 
@@ -722,7 +728,7 @@ end process RST_AFTER_SUB_PROC;
 bytesLoadedProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = DIVIDE) or (loadCurrentState = CLEANUP) then
+		if (loadCurrentState = LIDLE) or (loadCurrentState = DIVIDE) or (loadCurrentState = CLEANUP) then
 			bytes_loaded <= x"0000";
 		elsif (loadCurrentState = PUT_Q_LEN) or (loadCurrentState = PUT_Q_DEC) or (loadCurrentState = LOAD_DATA) or (loadCurrentState = LOAD_SUB) or (loadCurrentState = LOAD_TERM) then
 			bytes_loaded <= bytes_loaded + x"1";
@@ -733,6 +739,8 @@ begin
 			bytes_loaded <= bytes_loaded + x"1";
 		elsif (MULT_EVT_ENABLE_IN = '1') and (loadCurrentState = PREP_DATA)  and (from_divide_state = '1') and ((divide_position = "00") or (divide_position = "01")) and (disable_prep = '0') then
 			bytes_loaded <= bytes_loaded + x"1";
+		else
+			bytes_loaded <= bytes_loaded;
 		end if;
 	end if;
 end process bytesLoadedProc;
@@ -741,7 +749,7 @@ end process bytesLoadedProc;
 subSizeLoadedProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) or (rst_after_sub = '1') then  -- gk 08.04.10
+		if (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) or (rst_after_sub = '1') then  -- gk 08.04.10
 			sub_size_loaded <= x"00000000";
 		elsif (loadCurrentState = LOAD_SUB) and (all_int_ctr < 4) then
 			-- was all_int_ctr
@@ -750,6 +758,8 @@ begin
 		-- gk 29.03.10 here the padding bytes have to be added to the loadedSize in order to load the correct amount of bytes from fifo
 		elsif (loadCurrentState = LOAD_SUB) and (all_int_ctr = 5) and (sub_size_loaded(2) = '1') then
 			sub_size_loaded <= sub_size_loaded + x"4";
+		else
+			sub_size_loaded <= sub_size_loaded;
 		end if;
 	end if;
 end process subSizeLoadedProc;
@@ -758,10 +768,12 @@ end process subSizeLoadedProc;
 subBytesLoadedProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) or (rst_after_sub = '1') then   -- gk 26.07.10 --or (sub_bytes_loaded = sub_size_loaded) -- gk 08.04.10
+		if (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) or (rst_after_sub = '1') then   -- gk 26.07.10 --or (sub_bytes_loaded = sub_size_loaded) -- gk 08.04.10
 			sub_bytes_loaded <= x"00000011";  -- subevent headers doesnt count
 		elsif (loadCurrentState = LOAD_DATA) then
 			sub_bytes_loaded <= sub_bytes_loaded + x"1";
+		else
+			sub_bytes_loaded <= sub_bytes_loaded;
 		end if;
 	end if;
 end process subBytesLoadedProc;
@@ -770,21 +782,27 @@ end process subBytesLoadedProc;
 actualPacketProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
+		if (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
 			actual_packet_size <= x"0008";
 		elsif (fc_wr_en = '1') then
 			actual_packet_size <= actual_packet_size + x"1";
+		else
+			actual_packet_size <= actual_packet_size;
 		end if;
 	end if;
 end process actualPacketProc;
 
 actualQueueSizeProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = CLEANUP) then
+	if RESET = '1' then
+		actual_queue_size <= (others => '0');
+	elsif rising_edge(CLK) then
+		if (loadCurrentState = CLEANUP) then
 			actual_queue_size <= (others => '0');
 		elsif (loadCurrentState = LIDLE) then
 			actual_queue_size <= queue_size;
+		else
+			actual_queue_size <= actual_queue_size;	
 		end if;
 	end if;
 end process actualQueueSizeProc;
@@ -792,13 +810,17 @@ end process actualQueueSizeProc;
 -- amount of bytes left to send in current packet
 sizeLeftProc : process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = CLEANUP) then
+	if (RESET = '1') or 
+		size_left <= (others => '0');
+	elsif rising_edge(CLK) then
+		if (loadCurrentState = CLEANUP) then
 			size_left <= (others => '0');
 		elsif (loadCurrentState = LIDLE) then
 			size_left <= queue_size;
 		elsif (fc_wr_en = '1') then
 			size_left <= size_left - 1;
+		else
+			size_left <= size_left; 
 		end if;
 	end if;
 end process sizeLeftProc;
@@ -807,11 +829,13 @@ end process sizeLeftProc;
 -- In this case, we increment the fragmented packet ID with EOD from ipu2gbe.
 THE_FC_IDENT_COUNTER_PROC: process(CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			fc_ident <= (others => '0');
-		elsif (PC_END_OF_DATA_IN = '1') then
+	if (RESET = '1') then
+		fc_ident <= (others => '0');
+	elsif rising_edge(CLK) then
+		if (PC_END_OF_DATA_IN = '1') then
 			fc_ident <= fc_ident + 1;
+		else
+			fc_ident <= fc_ident;
 		end if;
 	end if;
 end process THE_FC_IDENT_COUNTER_PROC;
@@ -821,7 +845,7 @@ fc_flags_offset(15 downto 14) <= "00";
 moreFragmentsProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
+		if (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
 			fc_flags_offset(13) <= '0';
 		elsif ((loadCurrentState = DIVIDE) and (TC_READY_IN = '1')) or ((loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1')) then
 			if ((actual_queue_size - actual_packet_size) < max_frame_size) then
@@ -829,6 +853,8 @@ begin
 			else
 				fc_flags_offset(13) <= '1';  -- more fragments
 			end if;
+		else
+			fc_flags_offset(13) <= fc_flags_offset(13);
 		end if;
 	end if;
 end process moreFragmentsProc;
@@ -836,9 +862,7 @@ end process moreFragmentsProc;
 eodProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			fc_eod <= '0';
-		elsif (loadCurrentState = LOAD_DATA) and (bytes_loaded = max_frame_size - 2) then
+		if (loadCurrentState = LOAD_DATA) and (bytes_loaded = max_frame_size - 2) then
 			fc_eod <= '1';
 		elsif (loadCurrentState = LOAD_SUB) and (bytes_loaded = max_frame_size - 2) then
 			fc_eod <= '1';
@@ -853,9 +877,7 @@ end process eodProc;
 sodProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			fc_sod <= '0';
-		elsif (loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1') then
+		if (loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1') then
 			fc_sod <= '1';
 		elsif (loadCurrentState = DIVIDE) and (TC_READY_IN = '1') then
 			fc_sod <= '1';
@@ -868,10 +890,12 @@ end process sodProc;
 offsetProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
+		if (loadCurrentState = LIDLE) or (loadCurrentState = CLEANUP) then
 			fc_flags_offset(12 downto 0) <= (others => '0');
 		elsif ((loadCurrentState = DIVIDE) and (TC_READY_IN = '1')) then
 			fc_flags_offset(12 downto 0) <= actual_packet_size(15 downto 3);
+		else
+			fc_flags_offset(12 downto 0) <= fc_flags_offset(12 downto 0);
 		end if;
 	end if;
 end process offsetProc;
@@ -879,25 +903,25 @@ end process offsetProc;
 fcIPSizeProc : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET= '1') then
-			fc_ip_size <= (others => '0');
-		elsif ((loadCurrentState = DIVIDE) and (TC_READY_IN = '1')) or ((loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1')) then
+		if ((loadCurrentState = DIVIDE) and (TC_READY_IN = '1')) or ((loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1')) then
 			if (size_left >= max_frame_size) then
 				fc_ip_size <= max_frame_size;
 			else
 				fc_ip_size <= size_left(15 downto 0);
 			end if;
+		else
+			fc_ip_size <= fc_ip_size;
 		end if;
 	end if;
 end process fcIPSizeProc;
 
 fcUDPSizeProc : process(CLK)
-	begin
+begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			fc_udp_size <= (others => '0');
-		elsif (loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1') then
+		if (loadCurrentState = WAIT_FOR_FC) and (TC_READY_IN = '1') then
 			fc_udp_size <= queue_size(15 downto 0);
+		else
+			fc_udp_size <= fc_udp_size;
 		end if;
 	end if;
 end process fcUDPSizeProc;
@@ -1015,7 +1039,7 @@ end process;
 subIntProc: process( CLK )
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (saveSubCurrentState = SIDLE) then
+		if (saveSubCurrentState = SIDLE) then
 			sub_int_ctr <= 0;
 		elsif (sub_int_ctr = 3) and (saveSubCurrentState /= SAVE_TERM) then
 			sub_int_ctr <= 0;
@@ -1023,6 +1047,8 @@ begin
 			sub_int_ctr <= 0;
 		elsif (saveSubCurrentState /= SIDLE) and (loadCurrentState /= PREP_DATA) then
 			sub_int_ctr <= sub_int_ctr + 1;
+		else
+			sub_int_ctr <= sub_int_ctr;
 		end if;
 	end if;
 end process subIntProc;

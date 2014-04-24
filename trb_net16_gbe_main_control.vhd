@@ -466,9 +466,7 @@ RC_RD_EN_OUT <= rc_rd_en;
 LOADING_DONE_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') then
-			RC_LOADING_DONE_OUT <= '0';
-		elsif (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
+		if (RC_DATA_IN(8) = '1' and ps_wr_en_q = '1') then
 			RC_LOADING_DONE_OUT <= '1';
 		else
 			RC_LOADING_DONE_OUT <= '0';
@@ -488,7 +486,7 @@ end process PS_WR_EN_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (redirect_current_state = IDLE) then
+		if (redirect_current_state = IDLE) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (redirect_current_state = LOAD or redirect_current_state = DROP) and (rc_rd_en = '1') then
 			loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
@@ -504,9 +502,7 @@ begin
 		first_byte_q  <= first_byte;
 		first_byte_qq <= first_byte_q;
 		
-		if (RESET = '1') then
-			first_byte <= '0';
-		elsif (redirect_current_state = IDLE) then
+		if (redirect_current_state = IDLE) then
 			first_byte <= '1';
 		else
 			first_byte <= '0';
@@ -687,7 +683,7 @@ LINK_OK_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		--if (RESET = '1') or (link_current_state /= TIMEOUT) then
-		if (RESET_FOR_DHCP = '1') or (link_current_state /= TIMEOUT) then
+		if (link_current_state /= TIMEOUT) then
 			link_ok_timeout_ctr <= (others => '0');
 		elsif (link_current_state = TIMEOUT) then
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
@@ -713,7 +709,7 @@ WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		--if (RESET = '1') or (link_current_state = INACTIVE) then
-		if (RESET_FOR_DHCP = '1') or (link_current_state = INACTIVE) then
+		if (link_current_state = INACTIVE) then
 			wait_ctr <= (others => '0');
 		elsif (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
