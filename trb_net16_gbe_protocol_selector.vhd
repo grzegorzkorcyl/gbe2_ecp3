@@ -400,7 +400,7 @@ TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 port map (
 	CLK							=> CLK,
 	RESET						=> RESET,
-	TRBNET_RESET                => TRBNET_DATA,
+	TRBNET_RESET                => TRBNET_RESET,
 	
 -- INTERFACE	
 	PS_DATA_IN					=> PS_DATA_IN,
