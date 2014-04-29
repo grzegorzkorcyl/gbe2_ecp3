@@ -536,6 +536,7 @@ component trb_net16_gbe_response_constructor_TrbNetData is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
+	TRBNET_RESET : in std_logic;
 	
 -- INTERFACE	
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);

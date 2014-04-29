@@ -95,6 +95,7 @@ component trb_net16_gbe_ipu_interface is
 	CLK_IPU                     : in    std_logic;
 	CLK_GBE                     : in	std_logic;
 	RESET                       : in    std_logic;
+	TRBNET_RESET : in std_logic;
 	-- IPU interface directed toward the CTS
 	CTS_NUMBER_IN               : in    std_logic_vector (15 downto 0);
 	CTS_CODE_IN                 : in    std_logic_vector (7  downto 0);
@@ -278,6 +279,7 @@ component trb_net16_gbe_protocol_selector is
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
+	TRBNET_RESET : in std_logic;
 	RESET_FOR_DHCP : in std_logic;
 
 -- signals to/from main controller
@@ -414,6 +416,7 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
+	TRBNET_RESET : in std_logic;
 	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;

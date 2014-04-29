@@ -627,6 +627,7 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
 	  RESET			=> global_reset, --RESET,
+	  TRBNET_RESET  => RESET,
 	  RESET_FOR_DHCP => global_reset, --'0', --soft_gbe_reset, --'0', --reset_dhcp,
 
 	  MC_LINK_OK_OUT	=> link_ok,

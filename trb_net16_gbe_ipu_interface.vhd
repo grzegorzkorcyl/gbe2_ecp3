@@ -18,6 +18,7 @@ entity trb_net16_gbe_ipu_interface is
 	CLK_IPU                     : in    std_logic;
 	CLK_GBE                     : in	std_logic;
 	RESET                       : in    std_logic;
+	TRBNET_RESET                : in	std_logic;
 	-- IPU interface directed toward the CTS
 	CTS_NUMBER_IN               : in    std_logic_vector (15 downto 0);
 	CTS_CODE_IN                 : in    std_logic_vector (7  downto 0);
@@ -106,7 +107,7 @@ begin
 
 SAVE_MACHINE_PROC : process(CLK_IPU)
 begin
-	if RESET = '1' then
+	if TRBNET_RESET = '1' or RESET = '1' then
 			save_current_state <= IDLE;
 	elsif rising_edge(CLK_IPU) then
 --		if (RESET = '1') then
@@ -362,7 +363,7 @@ port map(
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
 	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
-	AmFullThresh      => b"111_1111_1110_1111", --b"001_0011_1000_1000", --b"111_1111_1110_1111", -- 0x7fef = 32751
+	AmFullThresh      => b"001_0011_1000_1000", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
 	Q(8)              => sf_eod,
 	--WCNT              => open,
@@ -373,7 +374,7 @@ port map(
 	AlmostFull        => sf_afull
 );
 
-sf_reset <= RESET;
+sf_reset <= RESET or TRBNET_RESET;
 
 --SF_RESET_PROC : process(CLK_IPU)
 --begin
