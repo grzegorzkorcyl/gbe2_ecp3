@@ -95,7 +95,6 @@ component trb_net16_gbe_ipu_interface is
 	CLK_IPU                     : in    std_logic;
 	CLK_GBE                     : in	std_logic;
 	RESET                       : in    std_logic;
-	TRBNET_RESET : in std_logic;
 	-- IPU interface directed toward the CTS
 	CTS_NUMBER_IN               : in    std_logic_vector (15 downto 0);
 	CTS_CODE_IN                 : in    std_logic_vector (7  downto 0);

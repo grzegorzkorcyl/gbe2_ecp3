@@ -18,7 +18,6 @@ entity trb_net16_gbe_ipu_interface is
 	CLK_IPU                     : in    std_logic;
 	CLK_GBE                     : in	std_logic;
 	RESET                       : in    std_logic;
-	TRBNET_RESET                : in	std_logic;
 	-- IPU interface directed toward the CTS
 	CTS_NUMBER_IN               : in    std_logic_vector (15 downto 0);
 	CTS_CODE_IN                 : in    std_logic_vector (7  downto 0);
@@ -105,9 +104,9 @@ begin
 -- RECEIVING PART
 --*********
 
-SAVE_MACHINE_PROC : process(CLK_IPU)
+SAVE_MACHINE_PROC : process(RESET, CLK_IPU)
 begin
-	if TRBNET_RESET = '1' or RESET = '1' then
+	if RESET = '1' then
 			save_current_state <= IDLE;
 	elsif rising_edge(CLK_IPU) then
 --		if (RESET = '1') then
@@ -257,7 +256,7 @@ begin
 	end if;
 end process SF_DATA_EOD_PROC;
 
-SAVED_EVENTS_CTR_PROC : process(CLK_IPU)
+SAVED_EVENTS_CTR_PROC : process(RESET, CLK_IPU)
 begin
 	if (RESET = '1') then
 		saved_events_ctr <= (others => '0');
@@ -374,7 +373,7 @@ port map(
 	AlmostFull        => sf_afull
 );
 
-sf_reset <= RESET or TRBNET_RESET;
+sf_reset <= RESET;
 
 --SF_RESET_PROC : process(CLK_IPU)
 --begin
@@ -400,7 +399,7 @@ begin
 	end if;
 end process PC_DATA_PROC;
 
-LOAD_MACHINE_PROC : process(CLK_GBE)
+LOAD_MACHINE_PROC : process(RESET, CLK_GBE)
 begin
 	if RESET = '1' then
 		load_current_state <= IDLE;
@@ -413,7 +412,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod, MULT_EVT_ENABLE_IN)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod)
 begin
 	case (load_current_state) is
 
@@ -565,7 +564,7 @@ end process TRIGGER_TYPE_PROC;
 --*****
 -- counters
 
-LOADED_EVENTS_CTR_PROC : process(CLK_GBE)
+LOADED_EVENTS_CTR_PROC : process(RESET, CLK_GBE)
 begin
 	if (RESET = '1') then
 		loaded_events_ctr <= (others => '0');
