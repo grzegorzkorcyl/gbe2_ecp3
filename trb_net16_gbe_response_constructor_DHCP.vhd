@@ -160,12 +160,15 @@ g_MY_IP <= saved_true_ip when main_current_state = ESTABLISHED else (others => '
 SAVE_SERVER_ADDR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING) then
+		if (main_current_state = BOOTING) then
 			saved_server_mac <= (others => '0');
 			saved_server_ip <= (others => '0');
 		elsif (main_current_state = WAITING_FOR_OFFER) and (receive_current_state = SAVE_VALUES and save_ctr = 1) then
 			saved_server_mac <= PS_SRC_MAC_ADDRESS_IN;
 			saved_server_ip  <= PS_SRC_IP_ADDRESS_IN;
+		else
+			saved_server_mac <= saved_server_mac;
+			saved_server_ip  <= saved_server_ip;
 		end if;
 	end if;
 end process SAVE_SERVER_ADDR_PROC;
@@ -173,7 +176,7 @@ end process SAVE_SERVER_ADDR_PROC;
 
 -- **** MAIN MACHINE PART
 
-MAIN_MACHINE_PROC : process(CLK)
+MAIN_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		main_current_state <= BOOTING;
@@ -186,7 +189,7 @@ begin
 	end if;
 end process MAIN_MACHINE_PROC;
 
-MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN)
+MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, saved_true_ip, saved_proposed_ip, wait_ctr, receive_current_state, PS_DATA_IN)
 begin
 
 	case (main_current_state) is
@@ -211,7 +214,7 @@ begin
 			state2 <= x"3"; 
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= SENDING_REQUEST;
-			elsif (wait_ctr = x"1000_0000") then
+			elsif (wait_ctr = x"2000_0000") then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_OFFER;
@@ -229,7 +232,7 @@ begin
 			state2 <= x"5";
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= ESTABLISHED;
-			elsif (wait_ctr = x"1000_0000") then
+			elsif (wait_ctr = x"2000_0000") then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_ACK;
@@ -250,10 +253,12 @@ end process MAIN_MACHINE;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST) then
+		if (main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST) then
 			wait_ctr <= (others => '0');
 		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER) then
 			wait_ctr <= wait_ctr + x"1";
+		else
+			wait_ctr <= wait_ctr;
 		end if;
 	end if;
 end process WAIT_CTR_PROC;
@@ -263,10 +268,12 @@ DHCP_DONE_OUT <= '1' when main_current_state = ESTABLISHED else '0';
 
 -- **** MESSAGES RECEIVING PART
 
-RECEIVE_MACHINE_PROC : process(CLK)
+RECEIVE_MACHINE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING) then
+	if RESET = '1' then
+		receive_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+		if (main_current_state = BOOTING) then
 			receive_current_state <= IDLE;
 		else
 			receive_current_state <= receive_next_state;
@@ -274,7 +281,7 @@ begin
 	end if;
 end process RECEIVE_MACHINE_PROC;
 
-RECEIVE_MACHINE : process(receive_current_state, main_current_state, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, g_MY_MAC, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
+RECEIVE_MACHINE : process(receive_current_state, main_current_state, bootp_hdr, saved_dhcp_type, saved_transaction_id, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, g_MY_MAC, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
 begin
 	case receive_current_state is
 	
@@ -330,10 +337,12 @@ end process RECEIVE_MACHINE;
 SAVE_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (receive_current_state = IDLE) then
+		if (receive_current_state = IDLE) then
 			save_ctr <= 0;
 		elsif (receive_current_state = SAVE_VALUES and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then
 			save_ctr <= save_ctr + 1;
+		else
+			save_ctr <= save_ctr;
 		end if;
 	end if;
 end process SAVE_CTR_PROC;
@@ -341,9 +350,10 @@ end process SAVE_CTR_PROC;
 SAVE_VALUES_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (main_current_state = BOOTING) then
+		if (main_current_state = BOOTING) then
 			saved_transaction_id <= (others => '0');
 			saved_proposed_ip    <= (others => '0');
+			saved_true_ip        <= (others => '0');
 			saved_dhcp_type      <= (others => '0');
 		-- dissection of DHCP Offer message
 		elsif (main_current_state = WAITING_FOR_OFFER and receive_current_state = SAVE_VALUES) then
@@ -431,7 +441,11 @@ begin
 				when others => null;
 					
 			end case;		
-				
+		else
+			saved_transaction_id <= saved_transaction_id;
+			saved_proposed_ip    <= saved_proposed_ip;
+			saved_true_ip        <= saved_true_ip;
+			saved_dhcp_type      <= saved_dhcp_type;		
 		end if;
 	end if;
 end process SAVE_VALUES_PROC;
@@ -439,7 +453,7 @@ end process SAVE_VALUES_PROC;
 
 -- **** MESSAGES CONSTRUCTING PART
 
-CONSTRUCT_MACHINE_PROC : process(CLK)
+CONSTRUCT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 			construct_current_state <= IDLE;
@@ -557,7 +571,7 @@ end process CONSTRUCT_MACHINE;
 LOAD_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (construct_current_state = IDLE) then
+		if (construct_current_state = IDLE) then
 			load_ctr <= 0;
 		elsif (TC_RD_EN_IN = '1') and (PS_SELECTED_IN = '1') then
 --		elsif (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
@@ -579,7 +593,7 @@ end process LOAD_CTR_PROC;
 --	end if;
 --end process TC_WR_PROC;
 
-TC_DATA_PROC : process(CLK, construct_current_state, load_ctr, bootp_hdr, g_MY_MAC, main_current_state)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		case (construct_current_state) is
