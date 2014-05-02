@@ -400,7 +400,6 @@ TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 port map (
 	CLK							=> CLK,
 	RESET						=> RESET,
-	TRBNET_RESET                => TRBNET_RESET,
 	
 -- INTERFACE	
 	PS_DATA_IN					=> PS_DATA_IN,
@@ -556,7 +555,7 @@ port map (
 
 PS_BUSY_OUT <= busy;
 
-SELECT_MACHINE_PROC : process(CLK)
+SELECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		select_current_state <= IDLE;

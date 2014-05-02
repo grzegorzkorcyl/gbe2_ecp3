@@ -18,6 +18,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 	port (
 		CLK			: in	std_logic;  -- system clock
 		RESET			: in	std_logic;
+		TRBNET_RESET    : in std_logic;
 		
 	-- INTERFACE	
 		PS_DATA_IN		: in	std_logic_vector(8 downto 0);
@@ -311,7 +312,7 @@ gsc_init_dataready <= '1' when (GSC_INIT_READ_IN = '1' and dissect_current_state
 PACKET_NUM_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			packet_num <= "100";
 		elsif (GSC_INIT_READ_IN = '1' and rx_fifo_rd = '1' and packet_num = "100") then
 			packet_num <= "000";
@@ -412,7 +413,7 @@ GSC_REPLY_READ_OUT      <= gsc_reply_read;
 TX_DATA_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			tx_data_ctr <= (others => '0');
 		elsif (tx_fifo_wr = '1') then
 			tx_data_ctr <= tx_data_ctr + x"2";
@@ -423,7 +424,7 @@ end process TX_DATA_CTR_PROC;
 TOO_MUCH_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1') or (dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			too_much_data <= '0';
 		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"fa00") then
 			too_much_data <= '1';
@@ -435,7 +436,7 @@ end process TOO_MUCH_DATA_PROC;
 TX_LOADED_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (RESET = '1' or dissect_current_state = IDLE) then
+		if (dissect_current_state = IDLE) then
 			tx_loaded_ctr <= x"0000";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
@@ -475,7 +476,7 @@ TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);
 
 TC_FRAME_SIZE_OUT   <= tx_data_ctr;
 
-DISSECT_MACHINE_PROC : process(CLK)
+DISSECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		dissect_current_state <= IDLE;
@@ -492,7 +493,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN, tx_frame_loaded, g_MAX_FRAME_SIZE)
+DISSECT_MACHINE : process(dissect_current_state, reset_detected, too_much_data, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, PS_SELECTED_IN, GSC_INIT_READ_IN, GSC_REPLY_DATAREADY_IN, tx_loaded_ctr, tx_data_ctr, rx_fifo_q, GSC_BUSY_IN)
 begin
 	case dissect_current_state is
 	
@@ -579,10 +580,12 @@ end process DISSECT_MACHINE;
  RESET_DETECTED_PROC : process(CLK)
  begin
 	 if rising_edge(CLK) then
-		 if (RESET = '1' or dissect_current_state = CLEANUP) then
+		 if (dissect_current_state = IDLE) then
 			 reset_detected <= '0';
-		 elsif (PS_DATA_IN(7 downto 0) = x"80" and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "0100") then--and dissect_current_state = IDLE and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1') then  -- first byte as 0x80
+		 elsif (PS_DATA_IN(7 downto 0) = x"80" and PS_WR_EN_IN = '1' and PS_ACTIVATE_IN = '1' and saved_hdr_ctr = "0100") then
 			 reset_detected <= '1';
+		else
+			reset_detected <= reset_detected;
 		 end if;
 	 end if;
  end process RESET_DETECTED_PROC;
@@ -590,10 +593,12 @@ end process DISSECT_MACHINE;
  MAKE_RESET_PROC : process(CLK)
  begin
 	 if rising_edge(CLK) then
-		 if (RESET = '1') then
+		 if (dissect_current_state = IDLE) then
 			 make_reset <= '0';
 		 elsif (dissect_current_state = CLEANUP and reset_detected = '1') then
 			 make_reset <= '1';
+		else
+			make_reset <= make_reset;
 		 end if;
 	 end if;
  end process MAKE_RESET_PROC;

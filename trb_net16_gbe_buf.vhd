@@ -626,12 +626,10 @@ MAIN_CONTROL : trb_net16_gbe_main_control
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
-	  RESET			=> global_reset, --RESET,
-	  TRBNET_RESET  => RESET,
-	  RESET_FOR_DHCP => global_reset, --'0', --soft_gbe_reset, --'0', --reset_dhcp,
+	  RESET			=> RESET,
 
 	  MC_LINK_OK_OUT	=> link_ok,
-	  MC_RESET_LINK_IN	=> '0',
+	  MC_RESET_LINK_IN	=> global_reset,
 	  MC_IDLE_TOO_LONG_OUT => idle_too_long,
 	  MC_DHCP_DONE_OUT => dhcp_done,
 

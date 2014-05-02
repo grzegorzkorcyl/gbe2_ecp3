@@ -23,8 +23,6 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
 	RESET			: in	std_logic;
-	TRBNET_RESET : in std_logic;
-	RESET_FOR_DHCP : in std_logic;
 
 	MC_LINK_OK_OUT		: out	std_logic;
 	MC_RESET_LINK_IN	: in	std_logic;
@@ -243,9 +241,8 @@ unique_id <= MC_UNIQUE_ID_IN;
 protocol_selector : trb_net16_gbe_protocol_selector
 port map(
 	CLK			=> CLK,
-	RESET			=> RESET,
-	TRBNET_RESET   => TRBNET_RESET,
-	RESET_FOR_DHCP => RESET_FOR_DHCP,
+	RESET		=> RESET,
+	RESET_FOR_DHCP => MC_RESET_LINK_IN,
 	
 	PS_DATA_IN		=> rc_data_local, -- RC_DATA_IN,
 	PS_WR_EN_IN		=> ps_wr_en_qq, --ps_wr_en,
@@ -380,7 +377,7 @@ begin
 	end if;
 end process SYNC_PROC;
 
-REDIRECT_MACHINE_PROC : process(CLK)
+REDIRECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 			redirect_current_state <= IDLE;
@@ -393,7 +390,7 @@ begin
 	end if;
 end process REDIRECT_MACHINE_PROC;
 
-REDIRECT_MACHINE : process(redirect_current_state, link_current_state, RC_FRAME_WAITING_IN, RC_DATA_IN, ps_busy, RC_FRAME_PROTO_IN, ps_wr_en, loaded_bytes_ctr, RC_FRAME_SIZE_IN)
+REDIRECT_MACHINE : process(redirect_current_state, link_current_state, RC_FRAME_WAITING_IN, ps_busy, RC_FRAME_PROTO_IN, loaded_bytes_ctr, RC_FRAME_SIZE_IN)
 begin
 	case redirect_current_state is
 	
@@ -515,7 +512,7 @@ end process FIRST_BYTE_PROC;
 --*********************
 --	DATA FLOW CONTROL
 
-FLOW_MACHINE_PROC : process(CLK)
+FLOW_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 			flow_current_state <= IDLE;
@@ -584,9 +581,9 @@ end process;
 --***********************
 --	LINK STATE CONTROL
 
-LINK_STATE_MACHINE_PROC : process(CLK)
+LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
 begin
-	if RESET = '1' then
+	if MC_RESET_LINK_IN = '1' then
 		link_current_state <= INACTIVE;
 	elsif rising_edge(CLK) then
 --		--if (RESET = '1') then
@@ -710,11 +707,10 @@ end process LINK_OK_CTR_PROC;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		--if (RESET = '1') or (link_current_state = INACTIVE) then
-		if (link_current_state = INACTIVE) then
-			wait_ctr <= (others => '0');
-		elsif (link_current_state = WAIT_FOR_BOOT) then
+		if (link_current_state = WAIT_FOR_BOOT) then
 			wait_ctr <= wait_ctr + x"1";
+		else
+			wait_ctr <= (others => '0');
 		end if;
 	end if;
 end process WAIT_CTR_PROC;
@@ -757,8 +753,8 @@ g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
 TSMAC_CONTROLLER : trb_net16_gbe_mac_control
 port map(
 	CLK				=> CLK,
-	RESET			=> RESET_FOR_DHCP, --RESET,
-
+	RESET			=> MC_RESET_LINK_IN, 
+	
 -- signals to/from main controller
 	MC_TSMAC_READY_OUT	=> tsm_ready,
 	MC_RECONF_IN		=> tsm_reconf,
