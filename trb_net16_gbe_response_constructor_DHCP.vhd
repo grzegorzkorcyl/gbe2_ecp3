@@ -247,11 +247,11 @@ begin
 		
 		when ESTABLISHED =>
 			state2 <= x"6";
-			if (saved_proposed_ip = saved_true_ip) then
+--			if (saved_proposed_ip = saved_true_ip) then
 				main_next_state <= ESTABLISHED;
-			else
-				main_next_state <= BOOTING;
-			end if;
+--			else
+--				main_next_state <= BOOTING;
+--			end if;
 	
 	end case;
 
