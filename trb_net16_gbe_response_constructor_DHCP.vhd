@@ -365,6 +365,8 @@ begin
 		-- dissection of DHCP Offer message
 		elsif (main_current_state = WAITING_FOR_OFFER and receive_current_state = SAVE_VALUES) then
 		
+			saved_true_ip <= saved_true_ip;
+		
 			case save_ctr is
 			
 				when 3 =>
@@ -407,6 +409,8 @@ begin
 			end case;
 		-- dissection on DHCP Ack message
 		elsif (main_current_state = WAITING_FOR_ACK and receive_current_state = SAVE_VALUES) then
+		
+			saved_proposed_ip <= saved_proposed_ip;
 		
 			case save_ctr is
 			
