@@ -602,13 +602,24 @@ signal dbg_hist, dbg_hist2 : hist_array;
 signal soft_gbe_reset, soft_rst, dhcp_done : std_logic;
 signal rst_ctr : std_logic_vector(24 downto 0);
 signal mac_reset : std_logic;
-signal global_reset : std_logic;
+signal global_reset, rst_n, ff : std_logic;
 
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
 
-global_reset <= not GSR_N;
+reset_sync : process(GSR_N, CLK)
+begin
+	if (GSR_N = '0') then
+		ff <= '0';
+		rst_n <= '0';
+	elsif rising_edge(CLK) then
+		ff <= '1';
+		rst_n <= ff;
+	end if;
+end process reset_sync;
+
+global_reset <= not rst_n;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
@@ -810,7 +821,7 @@ port map(
 	GBE_SUBEVENT_ID_OUT         => pc_event_id,
 	GBE_SUBEVENT_DEC_OUT        => pc_decoding,
 	GBE_QUEUE_DEC_OUT           => pc_queue_dec,
-	GBE_MAX_FRAME_OUT           => pc_max_frame_size,
+	GBE_MAX_FRAME_OUT           => g_MAX_FRAME_SIZE, --pc_max_frame_size,
 	GBE_USE_GBE_OUT             => use_gbe,        
 	GBE_USE_TRBNET_OUT          => use_trbnet,     
 	GBE_USE_MULTIEVENTS_OUT     => use_multievents,
