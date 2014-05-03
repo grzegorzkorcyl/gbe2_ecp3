@@ -280,11 +280,11 @@ begin
 	if RESET = '1' then
 		receive_current_state <= IDLE;
 	elsif rising_edge(CLK) then
-		if (main_current_state = BOOTING) then
-			receive_current_state <= IDLE;
-		else
+		--if (main_current_state = BOOTING) then
+		--	receive_current_state <= IDLE;
+		--else
 			receive_current_state <= receive_next_state;
-		end if;
+		--end if;
 	end if;
 end process RECEIVE_MACHINE_PROC;
 
