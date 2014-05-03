@@ -777,6 +777,7 @@ port map(
 	TC_SRC_UDP_IN		   => mc_src_udp,
 	TC_TRANSMISSION_DONE_OUT => mc_transmit_done,
 	TC_IDENT_IN            => mc_ident,
+	TC_MAX_FRAME_IN        => pc_max_frame_size,
 
 -- signal to/from frame constructor
 	FC_DATA_OUT		=> fc_data,
@@ -821,7 +822,7 @@ port map(
 	GBE_SUBEVENT_ID_OUT         => pc_event_id,
 	GBE_SUBEVENT_DEC_OUT        => pc_decoding,
 	GBE_QUEUE_DEC_OUT           => pc_queue_dec,
-	GBE_MAX_FRAME_OUT           => g_MAX_FRAME_SIZE, --pc_max_frame_size,
+	GBE_MAX_FRAME_OUT           => pc_max_frame_size,
 	GBE_USE_GBE_OUT             => use_gbe,        
 	GBE_USE_TRBNET_OUT          => use_trbnet,     
 	GBE_USE_MULTIEVENTS_OUT     => use_multievents,

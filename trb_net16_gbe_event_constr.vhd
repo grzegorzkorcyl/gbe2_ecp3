@@ -239,7 +239,7 @@ begin
 	end if;
 end process SHF_Q_PROC;
 
-SAVE_SUB_HDR_MACHINE_PROC : process(CLK)
+SAVE_SUB_HDR_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		save_sub_hdr_current_state <= IDLE;
@@ -482,7 +482,7 @@ end process;
 -- LOADING PART
 --*******
 
-LOAD_MACHINE_PROC : process(CLK) is
+LOAD_MACHINE_PROC : process(RESET, CLK) is
 begin
 	if RESET = '1' then
 		load_current_state <= IDLE;
@@ -495,7 +495,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod, term_ctr, insert_padding)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding)
 begin
 	case (load_current_state) is
 	

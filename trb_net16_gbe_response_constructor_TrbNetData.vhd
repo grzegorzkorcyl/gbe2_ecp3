@@ -271,7 +271,7 @@ port map(
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_TRIGGER_TYPE_IN      => pc_trig_type,
 	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN, --x"0003_0062", --pc_queue_dec,
-	PC_MAX_FRAME_SIZE_IN    => g_MAX_FRAME_SIZE,
+	PC_MAX_FRAME_SIZE_IN    => (others => '0'), -- not used anymore
 	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",  -- not used for the moment
 	PC_DELAY_IN             => (others => '0'),
 	PC_INSERT_TTYPE_IN      => CFG_INSERT_TTYPE_IN,

@@ -30,6 +30,7 @@ port (
 	TC_SRC_UDP_IN		    : in	std_logic_vector(15 downto 0);
 	TC_IDENT_IN             : in	std_logic_vector(15 downto 0);
 	TC_TRANSMISSION_DONE_OUT : out	std_logic;
+	TC_MAX_FRAME_IN         : in std_logic_vector(15 downto 0);
 
 -- signal to/from frame constructor
 	FC_DATA_OUT		     : out	std_logic_vector(7 downto 0);

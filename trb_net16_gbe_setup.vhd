@@ -149,7 +149,6 @@ begin
 
 				when x"04" =>
 					max_frame <= BUS_DATA_IN(15 downto 0);
-					g_MAX_FRAME_SIZE <= BUS_DATA_IN(15 downto 0);
 
 				when x"05" =>
 					if (BUS_DATA_IN = x"0000_0000") then
