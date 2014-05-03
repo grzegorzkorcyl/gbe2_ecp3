@@ -72,7 +72,7 @@ architecture trb_net16_gbe_response_constructor_DHCP of trb_net16_gbe_response_c
 
 attribute syn_encoding	: string;
 
-type main_states is (BOOTING, SENDING_DISCOVER, WAITING_FOR_OFFER, SENDING_REQUEST, WAITING_FOR_ACK, ESTABLISHED);
+type main_states is (BOOTING, DELAY, SENDING_DISCOVER, WAITING_FOR_OFFER, SENDING_REQUEST, WAITING_FOR_ACK, ESTABLISHED);
 signal main_current_state, main_next_state : main_states;
 attribute syn_encoding of main_current_state: signal is "onehot";
 
@@ -197,9 +197,16 @@ begin
 		when BOOTING =>
 			state2 <= x"1";
 			if (DHCP_START_IN = '1') then
-				main_next_state <= SENDING_DISCOVER;
+				main_next_state <= DELAY; --SENDING_DISCOVER;
 			else
 				main_next_state <= BOOTING;
+			end if;
+			
+		when DELAY =>
+			if (wait_ctr = x"2000_0000") then
+				main_next_state <= SENDING_DISCOVER;
+			else
+				main_next_state <= DELAY;
 			end if;
 		
 		when SENDING_DISCOVER =>
@@ -253,9 +260,9 @@ end process MAIN_MACHINE;
 WAIT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST) then
+		if (main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST or main_current_state = BOOTING) then
 			wait_ctr <= (others => '0');
-		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER) then
+		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER or main_current_state = DELAY) then
 			wait_ctr <= wait_ctr + x"1";
 		else
 			wait_ctr <= wait_ctr;
