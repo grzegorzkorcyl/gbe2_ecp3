@@ -397,7 +397,7 @@ begin
 	
 	wait for 1 us;
 	
-		MY_TRIGGER_LOOP: for J in 0 to 0 loop
+		MY_TRIGGER_LOOP: for J in 0 to 1000 loop
 		-- generate a real random byte for CTS
 		UNIFORM(seed1, seed2, rand);
 		int_rand := INTEGER(TRUNC(rand*256.0));
@@ -554,7 +554,7 @@ begin
 		wait until rising_edge(clk);
 		wait until rising_edge(clk);	
 		
-		wait for 8 us;
+		wait for 1 us;
 		
 		--wait for 10 us;
 
