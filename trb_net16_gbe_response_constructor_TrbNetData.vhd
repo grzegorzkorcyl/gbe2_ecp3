@@ -234,7 +234,7 @@ port map(
 	CONFIG_DONE_IN			 => ip_cfg_done,
 	DATA_GBE_ENABLE_IN		 => CFG_GBE_ENABLE_IN,
 	DATA_IPU_ENABLE_IN		 => CFG_IPU_ENABLE_IN,
-	MULT_EVT_ENABLE_IN		 => '0', --CFG_MULT_ENABLE_IN,
+	MULT_EVT_ENABLE_IN		 => CFG_MULT_ENABLE_IN,
 	MAX_MESSAGE_SIZE_IN		 => x"0000_0fd0",
 	MIN_MESSAGE_SIZE_IN		 => x"0000_0007",
 	READOUT_CTR_IN			 => CFG_READOUT_CTR_IN, --x"00_0000",
@@ -260,7 +260,7 @@ PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,
-	MULT_EVT_ENABLE_IN		=> '0', --CFG_MULT_ENABLE_IN
+	MULT_EVT_ENABLE_IN		=> CFG_MULT_ENABLE_IN,
 	PC_WR_EN_IN				=> pc_wr_en,
 	PC_DATA_IN				=> pc_data,
 	PC_READY_OUT			=> pc_ready,
