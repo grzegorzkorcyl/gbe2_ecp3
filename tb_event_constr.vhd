@@ -224,6 +224,7 @@ port map(
 	TC_SRC_UDP_IN		    => tc_src_udp,
 	TC_TRANSMISSION_DONE_OUT => tc_done,
 	TC_IDENT_IN            => tc_ident,
+	TC_MAX_FRAME_IN        => x"0587",
 	
 -- signal to/from frame constructor
 	FC_DATA_OUT		=> fc_data,
