@@ -246,7 +246,7 @@ port map(
 	SRC_IP_ADDRESS_OUT      => fc_src_ip,
 	SRC_UDP_PORT_OUT        => fc_src_udp,
 
-	DEBUG_OUT		=> open
+	MONITOR_TX_PACKETS_OUT => open
 );
 
 frame_constructor : trb_net16_gbe_frame_constr
@@ -287,9 +287,8 @@ port map(
 	FT_TX_DONE_IN           => '1',
 	FT_TX_DISCFRM_IN	=> '0',
 	-- debug ports
-	BSM_CONSTR_OUT          => open,
-	BSM_TRANS_OUT           => open,
-	DEBUG_OUT               => open
+	MONITOR_TX_BYTES_OUT    => open,
+	MONITOR_TX_FRAMES_OUT   => open
 );
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
@@ -319,9 +318,7 @@ port map(
 	DEBUG_OUT			=> open
 	--DEBUG_OUT(31 downto 0)		=> open,
 	--DEBUG_OUT(63 downto 32)		=> open
-);  
-
-g_MAX_FRAME_SIZE <= x"0578";
+);
 
 
 -- 125 MHz MAC clock
