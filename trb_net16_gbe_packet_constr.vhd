@@ -233,7 +233,7 @@ begin
 end process dfQProc;
 
 -- Construction state machine
-constructMachineProc : process(CLK)
+constructMachineProc : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		constructCurrentState <= CIDLE;
@@ -246,7 +246,7 @@ begin
 	end if;
 end process constructMachineProc;
 
-constructMachine : process(constructCurrentState, PC_START_OF_SUB_IN, PC_WR_EN_IN, PC_END_OF_DATA_IN, loadCurrentState, saveSubCurrentState, sub_int_ctr)
+constructMachine : process(constructCurrentState, df_empty, PC_START_OF_SUB_IN, PC_END_OF_DATA_IN, loadCurrentState)
 begin
 	case constructCurrentState is
 		when CIDLE =>
@@ -290,7 +290,7 @@ sub_size_to_save <= (x"10" + pc_sub_size) when (PC_PADDING_IN = '0')
 
 -- BUG HERE BUG HERE BUG HERE BUG HERE
 -- gk 29.03.10 no changes here because the queue size should contain the padding bytes of subevents
-queueSizeProc : process(CLK)
+queueSizeProc : process(RESET, CLK)
 begin
 	if (RESET = '1') then
 		queue_size <= x"00000028";  -- + 8B for queue headers and 32B for termination
@@ -311,7 +311,7 @@ end process queueSizeProc;
 --      LOAD DATA COMBINED WITH HEADERS INTO FC, QUEUE TRANSMISSION
 --***********************
 
-loadMachineProc : process(CLK)
+loadMachineProc : process(RESET, CLK)
 begin
 	if RESET = '1' then
 			loadCurrentState <= LIDLE;
@@ -325,7 +325,7 @@ begin
 end process loadMachineProc;
 
 loadMachine : process(loadCurrentState, constructCurrentState, all_int_ctr, df_empty,
-					sub_bytes_loaded, sub_size_loaded, size_left, TC_H_READY_IN,
+					size_left, TC_H_READY_IN,
 					max_frame_size, bytes_loaded, divide_position, PC_DELAY_IN,
 					delay_ctr, load_eod_q, MULT_EVT_ENABLE_IN)
 begin
@@ -451,7 +451,7 @@ begin
 end process loadMachine;
 
 -- gk 04.12.10
-firstSubInMultiProc : process(CLK)
+firstSubInMultiProc : process(RESET, CLK)
 begin
 	if (RESET = '1') then
 		first_sub_in_multi <= '1';
@@ -467,7 +467,7 @@ begin
 end process;
 
 -- gk 04.12.10
-fromDivideStateProc : process(CLK)
+fromDivideStateProc : process(RESET, CLK)
 begin
 	if (RESET = '1') then
 		from_divide_state <= '0';
@@ -483,7 +483,7 @@ begin
 end process fromDivideStateProc;
 
 
-dividePositionProc : process(CLK)
+dividePositionProc : process(RESET, CLK)
 begin
 	if (RESET = '1') then
 		divide_position <= "00";
@@ -539,9 +539,7 @@ end process dividePositionProc;
 
 allIntCtrProc : process(CLK)
 begin
-	if (RESET = '1') then  -- gk 31.05.10
-		all_int_ctr <= 0;
-	elsif rising_edge(CLK) then
+	if rising_edge(CLK) then
 			case loadCurrentState is
 	
 				when LIDLE => all_int_ctr <= 0;
@@ -589,8 +587,7 @@ begin
 	end if;
 end process allIntCtrProc;
 
-dfRdEnProc : process(loadCurrentState, bytes_loaded, max_frame_size, sub_bytes_loaded, 
-					 sub_size_loaded, all_int_ctr, RESET, size_left, load_eod_q)
+dfRdEnProc : process(loadCurrentState, bytes_loaded, max_frame_size, all_int_ctr, load_eod_q)
 begin
 	if (loadCurrentState = LOAD_DATA) then
 -- 		if (bytes_loaded = max_frame_size - x"1") then
@@ -625,7 +622,7 @@ begin
 	end if;
 end process dfRdEnProc;
 
-shfRdEnProc : process(loadCurrentState, all_int_ctr, RESET)
+shfRdEnProc : process(loadCurrentState, all_int_ctr)
 begin
 	if (loadCurrentState = LOAD_SUB) then
 		shf_rd_en <= '1';
@@ -639,7 +636,7 @@ begin
 end process shfRdEnProc;
 
 
-fcWrEnProc : process(loadCurrentState, RESET, first_sub_in_multi, from_divide_state, MULT_EVT_ENABLE_IN, divide_position, disable_prep)
+fcWrEnProc : process(loadCurrentState, first_sub_in_multi, from_divide_state, MULT_EVT_ENABLE_IN, divide_position, disable_prep)
 begin
 	if (loadCurrentState = PUT_Q_LEN) or (loadCurrentState = PUT_Q_DEC) then
 		fc_wr_en <= '1';
@@ -794,9 +791,7 @@ end process actualPacketProc;
 
 actualQueueSizeProc : process(CLK)
 begin
-	if RESET = '1' then
-		actual_queue_size <= (others => '0');
-	elsif rising_edge(CLK) then
+	if rising_edge(CLK) then
 		if (loadCurrentState = CLEANUP) then
 			actual_queue_size <= (others => '0');
 		elsif (loadCurrentState = LIDLE) then
@@ -810,9 +805,7 @@ end process actualQueueSizeProc;
 -- amount of bytes left to send in current packet
 sizeLeftProc : process(CLK)
 begin
-	if (RESET = '1') then 
-		size_left <= (others => '0');
-	elsif rising_edge(CLK) then
+	if rising_edge(CLK) then
 		if (loadCurrentState = CLEANUP) then
 			size_left <= (others => '0');
 		elsif (loadCurrentState = LIDLE) then
@@ -827,7 +820,7 @@ end process sizeLeftProc;
 
 -- HOT FIX: don't rely on CTS information, count the packets on your own.
 -- In this case, we increment the fragmented packet ID with EOD from ipu2gbe.
-THE_FC_IDENT_COUNTER_PROC: process(CLK)
+THE_FC_IDENT_COUNTER_PROC: process(RESET, CLK)
 begin
 	if (RESET = '1') then
 		fc_ident <= (others => '0');
@@ -966,7 +959,7 @@ begin
 	end case;
 end process shfDataProc;
 
-saveSubMachineProc : process(CLK)
+saveSubMachineProc : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		saveSubCurrentState <= SIDLE;

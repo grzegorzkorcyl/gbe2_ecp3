@@ -12,6 +12,10 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 entity trb_net16_gbe_response_constructor_TrbNetData is
+generic (
+	RX_PATH_ENABLE : integer range 0 to 1 := 1;
+	DO_SIMULATION  : integer range 0 to 1 := 0
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
@@ -284,7 +288,7 @@ port map(
 
 tc_rd_en <= '1' when PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1' else '0'; 
 
-DISSECT_MACHINE_PROC : process(CLK)
+DISSECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		dissect_current_state <= IDLE;
@@ -372,8 +376,17 @@ TC_FRAME_TYPE_OUT     <= x"0008";
 TC_DEST_MAC_OUT       <= ic_dest_mac;
 TC_DEST_IP_OUT        <= ic_dest_ip;
 TC_DEST_UDP_OUT       <= ic_dest_udp;
-TC_SRC_MAC_OUT        <= g_MY_MAC;
-TC_SRC_IP_OUT         <= g_MY_IP;
+
+rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
+	TC_SRC_MAC_OUT        <= g_MY_MAC;
+	TC_SRC_IP_OUT         <= g_MY_IP;
+end generate rx_enable_gen;
+
+rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
+	TC_SRC_MAC_OUT        <= g_MY_MAC;
+	TC_SRC_IP_OUT         <= ic_src_ip;
+end generate rx_disable_gen;
+
 TC_SRC_UDP_OUT        <= ic_src_udp;
 TC_IP_PROTOCOL_OUT    <= x"11";
 TC_IDENT_OUT          <= x"4" & sent_packets(11 downto 0);

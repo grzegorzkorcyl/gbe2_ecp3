@@ -145,6 +145,7 @@ end component;
 component trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
+	RX_PATH_ENABLE      : integer range 0 to 1 := 1;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
 );
 port(
@@ -276,6 +277,10 @@ port (
 end component;
 
 component trb_net16_gbe_protocol_selector is
+generic(
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
+		DO_SIMULATION  : integer range 0 to 1 := 0
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
@@ -411,6 +416,10 @@ port (
 end component;
 
 component trb_net16_gbe_main_control is
+generic(
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
+		DO_SIMULATION  : integer range 0 to 1 := 0
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;

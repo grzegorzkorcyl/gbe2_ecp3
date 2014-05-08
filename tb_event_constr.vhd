@@ -186,12 +186,15 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	  TSM_HDATA_EN_N_IN	=> '0',
 	  TSM_RX_STAT_VEC_IN  => (others => '0'),
 	  TSM_RX_STAT_EN_IN   => '0',
-	  
-	  SELECT_REC_FRAMES_OUT		=> open,
-	  SELECT_SENT_FRAMES_OUT	=> open,
-	  SELECT_PROTOS_DEBUG_OUT	=> open,
 
-	  DEBUG_OUT		=> open
+	MONITOR_SELECT_REC_OUT	      => open,
+	MONITOR_SELECT_REC_BYTES_OUT  => open,
+	MONITOR_SELECT_SENT_BYTES_OUT => open,
+	MONITOR_SELECT_SENT_OUT	      => open,
+	MONITOR_SELECT_GEN_DBG_OUT    => open,
+	
+	DATA_HIST_OUT => open,
+	SCTRL_HIST_OUT => open
   );
   
 transmit_controller : trb_net16_gbe_transmit_control2

@@ -18,6 +18,10 @@ use work.trb_net_gbe_protocols.all;
 
 
 entity trb_net16_gbe_protocol_selector is
+	generic(
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
+		DO_SIMULATION  : integer range 0 to 1 := 0
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
@@ -396,6 +400,10 @@ port map (
 );
 
 TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
+generic map(
+		RX_PATH_ENABLE => RX_PATH_ENABLE,
+		DO_SIMULATION  => DO_SIMULATION
+		)
 port map (
 	CLK							=> CLK,
 	RESET						=> RESET,

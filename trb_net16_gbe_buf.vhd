@@ -16,6 +16,7 @@ use work.trb_net_gbe_protocols.all;
 entity trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
+	RX_PATH_ENABLE      : integer range 0 to 1 := 1;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
 );
 port(
@@ -634,6 +635,10 @@ fc_ttl              <= x"ff";
 --soft_gbe_reset <= '1' when soft_rst = '1' or (dhcp_done = '0' and rst_ctr(24) = '1') else '0';
 
 MAIN_CONTROL : trb_net16_gbe_main_control
+	generic map(
+		RX_PATH_ENABLE => RX_PATH_ENABLE,
+		DO_SIMULATION  => DO_SIMULATION
+		)
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> serdes_clk_125,
@@ -900,50 +905,6 @@ port map(
 	MONITOR_TX_FRAMES_OUT   => monitor_tx_frames
 );
 
-
-RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
-port map(
-	CLK			=> CLK,
-	RESET			=> global_reset, --RESET,
-
--- signals to/from frame_receiver
-	RC_DATA_IN		=> fr_q,
-	FR_RD_EN_OUT		=> fr_rd_en,
-	FR_FRAME_VALID_IN	=> fr_frame_valid,
-	FR_GET_FRAME_OUT	=> fr_get_frame,
-	FR_FRAME_SIZE_IN	=> fr_frame_size,
-	FR_FRAME_PROTO_IN	=> fr_frame_proto,
-	FR_IP_PROTOCOL_IN	=> fr_ip_proto,
-	
-	FR_SRC_MAC_ADDRESS_IN	=> fr_src_mac,
-	FR_DEST_MAC_ADDRESS_IN  => fr_dest_mac,
-	FR_SRC_IP_ADDRESS_IN	=> fr_src_ip,
-	FR_DEST_IP_ADDRESS_IN	=> fr_dest_ip,
-	FR_SRC_UDP_PORT_IN	=> fr_src_udp,
-	FR_DEST_UDP_PORT_IN	=> fr_dest_udp,
-
--- signals to/from main controller
-	RC_RD_EN_IN		=> rc_rd_en,
-	RC_Q_OUT		=> rc_q,
-	RC_FRAME_WAITING_OUT	=> rc_frame_ready,
-	RC_LOADING_DONE_IN	=> rc_loading_done,
-	RC_FRAME_SIZE_OUT	=> rc_frame_size,
-	RC_FRAME_PROTO_OUT	=> rc_frame_proto,
-	
-	RC_SRC_MAC_ADDRESS_OUT	=> rc_src_mac,
-	RC_DEST_MAC_ADDRESS_OUT => rc_dest_mac,
-	RC_SRC_IP_ADDRESS_OUT	=> rc_src_ip,
-	RC_DEST_IP_ADDRESS_OUT	=> rc_dest_ip,
-	RC_SRC_UDP_PORT_OUT	=> rc_src_udp,
-	RC_DEST_UDP_PORT_OUT	=> rc_dest_udp,
-
--- statistics
-	FRAMES_RECEIVED_OUT	=> rc_frames_rec_ctr,
-	BYTES_RECEIVED_OUT      => rc_bytes_rec,
-
-
-	DEBUG_OUT		=> rc_debug
-);
 dbg_q(15 downto 9) <= (others  => '0');
 
 FRAME_TRANSMITTER: trb_net16_gbe_frame_trans
@@ -974,6 +935,52 @@ port map(
 	--DEBUG_OUT(31 downto 0)		=> open,
 	--DEBUG_OUT(63 downto 32)		=> open
 );  
+
+rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
+
+	RECEIVE_CONTROLLER : trb_net16_gbe_receive_control
+	port map(
+		CLK			=> CLK,
+		RESET			=> global_reset, --RESET,
+	
+	-- signals to/from frame_receiver
+		RC_DATA_IN		=> fr_q,
+		FR_RD_EN_OUT		=> fr_rd_en,
+		FR_FRAME_VALID_IN	=> fr_frame_valid,
+		FR_GET_FRAME_OUT	=> fr_get_frame,
+		FR_FRAME_SIZE_IN	=> fr_frame_size,
+		FR_FRAME_PROTO_IN	=> fr_frame_proto,
+		FR_IP_PROTOCOL_IN	=> fr_ip_proto,
+		
+		FR_SRC_MAC_ADDRESS_IN	=> fr_src_mac,
+		FR_DEST_MAC_ADDRESS_IN  => fr_dest_mac,
+		FR_SRC_IP_ADDRESS_IN	=> fr_src_ip,
+		FR_DEST_IP_ADDRESS_IN	=> fr_dest_ip,
+		FR_SRC_UDP_PORT_IN	=> fr_src_udp,
+		FR_DEST_UDP_PORT_IN	=> fr_dest_udp,
+	
+	-- signals to/from main controller
+		RC_RD_EN_IN		=> rc_rd_en,
+		RC_Q_OUT		=> rc_q,
+		RC_FRAME_WAITING_OUT	=> rc_frame_ready,
+		RC_LOADING_DONE_IN	=> rc_loading_done,
+		RC_FRAME_SIZE_OUT	=> rc_frame_size,
+		RC_FRAME_PROTO_OUT	=> rc_frame_proto,
+		
+		RC_SRC_MAC_ADDRESS_OUT	=> rc_src_mac,
+		RC_DEST_MAC_ADDRESS_OUT => rc_dest_mac,
+		RC_SRC_IP_ADDRESS_OUT	=> rc_src_ip,
+		RC_DEST_IP_ADDRESS_OUT	=> rc_dest_ip,
+		RC_SRC_UDP_PORT_OUT	=> rc_src_udp,
+		RC_DEST_UDP_PORT_OUT	=> rc_dest_udp,
+	
+	-- statistics
+		FRAMES_RECEIVED_OUT	=> rc_frames_rec_ctr,
+		BYTES_RECEIVED_OUT      => rc_bytes_rec,
+	
+	
+		DEBUG_OUT		=> rc_debug
+	);
 
   FRAME_RECEIVER : trb_net16_gbe_frame_receiver
   port map(
@@ -1016,6 +1023,35 @@ port map(
 	  MONITOR_RX_FRAMES_OUT => monitor_rx_frames,
 	  MONITOR_DROPPED_OUT   => monitor_dropped
   );
+  
+end generate rx_enable_gen;
+
+rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
+	
+	
+		rc_q <= (others => '0');
+		rc_frame_ready <= '0';
+		rc_frame_size <= (others => '0');
+		rc_frame_proto <= (others => '0');
+		
+		rc_src_mac <= (others => '0');
+		rc_dest_mac <= (others => '0');
+		rc_src_ip <= (others => '0');
+		rc_dest_ip <= (others => '0');
+		rc_src_udp <= (others => '0');
+		rc_dest_udp <= (others => '0');
+	
+		rc_frames_rec_ctr <= (others => '0');
+		rc_bytes_rec <= (others => '0');
+		rc_debug <= (others => '0');
+		
+		monitor_rx_bytes <= (others => '0');
+	    monitor_rx_frames <= (others => '0');
+	    monitor_dropped <= (others => '0');
+	    
+	    mac_rx_fifo_full <= '0';
+	
+end generate rx_disable_gen;
 
 
 -- in case of real hardware, we use the IP cores for MAC and PHY, and also put a SerDes in

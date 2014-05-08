@@ -19,6 +19,10 @@ use work.trb_net_gbe_protocols.all;
 
 
 entity trb_net16_gbe_main_control is
+	generic(
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
+		DO_SIMULATION  : integer range 0 to 1 := 0
+	);
 port (
 	CLK			: in	std_logic;  -- system clock
 	CLK_125			: in	std_logic;
@@ -239,6 +243,10 @@ begin
 unique_id <= MC_UNIQUE_ID_IN;
 
 protocol_selector : trb_net16_gbe_protocol_selector
+generic map(
+		RX_PATH_ENABLE => RX_PATH_ENABLE,
+		DO_SIMULATION  => DO_SIMULATION
+		)
 port map(
 	CLK			=> CLK,
 	RESET		=> RESET,
@@ -385,7 +393,11 @@ begin
 --		if (RESET = '1') then
 --			redirect_current_state <= IDLE;
 --		else
+		if RX_PATH_ENABLE = 1 then
 			redirect_current_state <= redirect_next_state;
+		else
+			redirect_current_state <= IDLE;
+		end if;
 --		end if;
 	end if;
 end process REDIRECT_MACHINE_PROC;
@@ -594,7 +606,11 @@ begin
 --				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
 --			end if;
 --		else
+		if RX_PATH_ENABLE = 1 then
 			link_current_state <= link_next_state;
+		else
+			link_current_state <= ACTIVE;
+		end if;
 --		end if;
 	end if;
 end process;

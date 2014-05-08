@@ -528,6 +528,10 @@ port (
 end component;
 
 component trb_net16_gbe_response_constructor_TrbNetData is
+generic (
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
+		DO_SIMULATION  : integer range 0 to 1 := 0
+		);
 port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
