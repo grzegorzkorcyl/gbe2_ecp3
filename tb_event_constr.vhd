@@ -170,9 +170,16 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	SLV_DATA_IN                  => (others => '0'),
 	SLV_DATA_OUT                 => open,
 	
-	CFG_GBE_ENABLE_IN           => '0',
-	CFG_IPU_ENABLE_IN           => '0',
-	CFG_MULT_ENABLE_IN          => '0',
+	CFG_GBE_ENABLE_IN            => '1',
+	CFG_IPU_ENABLE_IN            => '1',
+	CFG_MULT_ENABLE_IN           => '0',
+	CFG_SUBEVENT_ID_IN			 => x"0000_00cf",
+	CFG_SUBEVENT_DEC_IN          => x"0002_0001",
+	CFG_QUEUE_DEC_IN             => x"0003_0062",
+	CFG_READOUT_CTR_IN           => (others => '0'), 
+	CFG_READOUT_CTR_VALID_IN     => '0', 
+	CFG_ADDITIONAL_HDR_IN        => '0',
+	CFG_INSERT_TTYPE_IN          => '0',
 	
 	MC_UNIQUE_ID_IN => (others => '0'),
 
