@@ -440,7 +440,7 @@ begin
 		when DECIDE =>
 			load_state <= x"4";
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (queue_size + subevent_size < MAX_MESSAGE_SIZE_IN) then
+				if (queue_size + subevent_size(17 downto 2) < MAX_MESSAGE_SIZE_IN) then
 					load_next_state <= LOAD_SUBEVENT;
 				else
 					load_next_state <= WAIT_FOR_PC;
