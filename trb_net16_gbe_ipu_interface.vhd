@@ -97,7 +97,7 @@ signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
-signal queue_size : std_logic_vector(15 downto 0);
+signal queue_size : std_logic_vector(17 downto 0);
 
 begin
 
@@ -440,7 +440,7 @@ begin
 		when DECIDE =>
 			load_state <= x"4";
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (queue_size + subevent_size(17 downto 2) < MAX_MESSAGE_SIZE_IN) then
+				if (queue_size + subevent_size < MAX_MESSAGE_SIZE_IN) then
 					load_next_state <= LOAD_SUBEVENT;
 				else
 					load_next_state <= WAIT_FOR_PC;
@@ -510,7 +510,7 @@ begin
 		if (load_current_state = IDLE) then
 			queue_size <= (others => '0');
 		elsif (load_current_state = LOAD_SUBEVENT) then
-			queue_size <= queue_size + subevent_size(17 downto 2);
+			queue_size <= queue_size + subevent_size;
 		else
 			queue_size <= queue_size;
 		end if;		
