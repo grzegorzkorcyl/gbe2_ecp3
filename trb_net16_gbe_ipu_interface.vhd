@@ -506,7 +506,7 @@ begin
 		if (load_current_state = IDLE) then
 			queue_size <= (others => '0');
 		elsif (load_current_state = LOAD_SUBEVENT) then
-			queue_size <= queue_size + subevent_size;
+			queue_size <= queue_size + subevent_size(17 downto 2);
 		else
 			queue_size <= queue_size;
 		end if;		
