@@ -85,6 +85,10 @@ signal mac_tx_done, mac_fifoeof : std_logic;
 begin
 
 MAIN_CONTROL : trb_net16_gbe_main_control
+generic map(
+		RX_PATH_ENABLE => 1,
+		DO_SIMULATION  => 1
+	)
   port map(
 	  CLK			=> CLK,
 	  CLK_125		=> RX_MAC_CLK,
