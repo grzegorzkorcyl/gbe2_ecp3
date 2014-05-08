@@ -472,7 +472,11 @@ begin
 		when LOAD =>
 			load_state <= x"6";
 			if (sf_eod = '1') then
-				load_next_state <= CLOSE;
+				if (MULT_EVT_ENABLE_IN = '1') then
+					load_next_state <= LOAD_SUBEVENT;
+				else
+					load_next_state <= CLOSE;
+				end if;
 			else
 				load_next_state <= LOAD;
 			end if;
