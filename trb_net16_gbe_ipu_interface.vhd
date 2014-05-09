@@ -72,7 +72,7 @@ type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, 
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
-type loadStates is (IDLE, REMOVE, WAIT_ONE, DECIDE, WAIT_FOR_LOAD, LOAD, CLOSE);
+type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_PACKET, CLOSE_SUB, CLOSE_QUEUE);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -97,6 +97,7 @@ signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
+signal temp_packet_ctr : integer range 0 to 10 := 0;
 
 begin
 
@@ -412,20 +413,24 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod, MULT_EVT_ENABLE_IN, temp_packet_ctr)
 begin
 	case (load_current_state) is
 
 		when IDLE =>
 			load_state <= x"1";
+			load_next_state <= WAIT_FOR_SUBS;
+			
+		when WAIT_FOR_SUBS =>
+			load_state <= x"2";
 			if (saved_events_ctr_gbe /= loaded_events_ctr) then
 				load_next_state <= REMOVE;
 			else
-				load_next_state <= IDLE;
+				load_next_state <= WAIT_FOR_SUBS;
 			end if;
 		
 		when REMOVE =>
-			load_state <= x"2";
+			load_state <= x"3";
 			if (loaded_bytes_ctr = x"0008") then
 				load_next_state <= WAIT_ONE;
 			else
@@ -433,16 +438,27 @@ begin
 			end if;
 			
 		when WAIT_ONE =>
-			load_state <= x"3";
+			load_state <= x"4";
 			load_next_state <= DECIDE;
 		
 		when DECIDE =>
-			load_state <= x"4";
-			load_next_state <= WAIT_FOR_LOAD;	
+			load_state <= x"5";
+			if (MULT_EVT_ENABLE_IN = '1') then
+				if (temp_packet_ctr < 4) then
+					load_next_state <= CLOSE_QUEUE;
+				else
+					load_next_state <= PREPARE_TO_LOAD_SUB;
+				end if;
+			else
+				load_next_state <= PREPARE_TO_LOAD_SUB;
+			end if;
 		
+		when PREPARE_TO_LOAD_SUB =>
+			load_state <= x"6";
+			load_next_state <= WAIT_FOR_LOAD;
 			
 		when WAIT_FOR_LOAD =>
-			load_state <= x"5";
+			load_state <= x"7";
 			if (PC_READY_IN = '1') then
 				load_next_state <= LOAD;
 			else
@@ -450,15 +466,19 @@ begin
 			end if;
 		
 		when LOAD =>
-			load_state <= x"6";
+			load_state <= x"8";
 			if (sf_eod = '1') then
-				load_next_state <= CLOSE;
+				load_next_state <= CLOSE_SUB;
 			else
 				load_next_state <= LOAD;
 			end if;
 		
-		when CLOSE =>
-			load_state <= x"7";
+		when CLOSE_SUB =>
+			load_state <= x"9";
+			load_next_state <= WAIT_FOR_SUBS;
+			
+		when CLOSE_QUEUE =>
+			load_state <= x"a";
 			load_next_state <= IDLE;
 		
 		when others => load_next_state <= IDLE;
@@ -478,6 +498,22 @@ port map(
 	D_IN  => saved_events_ctr,
 	D_OUT => saved_events_ctr_gbe
 );
+
+
+process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			temp_packet_ctr <= 0;
+		elsif (load_current_state = WAIT_ONE) then
+			temp_packet_ctr <= temp_packet_ctr + 1;
+		else
+			temp_packet_ctr <= temp_packet_ctr;
+		end if;
+	end if;
+end process;
+
+
 
 
 --TODO: create a proper read signal here
@@ -538,7 +574,7 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
-		elsif (load_current_state = DECIDE) then
+		elsif (load_current_state = DECIDE) then -- PO CO TO GOWNO?
 			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
@@ -570,7 +606,7 @@ begin
 	if (RESET = '1') then
 		loaded_events_ctr <= (others => '0');
 	elsif rising_edge(CLK_GBE) then
-		if (load_current_state = CLOSE) then
+		if (load_current_state = CLOSE_SUB) then
 			loaded_events_ctr <= loaded_events_ctr + x"1";
 		else
 			loaded_events_ctr <= loaded_events_ctr;
@@ -581,10 +617,10 @@ end process LOADED_EVENTS_CTR_PROC;
 LOADED_BYTES_CTR_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE or load_current_state = DECIDE) then
+		if (load_current_state = WAIT_FOR_SUBS) then
 			loaded_bytes_ctr <= (others => '0');
 		elsif (sf_rd_en = '1') then
-			if (load_current_state = REMOVE or load_current_state = LOAD) then
+			if (load_current_state = REMOVE) then
 				loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
 			else
 				loaded_bytes_ctr <= loaded_bytes_ctr;
@@ -668,7 +704,15 @@ PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = DECIDE) then
-			PC_SOS_OUT <= '1';
+			if (MULT_EVT_ENABLE_IN = '1') then
+				if (temp_packet_ctr < 4) then
+					PC_SOS_OUT <= '1';
+				else
+					PC_SOS_OUT <= '0';
+				end if;
+			else
+				PC_SOS_OUT <= '1';
+			end if;
 		else
 			PC_SOS_OUT <= '0';
 		end if; 
@@ -693,7 +737,11 @@ end process PC_EOD_PROC;
 PC_EOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		PC_EOS_OUT <= '0';
+		if (load_current_state = CLOSE_QUEUE) then
+			PC_EOS_OUT <= '1';
+		else
+			PC_EOS_OUT <= '0';
+		end if;
 	end if;
 end process PC_EOS_PROC;
 
