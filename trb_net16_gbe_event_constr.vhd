@@ -78,7 +78,6 @@ signal queue_size : std_logic_vector(31 downto 0);
 
 signal termination : std_logic_vector(255 downto 0);
 signal term_ctr : integer range 0 to 33;
-signal size_for_padding : std_logic_vector(7 downto 0);
 
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
@@ -90,7 +89,7 @@ signal qsf_full, df_afull : std_logic;
 signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
-signal last_sub : std_logic;
+signal next_q_size : std_logic_vector(15 downto 0);
 
 begin
 
@@ -381,20 +380,35 @@ begin
 	end if;
 end process QSF_WR_PROC;
 
-QUEUE_SIZE_PROC : process(CLK)
+QUEUE_SIZE_PROC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
-		
-		if (PC_END_OF_QUEUE_IN = '1') then
-			queue_size <= (others => '0');
-		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			if (PC_SUB_SIZE_IN(2) = '1') then
-				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
+	if RESET = '1' then
+		queue_size <= x"0010";
+	elsif rising_edge(CLK) then
+		if (end_of_queue_q = '0') then
+			next_q_size <= x"0010";
+			
+			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+				if (PC_SUB_SIZE_IN(2) = '1') then
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"8";
+				else
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"8";
+				end if;
 			else
-				queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
+				queue_size <= queue_size;
 			end if;
 		else
 			queue_size <= queue_size;
+			
+			if (qsf_wr_en_qqq = '1') then
+				queue_size <= next_q_size;
+			else
+				if (PC_SUB_SIZE_IN(2) = '1') then
+					next_q_size <= PC_SUB_SIZE_IN + x"4" + x"8";
+				else
+					next_q_size <= PC_SUB_SIZE_IN + x"8";
+				end if;
+			end if;
 		end if;
 		
 --		if (MULT_EVT_ENABLE_IN = '1') then
