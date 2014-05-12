@@ -244,6 +244,19 @@ begin
 		end case;	
 	end process state_machine;
 	
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (current_state = IDLE) then
+				data_ctr <= (others => '0');
+			elsif (current_state = LOOP_OVER_DATA) then
+				data_ctr <= data_ctr + x"1";
+			else
+				data_ctr <= data_ctr;
+			end if;
+		end if;
+	end process;			
+	
 	ctr_proc : process(clk)
 	begin
 		if rising_edge(clk) then
