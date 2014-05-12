@@ -388,7 +388,7 @@ begin
 		queue_size <= x"0000_0010";
 	elsif rising_edge(CLK) then
 		if (end_of_queue_q = '0') then
-			next_q_size <= x"0000_0010";
+			next_q_size <= x"0000_0000";
 			
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
@@ -406,9 +406,9 @@ begin
 				queue_size <= next_q_size;
 			else
 				if (PC_SUB_SIZE_IN(2) = '1') then
-					next_q_size <= PC_SUB_SIZE_IN + x"4" + x"8";
+					next_q_size <= x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
 				else
-					next_q_size <= PC_SUB_SIZE_IN + x"8";
+					next_q_size <= x"10" + PC_SUB_SIZE_IN + x"8";
 				end if;
 			end if;
 		end if;
