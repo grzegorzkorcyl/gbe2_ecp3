@@ -444,7 +444,7 @@ begin
 		when DECIDE =>
 			load_state <= x"5";
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (temp_packet_ctr > 4) then
+				if (temp_packet_ctr > 1) then
 					load_next_state <= CLOSE_QUEUE;
 				else
 					load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -705,7 +705,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = DECIDE) then
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (temp_packet_ctr > 4) then
+				if (temp_packet_ctr > 1) then
 					PC_SOS_OUT <= '0';
 				else
 					PC_SOS_OUT <= '1';
