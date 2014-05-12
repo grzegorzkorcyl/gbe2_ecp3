@@ -705,7 +705,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = DECIDE) then
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (temp_packet_ctr < 4) then
+				if (temp_packet_ctr > 4) then
 					PC_SOS_OUT <= '1';
 				else
 					PC_SOS_OUT <= '0';
