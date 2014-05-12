@@ -476,7 +476,11 @@ begin
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			load_next_state <= PREPARE_TO_LOAD_SUB; --IDLE;
+			if (PC_READY_IN = '1') then
+				load_next_state <= PREPARE_TO_LOAD_SUB; --IDLE;
+			else
+				load_next_state <= CLOSE_QUEUE;
+			end if;
 		
 		when others => load_next_state <= IDLE;
 
@@ -698,8 +702,6 @@ PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = PREPARE_TO_LOAD_SUB) then
-			PC_SOS_OUT <= '1';
-		elsif (load_current_state = CLOSE_QUEUE) then
 			PC_SOS_OUT <= '1';
 		else
 			PC_SOS_OUT <= '0';

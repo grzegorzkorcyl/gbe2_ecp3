@@ -90,6 +90,7 @@ signal qsf_full, df_afull : std_logic;
 signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
+signal last_sub : std_logic;
 
 begin
 
@@ -187,14 +188,22 @@ begin
 	end if;
 end process SHF_WR_EN_PROC;
 
-SHF_Q_PROC : process(CLK)
+VARIOUS_SYNC : process(CLK)
 begin
 	if rising_edge(CLK) then
+		
 		end_of_queue <= PC_END_OF_QUEUE_IN;
-		end_of_queue_q <= end_of_queue;
+		if (end_of_queue = '1') then
+			end_of_queue_q <= '1';
+		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
+			end_of_queue_q <= '0';
+		else
+			end_of_queue_q <= end_of_queue_q ;
+		end if;
+		
 		shf_qq <= shf_q;
 	end if;
-end process SHF_Q_PROC;
+end process VARIOUS_SYNC;
 
 SAVE_SUB_HDR_MACHINE_PROC : process(RESET, CLK)
 begin
@@ -360,12 +369,15 @@ end process QSF_DATA_PROC;
 QSF_WR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-	
 		qsf_wr_en_q   <= qsf_wr_en;
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
 		
-		qsf_wr_en <= PC_END_OF_QUEUE_IN;
+		if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+			qsf_wr_en <= '1';
+		else
+			qsf_wr_en <= '0';
+		end if;
 	end if;
 end process QSF_WR_PROC;
 
