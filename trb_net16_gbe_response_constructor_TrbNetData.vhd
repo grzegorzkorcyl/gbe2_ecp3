@@ -124,7 +124,7 @@ signal ic_src_udp				: std_logic_vector(15 downto 0);
 
 signal pc_wr_en					: std_logic;
 signal pc_data					: std_logic_vector(7 downto 0);
-signal pc_eod					: std_logic;
+signal pc_eoq					: std_logic;
 signal pc_sos					: std_logic;
 signal pc_ready					: std_logic;
 signal pc_padding				: std_logic;
@@ -246,7 +246,7 @@ port map(
 	PC_READY_IN				 => pc_ready,
 	PC_SOS_OUT				 => pc_sos,
 	PC_EOS_OUT				 => pc_eos,
-	PC_EOD_OUT				 => pc_eod,
+	PC_EOQ_OUT				 => pc_eoq,
 	PC_SUB_SIZE_OUT			 => pc_sub_size,
 	PC_TRIG_NR_OUT			 => pc_trig_nr,
 	PC_TRIGGER_TYPE_OUT      => pc_trig_type,
@@ -255,7 +255,6 @@ port map(
 	DEBUG_OUT                => ipu_dbg
 );
 
---TODO: add missing values from setup
 PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
 port map(
 	CLK						=> CLK,
@@ -266,7 +265,7 @@ port map(
 	PC_READY_OUT			=> pc_ready,
 	PC_START_OF_SUB_IN		=> pc_sos,
 	PC_END_OF_SUB_IN		=> pc_eos,
-	PC_END_OF_DATA_IN		=> pc_eod,
+	PC_END_OF_QUEUE_IN		=> pc_eoq,
 	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	PC_SUB_SIZE_IN			=> pc_sub_size,
 	PC_PADDING_IN			=> pc_padding,
@@ -276,7 +275,7 @@ port map(
 	PC_TRIGGER_TYPE_IN      => pc_trig_type,
 	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN, --x"0003_0062", --pc_queue_dec,
 	PC_MAX_FRAME_SIZE_IN    => (others => '0'), -- not used anymore
-	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",  -- not used for the moment
+	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
 	PC_DELAY_IN             => (others => '0'),
 	PC_INSERT_TTYPE_IN      => CFG_INSERT_TTYPE_IN,
 	TC_RD_EN_IN				=> tc_rd_en,

@@ -53,8 +53,8 @@ entity trb_net16_gbe_ipu_interface is
 	PC_DATA_OUT                 : out   std_logic_vector (7 downto 0);
 	PC_READY_IN                 : in    std_logic;
 	PC_SOS_OUT                  : out   std_logic;
-	PC_EOS_OUT                  : out   std_logic; -- gk 07.10.10
-	PC_EOD_OUT                  : out   std_logic;
+	PC_EOS_OUT                  : out   std_logic;
+	PC_EOQ_OUT                  : out   std_logic;
 	PC_SUB_SIZE_OUT             : out   std_logic_vector(31 downto 0);
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
 	PC_PADDING_OUT              : out   std_logic;
@@ -77,7 +77,7 @@ signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
 signal sf_data : std_Logic_vector(15 downto 0);
-signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eod, sf_eod_q, sf_eod_qq : std_logic;
+signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eos, sf_eos_q, sf_eos_qq : std_logic;
 signal sf_q, pc_data : std_logic_vector(7 downto 0);
 
 signal cts_rnd, cts_trg : std_logic_vector(15 downto 0);
@@ -365,7 +365,7 @@ port map(
 	AmEmptyThresh     => b"0000_0000_0000_0010", --b"0000_0000_0000_0010", -- one byte ahead
 	AmFullThresh      => b"001_0011_1000_1000", --b"111_1111_1110_1111", -- 0x7fef = 32751
 	Q(7 downto 0)     => sf_q,
-	Q(8)              => sf_eod,
+	Q(8)              => sf_eos,
 	--WCNT              => open,
 	--RCNT              => open,
 	Empty             => sf_empty,
@@ -413,7 +413,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eod, MULT_EVT_ENABLE_IN, temp_packet_ctr)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, MULT_EVT_ENABLE_IN, temp_packet_ctr)
 begin
 	case (load_current_state) is
 
@@ -467,7 +467,7 @@ begin
 		
 		when LOAD =>
 			load_state <= x"8";
-			if (sf_eod = '1') then
+			if (sf_eos = '1') then
 				load_next_state <= CLOSE_SUB;
 			else
 				load_next_state <= LOAD;
@@ -722,28 +722,20 @@ end process PC_SOS_PROC;
 PC_EOD_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (sf_eod = '1') then
-			sf_eod_q <= '1';
-		else
-			sf_eod_q <= '0';
-		end if;
-		
-		--sf_eod_qq <= sf_eod_q;
-		--PC_EOD_OUT <= sf_eod_qq;
-		PC_EOD_OUT <= sf_eod; --_q;
+		PC_EOS_OUT <= sf_eos;
 	end if;
 end process PC_EOD_PROC;
 
-PC_EOS_PROC : process(CLK_GBE)
+PC_EOQ_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = CLOSE_QUEUE) then
-			PC_EOS_OUT <= '1';
+			PC_EOQ_OUT <= '1';
 		else
-			PC_EOS_OUT <= '0';
+			PC_EOQ_OUT <= '0';
 		end if;
 	end if;
-end process PC_EOS_PROC;
+end process PC_EOQ_PROC;
 
 --*******
 -- outputs

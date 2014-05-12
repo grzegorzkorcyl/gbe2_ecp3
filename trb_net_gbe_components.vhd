@@ -68,8 +68,8 @@ port(
 	PC_READY_OUT            : out   std_logic;
 	PC_START_OF_SUB_IN      : in    std_logic;
 	PC_END_OF_SUB_IN        : in    std_logic;  -- gk 07.10.10
-	PC_END_OF_DATA_IN       : in    std_logic;
-	PC_TRANSMIT_ON_OUT	: out	std_logic;
+	PC_END_OF_QUEUE_IN      : in    std_logic;
+	PC_TRANSMIT_ON_OUT		: out	std_logic;
 	-- queue and subevent layer headers
 	PC_SUB_SIZE_IN          : in    std_logic_vector(31 downto 0); -- store and swap
 	PC_PADDING_IN           : in    std_logic;  -- gk 29.03.10
@@ -132,7 +132,7 @@ component trb_net16_gbe_ipu_interface is
 	PC_READY_IN                 : in    std_logic;
 	PC_SOS_OUT                  : out   std_logic;
 	PC_EOS_OUT                  : out   std_logic; -- gk 07.10.10
-	PC_EOD_OUT                  : out   std_logic;
+	PC_EOQ_OUT                  : out   std_logic;
 	PC_SUB_SIZE_OUT             : out   std_logic_vector(31 downto 0);
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
 	PC_PADDING_OUT              : out   std_logic;

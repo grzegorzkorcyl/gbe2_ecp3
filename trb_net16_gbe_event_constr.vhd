@@ -23,8 +23,8 @@ port(
 	PC_READY_OUT            : out   std_logic;
 	PC_START_OF_SUB_IN      : in    std_logic;
 	PC_END_OF_SUB_IN        : in    std_logic;  -- gk 07.10.10
-	PC_END_OF_DATA_IN       : in    std_logic;
-	PC_TRANSMIT_ON_OUT	: out	std_logic;
+	PC_END_OF_QUEUE_IN      : in    std_logic;
+	PC_TRANSMIT_ON_OUT	    : out	std_logic;
 	-- queue and subevent layer headers
 	PC_SUB_SIZE_IN          : in    std_logic_vector(31 downto 0); -- store and swap
 	PC_PADDING_IN           : in    std_logic;  -- gk 29.03.10
@@ -62,7 +62,7 @@ type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
 attribute syn_encoding of save_sub_hdr_current_state : signal is "onehot";
 
-signal df_eod, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
+signal df_eos, df_wr_en, df_rd_en, df_empty, df_full, load_eod : std_logic;
 signal df_q, df_qq : std_logic_vector(7 downto 0);
 	
 signal header_ctr : integer range 0 to 31;
@@ -87,7 +87,7 @@ signal size_for_padding : std_logic_vector(7 downto 0);
 signal actual_q_size : std_logic_vector(15 downto 0);
 signal tc_data : std_logic_vector(7 downto 0);
 signal df_data : std_logic_vector(7 downto 0);
-signal df_eod_q, df_eod_qq : std_logic;
+signal df_eos_q, df_eos_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
 signal qsf_full, df_afull : std_logic;
 
@@ -140,14 +140,14 @@ begin
 DF_EOD_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (PC_END_OF_DATA_IN = '1') then
-			df_eod <= '1';
+		if (PC_END_OF_SUB_IN = '1') then
+			df_eos <= '1';
 		else
-			df_eod <= '0';
+			df_eos <= '0';
 		end if;
 		
-		df_eod_q <= df_eod;
-		df_eod_qq <= df_eod_q;
+		df_eos_q <= df_eos;
+		df_eos_qq <= df_eos_q;
 	end if; 
 end process DF_EOD_PROC;
 
@@ -170,7 +170,7 @@ end process DF_WR_EN_PROC;
 DATA_FIFO : fifo_32kx9_flags --fifo_64kx9
 port map(
 	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
-	Data(8)          =>  df_eod_q,
+	Data(8)          =>  df_eos_q,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
 	WrEn             =>  df_wr_en_qq,
@@ -181,7 +181,7 @@ port map(
 	Q(8)             =>  load_eod,
 	Empty            =>  df_empty,
 	Full             =>  df_full,
-	AlmostFull            =>  df_afull
+	AlmostFull       =>  df_afull
 );
 
 DF_QQ_PROC : process(CLK)
@@ -408,24 +408,26 @@ begin
 		qsf_wr_en_q   <= qsf_wr_en;
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
+		
+		qsf_wr_en <= PC_END_OF_QUEUE_IN;
 	
-		if (MULT_EVT_ENABLE_IN = '1') then
-			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-				if (queue_size + x"10" + PC_SUB_SIZE_IN > PC_MAX_QUEUE_SIZE_IN) then
-					qsf_wr_en <= '1';
-				else
-					qsf_wr_en <= '0';
-				end if;
-			else
-				qsf_wr_en <= '0';
-			end if;
-		else
-			if (PC_END_OF_DATA_IN = '1') then
-				qsf_wr_en <= '1';
-			else
-				qsf_wr_en <= '0';
-			end if; 
-		end if;
+--		if (MULT_EVT_ENABLE_IN = '1') then
+--			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+--				if (queue_size + x"10" + PC_SUB_SIZE_IN > PC_MAX_QUEUE_SIZE_IN) then
+--					qsf_wr_en <= '1';
+--				else
+--					qsf_wr_en <= '0';
+--				end if;
+--			else
+--				qsf_wr_en <= '0';
+--			end if;
+--		else
+--			if (PC_END_OF_DATA_IN = '1') then
+--				qsf_wr_en <= '1';
+--			else
+--				qsf_wr_en <= '0';
+--			end if; 
+--		end if;
 	end if;
 end process QSF_WR_PROC;
 
