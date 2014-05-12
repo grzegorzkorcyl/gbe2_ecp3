@@ -479,7 +479,7 @@ begin
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			load_next_state <= IDLE;
+			load_next_state <= PREPARE_TO_LOAD_SUB; --IDLE;
 		
 		when others => load_next_state <= IDLE;
 
