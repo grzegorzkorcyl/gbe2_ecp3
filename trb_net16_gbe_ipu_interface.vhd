@@ -444,7 +444,7 @@ begin
 		when DECIDE =>
 			load_state <= x"5";
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (temp_packet_ctr > 1) then
+				if (temp_packet_ctr > 2) then
 					load_next_state <= CLOSE_QUEUE;
 				else
 					load_next_state <= PREPARE_TO_LOAD_SUB;
