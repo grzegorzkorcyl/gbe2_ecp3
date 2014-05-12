@@ -187,9 +187,11 @@ begin
 	end if;
 end process SHF_WR_EN_PROC;
 
-VARIOUS_SYNC : process(CLK)
+VARIOUS_SYNC : process(RESET, CLK)
 begin
-	if rising_edge(CLK) then
+	if RESET = '1' then
+		end_of_queue_q <= '0';
+	elsif rising_edge(CLK) then
 		
 		end_of_queue <= PC_END_OF_QUEUE_IN;
 		if (end_of_queue = '1') then
