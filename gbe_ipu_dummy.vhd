@@ -69,7 +69,7 @@ begin
 	FEE_DATAREADY_OUT <= fee_dready;
 	FEE_DATA_OUT <= fee_data;
 	
-	timeout_stop <= 4096 when DO_SIMULATION = '0' else 100;
+	timeout_stop <= 4096 when DO_SIMULATION = 0 else 100;
 	
 	state_machine_proc : process (clk, rst) is
 	begin
@@ -424,7 +424,7 @@ begin
 				when LOOP_OVER_DATA =>
 					fee_data <= data_ctr(15 downto 0);
 				when others =>
-					fee_data <= "bf";
+					fee_data <= x"12bc";
 			end case;
 		end if;
 	end process;
