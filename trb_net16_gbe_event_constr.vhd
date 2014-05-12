@@ -89,7 +89,7 @@ signal qsf_full, df_afull : std_logic;
 signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
-signal next_q_size : std_logic_vector(15 downto 0);
+signal next_q_size : std_logic_vector(31 downto 0);
 
 begin
 
@@ -383,10 +383,10 @@ end process QSF_WR_PROC;
 QUEUE_SIZE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
-		queue_size <= x"0010";
+		queue_size <= x"0000_0010";
 	elsif rising_edge(CLK) then
 		if (end_of_queue_q = '0') then
-			next_q_size <= x"0010";
+			next_q_size <= x"0000_0010";
 			
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
