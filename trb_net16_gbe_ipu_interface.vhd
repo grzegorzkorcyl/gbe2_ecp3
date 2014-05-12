@@ -476,11 +476,7 @@ begin
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			if (PC_READY_IN = '1') then
-				load_next_state <= PREPARE_TO_LOAD_SUB; --IDLE;
-			else
-				load_next_state <= CLOSE_QUEUE;
-			end if;
+			load_next_state <= PREPARE_TO_LOAD_SUB;
 		
 		when others => load_next_state <= IDLE;
 
