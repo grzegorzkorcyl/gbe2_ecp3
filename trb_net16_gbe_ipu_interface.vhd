@@ -46,7 +46,7 @@ entity trb_net16_gbe_ipu_interface is
 	MAX_MESSAGE_SIZE_IN			: in	std_logic_vector(31 downto 0); -- the maximum size of one HadesQueue  -- gk 08.04.10
 	MIN_MESSAGE_SIZE_IN			: in	std_logic_vector(31 downto 0); -- gk 20.07.10
 	READOUT_CTR_IN				: in	std_logic_vector(23 downto 0); -- gk 26.04.10
-	READOUT_CTR_VALID_IN			: in	std_logic; -- gk 26.04.10
+	READOUT_CTR_VALID_IN		: in	std_logic; -- gk 26.04.10
 	-- PacketConstructor interface
 	ALLOW_LARGE_IN				: in	std_logic;  -- gk 21.07.10
 	PC_WR_EN_OUT                : out   std_logic;
@@ -98,6 +98,7 @@ signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
 signal temp_packet_ctr : integer range 0 to 10 := 0;
+signal number_of_subs : std_logic_vector(15 downto 0);
 
 begin
 
@@ -405,11 +406,7 @@ begin
 	if RESET = '1' then
 		load_current_state <= IDLE;
 	elsif rising_edge(CLK_GBE) then
---		if (RESET = '1') then
---			load_current_state <= IDLE;
---		else
-			load_current_state <= load_next_state;
---		end if;
+		load_current_state <= load_next_state;
 	end if;
 end process LOAD_MACHINE_PROC;
 
@@ -444,7 +441,7 @@ begin
 		when DECIDE =>
 			load_state <= x"5";
 			if (MULT_EVT_ENABLE_IN = '1') then
-				if (temp_packet_ctr > 2) then
+				if (temp_packet_ctr > 1) then
 					load_next_state <= CLOSE_QUEUE;
 				else
 					load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -514,9 +511,6 @@ begin
 end process;
 
 
-
-
---TODO: create a proper read signal here
 SF_RD_EN_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
@@ -574,7 +568,7 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
-		elsif (load_current_state = DECIDE) then -- PO CO TO GOWNO?
+		elsif (load_current_state = DECIDE) then
 			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
@@ -600,7 +594,7 @@ end process TRIGGER_TYPE_PROC;
 
 --*****
 -- counters
-
+	
 LOADED_EVENTS_CTR_PROC : process(RESET, CLK_GBE)
 begin
 	if (RESET = '1') then
@@ -703,16 +697,9 @@ end process PC_WR_EN_PROC;
 PC_SOS_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = DECIDE) then
---			if (MULT_EVT_ENABLE_IN = '1') then
---				if (temp_packet_ctr > 1) then
---					PC_SOS_OUT <= '0';
---				else
---					PC_SOS_OUT <= '1';
---				end if;
---			else
---				PC_SOS_OUT <= '1';
---			end if;
+		if (load_current_state = PREPARE_TO_LOAD_SUB) then
+			PC_SOS_OUT <= '1';
+		elsif (load_current_state = CLOSE_QUEUE) then
 			PC_SOS_OUT <= '1';
 		else
 			PC_SOS_OUT <= '0';
