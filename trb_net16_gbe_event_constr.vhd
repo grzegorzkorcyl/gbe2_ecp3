@@ -89,7 +89,7 @@ signal qsf_full, df_afull : std_logic;
 
 signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
-signal end_queue_marker, end_of_queue : std_logic;
+signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
 
 begin
 
@@ -163,7 +163,7 @@ end process READY_PROC;
 SUBEVENT_HEADERS_FIFO : fifo_4096x9 --fifo_4kx8_ecp3
 port map(
 	Data(7 downto 0) => shf_data,
-	DATA(8)          => end_of_queue,
+	DATA(8)          => end_of_queue_q,
 	WrClock     => CLK,
 	RdClock		=> CLK,
 	WrEn        => shf_wr_en,
@@ -191,6 +191,7 @@ SHF_Q_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		end_of_queue <= PC_END_OF_QUEUE_IN;
+		end_of_queue_q <= end_of_queue;
 		shf_qq <= shf_q;
 	end if;
 end process SHF_Q_PROC;
