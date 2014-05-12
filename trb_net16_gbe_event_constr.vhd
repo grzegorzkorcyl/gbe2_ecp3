@@ -50,7 +50,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 
 attribute syn_encoding	: string;
 
-type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB_MARKER, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -495,13 +495,10 @@ begin
 			
 		when LOAD_Q_HEADERS =>
 			if (header_ctr = 0) then
-				load_next_state <= LOAD_SUB_MARKER;
+				load_next_state <= LOAD_SUB;
 			else
 				load_next_state <= LOAD_Q_HEADERS;
 			end if;
-			
-		when LOAD_SUB_MARKER =>
-			load_next_state <= LOAD_SUB;
 			
 		when LOAD_SUB =>
 			if (header_ctr = 0) then
@@ -613,8 +610,8 @@ df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' and l
 					else '0';
 
 shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
-					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or 
-					(load_current_state = LOAD_SUB_MARKER)
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 1 and TC_RD_EN_IN = '1')  -- load the end queue marker
 					else '0';
 
 QUEUE_FIFO_RD_PROC : process(CLK)
