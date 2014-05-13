@@ -581,10 +581,12 @@ begin
 			else
 				header_ctr <= 15;
 			end if;
-		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes = actual_q_size) then
+		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes = actual_q_size and insert_padding = '0') then
 			header_ctr <= 31;
-		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes /= actual_q_size) then
+		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes /= actual_q_size and insert_padding = '0') then
 			header_ctr <= 15;	
+		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes /= actual_q_size and insert_padding = '1') then
+			header_ctr <= 3;	
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
