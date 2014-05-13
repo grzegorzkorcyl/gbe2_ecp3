@@ -17,6 +17,7 @@ entity trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
 	RX_PATH_ENABLE      : integer range 0 to 1 := 1;
+	USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1 := 0;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
 );
 port(
@@ -56,7 +57,7 @@ port(
 	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
 	-- gk 23.04.10
 	LED_PACKET_SENT_OUT          : out std_logic;
-	LED_AN_DONE_N_OUT            : out std_logic;
+	LED_GBE_READY_OUT            : out std_logic;
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
@@ -605,6 +606,19 @@ signal rst_ctr : std_logic_vector(24 downto 0);
 signal mac_reset : std_logic;
 signal global_reset, rst_n, ff : std_logic;
 
+  signal gbe_cts_number                   : std_logic_vector(15 downto 0);
+  signal gbe_cts_code                     : std_logic_vector(7 downto 0);
+  signal gbe_cts_information              : std_logic_vector(7 downto 0);
+  signal gbe_cts_start_readout            : std_logic;
+  signal gbe_cts_readout_type             : std_logic_vector(3 downto 0);
+  signal gbe_cts_readout_finished         : std_logic;
+  signal gbe_cts_status_bits              : std_logic_vector(31 downto 0);
+  signal gbe_fee_data                     : std_logic_vector(15 downto 0);
+  signal gbe_fee_dataready                : std_logic;
+  signal gbe_fee_read                     : std_logic;
+  signal gbe_fee_status_bits              : std_logic_vector(31 downto 0);
+  signal gbe_fee_busy                     : std_logic;
+
 begin
 
 stage_ctrl_regs <= STAGE_CTRL_REGS_IN;
@@ -624,7 +638,7 @@ global_reset <= not rst_n;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
-LED_AN_DONE_N_OUT   <= '0'; --not link_ok; --not pcs_an_complete;
+LED_GBE_READY_OUT   <= dhcp_done; --not pcs_an_complete;
 
 fc_ihl_version      <= x"45";
 fc_tos              <= x"10";
@@ -634,7 +648,135 @@ fc_ttl              <= x"ff";
 
 --soft_gbe_reset <= '1' when soft_rst = '1' or (dhcp_done = '0' and rst_ctr(24) = '1') else '0';
 
-MAIN_CONTROL : trb_net16_gbe_main_control
+main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
+	MAIN_CONTROL : trb_net16_gbe_main_control
+		generic map(
+			RX_PATH_ENABLE => RX_PATH_ENABLE,
+			DO_SIMULATION  => DO_SIMULATION
+			)
+	  port map(
+		  CLK			=> CLK,
+		  CLK_125		=> serdes_clk_125,
+		  RESET			=> RESET,
+	
+		  MC_LINK_OK_OUT	=> link_ok,
+		  MC_RESET_LINK_IN	=> global_reset,
+		  MC_IDLE_TOO_LONG_OUT => idle_too_long,
+		  MC_DHCP_DONE_OUT => dhcp_done,
+	
+	  -- signals to/from receive controller
+		  RC_FRAME_WAITING_IN	=> rc_frame_ready,
+		  RC_LOADING_DONE_OUT	=> rc_loading_done,
+		  RC_DATA_IN		=> rc_q,
+		  RC_RD_EN_OUT		=> rc_rd_en,
+		  RC_FRAME_SIZE_IN	=> rc_frame_size,
+		  RC_FRAME_PROTO_IN	=> rc_frame_proto,
+	
+		  RC_SRC_MAC_ADDRESS_IN	=> rc_src_mac,
+		  RC_DEST_MAC_ADDRESS_IN  => rc_dest_mac,
+		  RC_SRC_IP_ADDRESS_IN	=> rc_src_ip,
+		  RC_DEST_IP_ADDRESS_IN	=> rc_dest_ip,
+		  RC_SRC_UDP_PORT_IN	=> rc_src_udp,
+		  RC_DEST_UDP_PORT_IN	=> rc_dest_udp,
+	
+	  -- signals to/from transmit controller
+		  TC_TRANSMIT_CTRL_OUT	=> mc_transmit_ctrl,
+		  TC_DATA_OUT		=> mc_data,
+		  TC_RD_EN_IN		=> mc_wr_en,
+		  --TC_DATA_NOT_VALID_OUT => tc_data_not_valid,
+		  TC_FRAME_SIZE_OUT	=> mc_frame_size,
+		  TC_FRAME_TYPE_OUT	=> mc_type,
+		  TC_IP_PROTOCOL_OUT	=> mc_ip_proto,
+		  TC_IDENT_OUT          => mc_ident,
+		  
+		  TC_DEST_MAC_OUT	=> mc_dest_mac,
+		  TC_DEST_IP_OUT	=> mc_dest_ip,
+		  TC_DEST_UDP_OUT	=> mc_dest_udp,
+		  TC_SRC_MAC_OUT	=> mc_src_mac,
+		  TC_SRC_IP_OUT		=> mc_src_ip,
+		  TC_SRC_UDP_OUT	=> mc_src_udp,
+		  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
+	
+	  -- signals to/from sgmii/gbe pcs_an_complete
+		  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
+	
+	  -- signals to/from hub
+		  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
+		GSC_CLK_IN               => GSC_CLK_IN,
+		GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
+		GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
+		GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
+		GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
+		GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
+		GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+		GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
+		GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
+		GSC_BUSY_IN              => GSC_BUSY_IN,
+	
+		MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
+		
+			-- CTS interface
+		CTS_NUMBER_IN				=> CTS_NUMBER_IN,
+		CTS_CODE_IN					=> CTS_CODE_IN,
+		CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
+		CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
+		CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
+		CTS_DATA_OUT				=> CTS_DATA_OUT,
+		CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
+		CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
+		CTS_READ_IN					=> CTS_READ_IN,
+		CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
+		CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
+		-- Data payload interface
+		FEE_DATA_IN					=> FEE_DATA_IN,
+		FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
+		FEE_READ_OUT				=> FEE_READ_OUT,
+		FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
+		FEE_BUSY_IN					=> FEE_BUSY_IN, 
+		-- ip configurator
+		SLV_ADDR_IN                 => SLV_ADDR_IN,
+		SLV_READ_IN                 => SLV_READ_IN,
+		SLV_WRITE_IN                => SLV_WRITE_IN,
+		SLV_BUSY_OUT                => SLV_BUSY_OUT,
+		SLV_ACK_OUT                 => SLV_ACK_OUT,
+		SLV_DATA_IN                 => SLV_DATA_IN,
+		SLV_DATA_OUT                => SLV_DATA_OUT,
+		
+		CFG_GBE_ENABLE_IN           => use_gbe,
+		CFG_IPU_ENABLE_IN           => use_trbnet,
+		CFG_MULT_ENABLE_IN          => use_multievents,
+		CFG_SUBEVENT_ID_IN			=> pc_event_id,
+		CFG_SUBEVENT_DEC_IN         => pc_decoding,
+		CFG_QUEUE_DEC_IN            => pc_queue_dec,
+		CFG_READOUT_CTR_IN          => readout_ctr,
+		CFG_READOUT_CTR_VALID_IN    => readout_ctr_valid,
+		CFG_ADDITIONAL_HDR_IN       => additional_hdr,
+		CFG_INSERT_TTYPE_IN         => insert_ttype,
+	
+	  -- signal to/from Host interface of TriSpeed MAC
+		  TSM_HADDR_OUT		=> mac_haddr,
+		  TSM_HDATA_OUT		=> mac_hdataout,
+		  TSM_HCS_N_OUT		=> mac_hcs,
+		  TSM_HWRITE_N_OUT	=> mac_hwrite,
+		  TSM_HREAD_N_OUT	=> mac_hread,
+		  TSM_HREADY_N_IN	=> mac_hready,
+		  TSM_HDATA_EN_N_IN	=> mac_hdata_en,
+		  TSM_RX_STAT_VEC_IN  => mac_rx_stat_vec,
+		  TSM_RX_STAT_EN_IN   => mac_rx_stat_en,
+		  
+		  MONITOR_SELECT_REC_OUT		 => dbg_select_rec,
+		  MONITOR_SELECT_REC_BYTES_OUT   => dbg_select_rec_bytes,
+		  MONITOR_SELECT_SENT_BYTES_OUT  => dbg_select_sent_bytes,
+		  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent,
+		  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen,
+		
+			DATA_HIST_OUT => dbg_hist,
+			SCTRL_HIST_OUT => dbg_hist2
+	  );
+end generate main_gen;
+
+main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
+	MAIN_CONTROL : trb_net16_gbe_main_control
 	generic map(
 		RX_PATH_ENABLE => RX_PATH_ENABLE,
 		DO_SIMULATION  => DO_SIMULATION
@@ -701,23 +843,23 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
 	
 		-- CTS interface
-	CTS_NUMBER_IN				=> CTS_NUMBER_IN,
-	CTS_CODE_IN					=> CTS_CODE_IN,
-	CTS_INFORMATION_IN			=> CTS_INFORMATION_IN,
-	CTS_READOUT_TYPE_IN			=> CTS_READOUT_TYPE_IN,
-	CTS_START_READOUT_IN		=> CTS_START_READOUT_IN,
-	CTS_DATA_OUT				=> CTS_DATA_OUT,
-	CTS_DATAREADY_OUT			=> CTS_DATAREADY_OUT,
-	CTS_READOUT_FINISHED_OUT	=> CTS_READOUT_FINISHED_OUT,
-	CTS_READ_IN					=> CTS_READ_IN,
-	CTS_LENGTH_OUT				=> CTS_LENGTH_OUT,
-	CTS_ERROR_PATTERN_OUT		=> CTS_ERROR_PATTERN_OUT,
-	-- Data payload interface
-	FEE_DATA_IN					=> FEE_DATA_IN,
-	FEE_DATAREADY_IN			=> FEE_DATAREADY_IN,
-	FEE_READ_OUT				=> FEE_READ_OUT,
-	FEE_STATUS_BITS_IN			=> FEE_STATUS_BITS_IN,
-	FEE_BUSY_IN					=> FEE_BUSY_IN, 
+	CTS_NUMBER_IN               => gbe_cts_number,           
+	CTS_CODE_IN                 => gbe_cts_code,             
+	CTS_INFORMATION_IN          => gbe_cts_information,      
+	CTS_READOUT_TYPE_IN         => gbe_cts_readout_type,     
+	CTS_START_READOUT_IN        => gbe_cts_start_readout,    
+	CTS_DATA_OUT                => open,                     
+	CTS_DATAREADY_OUT           => open,                     
+	CTS_READOUT_FINISHED_OUT    => gbe_cts_readout_finished, 
+	CTS_READ_IN                 => '1',                      
+	CTS_LENGTH_OUT              => open,                     
+	CTS_ERROR_PATTERN_OUT       => gbe_cts_status_bits,      
+	--Data payload interface                                 
+	FEE_DATA_IN                 => gbe_fee_data,             
+	FEE_DATAREADY_IN            => gbe_fee_dataready,        
+	FEE_READ_OUT                => gbe_fee_read,             
+	FEE_STATUS_BITS_IN          => gbe_fee_status_bits,      
+	FEE_BUSY_IN                 => gbe_fee_busy,             
 	-- ip configurator
 	SLV_ADDR_IN                 => SLV_ADDR_IN,
 	SLV_READ_IN                 => SLV_READ_IN,
@@ -727,16 +869,16 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => use_gbe,
-	CFG_IPU_ENABLE_IN           => use_trbnet,
-	CFG_MULT_ENABLE_IN          => use_multievents,
-	CFG_SUBEVENT_ID_IN			=> pc_event_id,
-	CFG_SUBEVENT_DEC_IN         => pc_decoding,
-	CFG_QUEUE_DEC_IN            => pc_queue_dec,
-	CFG_READOUT_CTR_IN          => readout_ctr,
-	CFG_READOUT_CTR_VALID_IN    => readout_ctr_valid,
-	CFG_ADDITIONAL_HDR_IN       => additional_hdr,
-	CFG_INSERT_TTYPE_IN         => insert_ttype,
+	CFG_GBE_ENABLE_IN           => '1',
+	CFG_IPU_ENABLE_IN           => '0',
+	CFG_MULT_ENABLE_IN          => '1',
+	CFG_SUBEVENT_ID_IN			=> x"0000_00cf",
+	CFG_SUBEVENT_DEC_IN         => x"0002_0001",
+	CFG_QUEUE_DEC_IN            => x"0003_0062",
+	CFG_READOUT_CTR_IN          => x"00_0000",
+	CFG_READOUT_CTR_VALID_IN    => '0',
+	CFG_ADDITIONAL_HDR_IN       => '0',
+	CFG_INSERT_TTYPE_IN         => '0',
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -759,10 +901,86 @@ MAIN_CONTROL : trb_net16_gbe_main_control
 		SCTRL_HIST_OUT => dbg_hist2
   );
   
+  dummy : gbe_ipu_dummy
+	generic map(DO_SIMULATION => DO_SIMULATION)
+	port map(
+		clk => CLK,
+		rst => global_reset,
+		GBE_READY_IN => dhcp_done,
+		                    
+		CTS_NUMBER_OUT		     =>gbe_cts_number,
+		CTS_CODE_OUT		     =>gbe_cts_code,
+		CTS_INFORMATION_OUT	     =>gbe_cts_information,
+		CTS_READOUT_TYPE_OUT     =>gbe_cts_readout_type,
+		CTS_START_READOUT_OUT    =>gbe_cts_start_readout,
+		CTS_DATA_IN				 =>(others => '0'),
+		CTS_DATAREADY_IN	     =>'0',
+		CTS_READOUT_FINISHED_IN	 =>gbe_cts_readout_finished,
+		CTS_READ_OUT		     =>open,
+		CTS_LENGTH_IN		     =>(others => '0'),
+		CTS_ERROR_PATTERN_IN     =>gbe_cts_status_bits,
+		-- Data payload interfac =>
+		FEE_DATA_OUT		     =>gbe_fee_data,
+		FEE_DATAREADY_OUT	     =>gbe_fee_dataready,
+		FEE_READ_IN				 =>gbe_fee_read,
+		FEE_STATUS_BITS_OUT	     =>gbe_fee_status_bits,
+		FEE_BUSY_OUT		     =>gbe_fee_busy
+	);                      
+ end generate main_with_dummy_gen;
+
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;
 
+transmit_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
 
-TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
+	TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
+	port map(
+		CLK			=> CLK,
+		RESET			=> global_reset, --RESET,
+	
+	-- signal to/from main controller
+		TC_DATAREADY_IN        => mc_transmit_ctrl,
+		TC_RD_EN_OUT		   => mc_wr_en,
+		TC_DATA_IN		       => mc_data(7 downto 0),
+		TC_FRAME_SIZE_IN	   => mc_frame_size,
+		TC_FRAME_TYPE_IN	   => mc_type,
+		TC_IP_PROTOCOL_IN	   => mc_ip_proto,	
+		TC_DEST_MAC_IN		   => mc_dest_mac,
+		TC_DEST_IP_IN		   => mc_dest_ip,
+		TC_DEST_UDP_IN		   => mc_dest_udp,
+		TC_SRC_MAC_IN		   => mc_src_mac,
+		TC_SRC_IP_IN		   => mc_src_ip,
+		TC_SRC_UDP_IN		   => mc_src_udp,
+		TC_TRANSMISSION_DONE_OUT => mc_transmit_done,
+		TC_IDENT_IN            => mc_ident,
+		TC_MAX_FRAME_IN        => pc_max_frame_size,
+	
+	-- signal to/from frame constructor
+		FC_DATA_OUT		=> fc_data,
+		FC_WR_EN_OUT		=> fc_wr_en,
+		FC_READY_IN		=> fc_ready,
+		FC_H_READY_IN		=> fc_h_ready,
+		FC_FRAME_TYPE_OUT	=> fc_type,
+		FC_IP_SIZE_OUT		=> fc_ip_size,
+		FC_UDP_SIZE_OUT		=> fc_udp_size,
+		FC_IDENT_OUT		=> fc_ident,
+		FC_FLAGS_OFFSET_OUT	=> fc_flags_offset,
+		FC_SOD_OUT		=> fc_sod,
+		FC_EOD_OUT		=> fc_eod,
+		FC_IP_PROTOCOL_OUT	=> fc_protocol,
+	
+		DEST_MAC_ADDRESS_OUT    => fc_dest_mac,
+		DEST_IP_ADDRESS_OUT     => fc_dest_ip,
+		DEST_UDP_PORT_OUT       => fc_dest_udp,
+		SRC_MAC_ADDRESS_OUT     => fc_src_mac,
+		SRC_IP_ADDRESS_OUT      => fc_src_ip,
+		SRC_UDP_PORT_OUT        => fc_src_udp,
+	
+		MONITOR_TX_PACKETS_OUT  => monitor_tx_packets
+	);
+end generate transmit_gen;
+
+transmit_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
+	TRANSMIT_CONTROLLER : trb_net16_gbe_transmit_control2
 port map(
 	CLK			=> CLK,
 	RESET			=> global_reset, --RESET,
@@ -774,15 +992,15 @@ port map(
 	TC_FRAME_SIZE_IN	   => mc_frame_size,
 	TC_FRAME_TYPE_IN	   => mc_type,
 	TC_IP_PROTOCOL_IN	   => mc_ip_proto,	
-	TC_DEST_MAC_IN		   => mc_dest_mac,
-	TC_DEST_IP_IN		   => mc_dest_ip,
-	TC_DEST_UDP_IN		   => mc_dest_udp,
+	TC_DEST_MAC_IN		   => x"c4e870211b00",
+	TC_DEST_IP_IN		   => x"0300a8c0",
+	TC_DEST_UDP_IN		   => x"c35c",
 	TC_SRC_MAC_IN		   => mc_src_mac,
 	TC_SRC_IP_IN		   => mc_src_ip,
 	TC_SRC_UDP_IN		   => mc_src_udp,
 	TC_TRANSMISSION_DONE_OUT => mc_transmit_done,
 	TC_IDENT_IN            => mc_ident,
-	TC_MAX_FRAME_IN        => pc_max_frame_size,
+	TC_MAX_FRAME_IN        => x"0578",
 
 -- signal to/from frame constructor
 	FC_DATA_OUT		=> fc_data,
@@ -807,6 +1025,7 @@ port map(
 
 	MONITOR_TX_PACKETS_OUT  => monitor_tx_packets
 );
+end generate transmit_with_dummy_gen;
 
 
 setup_imp_gen : if (DO_SIMULATION = 0) generate

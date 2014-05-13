@@ -142,10 +142,38 @@ component trb_net16_gbe_ipu_interface is
 	);
 end component;
 
+component gbe_ipu_dummy is
+	generic (DO_SIMULATION : integer range 0 to 1 := 0);
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		GBE_READY_IN : in std_logic;
+		
+		CTS_NUMBER_OUT				: out	std_logic_vector (15 downto 0);
+		CTS_CODE_OUT					: out	std_logic_vector (7  downto 0);
+		CTS_INFORMATION_OUT			: out	std_logic_vector (7  downto 0);
+		CTS_READOUT_TYPE_OUT			: out	std_logic_vector (3  downto 0);
+		CTS_START_READOUT_OUT		: out	std_logic;
+		CTS_DATA_IN				: in	std_logic_vector (31 downto 0);
+		CTS_DATAREADY_IN			: in	std_logic;
+		CTS_READOUT_FINISHED_IN	: in	std_logic;
+		CTS_READ_OUT					: out	std_logic;
+		CTS_LENGTH_IN				: in	std_logic_vector (15 downto 0);
+		CTS_ERROR_PATTERN_IN		: in	std_logic_vector (31 downto 0);
+		-- Data payload interface
+		FEE_DATA_OUT					: out	std_logic_vector (15 downto 0);
+		FEE_DATAREADY_OUT			: out	std_logic;
+		FEE_READ_IN				: in	std_logic;
+		FEE_STATUS_BITS_OUT			: out	std_logic_vector (31 downto 0);
+		FEE_BUSY_OUT					: out	std_logic
+	);
+end component;
+
 component trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;
 	RX_PATH_ENABLE      : integer range 0 to 1 := 1;
+	USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1 := 0;
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
 );
 port(
@@ -185,7 +213,7 @@ port(
 	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
 	-- gk 23.04.10
 	LED_PACKET_SENT_OUT          : out std_logic;
-	LED_AN_DONE_N_OUT            : out std_logic;
+	LED_GBE_READY_OUT            : out std_logic;
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
