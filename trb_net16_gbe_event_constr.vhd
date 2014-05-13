@@ -386,7 +386,6 @@ begin
 		if (end_of_queue_q = '0') then
 			next_q_size <= x"0000_0000";
 		
-		
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
 					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"8";
@@ -469,7 +468,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding, loaded_queue_bytes)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding, loaded_queue_bytes, actual_q_size)
 begin
 	case (load_current_state) is
 	
@@ -506,14 +505,14 @@ begin
 			
 		when LOAD_DATA =>
 			if (load_eod_q = '1' and term_ctr = 33) then
-				if (loaded_queue_bytes + x"c" = actual_q_size) then
-					if (insert_padding = '1') then
-						load_next_state <= LOAD_PADDING;
-					else
-						load_next_state <= LOAD_TERM;
-					end if;
+				if (insert_padding = '1') then
+					load_next_state <= LOAD_PADDING;
 				else
-					load_next_state <= LOAD_SUB;
+					if (loaded_queue_bytes = actual_q_size) then
+						load_next_state <= LOAD_TERM;
+					else
+						load_next_state <= LOAD_SUB;
+					end if;
 				end if;
 			else
 				load_next_state <= LOAD_DATA;
@@ -532,7 +531,11 @@ begin
 			
 		when LOAD_PADDING =>
 			if (header_ctr = 0) then
-				load_next_state <= LOAD_TERM;
+				if (loaded_queue_bytes = actual_q_size) then
+					load_next_state <= LOAD_TERM;
+				else
+					load_next_state <= LOAD_SUB;
+				end if;
 			else
 				load_next_state <= LOAD_PADDING;
 			end if;			
