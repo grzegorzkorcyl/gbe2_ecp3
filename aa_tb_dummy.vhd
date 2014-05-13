@@ -313,28 +313,6 @@ port map(
 	ANALYZER_DEBUG_OUT			=> open
 );
 
-dummy : gbe_ipu_dummy
-	generic map(DO_SIMULATION => 1)
-	port map(clk                     => clk,
-		     rst                     => reset,
-		     GBE_READY_IN            => gbe_ready,
-		     CTS_NUMBER_OUT          => cts_number_in,
-		     CTS_CODE_OUT            => cts_code_in,
-		     CTS_INFORMATION_OUT     => cts_information_in,
-		     CTS_READOUT_TYPE_OUT    => cts_readout_type_in,
-		     CTS_START_READOUT_OUT   => cts_start_readout_in,
-		     CTS_DATA_IN             => cts_data_out,
-		     CTS_DATAREADY_IN        => cts_dataready_out,
-		     CTS_READOUT_FINISHED_IN => cts_readout_finished_out,
-		     CTS_READ_OUT            => cts_read_in,
-		     CTS_LENGTH_IN           => cts_length_out,
-		     CTS_ERROR_PATTERN_IN    => cts_error_pattern_out,
-		     FEE_DATA_OUT            => fee_data_in,
-		     FEE_DATAREADY_OUT       => fee_dataready_in,
-		     FEE_READ_IN             => fee_read_out,
-		     FEE_STATUS_BITS_OUT     => fee_status_bits_in,
-		     FEE_BUSY_OUT            => fee_busy_in);
-		         
 -- 125 MHz MAC clock
 CLOCK2_GEN_PROC: process
 begin

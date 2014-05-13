@@ -606,8 +606,10 @@ begin
 --				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
 --			end if;
 --		else
-		if RX_PATH_ENABLE = 1 then
+		if RX_PATH_ENABLE = 1 and DO_SIMULATION = 0 then
 			link_current_state <= link_next_state;
+		elsif DO_SIMULATION = 1 then
+			link_current_state <= ACTIVE;
 		else
 			link_current_state <= ACTIVE;
 		end if;
