@@ -569,14 +569,22 @@ begin
 			header_ctr <= 8;
 		elsif (load_current_state = LOAD_Q_HEADERS and header_ctr = 0) then
 			header_ctr <= 15;
-		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
-			if (insert_padding = '1') then
-				header_ctr <= 3;
-			else
-				header_ctr <= 31;
-			end if;
+--		elsif (load_current_state = LOAD_SUB and header_ctr = 0) then
+--			if (insert_padding = '1') then
+--				header_ctr <= 3;
+--			else
+--				header_ctr <= 31;
+--			end if;
 		elsif (load_current_state = LOAD_PADDING and header_ctr = 0) then
+			if (loaded_queue_bytes = actual_q_size) then
+				header_ctr <= 31;
+			else
+				header_ctr <= 15;
+			end if;
+		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes = actual_q_size) then
 			header_ctr <= 31;
+		elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and loaded_queue_bytes /= actual_q_size) then
+			header_ctr <= 15;	
 		elsif (load_current_state = LOAD_TERM and header_ctr = 0) then
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
