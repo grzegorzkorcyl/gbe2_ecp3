@@ -98,7 +98,7 @@ signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
-signal temp_packet_ctr : integer range 0 to 10 := 0;
+signal temp_packet_ctr : integer range 0 to 65535 := 0;
 signal number_of_subs : std_logic_vector(15 downto 0);
 
 begin
