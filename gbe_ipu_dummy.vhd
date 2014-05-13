@@ -248,7 +248,7 @@ begin
 			if (current_state = IDLE) then
 				data_ctr <= (others => '0');
 			elsif (current_state = LOOP_OVER_DATA) then
-				data_ctr <= data_ctr + x"1";
+				data_ctr <= data_ctr + 1;
 			else
 				data_ctr <= data_ctr;
 			end if;
@@ -371,7 +371,7 @@ begin
 			cts_number <= x"0001";
 		elsif rising_edge(CLK) then
 			if (current_state = CLOSE) then
-				cts_number <= cts_number + x"1";
+				cts_number <= cts_number + 1;
 			else
 				cts_number <= cts_number;
 			end if;
@@ -425,7 +425,7 @@ begin
 				when WAIT_FOR_READ_2 =>
 					fee_data <= cts_number;
 				when WAIT_FOR_READ_3 =>
-					fee_data <= test_data_len + x"1";
+					fee_data <= test_data_len + 1;
 				when WAIT_FOR_READ_4 =>
 					fee_data <= x"ff21";
 				when WAIT_FOR_READ_5 =>
