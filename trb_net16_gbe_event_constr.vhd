@@ -50,7 +50,7 @@ architecture RTL of trb_net16_gbe_event_constr is
 
 attribute syn_encoding	: string;
 
-type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_MARKER, CHECK_MARKER, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -473,7 +473,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding, end_queue_marker)
 begin
 	case (load_current_state) is
 	
@@ -499,7 +499,7 @@ begin
 				load_next_state <= LOAD_SUB;
 			else
 				load_next_state <= LOAD_Q_HEADERS;
-			end if;
+			end if;			
 			
 		when LOAD_SUB =>
 			if (header_ctr = 0) then
@@ -509,16 +509,35 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod_q = '1' and end_queue_marker = '1' and term_ctr = 33) then
+--			if (load_eod_q = '1' and end_queue_marker = '1' and term_ctr = 33) then
+--				if (insert_padding = '1') then
+--					load_next_state <= LOAD_PADDING;
+--				else
+--					load_next_state <= LOAD_TERM;
+--				end if;
+--			elsif (load_eod_q = '1' and end_queue_marker = '0') then
+--				load_next_state <= LOAD_SUB;
+--			else
+--				load_next_state <= LOAD_DATA;
+--			end if;
+			if (load_eod_q = '1' and term_ctr = 33) then
+				load_next_state <= LOAD_MARKER;
+			else
+				load_next_state <= LOAD_DATA;
+			end if;
+			
+		when LOAD_MARKER =>
+			load_next_state <= CHECK_MARKER;
+			
+		when CHECK_MARKER =>
+			if (end_queue_marker = '1') then
 				if (insert_padding = '1') then
 					load_next_state <= LOAD_PADDING;
 				else
 					load_next_state <= LOAD_TERM;
 				end if;
-			elsif (load_eod_q = '1' and end_queue_marker = '0') then
-				load_next_state <= LOAD_SUB;
 			else
-				load_next_state <= LOAD_DATA;
+				load_next_state <= LOAD_SUB;
 			end if;
 			
 		when LOAD_PADDING =>
@@ -570,13 +589,21 @@ begin
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_SUB or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
 				header_ctr <= header_ctr - 1;
-			elsif (load_current_state = LOAD_DATA and load_eod_q = '1' and end_queue_marker = '0') then
-				header_ctr <= 15;
 			else
 				header_ctr <= header_ctr;
 			end if;
 		elsif (load_current_state = GET_Q_SIZE) then
 			header_ctr <= header_ctr - 1;
+		elsif (load_current_state = CHECK_MARKER) then
+			if (end_queue_marker = '1') then
+				if (insert_padding = '1') then
+					header_ctr <= 3;
+				else
+					header_ctr <= 31;
+				end if;
+			else
+				header_ctr <= 15;
+			end if;
 		else
 			header_ctr <= header_ctr;
 		end if;
@@ -616,7 +643,8 @@ df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' and l
 
 shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_Q_HEADERS and header_ctr = 1 and TC_RD_EN_IN = '1')  -- load the end queue marker
+					(load_current_state = LOAD_Q_HEADERS and header_ctr = 1 and TC_RD_EN_IN = '1') or -- load the end queue marker
+					(load_current_state = LOAD_MARKER)
 					else '0';
 
 QUEUE_FIFO_RD_PROC : process(CLK)
