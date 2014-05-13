@@ -197,7 +197,7 @@ begin
 			end if;	
 			
 		when LOOP_OVER_DATA =>
-			if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1))) then
+			if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) + 2) then
 				next_state <= WAIT_A_SEC_7;
 			else
 				next_state <= SEND_ONE_WORD;
@@ -433,7 +433,7 @@ begin
 					fee_data <= test_data_len;
 				when WAIT_FOR_READ_6 =>
 					fee_data <= x"ff22";
-				when LOOP_OVER_DATA =>
+				when SEND_ONE_WORD =>
 					fee_data <= data_ctr(15 downto 0);
 				when others =>
 					fee_data <= x"12bc";
