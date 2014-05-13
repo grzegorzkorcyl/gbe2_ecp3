@@ -506,7 +506,7 @@ begin
 			
 		when LOAD_DATA =>
 			if (load_eod_q = '1' and term_ctr = 33) then
-				if (loaded_queue_bytes = actual_q_size) then
+				if (loaded_queue_bytes + x"c" = actual_q_size) then
 					if (insert_padding = '1') then
 						load_next_state <= LOAD_PADDING;
 					else
