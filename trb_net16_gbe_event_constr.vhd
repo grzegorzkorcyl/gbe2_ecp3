@@ -509,13 +509,13 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
-			if (load_eod_q = '1' and end_of_queue_q = '1' and term_ctr = 33) then
+			if (load_eod_q = '1' and end_queue_marker = '1' and term_ctr = 33) then
 				if (insert_padding = '1') then
 					load_next_state <= LOAD_PADDING;
 				else
 					load_next_state <= LOAD_TERM;
 				end if;
-			elsif (load_eod_q = '1' and end_of_queue_q = '0') then
+			elsif (load_eod_q = '1' and end_queue_marker = '0') then
 				load_next_state <= LOAD_SUB;
 			else
 				load_next_state <= LOAD_DATA;
