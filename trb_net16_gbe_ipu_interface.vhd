@@ -501,8 +501,10 @@ port map(
 process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE or load_current_state = CLOSE_QUEUE) then
+		if (load_current_state = IDLE) then
 			temp_packet_ctr <= 0;
+		elsif (load_current_state = CLOSE_QUEUE) then
+			temp_packet_ctr <= 1;
 		elsif (load_current_state = WAIT_ONE) then
 			temp_packet_ctr <= temp_packet_ctr + 1;
 		else
