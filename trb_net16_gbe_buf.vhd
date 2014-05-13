@@ -13,6 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 --use work.version.all;
 
+
 entity trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;

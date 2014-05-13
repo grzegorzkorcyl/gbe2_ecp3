@@ -10,6 +10,7 @@ use work.trb_net_gbe_protocols.all;
 package trb_net_gbe_components is
 
 
+
 component trb_net16_gbe_transmit_control2 is
 port (
 	CLK			         : in	std_logic;

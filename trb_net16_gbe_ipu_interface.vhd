@@ -13,6 +13,7 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
+
 entity trb_net16_gbe_ipu_interface is
 	port (
 	CLK_IPU                     : in    std_logic;

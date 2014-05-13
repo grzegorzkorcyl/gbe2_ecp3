@@ -376,6 +376,7 @@ TC_DEST_MAC_OUT       <= x"c4e870211b00"; --ic_dest_mac;
 TC_DEST_IP_OUT        <= x"0300a8c0"; --ic_dest_ip;
 TC_DEST_UDP_OUT       <= x"c35c"; --ic_dest_udp;
 
+
 rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
 	TC_SRC_MAC_OUT        <= g_MY_MAC;
 	TC_SRC_IP_OUT         <= g_MY_IP;
