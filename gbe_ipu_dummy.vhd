@@ -198,7 +198,7 @@ begin
 			end if;	
 			
 		when LOOP_OVER_DATA =>
-			if (data_ctr = (test_data_len - x"1") & "1") then
+			if (data_ctr = (test_data_len - x"1") & "0") then
 				next_state <= WAIT_A_SEC_7;
 			else
 				next_state <= SEND_ONE_WORD;
