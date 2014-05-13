@@ -50,11 +50,11 @@ architecture RTL of trb_net16_gbe_event_constr is
 
 attribute syn_encoding	: string;
 
-type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_MARKER, CHECK_MARKER, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
+type loadStates is (IDLE, GET_Q_SIZE, START_TRANSFER, LOAD_Q_HEADERS, LOAD_DATA, LOAD_SUB, LOAD_PADDING, LOAD_TERM, CLEANUP);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
-type saveSubHdrStates is (IDLE, SAVE_MARKER, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
+type saveSubHdrStates is (IDLE, SAVE_SIZE, SAVE_DECODING, SAVE_ID, SAVE_TRG_NR);
 signal save_sub_hdr_current_state, save_sub_hdr_next_state : saveSubHdrStates;
 attribute syn_encoding of save_sub_hdr_current_state : signal is "onehot";
 
@@ -90,6 +90,7 @@ signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
 signal next_q_size : std_logic_vector(31 downto 0);
+signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 
 begin
 
@@ -160,10 +161,9 @@ end process READY_PROC;
 
 --*****
 -- subevent headers
-SUBEVENT_HEADERS_FIFO : fifo_4096x9 --fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3
 port map(
 	Data(7 downto 0) => shf_data,
-	DATA(8)          => end_of_queue_q,
 	WrClock     => CLK,
 	RdClock		=> CLK,
 	WrEn        => shf_wr_en,
@@ -171,7 +171,6 @@ port map(
 	Reset       => RESET,
 	RPReset		=> RESET,
 	Q(7 downto 0)    => shf_q,
-	Q(8)             => end_queue_marker,
 	Empty       => shf_empty,
 	Full        => shf_full
 );		
@@ -221,13 +220,10 @@ begin
 	
 		when IDLE =>
 			if (PC_START_OF_SUB_IN = '1') then
-				save_sub_hdr_next_state <= SAVE_MARKER;
+				save_sub_hdr_next_state <= SAVE_SIZE;
 			else
 				save_sub_hdr_next_state <= IDLE;
 			end if;
-			
-		when SAVE_MARKER =>
-			save_sub_hdr_next_state <= SAVE_SIZE;
 			
 		when SAVE_SIZE =>
 			if (sub_int_ctr = 0) then
@@ -265,7 +261,7 @@ end process SAVE_SUB_HDR_MACHINE;
 SUB_INT_CTR_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		if (save_sub_hdr_current_state = SAVE_MARKER or save_sub_hdr_current_state = IDLE) then
+		if (save_sub_hdr_current_state = IDLE) then
 			sub_int_ctr <= 3;
 		else
 			if (sub_int_ctr = 0) then
@@ -473,7 +469,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding, end_queue_marker)
+LOAD_MACHINE : process(load_current_state, qsf_empty, header_ctr, load_eod_q, term_ctr, insert_padding, loaded_queue_bytes)
 begin
 	case (load_current_state) is
 	
@@ -509,6 +505,19 @@ begin
 			end if;
 			
 		when LOAD_DATA =>
+			if (load_eod_q = '1' and term_ctr = 33) then
+				if (loaded_queue_bytes = actual_q_size) then
+					if (insert_padding = '1') then
+						load_next_state <= LOAD_PADDING;
+					else
+						load_next_state <= LOAD_TERM;
+					end if;
+				else
+					load_next_state <= LOAD_SUB;
+				end if;
+			else
+				load_next_state <= LOAD_DATA;
+			end if;
 --			if (load_eod_q = '1' and end_queue_marker = '1' and term_ctr = 33) then
 --				if (insert_padding = '1') then
 --					load_next_state <= LOAD_PADDING;
@@ -520,25 +529,6 @@ begin
 --			else
 --				load_next_state <= LOAD_DATA;
 --			end if;
-			if (load_eod_q = '1' and term_ctr = 33) then
-				load_next_state <= LOAD_MARKER;
-			else
-				load_next_state <= LOAD_DATA;
-			end if;
-			
-		when LOAD_MARKER =>
-			load_next_state <= CHECK_MARKER;
-			
-		when CHECK_MARKER =>
-			if (end_queue_marker = '1') then
-				if (insert_padding = '1') then
-					load_next_state <= LOAD_PADDING;
-				else
-					load_next_state <= LOAD_TERM;
-				end if;
-			else
-				load_next_state <= LOAD_SUB;
-			end if;
 			
 		when LOAD_PADDING =>
 			if (header_ctr = 0) then
@@ -594,16 +584,6 @@ begin
 			end if;
 		elsif (load_current_state = GET_Q_SIZE) then
 			header_ctr <= header_ctr - 1;
-		elsif (load_current_state = CHECK_MARKER) then
-			if (end_queue_marker = '1') then
-				if (insert_padding = '1') then
-					header_ctr <= 3;
-				else
-					header_ctr <= 31;
-				end if;
-			else
-				header_ctr <= 15;
-			end if;
 		else
 			header_ctr <= header_ctr;
 		end if;
@@ -633,6 +613,19 @@ begin
 		end if;
 	end if;
 end process TC_SOD_PROC;
+
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (load_current_state = IDLE) then
+			loaded_queue_bytes <= (others => '0');
+		elsif (TC_RD_EN_IN = '1') then
+			loaded_queue_bytes <= loaded_queue_bytes + x"1";
+		else
+			loaded_queue_bytes <= loaded_queue_bytes;
+		end if;
+	end if;
+end process;
 
 --*****
 -- read from fifos
