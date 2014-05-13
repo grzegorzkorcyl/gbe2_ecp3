@@ -12,10 +12,10 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
-ENTITY aa_tb_event_constr IS
-END aa_tb_event_constr;
+ENTITY aa_tb_dummy IS
+END aa_tb_dummy;
 
-ARCHITECTURE behavior OF aa_tb_event_constr IS
+ARCHITECTURE behavior OF aa_tb_dummy IS
 	
 	component gbe_ipu_dummy is
 	generic (DO_SIMULATION : integer range 0 to 1 := 0);
