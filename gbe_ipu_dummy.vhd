@@ -2,8 +2,6 @@ LIBRARY ieee;
 
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.ALL;
-USE IEEE.std_logic_UNSIGNED.ALL;
-use IEEE.std_logic_arith.all;
 
 library work;
 use work.trb_net_std.all;
@@ -198,7 +196,7 @@ begin
 			end if;	
 			
 		when LOOP_OVER_DATA =>
-			if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) - 1) then
+			if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) + 1) then
 				next_state <= WAIT_A_SEC_7;
 			else
 				next_state <= SEND_ONE_WORD;
