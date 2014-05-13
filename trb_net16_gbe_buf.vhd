@@ -871,7 +871,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	
 	CFG_GBE_ENABLE_IN           => '1',
 	CFG_IPU_ENABLE_IN           => '0',
-	CFG_MULT_ENABLE_IN          => '1',
+	CFG_MULT_ENABLE_IN          => '0',
 	CFG_SUBEVENT_ID_IN			=> x"0000_00cf",
 	CFG_SUBEVENT_DEC_IN         => x"0002_0001",
 	CFG_QUEUE_DEC_IN            => x"0003_0062",
