@@ -389,7 +389,7 @@ begin
 	elsif rising_edge(CLK) then
 		if (end_of_queue_q = '0') then
 			next_q_size <= x"0000_0000";
-			
+		
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
 					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"8";
