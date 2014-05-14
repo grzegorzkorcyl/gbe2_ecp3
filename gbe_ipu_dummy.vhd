@@ -57,7 +57,7 @@ architecture RTL of gbe_ipu_dummy is
 	
 begin
 	
-	test_data_len <= x"0019";
+	test_data_len <= x"0018";
 	
 	CTS_INFORMATION_OUT <= x"d2";
 	CTS_READOUT_TYPE_OUT <= x"1";
