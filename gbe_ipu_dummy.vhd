@@ -114,7 +114,7 @@ begin
 		     Rst  => rst,
 		     Dout => d);
 		     
-		     delay_value <= d(15 downto 0);
+		     delay_value <= d(31 downto 16);
 		     
 		process(clk)
 		begin
