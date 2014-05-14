@@ -571,8 +571,8 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
-		elsif (load_current_state = DECIDE) then
-			subevent_size <= subevent_size + x"8";
+--		elsif (load_current_state = DECIDE) then
+--			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
 		end if;
