@@ -98,7 +98,7 @@ signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
-signal queue_size : std_logic_vector(15 downto 0);
+signal queue_size : std_logic_vector(17 downto 0);
 signal number_of_subs : std_logic_vector(15 downto 0);
 
 begin
@@ -441,7 +441,7 @@ begin
 		
 		when DECIDE =>
 			load_state <= x"5";
-			if (queue_size > x"fa00") then  -- max udp packet exceeded
+			if (queue_size > "00" & x"fa00") then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
