@@ -131,7 +131,7 @@ end process DF_WR_EN_PROC;
 
 DATA_FIFO : fifo_64kx9
 port map(
-	Data(7 downto 0) =>  df_data, --PC_DATA_IN,
+	Data(7 downto 0) =>  df_data,
 	Data(8)          =>  df_eos_q,
 	WrClock          =>  CLK,
 	RdClock          =>  CLK,
@@ -142,8 +142,7 @@ port map(
 	Q(7 downto 0)    =>  df_q,
 	Q(8)             =>  load_eod,
 	Empty            =>  df_empty,
-	Full             =>  df_full,
-	AlmostFull       =>  df_afull
+	Full             =>  df_full
 );
 
 DF_QQ_PROC : process(CLK)
@@ -156,7 +155,7 @@ end process DF_QQ_PROC;
 READY_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-		PC_READY_OUT <= not df_afull;
+		PC_READY_OUT <= not df_full;
 	end if;	
 end process READY_PROC;
 
