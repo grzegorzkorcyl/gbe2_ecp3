@@ -601,13 +601,13 @@ end process HEADER_CTR_PROC;
 SIZE_FOR_PADDING_PROC : process(CLK, shf_q)
 begin
 	
-	temp_size_for_padding <= shf_q - x"1c";
+	temp_size_for_padding <= shf_q - x"18";
 	
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			insert_padding <= '0';
 		elsif (load_current_state = LOAD_SUB and header_ctr = 12) then
-			insert_padding <= temp_size_for_padding(2);
+			insert_padding <= not temp_size_for_padding(2);
 		else
 			insert_padding <= insert_padding;
 		end if;
