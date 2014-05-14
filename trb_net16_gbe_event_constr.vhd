@@ -602,7 +602,11 @@ begin
 		if (load_current_state = IDLE) then
 			loaded_queue_bytes <= (others => '0');
 		elsif (TC_RD_EN_IN = '1') then
-			loaded_queue_bytes <= loaded_queue_bytes + x"1";
+			if (load_current_state = LOAD_SUB and block_shf_after_divide = '1') then
+				loaded_queue_bytes <= loaded_queue_bytes + x"2";
+			else
+				loaded_queue_bytes <= loaded_queue_bytes + x"1";
+			end if;
 		else
 			loaded_queue_bytes <= loaded_queue_bytes;
 		end if;
