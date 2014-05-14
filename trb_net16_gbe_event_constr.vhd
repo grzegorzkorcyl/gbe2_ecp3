@@ -91,7 +91,7 @@ signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
 signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
-signal temp_size_for_padding : std_logic_vector(15 downto 0);
+signal temp_size_for_padding : std_logic_vector(7 downto 0);
 
 
 begin
