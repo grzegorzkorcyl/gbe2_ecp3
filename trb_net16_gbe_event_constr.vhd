@@ -653,7 +653,7 @@ df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' and l
 
 shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
-					(load_current_state = LOAD_DATA and load_eod_q = '1' and (loaded_queue_bytes /= actual_q_size))
+					(load_current_state = LOAD_DATA and load_eod_q = '1' and (loaded_queue_bytes /= actual_q_size) and (loaded_queue_bytes + x"4" /= actual_q_size))
 					--(load_current_state = LOAD_DATA and load_eod_q = '1' and term_ctr = 33 and insert_padding = '0' and loaded_queue_bytes = actual_q_size) or
 					--(load_current_state = LOAD_PADDING and header_ctr = 0 and loaded_queue_bytes = actual_q_size)
 					else '0';
