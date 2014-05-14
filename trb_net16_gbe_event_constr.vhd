@@ -272,14 +272,14 @@ begin
 		end if;
 	end if;
 end process SUB_INT_CTR_PROC;
-
+  
 SUB_SIZE_TO_SAVE_PROC : process (CLK)
 begin
 	if rising_edge(CLK) then
 		if (PC_PADDING_IN = '0') then
-			sub_size_to_save <= PC_SUB_SIZE_IN + x"10";
+			sub_size_to_save <= PC_SUB_SIZE_IN + x"8"; -- x"10"; -- addition for sub sub event
 		else
-			sub_size_to_save <= PC_SUB_SIZE_IN + x"c";
+			sub_size_to_save <= PC_SUB_SIZE_IN + x"c"; -- addition for sub sub event and padding
 		end if;
 	end if;
 end process SUB_SIZE_TO_SAVE_PROC;
@@ -381,16 +381,16 @@ end process QSF_WR_PROC;
 QUEUE_SIZE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
-		queue_size <= x"0000_0010";
+		queue_size <= x"0000_0008"; -- queue headers
 	elsif rising_edge(CLK) then
 		if (end_of_queue_q = '0') then
-			next_q_size <= x"0000_0000";
+			next_q_size <= x"0000_0008";  -- queue headers
 		
 			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 				if (PC_SUB_SIZE_IN(2) = '1') then
-					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"8";
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"8" + x"4";  -- subevent data size + padding + subevent headers + subsubevent 
 				else
-					queue_size <= queue_size + PC_SUB_SIZE_IN + x"8";
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"8" + x"4";  -- sybevent data size + subevent headers + subsubevent
 				end if;
 			else
 				queue_size <= queue_size;
@@ -402,9 +402,9 @@ begin
 				queue_size <= next_q_size;
 			else
 				if (PC_SUB_SIZE_IN(2) = '1') then
-					next_q_size <= x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
+					next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"4" + x"8" + x"4";  -- subevent data size + padding + subevent headers + subsubevent 
 				else
-					next_q_size <= x"10" + PC_SUB_SIZE_IN + x"8";
+					next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"8" + x"4";  -- sybevent data size + subevent headers + subsubevent
 				end if;
 			end if;
 		end if;
