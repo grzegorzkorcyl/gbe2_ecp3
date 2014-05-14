@@ -84,11 +84,7 @@ begin
 	if RESET = '1' then
 		transmit_current_state <= IDLE;
 	elsif rising_edge(CLK) then
---		if (RESET = '1') then
---			transmit_current_state <= IDLE;
---		else
-			transmit_current_state <= transmit_next_state;
---		end if;
+		transmit_current_state <= transmit_next_state;
 	end if;
 end process TRANSMIT_MACHINE_PROC;
 
@@ -98,7 +94,7 @@ begin
 	
 		when IDLE =>
 			if (TC_DATAREADY_IN = '1') then
-				transmit_next_state <= PREPARE_HEADERS; --WAIT_FOR_H;
+				transmit_next_state <= PREPARE_HEADERS;
 			else
 				transmit_next_state <= IDLE;
 			end if;
@@ -145,7 +141,7 @@ begin
 			end if;
 		
 		when DIVIDE =>
-			transmit_next_state <= PREPARE_HEADERS; --WAIT_FOR_H;
+			transmit_next_state <= PREPARE_HEADERS;
 			
 		when CLEANUP =>
 			transmit_next_state <= IDLE;

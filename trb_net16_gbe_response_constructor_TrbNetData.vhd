@@ -315,7 +315,7 @@ begin
 			end if;
 		
 		when LOAD =>
-			if (event_bytes + x"20" = loaded_bytes) then
+			if (event_bytes = loaded_bytes) then
 				dissect_next_state <= CLEANUP;
 			else
 				dissect_next_state <= LOAD;

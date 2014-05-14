@@ -390,7 +390,7 @@ begin
 				if (PC_SUB_SIZE_IN(2) = '1') then
 					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
 				else
-					queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- sybevent data size + subevent headers + subsubevent
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
 				end if;
 			else
 				queue_size <= queue_size;
@@ -405,7 +405,7 @@ begin
 					if (PC_SUB_SIZE_IN(2) = '1') then
 						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
 					else
-						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- sybevent data size + subevent headers + subsubevent
+						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
 					end if;
 				else
 					next_q_size <= next_q_size;
@@ -684,7 +684,7 @@ begin
 	end if;
 end process ACTUAL_Q_SIZE_PROC;
 
-TC_EVENT_SIZE_OUT <= actual_q_size;
+TC_EVENT_SIZE_OUT <= actual_q_size;  -- queue size without termination
 
 TERMINATION_PROC : process(CLK)
 begin

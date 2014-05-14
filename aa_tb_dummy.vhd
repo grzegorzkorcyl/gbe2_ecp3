@@ -226,10 +226,10 @@ generic map(
 	USE_INTERNAL_TRBNET_DUMMY => 1,
 	USE_125MHZ_EXTCLK       => 0,
 	
-		FIXED_SIZE_MODE => 0,
-		FIXED_SIZE => 0,
-		FIXED_DELAY_MODE => 0,
-		FIXED_DELAY => 0
+		FIXED_SIZE_MODE => 1,
+		FIXED_SIZE => 18,
+		FIXED_DELAY_MODE => 1,
+		FIXED_DELAY => 100
 )
 port map(
 	CLK							=> clk,
