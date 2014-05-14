@@ -407,7 +407,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs)
 begin
 	case (load_current_state) is
 
@@ -442,6 +442,8 @@ begin
 		when DECIDE =>
 			load_state <= x"5";
 			if (queue_size > "00" & x"fa00") then  -- max udp packet exceeded
+				load_next_state <= CLOSE_QUEUE;
+			elsif (number_of_subs = x"00c8") then
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -499,12 +501,25 @@ port map(
 process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE) then
+		if (load_current_state = IDLE or load_current_state = CLOSE_QUEUE) then
 			queue_size <= (others => '0');
 		elsif (load_current_state = WAIT_TWO) then
 			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
 		else
 			queue_size <= queue_size;
+		end if;
+	end if;
+end process;
+
+process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE or load_current_state = CLOSE_QUEUE) then
+			number_of_subs <= (others => '0');
+		elsif (load_current_state = PREPARE_TO_LOAD_SUB) then
+			number_of_subs <= number_of_subs + x"1";
+		else
+			number_of_subs <= number_of_subs;
 		end if;
 	end if;
 end process;
