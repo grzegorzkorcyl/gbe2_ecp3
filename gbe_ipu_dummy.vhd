@@ -13,7 +13,13 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 entity gbe_ipu_dummy is
-	generic (DO_SIMULATION : integer range 0 to 1 := 0);
+	generic (
+		DO_SIMULATION : integer range 0 to 1 := 0;
+		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		FIXED_SIZE : integer range 0 to 65535 := 10;
+		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
+		FIXED_DELAY : integer range 0 to 65535 := 4096
+	);
 	port (
 		clk : in std_logic;
 		rst : in std_logic;
@@ -41,6 +47,14 @@ end entity gbe_ipu_dummy;
 
 architecture RTL of gbe_ipu_dummy is
 	
+	component random_size is
+    port (
+        Clk: in  std_logic; 
+        Enb: in  std_logic; 
+        Rst: in  std_logic; 
+        Dout: out  std_logic_vector(31 downto 0));
+	end component;
+	
 	type states is (IDLE, TIMEOUT, CTS_START, FEE_START, WAIT_FOR_READ_1, WAIT_A_SEC_1, WAIT_FOR_READ_2, WAIT_A_SEC_2, WAIT_FOR_READ_3, WAIT_A_SEC_3, 
 					WAIT_FOR_READ_4, WAIT_A_SEC_4, WAIT_FOR_READ_5, WAIT_A_SEC_5, WAIT_FOR_READ_6, WAIT_A_SEC_6, CLOSE
 	, LOOP_OVER_DATA, SEND_ONE_WORD, WAIT_A_SEC_7, LOWER_BUSY, WAIT_A_SEC_8, WAIT_A_SEC_9, PULSE_WITH_READ);
@@ -54,10 +68,64 @@ architecture RTL of gbe_ipu_dummy is
 	signal cts_start_readout, fee_busy, fee_dready, cts_read : std_logic;
 	signal cts_number, fee_data, test_data_len : std_logic_vector(15 downto 0);
 	signal data_ctr : std_logic_vector(16 downto 0);
+	signal size_rand_en, delay_rand_en : std_logic;
+	signal delay_value : std_logic_vector(15 downto 0);
 	
 begin
 	
-	test_data_len <= x"0018";
+	
+	fixed_size_gen : if FIXED_SIZE_MODE = 1 generate
+		test_data_len <= std_logic_vector(to_unsigned(FIXED_SIZE, 16));
+	end generate fixed_size_gen;
+	
+	variable_size_gen : if FIXED_SIZE_MODE = 0 generate
+		
+		size_rand_inst : random_size
+		port map(Clk  => clk,
+		     Enb  => size_rand_en,
+		     Rst  => rst,
+		     Dout(15 downto 0) => test_data_len);
+		     
+		process(clk)
+		begin
+			if rising_edge(clk) then
+				if (current_state = TIMEOUT and ctr = timeout_stop) then
+					size_rand_en <= '1';
+				else
+					size_rand_en <= '0';
+				end if;
+			end if;
+		end process;
+		
+	end generate variable_size_gen;
+	
+	fixed_delay_gen : if FIXED_DELAY_MODE = 1 generate
+		timeout_stop <= FIXED_DELAY when DO_SIMULATION = 0 else 100;
+	end generate fixed_delay_gen;
+	
+	variable_delay_gen : if FIXED_DELAY_MODE = 0 generate
+		
+		delay_rand_inst : random_size
+		port map(Clk  => clk,
+		     Enb  => delay_rand_en,
+		     Rst  => rst,
+		     Dout(15 downto 0) => delay_value);
+		     
+		process(clk)
+		begin
+			if rising_edge(clk) then
+				if (current_state = IDLE and GBE_READY_IN = '1') then
+					delay_rand_en <= '1';
+				else
+					delay_rand_en <= '0';
+				end if;
+			end if;
+		end process;
+		
+		timeout_stop <= unsigned(delay_value);
+		     
+	end generate variable_delay_gen;
+	
 	
 	CTS_INFORMATION_OUT <= x"d2";
 	CTS_READOUT_TYPE_OUT <= x"1";
@@ -67,8 +135,6 @@ begin
 	FEE_BUSY_OUT <= fee_busy;
 	FEE_DATAREADY_OUT <= fee_dready;
 	FEE_DATA_OUT <= fee_data;
-	
-	timeout_stop <= 4096 when DO_SIMULATION = 0 else 100;
 	
 	state_machine_proc : process (clk, rst) is
 	begin
