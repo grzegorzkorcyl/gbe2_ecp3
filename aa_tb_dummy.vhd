@@ -49,7 +49,12 @@ generic(
 	DO_SIMULATION		: integer range 0 to 1 := 1;
 	RX_PATH_ENABLE      : integer range 0 to 1 := 1;
 	USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1 := 0;
-	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1
+	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1;
+		
+		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		FIXED_SIZE : integer range 0 to 65535 := 10;
+		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
+		FIXED_DELAY : integer range 0 to 65535 := 4096
 );
 port(
 	CLK							: in	std_logic;
@@ -219,7 +224,12 @@ generic map(
 	DO_SIMULATION		=> 1,
 	RX_PATH_ENABLE      => 1,
 	USE_INTERNAL_TRBNET_DUMMY => 1,
-	USE_125MHZ_EXTCLK       => 0
+	USE_125MHZ_EXTCLK       => 0,
+	
+		FIXED_SIZE_MODE => 0,
+		FIXED_SIZE => 0,
+		FIXED_DELAY_MODE => 0,
+		FIXED_DELAY => 0
 )
 port map(
 	CLK							=> clk,
