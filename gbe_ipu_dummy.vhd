@@ -493,7 +493,7 @@ begin
 		if rising_edge(CLK) then
 			case current_state is 
 				when WAIT_FOR_READ_1 =>
-					fee_data <= x"10aa";
+					fee_data <= x"10bb";
 				when WAIT_FOR_READ_2 =>
 					fee_data <= cts_number;
 				when WAIT_FOR_READ_3 =>
