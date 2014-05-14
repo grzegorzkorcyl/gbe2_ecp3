@@ -84,7 +84,8 @@ begin
 		port map(Clk  => clk,
 		     Enb  => size_rand_en,
 		     Rst  => rst,
-		     Dout(15 downto 0) => test_data_len);
+		     Dout(15 downto 0) => test_data_len,
+		     Dout(31 downto 16) => open);
 		     
 		process(clk)
 		begin
@@ -109,7 +110,8 @@ begin
 		port map(Clk  => clk,
 		     Enb  => delay_rand_en,
 		     Rst  => rst,
-		     Dout(15 downto 0) => delay_value);
+		     Dout(15 downto 0) => delay_value,
+		     Dout(31 downto 16) => open);
 		     
 		process(clk)
 		begin
