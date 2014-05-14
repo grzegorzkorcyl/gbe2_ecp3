@@ -903,7 +903,13 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
   );
   
   dummy : gbe_ipu_dummy
-	generic map(DO_SIMULATION => DO_SIMULATION)
+	generic map(
+		DO_SIMULATION => DO_SIMULATION,
+		FIXED_SIZE_MODE => 1,
+		FIXED_SIZE => 30,
+		FIXED_DELAY_MODE => 1,
+		FIXED_DELAY => 4096
+	)
 	port map(
 		clk => CLK,
 		rst => global_reset,

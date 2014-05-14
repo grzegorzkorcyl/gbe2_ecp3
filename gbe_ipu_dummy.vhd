@@ -122,7 +122,7 @@ begin
 			end if;
 		end process;
 		
-		timeout_stop <= unsigned(delay_value);
+		timeout_stop <= to_integer(unsigned(delay_value));
 		     
 	end generate variable_delay_gen;
 	

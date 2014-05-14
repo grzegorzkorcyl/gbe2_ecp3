@@ -144,7 +144,13 @@ component trb_net16_gbe_ipu_interface is
 end component;
 
 component gbe_ipu_dummy is
-	generic (DO_SIMULATION : integer range 0 to 1 := 0);
+	generic (
+		DO_SIMULATION : integer range 0 to 1 := 0;
+		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		FIXED_SIZE : integer range 0 to 65535 := 10;
+		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
+		FIXED_DELAY : integer range 0 to 65535 := 4096
+		);
 	port (
 		clk : in std_logic;
 		rst : in std_logic;
