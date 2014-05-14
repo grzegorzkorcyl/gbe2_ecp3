@@ -91,8 +91,7 @@ signal load_eod_q : std_logic;
 signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
 signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
-signal temp_size_for_padding : std_logic_vector(7 downto 0);
-
+signal shf_padding : std_logic;
 
 begin
 
@@ -163,9 +162,10 @@ end process READY_PROC;
 
 --*****
 -- subevent headers
-SUBEVENT_HEADERS_FIFO : fifo_4kx8_ecp3
+SUBEVENT_HEADERS_FIFO : fifo_4096x9 --fifo_4kx8_ecp3
 port map(
 	Data(7 downto 0) => shf_data,
+	Data(8)     => PC_SUB_SIZE_IN(2),
 	WrClock     => CLK,
 	RdClock		=> CLK,
 	WrEn        => shf_wr_en,
@@ -173,6 +173,7 @@ port map(
 	Reset       => RESET,
 	RPReset		=> RESET,
 	Q(7 downto 0)    => shf_q,
+	Q(8)             => shf_padding,
 	Empty       => shf_empty,
 	Full        => shf_full
 );		
@@ -414,33 +415,6 @@ begin
 				end if;
 			end if;
 		end if;
-		
---		if (MULT_EVT_ENABLE_IN = '1') then
---			if (save_sub_hdr_next_state = SAVE_DECODING and sub_int_ctr = 3) then
---				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
---			elsif (save_sub_hdr_current_state = SAVE_DECODING and sub_int_ctr = 2) then
---				if (PC_SUB_SIZE_IN(2) = '1') then
---					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
---				else
---					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
---				end if;
---			else
---				queue_size <= queue_size;
---			end if;
---		else
---			--if (save_current_state = IDLE) then
---			if (PC_START_OF_SUB_IN = '1') then
---				queue_size <= x"0000_0000"; --queue_size <= x"0000_0028";
---			elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---				if (PC_SUB_SIZE_IN(2) = '1') then
---					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"4" + x"8";
---				else
---					queue_size <= queue_size + x"10" + PC_SUB_SIZE_IN + x"8";
---				end if;
---			else
---				queue_size <= queue_size;
---			end if;			
---		end if;
 	end if;
 end process QUEUE_SIZE_PROC;
 
@@ -598,16 +572,13 @@ begin
 	end if;
 end process HEADER_CTR_PROC;
 
-SIZE_FOR_PADDING_PROC : process(CLK, shf_q)
-begin
-	
-	temp_size_for_padding <= shf_q - x"18";
-	
+SIZE_FOR_PADDING_PROC : process(CLK)
+begin	
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			insert_padding <= '0';
 		elsif (load_current_state = LOAD_SUB and header_ctr = 12) then
-			insert_padding <= not temp_size_for_padding(2);
+			insert_padding <= shf_padding;
 		else
 			insert_padding <= insert_padding;
 		end if;
