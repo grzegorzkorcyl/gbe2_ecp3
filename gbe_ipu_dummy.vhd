@@ -70,6 +70,7 @@ architecture RTL of gbe_ipu_dummy is
 	signal data_ctr : std_logic_vector(16 downto 0);
 	signal size_rand_en, delay_rand_en : std_logic;
 	signal delay_value : std_logic_vector(15 downto 0);
+	signal d, s : std_logic_vector(31 downto 0);
 	
 begin
 	
@@ -84,8 +85,9 @@ begin
 		port map(Clk  => clk,
 		     Enb  => size_rand_en,
 		     Rst  => rst,
-		     Dout(15 downto 0) => test_data_len,
-		     Dout(31 downto 16) => open);
+		     Dout => s);
+		     
+		test_data_len <= s(15 downto 0);
 		     
 		process(clk)
 		begin
@@ -110,8 +112,9 @@ begin
 		port map(Clk  => clk,
 		     Enb  => delay_rand_en,
 		     Rst  => rst,
-		     Dout(15 downto 0) => delay_value,
-		     Dout(31 downto 16) => open);
+		     Dout => d);
+		     
+		     delay_value <= d(15 downto 0);
 		     
 		process(clk)
 		begin
