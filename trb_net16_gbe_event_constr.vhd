@@ -92,9 +92,10 @@ signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
 signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 signal shf_padding : std_logic;
+signal block_shf_after_divide, previous_tc_rd : std_logic;
 
 begin
-
+	
 --*******
 -- SAVING PART
 --*******
@@ -615,10 +616,20 @@ df_rd_en <= '1' when (load_current_state = LOAD_DATA and TC_RD_EN_IN = '1' and l
 					(load_current_state = LOAD_SUB and header_ctr = 0 and TC_RD_EN_IN = '1')
 					else '0';
 
-shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0) or
+shf_rd_en <= '1' when (load_current_state = LOAD_SUB and TC_RD_EN_IN = '1' and header_ctr /= 0 and block_shf_after_divide = '0') or
 					(load_current_state = LOAD_Q_HEADERS and header_ctr = 0 and TC_RD_EN_IN = '1') or
 					(load_current_state = LOAD_DATA and load_eod_q = '1' and (loaded_queue_bytes /= actual_q_size) and (loaded_queue_bytes + x"4" /= actual_q_size))
 					else '0';
+
+
+-- nasty workaround for the case when the packet is divided on LOAD_SUB state
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		previous_tc_rd <= TC_RD_EN_IN;
+	end if;
+end process;
+block_shf_after_divide <= '1' when previous_tc_rd = '0' and TC_RD_EN_IN = '1' else '0';
 
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
