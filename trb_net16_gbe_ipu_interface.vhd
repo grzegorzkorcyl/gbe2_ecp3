@@ -441,7 +441,7 @@ begin
 		
 		when DECIDE =>
 			load_state <= x"5";
-			if (queue_size > "00" & x"fa00") then  -- max udp packet exceeded
+			if (queue_size > ("00" & x"fa00")) then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
 			elsif (number_of_subs = x"00c8") then
 				load_next_state <= CLOSE_QUEUE;
