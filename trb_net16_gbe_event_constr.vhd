@@ -521,17 +521,6 @@ begin
 			else
 				load_next_state <= LOAD_DATA;
 			end if;
---			if (load_eod_q = '1' and end_queue_marker = '1' and term_ctr = 33) then
---				if (insert_padding = '1') then
---					load_next_state <= LOAD_PADDING;
---				else
---					load_next_state <= LOAD_TERM;
---				end if;
---			elsif (load_eod_q = '1' and end_queue_marker = '0') then
---				load_next_state <= LOAD_SUB;
---			else
---				load_next_state <= LOAD_DATA;
---			end if;
 			
 		when LOAD_PADDING =>
 			if (header_ctr = 0) then
@@ -612,8 +601,8 @@ begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
 			insert_padding <= '0';
-		elsif (load_current_state = GET_Q_SIZE and header_ctr = 2) then
-			insert_padding <= qsf_q(7);
+		elsif (load_current_state = LOAD_SUB and header_ctr = 12) then
+			insert_padding <= shf_q(2);
 		else
 			insert_padding <= insert_padding;
 		end if;
