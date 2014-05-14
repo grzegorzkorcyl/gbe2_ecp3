@@ -73,7 +73,7 @@ type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, 
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
-type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_PACKET, CLOSE_SUB, CLOSE_QUEUE);
+type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, WAIT_TWO, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_PACKET, CLOSE_SUB, CLOSE_QUEUE);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -98,7 +98,7 @@ signal pc_ready_q : std_logic;
 signal sf_afull_q : std_logic;
 signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
-signal temp_packet_ctr : integer range 0 to 65535 := 0;
+signal queue_size : std_logic_vector(15 downto 0);
 signal number_of_subs : std_logic_vector(15 downto 0);
 
 begin
@@ -110,13 +110,9 @@ begin
 SAVE_MACHINE_PROC : process(RESET, CLK_IPU)
 begin
 	if RESET = '1' then
-			save_current_state <= IDLE;
+		save_current_state <= IDLE;
 	elsif rising_edge(CLK_IPU) then
---		if (RESET = '1') then
---			save_current_state <= IDLE;
---		else
-			save_current_state <= save_next_state;
---		end if;
+		save_current_state <= save_next_state;
 	end if;
 end process SAVE_MACHINE_PROC;
 
@@ -411,7 +407,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, temp_packet_ctr)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size)
 begin
 	case (load_current_state) is
 
@@ -437,11 +433,15 @@ begin
 			
 		when WAIT_ONE =>
 			load_state <= x"4";
+			load_next_state <= WAIT_TWO;
+			
+		when WAIT_TWO =>
+			load_state <= x"4";
 			load_next_state <= DECIDE;
 		
 		when DECIDE =>
 			load_state <= x"5";
-			if (temp_packet_ctr > 2) then
+			if (queue_size > x"fa00") then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -494,17 +494,17 @@ port map(
 );
 
 
+-- the queue size counter used only for closing current queue
+-- sums up all subevent sizes with their headers and stuff
 process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
-			temp_packet_ctr <= 0;
-		elsif (load_current_state = CLOSE_QUEUE) then
-			temp_packet_ctr <= 1;
-		elsif (load_current_state = WAIT_ONE) then
-			temp_packet_ctr <= temp_packet_ctr + 1;
+			queue_size <= (others => '0');
+		elsif (load_current_state = WAIT_TWO) then
+			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
 		else
-			temp_packet_ctr <= temp_packet_ctr;
+			queue_size <= queue_size;
 		end if;
 	end if;
 end process;
@@ -567,8 +567,6 @@ begin
 			subevent_size(9 downto 2) <= pc_data; 
 		elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
 			subevent_size(17 downto 10) <= pc_data;
---		elsif (load_current_state = DECIDE) then
---			subevent_size <= subevent_size + x"8";
 		else
 			subevent_size <= subevent_size;
 		end if;
