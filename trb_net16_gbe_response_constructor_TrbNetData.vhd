@@ -471,6 +471,16 @@ MONITOR_SELECT_REC_OUT        <= (others => '0');
 DEBUG_OUT(31 downto 0) <= ipu_dbg(31 downto 0);
 DEBUG_OUT(63 downto 32) <= constr_dbg(31 downto 0);
 
+-- SIMULATION DEBUGGING
+
+sim_debug_gen : if DO_SIMULATION = 1 generate
+	
+	
+	
+	
+end generate sim_debug_gen;
+	
+
 end trb_net16_gbe_response_constructor_TrbNetData;
 
 
