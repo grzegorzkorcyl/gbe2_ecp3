@@ -385,46 +385,46 @@ begin
 	if RESET = '1' then
 		queue_size <= x"0000_0008"; -- queue headers
 	elsif rising_edge(CLK) then
-		if (qsf_wr_en_qqq = '1') then
-			queue_size <= x"0000_0008";
-		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			if (PC_SUB_SIZE_IN(2) = '1') then
-				queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
-			else
-				queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
-			end if;
-		else
-			queue_size <= queue_size;
-		end if;
---		if (end_of_queue_q = '0') then
---			next_q_size <= x"0000_0008";  -- queue headers
---		
---			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---				if (PC_SUB_SIZE_IN(2) = '1') then
---					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
---				else
---					queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
---				end if;
+--		if (qsf_wr_en_qqq = '1') then
+--			queue_size <= x"0000_0008";
+--		elsif (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+--			if (PC_SUB_SIZE_IN(2) = '1') then
+--				queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
 --			else
---				queue_size <= queue_size;
+--				queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
 --			end if;
 --		else
 --			queue_size <= queue_size;
---			
---			if (qsf_wr_en_qqq = '1') then
---				queue_size <= next_q_size;
---			else
---				if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---					if (PC_SUB_SIZE_IN(2) = '1') then
---						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
---					else
---						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
---					end if;
---				else
---					next_q_size <= next_q_size;
---				end if;
---			end if;
 --		end if;
+		if (end_of_queue_q = '0') then
+			next_q_size <= x"0000_0008";  -- queue headers
+		
+			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+				if (PC_SUB_SIZE_IN(2) = '1') then
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
+				else
+					queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
+				end if;
+			else
+				queue_size <= queue_size;
+			end if;
+		else
+			queue_size <= queue_size;
+			
+			if (qsf_wr_en_qqq = '1') then
+				queue_size <= next_q_size;
+			else
+				if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+					if (PC_SUB_SIZE_IN(2) = '1') then
+						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
+					else
+						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
+					end if;
+				else
+					next_q_size <= next_q_size;
+				end if;
+			end if;
+		end if;
 	end if;
 end process QUEUE_SIZE_PROC;
 
