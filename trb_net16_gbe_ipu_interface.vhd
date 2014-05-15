@@ -374,19 +374,6 @@ port map(
 
 sf_reset <= RESET;
 
---SF_RESET_PROC : process(CLK_IPU)
---begin
---	if rising_edge(CLK_IPU) then
---		if (RESET = '1') then
---			sf_reset <= '1';
---		elsif (save_current_state = DROP_SUBEVENT) then
---			sf_reset <= '1';
---		else
---			sf_reset <= '0';
---		end if;
---	end if;
---end process SF_RESET_PROC;
-
 --*********
 -- LOADING PART
 --*********

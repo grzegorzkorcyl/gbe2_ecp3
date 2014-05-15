@@ -88,7 +88,7 @@ begin
 		     Dout => s);
 		     
 		--test_data_len <= "000" & s(12 downto 0);
-		test_data_len <= "000000" & s(9 downto 0);
+		test_data_len <= "0000" & s(11 downto 0);
 		     
 		process(clk)
 		begin
