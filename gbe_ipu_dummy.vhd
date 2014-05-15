@@ -131,7 +131,7 @@ begin
 --		     
 --	end generate variable_delay_gen;
 
-timeout_stop <= 100;
+timeout_stop <= 65535;
 	
 	
 	CTS_INFORMATION_OUT <= x"d2";
