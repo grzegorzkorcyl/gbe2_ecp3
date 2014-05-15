@@ -197,7 +197,7 @@ begin
 	elsif rising_edge(CLK) then
 		
 		end_of_queue <= PC_END_OF_QUEUE_IN;
-		eoq_to_write_to_qsf <= end_of_queue;
+		eoq_to_write_to_qsf <= end_of_queue_q;
 		if (end_of_queue = '1') then
 			end_of_queue_q <= '1';
 		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
