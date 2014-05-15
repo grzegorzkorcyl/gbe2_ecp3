@@ -376,9 +376,9 @@ begin
 --		else
 --			qsf_wr_en <= '0';
 --		end if;
+		qsf_wr_en <= eoq_to_write_to_qsf;
 	end if;
 end process QSF_WR_PROC;
-		qsf_wr_en <= eoq_to_write_to_qsf;
 
 QUEUE_SIZE_PROC : process(RESET, CLK)
 begin
