@@ -93,6 +93,7 @@ signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 signal shf_padding : std_logic;
 signal block_shf_after_divide, previous_tc_rd : std_logic;
+signal eoq_lock : std_logic;
 
 begin
 	
@@ -280,11 +281,6 @@ SUB_SIZE_TO_SAVE_PROC : process (CLK)
 begin
 	if rising_edge(CLK) then
 		sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8"; -- addition for subevent headers and subsubevent
---		if (PC_SUB_SIZE_IN(2) = '1') then
---			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8" + x"4"; -- x"10"; -- addition for subevent headers and subsubevent and padding
---		else
---			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8"; -- addition for subevent headers and subsubevent
---		end if;
 	end if;
 end process SUB_SIZE_TO_SAVE_PROC;
 
@@ -374,10 +370,16 @@ begin
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
 		
-		if (end_of_queue_q = '1') then -- and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+		if (end_of_queue_q = '1' and eoq_lock = '0') then -- and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
 			qsf_wr_en <= '1';
 		else
 			qsf_wr_en <= '0';
+		end if;
+		
+		if (end_of_queue_q = '1') then
+			eoq_lock <= '1';
+		else
+			eoq_lock <= '0';
 		end if;
 	end if;
 end process QSF_WR_PROC;
