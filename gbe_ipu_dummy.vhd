@@ -103,36 +103,34 @@ begin
 		
 	end generate variable_size_gen;
 	
---	fixed_delay_gen : if FIXED_DELAY_MODE = 1 generate
---		timeout_stop <= FIXED_DELAY when DO_SIMULATION = 0 else 100;
---	end generate fixed_delay_gen;
---	
---	variable_delay_gen : if FIXED_DELAY_MODE = 0 generate
---		
---		delay_rand_inst : random_size
---		port map(Clk  => clk,
---		     Enb  => delay_rand_en,
---		     Rst  => rst,
---		     Dout => d);
---		     
---		     delay_value <= d(31 downto 16);
---		     
---		process(clk)
---		begin
---			if rising_edge(clk) then
---				if (current_state = IDLE and GBE_READY_IN = '1') then
---					delay_rand_en <= '1';
---				else
---					delay_rand_en <= '0';
---				end if;
---			end if;
---		end process;
---		
---		timeout_stop <= to_integer(unsigned(delay_value));
---		     
---	end generate variable_delay_gen;
-
-timeout_stop <= 65535;
+	fixed_delay_gen : if FIXED_DELAY_MODE = 1 generate
+		timeout_stop <= FIXED_DELAY when DO_SIMULATION = 0 else 100;
+	end generate fixed_delay_gen;
+	
+	variable_delay_gen : if FIXED_DELAY_MODE = 0 generate
+		
+		delay_rand_inst : random_size
+		port map(Clk  => clk,
+		     Enb  => delay_rand_en,
+		     Rst  => rst,
+		     Dout => d);
+		     
+		     delay_value <= d(31 downto 16);
+		     
+		process(clk)
+		begin
+			if rising_edge(clk) then
+				if (current_state = IDLE and GBE_READY_IN = '1') then
+					delay_rand_en <= '1';
+				else
+					delay_rand_en <= '0';
+				end if;
+			end if;
+		end process;
+		
+		timeout_stop <= to_integer(unsigned(delay_value));
+		     
+	end generate variable_delay_gen;
 	
 	
 	CTS_INFORMATION_OUT <= x"d2";
