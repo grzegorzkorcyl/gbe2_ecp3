@@ -93,7 +93,7 @@ signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 signal shf_padding : std_logic;
 signal block_shf_after_divide, previous_tc_rd : std_logic;
-signal eoq_lock : std_logic;
+signal eoq_to_write_to_qsf : std_logic;
 
 begin
 	
@@ -197,6 +197,7 @@ begin
 	elsif rising_edge(CLK) then
 		
 		end_of_queue <= PC_END_OF_QUEUE_IN;
+		eoq_to_write_to_qsf <= end_of_queue;
 		if (end_of_queue = '1') then
 			end_of_queue_q <= '1';
 		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
@@ -369,18 +370,7 @@ begin
 		qsf_wr_en_q   <= qsf_wr_en;
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
-		
-		if (end_of_queue_q = '1' and eoq_lock = '0') then -- and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			qsf_wr_en <= '1';
-		else
-			qsf_wr_en <= '0';
-		end if;
-		
-		if (end_of_queue_q = '1') then
-			eoq_lock <= '1';
-		else
-			eoq_lock <= '0';
-		end if;
+		qsf_wr_en <= eoq_to_write_to_qsf;
 	end if;
 end process QSF_WR_PROC;
 
