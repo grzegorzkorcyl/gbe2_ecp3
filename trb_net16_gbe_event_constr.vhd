@@ -371,12 +371,12 @@ begin
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
 		
-		if (end_of_queue_q = '1' and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			qsf_wr_en <= '1';
-		else
-			qsf_wr_en <= '0';
-		end if;
-		--qsf_wr_en <= eoq_to_write_to_qsf;
+--		if (end_of_queue_q = '1' and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+--			qsf_wr_en <= '1';
+--		else
+--			qsf_wr_en <= '0';
+--		end if;
+		qsf_wr_en <= eoq_to_write_to_qsf;
 	end if;
 end process QSF_WR_PROC;
 
