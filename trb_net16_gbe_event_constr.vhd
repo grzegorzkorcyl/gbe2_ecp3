@@ -703,7 +703,7 @@ begin
 			when LOAD_Q_HEADERS => tc_data <= qsf_q; 
 			when LOAD_SUB       => tc_data <= shf_q;
 			when LOAD_DATA      => tc_data <= df_q;
-			when LOAD_PADDING   => tc_data <= x"ff";
+			when LOAD_PADDING   => tc_data <= x"aa";
 			when LOAD_TERM      => tc_data <= termination((header_ctr + 1) * 8 - 1 downto  header_ctr * 8);
 			when others         => tc_data <= x"cc";
 		end case;
