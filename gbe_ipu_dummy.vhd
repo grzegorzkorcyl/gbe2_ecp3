@@ -87,7 +87,8 @@ begin
 		     Rst  => rst,
 		     Dout => s);
 		     
-		test_data_len <= "000" & s(12 downto 0);
+		--test_data_len <= "000" & s(12 downto 0);
+		test_data_len <= "000000" & s(9 downto 0);
 		     
 		process(clk)
 		begin
@@ -131,7 +132,7 @@ begin
 --		     
 --	end generate variable_delay_gen;
 
-timeout_stop <= 65535;
+timeout_stop <= 100;
 	
 	
 	CTS_INFORMATION_OUT <= x"d2";
