@@ -279,11 +279,12 @@ end process SUB_INT_CTR_PROC;
 SUB_SIZE_TO_SAVE_PROC : process (CLK)
 begin
 	if rising_edge(CLK) then
-		if (PC_SUB_SIZE_IN(2) = '1') then
-			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8" + x"4"; -- x"10"; -- addition for subevent headers and subsubevent and padding
-		else
-			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8"; -- addition for subevent headers and subsubevent
-		end if;
+		sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8"; -- addition for subevent headers and subsubevent
+--		if (PC_SUB_SIZE_IN(2) = '1') then
+--			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8" + x"4"; -- x"10"; -- addition for subevent headers and subsubevent and padding
+--		else
+--			sub_size_to_save <= PC_SUB_SIZE_IN + x"10" + x"8"; -- addition for subevent headers and subsubevent
+--		end if;
 	end if;
 end process SUB_SIZE_TO_SAVE_PROC;
 
