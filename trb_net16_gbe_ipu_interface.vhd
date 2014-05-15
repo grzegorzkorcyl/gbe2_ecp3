@@ -459,11 +459,11 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			load_next_state <= WAIT_FOR_SUBS;
+			load_next_state <= CLOSE_QUEUE; --WAIT_FOR_SUBS;
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			load_next_state <= PREPARE_TO_LOAD_SUB;
+			load_next_state <= WAIT_FOR_SUBS; --PREPARE_TO_LOAD_SUB;
 		
 		when others => load_next_state <= IDLE;
 
