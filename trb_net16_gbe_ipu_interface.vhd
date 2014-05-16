@@ -304,7 +304,7 @@ begin
 		
 		if (save_current_state = IDLE) then
 			sf_wr_lock <= '1';
-		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1') then -- and sf_data /= x"0009") then  -- condition to ALLOW an event to  be passed forward
+		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and sf_data > x"0100") then  -- condition to ALLOW an event to  be passed forward
 			sf_wr_lock <= '0';
 		else
 			sf_wr_lock <= sf_wr_lock;
