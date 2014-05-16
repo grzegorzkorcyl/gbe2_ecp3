@@ -186,7 +186,7 @@ begin
 			
 		when FINISH_4_WORDS =>
 			rec_state <= x"b";
-			if (size_check_ctr = 0) then
+			if (size_check_ctr = 1) then
 				save_next_state <= CLEANUP;
 			else
 				save_next_state <= FINISH_4_WORDS;
