@@ -304,7 +304,7 @@ begin
 		
 		if (save_current_state = IDLE) then
 			sf_wr_lock <= '1';
-		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and sf_data < x"1000") then  -- condition to ALLOW an event to be passed forward
+		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and sf_data < x"7d80") then  -- condition to ALLOW an event to be passed forward
 			sf_wr_lock <= '0';
 		else
 			sf_wr_lock <= sf_wr_lock;
@@ -517,7 +517,7 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & x"0a00")) then --("00" & x"7d00")) then
+			if (subevent_size > ("00" & x"7d00")) then
 				load_next_state <= CLOSE_QUEUE; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
@@ -525,7 +525,7 @@ begin
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			if (subevent_size > ("00" & x"0a00")) then --("00" & x"7d00")) then
+			if (subevent_size > ("00" & x"7d00")) then
 				load_next_state <= WAIT_FOR_SUBS; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
