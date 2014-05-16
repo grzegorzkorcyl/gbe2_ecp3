@@ -407,13 +407,13 @@ sf_wr_q <= sf_wr_en and not sf_wr_lock;
 THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
-	Data(7 downto 0)  => sf_data(15 downto 8), --sf_data_qqqqq(15 downto 8),
+	Data(7 downto 0)  => sf_data_qqqqq(15 downto 8),
 	Data(8)           => '0',
-	Data(16 downto 9) => sf_data(7 downto 0), -- sf_data_qqqqq(7 downto 0),
-	Data(17)          => save_eod, --save_eod_qqqqq,
+	Data(16 downto 9) => sf_data_qqqqq(7 downto 0),
+	Data(17)          => save_eod_qqqqq,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
-	WrEn              => sf_wr_en, --sf_wr_q,  -- sf_wr_en
+	WrEn              => sf_wr_q,  -- sf_wr_en
 	RdEn              => sf_rd_en,
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
