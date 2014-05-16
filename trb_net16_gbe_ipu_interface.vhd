@@ -270,10 +270,10 @@ begin
 			save_eod_qqqq  <= save_eod_qqqq;
 		end if;
 		
-		sf_wr_q    <= sf_wr_en;
-		sf_wr_qq   <= sf_wr_q;
-		sf_wr_qqq  <= sf_wr_qq;
-		sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
+		sf_wr_q    <= sf_wr_en and not sf_wr_lock;
+--		sf_wr_qq   <= sf_wr_q;
+--		sf_wr_qqq  <= sf_wr_qq;
+--		sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
 		
 	end if;
 end process;
@@ -400,7 +400,7 @@ port map(
 	Data(17)          => save_eod_qqqq,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
-	WrEn              => sf_wr_qqqq,
+	WrEn              => sf_wr_q,
 	RdEn              => sf_rd_en,
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
