@@ -197,7 +197,7 @@ begin
 	elsif rising_edge(CLK) then
 		
 		end_of_queue <= PC_END_OF_QUEUE_IN;
-		eoq_to_write_to_qsf <= end_of_queue;
+		eoq_to_write_to_qsf <= PC_END_OF_QUEUE_IN and PC_END_OF_SUB_IN;
 		if (end_of_queue = '1') then
 			end_of_queue_q <= '1';
 		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
@@ -337,7 +337,7 @@ port map(
 	Full        =>  qsf_full
 );
 
-qsf_wr <= qsf_wr_en_qqq or qsf_wr_en_q or qsf_wr_en_qq;
+qsf_wr <= qsf_wr_en_qqq or qsf_wr_en_qq or qsf_wr_en_q;
 
 QSF_DATA_PROC : process(CLK)
 begin
@@ -371,12 +371,12 @@ begin
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
 		
-		if (end_of_queue_q = '1' and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
-			qsf_wr_en <= '1';
-		else
-			qsf_wr_en <= '0';
-		end if;
-		--qsf_wr_en <= eoq_to_write_to_qsf;
+--		if (end_of_queue_q = '1' and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
+--			qsf_wr_en <= '1';
+--		else
+--			qsf_wr_en <= '0';
+--		end if;
+		qsf_wr_en <= eoq_to_write_to_qsf;
 	end if;
 end process QSF_WR_PROC;
 
