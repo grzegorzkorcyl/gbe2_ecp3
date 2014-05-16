@@ -299,7 +299,7 @@ begin
 			size_check_ctr <= 0;
 		elsif (save_current_state = SAVE_DATA and sf_wr_en = '1' and size_check_ctr /= 7) then
 			size_check_ctr <= size_check_ctr + 1;
-		elsif (save_current_state = FINISH_4_WORDS) then
+		elsif (save_current_state = FINISH_4_WORDS and size_check_ctr /= 0) then
 			size_check_ctr <= size_check_ctr - 1;
 		else
 			size_check_ctr <= size_check_ctr;
