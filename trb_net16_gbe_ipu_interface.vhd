@@ -202,13 +202,6 @@ begin
 			sf_wr_en <= '1';
 		elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
 			sf_wr_en <= '1';
-		-- terminating states, additing 3 missing words
-		elsif (save_current_state = SAVE_DATA and FEE_BUSY_IN = '0') then
-			sf_wr_en <= '1';
-		elsif (save_current_state = TERMINATE and CTS_READ_IN = '1') then
-			sf_wr_en <= '1';
-		elsif (save_current_state = CLOSE and CTS_START_READOUT_IN = '0') then
-			sf_wr_en <= '1';
 		else
 			sf_wr_en <= '0';
 		end if;
@@ -277,10 +270,11 @@ begin
 			save_eod_qqqq  <= save_eod_qqqq;
 		end if;
 		
-			sf_wr_q    <= sf_wr_en;
-			sf_wr_qq   <= sf_wr_q;
-			sf_wr_qqq  <= sf_wr_qq;
-			sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
+		sf_wr_q    <= sf_wr_en;
+		sf_wr_qq   <= sf_wr_q;
+		sf_wr_qqq  <= sf_wr_qq;
+		sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
+		
 	end if;
 end process;
 
