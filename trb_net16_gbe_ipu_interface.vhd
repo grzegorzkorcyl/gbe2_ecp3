@@ -459,7 +459,7 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & x"0bb8")) then
+			if (subevent_size > ("00" & x"7d00")) then
 				load_next_state <= CLOSE_QUEUE; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
@@ -467,7 +467,7 @@ begin
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			if (subevent_size > ("00" & x"0bb8")) then
+			if (subevent_size > ("00" & x"7d00")) then
 				load_next_state <= WAIT_FOR_SUBS; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
