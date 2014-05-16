@@ -320,7 +320,7 @@ begin
 	if (RESET = '1') then
 		saved_events_ctr <= (others => '0');
 	elsif rising_edge(CLK_IPU) then
-		if (save_current_state = ADD_SUBSUB4) then
+		if (save_current_state = ADD_SUBSUB4 and sf_wr_lock = '0') then
 			saved_events_ctr <= saved_events_ctr + x"1";
 		else
 			saved_events_ctr <= saved_events_ctr;
