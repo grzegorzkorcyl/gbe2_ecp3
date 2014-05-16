@@ -12,10 +12,10 @@ use work.trb_net16_hub_func.all;
 use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
-ENTITY aa_tb_dummy IS
-END aa_tb_dummy;
+ENTITY aaa_gen_test IS
+END aaa_gen_test;
 
-ARCHITECTURE behavior OF aa_tb_dummy IS
+ARCHITECTURE behavior OF aaa_gen_test IS
 	component random_size is
     port (
         Clk: in  std_logic; 
