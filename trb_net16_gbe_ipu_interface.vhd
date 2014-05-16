@@ -101,9 +101,9 @@ signal rec_state, load_state : std_logic_vector(3 downto 0);
 signal queue_size : std_logic_vector(17 downto 0);
 signal number_of_subs : std_logic_vector(15 downto 0);
 signal size_check_ctr : integer range 0 to 7;
-signal sf_data_q, sf_data_qq, sf_data_qqq, sf_data_qqqq : std_logic_vector(15 downto 0);
+signal sf_data_q, sf_data_qq, sf_data_qqq, sf_data_qqqq, sf_data_qqqqq : std_logic_vector(15 downto 0);
 signal sf_wr_q, sf_wr_qq, sf_wr_qqq, sf_wr_qqqq, sf_wr_lock : std_logic;
-signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq : std_logic;
+signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq, save_eod_qqqqq : std_logic;
 
 begin
 
@@ -253,21 +253,25 @@ begin
 			sf_data_qq   <= sf_data_q;
 			sf_data_qqq  <= sf_data_qq;
 			sf_data_qqqq <= sf_data_qqq;
+			sf_data_qqqqq <= sf_data_qqqq;
 			
 			save_eod_q     <= save_eod;
 			save_eod_qq    <= save_eod_q;
 			save_eod_qqq   <= save_eod_qq;
 			save_eod_qqqq  <= save_eod_qqq;
+			save_eod_qqqqq  <= save_eod_qqqq;
 		else
 			sf_data_q    <= sf_data_q;
 			sf_data_qq   <= sf_data_qq;
 			sf_data_qqq  <= sf_data_qqq;
 			sf_data_qqqq <= sf_data_qqqq;
+			sf_data_qqqqq <= sf_data_qqqqq;
 			
 			save_eod_q     <= save_eod_q;
 			save_eod_qq    <= save_eod_qq;
 			save_eod_qqq   <= save_eod_qqq;
 			save_eod_qqqq  <= save_eod_qqqq;
+			save_eod_qqqqq  <= save_eod_qqqq;
 		end if;
 		
 		sf_wr_q    <= sf_wr_en and not sf_wr_lock;
@@ -394,10 +398,10 @@ end process FEE_READ_PROC;
 THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
-	Data(7 downto 0)  => sf_data_qqqq(15 downto 8),
+	Data(7 downto 0)  => sf_data_qqqqq(15 downto 8),
 	Data(8)           => '0',
-	Data(16 downto 9) => sf_data_qqqq(7 downto 0),
-	Data(17)          => save_eod_qqqq,
+	Data(16 downto 9) => sf_data_qqqqq(7 downto 0),
+	Data(17)          => save_eod_qqqqq,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
 	WrEn              => sf_wr_q,
