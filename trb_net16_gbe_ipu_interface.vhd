@@ -100,6 +100,10 @@ signal sf_aempty : std_logic;
 signal rec_state, load_state : std_logic_vector(3 downto 0);
 signal queue_size : std_logic_vector(17 downto 0);
 signal number_of_subs : std_logic_vector(15 downto 0);
+signal size_check_ctr : integer range 0 to 7;
+signal sf_data_q, sf_data_qq, sf_data_qqq, sf_data_qqqq : std_logic_vector(15 downto 0);
+signal sf_wr_q, sf_wr_qq, sf_wr_qqq, sf_wr_qqqq, sf_wr_lock : std_logic;
+signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq : std_logic;
 
 begin
 
@@ -201,20 +205,6 @@ begin
 		else
 			sf_wr_en <= '0';
 		end if;
-		
---		if (sf_afull_q = '0') then
---			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1' and FEE_BUSY_IN = '1') then
---				sf_wr_en <= '1';
---			elsif (save_current_state = SAVE_EVT_ADDR) then
---				sf_wr_en <= '1';
---			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
---				sf_wr_en <= '1';
---			else
---				sf_wr_en <= '0';
---			end if;
---		else
---			sf_wr_en <= '0';
---		end if;
 	end if;
 end process SF_WR_EN_PROC;
 
@@ -254,6 +244,52 @@ begin
 		end case;
 	end if;
 end process SF_DATA_EOD_PROC;
+
+process(CLK_IPU)
+begin
+	if rising_edge(CLK_IPU) then
+		sf_data_q    <= sf_data;
+		sf_data_qq   <= sf_data_q;
+		sf_data_qqq  <= sf_data_qq;
+		sf_data_qqqq <= sf_data_qqq;
+		
+		save_eod_q     <= save_eod;
+		save_eod_qq    <= save_eod_q;
+		save_eod_qqq   <= save_eod_qq;
+		save_eod_qqqq  <= save_eod_qqq;
+		
+		if (sf_wr_lock = '0') then
+			sf_wr_q    <= sf_wr_en;
+		else
+			sf_wr_q    <= '0';
+		end if;
+		
+			sf_wr_qq   <= sf_wr_q;
+			sf_wr_qqq  <= sf_wr_qq;
+			sf_wr_qqqq <= sf_wr_qqq;
+	end if;
+end process;
+
+process(CLK_IPU)
+begin
+	if rising_edge(CLK_IPU) then
+		if (save_current_state = IDLE) then
+			size_check_ctr <= 0;
+		elsif (sf_wr_en = '1' and size_check_ctr /= 7) then
+			size_check_ctr <= size_check_ctr + 1;
+		else
+			size_check_ctr <= size_check_ctr;
+		end if;
+		
+		if (save_current_state = IDLE) then
+			sf_wr_lock <= '0';
+		elsif (size_check_ctr = 3 and sf_wr_en = '1' and sf_data > x"0002") then
+			sf_wr_lock <= '1';
+		else
+			sf_wr_lock <= sf_wr_lock;
+		end if;
+	end if;
+end process;
 
 SAVED_EVENTS_CTR_PROC : process(RESET, CLK_IPU)
 begin
@@ -350,13 +386,13 @@ end process FEE_READ_PROC;
 THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
 	-- Byte swapping for correct byte order on readout side of FIFO
-	Data(7 downto 0)  => sf_data(15 downto 8),
+	Data(7 downto 0)  => sf_data_qqqq(15 downto 8),
 	Data(8)           => '0',
-	Data(16 downto 9) => sf_data(7 downto 0),
-	Data(17)          => save_eod,
+	Data(16 downto 9) => sf_data_qqqq(7 downto 0),
+	Data(17)          => save_eod_qqqq,
 	WrClock           => CLK_IPU,
 	RdClock           => CLK_GBE,
-	WrEn              => sf_wr_en,
+	WrEn              => sf_wr_qqqq,
 	RdEn              => sf_rd_en,
 	Reset             => sf_reset,
 	RPReset           => sf_reset,
@@ -394,7 +430,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, subevent_size)
 begin
 	case (load_current_state) is
 
