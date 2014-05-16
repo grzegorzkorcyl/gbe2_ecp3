@@ -69,7 +69,7 @@ architecture RTL of trb_net16_gbe_ipu_interface is
 
 attribute syn_encoding : string;
 
-type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, CLEANUP);
+type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, CLOSE, FINISH_4_WORDS, CLEANUP);
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
@@ -182,10 +182,18 @@ begin
 			
 		when ADD_SUBSUB4 =>
 			rec_state <= x"a";
-			save_next_state <= CLEANUP;
+			save_next_state <= FINISH_4_WORDS; --CLEANUP;
+			
+		when FINISH_4_WORDS =>
+			rec_state <= x"b";
+			if (size_check_ctr = 0) then
+				save_next_state <= CLEANUP;
+			else
+				save_next_state <= FINISH_4_WORDS;
+			end if;
 			
 		when CLEANUP =>
-			rec_state <= x"b";
+			rec_state <= x"c";
 			save_next_state <= IDLE;
 		 
 	end case;
@@ -201,6 +209,8 @@ begin
 		elsif (save_current_state = SAVE_EVT_ADDR) then
 			sf_wr_en <= '1';
 		elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
+			sf_wr_en <= '1';
+		elsif (save_current_state = FINISH_4_WORDS) then
 			sf_wr_en <= '1';
 		else
 			sf_wr_en <= '0';
@@ -287,8 +297,10 @@ begin
 	if rising_edge(CLK_IPU) then
 		if (save_current_state = IDLE) then
 			size_check_ctr <= 0;
-		elsif (sf_wr_en = '1' and size_check_ctr /= 7) then
+		elsif (save_current_state = SAVE_DATA and sf_wr_en = '1' and size_check_ctr /= 7) then
 			size_check_ctr <= size_check_ctr + 1;
+		elsif (save_current_state = FINISH_4_WORDS) then
+			size_check_ctr <= size_check_ctr - 1;
 		else
 			size_check_ctr <= size_check_ctr;
 		end if;
