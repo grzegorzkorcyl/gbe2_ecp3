@@ -273,7 +273,7 @@ begin
 			sf_wr_q    <= sf_wr_en;
 			sf_wr_qq   <= sf_wr_q;
 			sf_wr_qqq  <= sf_wr_qq;
-			sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
+			sf_wr_qqqq <= sf_wr_qqq and sf_wr_lock;
 	end if;
 end process;
 
@@ -289,9 +289,9 @@ begin
 		end if;
 		
 		if (save_current_state = IDLE) then
-			sf_wr_lock <= '0';
-		elsif (size_check_ctr = 3 and sf_wr_en = '1' and sf_data > x"0002") then
 			sf_wr_lock <= '1';
+		elsif (size_check_ctr = 3 and sf_wr_en = '1' and sf_data > x"0002") then
+			sf_wr_lock <= '0';
 		else
 			sf_wr_lock <= sf_wr_lock;
 		end if;
