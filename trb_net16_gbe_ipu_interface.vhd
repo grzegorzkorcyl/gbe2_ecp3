@@ -120,7 +120,7 @@ begin
 	end if;
 end process SAVE_MACHINE_PROC;
 
-SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN)
+SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, FEE_BUSY_IN, CTS_READ_IN, size_check_ctr)
 begin
 	case (save_current_state) is
 	
