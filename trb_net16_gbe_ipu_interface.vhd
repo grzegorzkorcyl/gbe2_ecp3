@@ -248,25 +248,32 @@ end process SF_DATA_EOD_PROC;
 process(CLK_IPU)
 begin
 	if rising_edge(CLK_IPU) then
-		sf_data_q    <= sf_data;
-		sf_data_qq   <= sf_data_q;
-		sf_data_qqq  <= sf_data_qq;
-		sf_data_qqqq <= sf_data_qqq;
-		
-		save_eod_q     <= save_eod;
-		save_eod_qq    <= save_eod_q;
-		save_eod_qqq   <= save_eod_qq;
-		save_eod_qqqq  <= save_eod_qqq;
-		
-		if (sf_wr_lock = '0') then
-			sf_wr_q    <= sf_wr_en;
+		if (sf_wr_en = '1') then
+			sf_data_q    <= sf_data;
+			sf_data_qq   <= sf_data_q;
+			sf_data_qqq  <= sf_data_qq;
+			sf_data_qqqq <= sf_data_qqq;
+			
+			save_eod_q     <= save_eod;
+			save_eod_qq    <= save_eod_q;
+			save_eod_qqq   <= save_eod_qq;
+			save_eod_qqqq  <= save_eod_qqq;
 		else
-			sf_wr_q    <= '0';
+			sf_data_q    <= sf_data_q;
+			sf_data_qq   <= sf_data_qq;
+			sf_data_qqq  <= sf_data_qqq;
+			sf_data_qqqq <= sf_data_qqqq;
+			
+			save_eod_q     <= save_eod_q;
+			save_eod_qq    <= save_eod_qq;
+			save_eod_qqq   <= save_eod_qqq;
+			save_eod_qqqq  <= save_eod_qqqq;
 		end if;
 		
+			sf_wr_q    <= sf_wr_en;
 			sf_wr_qq   <= sf_wr_q;
 			sf_wr_qqq  <= sf_wr_qq;
-			sf_wr_qqqq <= sf_wr_qqq;
+			sf_wr_qqqq <= sf_wr_qqq and not sf_wr_lock;
 	end if;
 end process;
 
