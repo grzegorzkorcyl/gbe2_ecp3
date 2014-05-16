@@ -297,7 +297,7 @@ begin
 	if rising_edge(CLK_IPU) then
 		if (save_current_state = IDLE) then
 			size_check_ctr <= 0;
-		elsif (save_current_state = SAVE_DATA and sf_wr_en = '1' and size_check_ctr /= 3) then
+		elsif (save_current_state = SAVE_DATA and sf_wr_en = '1' and size_check_ctr /= 4) then
 			size_check_ctr <= size_check_ctr + 1;
 		elsif (save_current_state = FINISH_4_WORDS and size_check_ctr /= 0) then
 			size_check_ctr <= size_check_ctr - 1;
