@@ -284,6 +284,8 @@ begin
 			save_eod_qqqqq  <= save_eod_qqqq;
 		end if;
 		
+sf_wr_q <= sf_wr_en and not sf_wr_lock;
+
 	end if;
 end process;
 
@@ -402,7 +404,6 @@ begin
 	end if;
 end process FEE_READ_PROC;
 
-sf_wr_q <= sf_wr_en and not sf_wr_lock;
 
 THE_SPLIT_FIFO: fifo_32kx16x8_mb2 --fifo_16kx18x9
 port map( 
