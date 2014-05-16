@@ -192,19 +192,20 @@ end process SHF_WR_EN_PROC;
 
 VARIOUS_SYNC : process(RESET, CLK)
 begin
-	if RESET = '1' then
-		end_of_queue_q <= '0';
-	elsif rising_edge(CLK) then
+--	if RESET = '1' then
+--		end_of_queue_q <= '0';
+--	els
+	if rising_edge(CLK) then
 		
-		end_of_queue <= PC_END_OF_QUEUE_IN;
-		eoq_to_write_to_qsf <= PC_END_OF_QUEUE_IN and PC_END_OF_SUB_IN;
-		if (end_of_queue = '1') then
-			end_of_queue_q <= '1';
-		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
-			end_of_queue_q <= '0';
-		else
-			end_of_queue_q <= end_of_queue_q ;
-		end if;
+--		end_of_queue <= PC_END_OF_QUEUE_IN;
+--		eoq_to_write_to_qsf <= PC_END_OF_QUEUE_IN and PC_END_OF_SUB_IN;
+--		if (end_of_queue = '1') then
+--			end_of_queue_q <= '1';
+--		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
+--			end_of_queue_q <= '0';
+--		else
+--			end_of_queue_q <= end_of_queue_q ;
+--		end if;
 		
 		shf_qq <= shf_q;
 	end if;
@@ -376,7 +377,7 @@ begin
 --		else
 --			qsf_wr_en <= '0';
 --		end if;
-		qsf_wr_en <= eoq_to_write_to_qsf;
+		qsf_wr_en <= PC_END_OF_QUEUE_IN;
 	end if;
 end process QSF_WR_PROC;
 
