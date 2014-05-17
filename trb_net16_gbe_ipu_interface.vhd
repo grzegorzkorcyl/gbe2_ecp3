@@ -563,6 +563,14 @@ begin
 			queue_size <= (others => '0');
 		elsif (load_current_state = WAIT_TWO) then
 			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
+		elsif (load_current_state = DECIDE) then
+			if (queue_size > ("00" & x"ea60")) then
+				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			elsif (number_of_subs = x"00c8") then
+				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			else
+				queue_size <= queue_size;
+			end if;
 		else
 			queue_size <= queue_size;
 		end if;
