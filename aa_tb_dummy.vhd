@@ -205,7 +205,7 @@ SIGNAL CTS_ERROR_PATTERN_OUT :  std_logic_vector(31 downto 0);
 SIGNAL FEE_DATA_IN :  std_logic_vector(15 downto 0);
 SIGNAL FEE_DATAREADY_IN :  std_logic;
 SIGNAL FEE_READ_OUT :  std_logic;
-SIGNAL FEE_STATUS_BITS_IN :  std_logic_vector(31 downto 0);
+SIGNAL FEE_STATUS_BITS_IN :  std_logic_vector(31 downto 0) := x"0000_0000";
 SIGNAL FEE_BUSY_IN :  std_logic;
 
 
