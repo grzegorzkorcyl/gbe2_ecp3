@@ -558,7 +558,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
 			queue_size <= (others => '0');
-		elsif (load_current_state = CLOSE_QUEUE) then
+		elsif (load_current_state = CLOSE_QUEUE and subevent_size > ("00" & x"7d00")) then
 			--queue_size <= subevent_size + x"10" + x"8" + x"4";
 			queue_size <= (others => '0');
 		elsif (load_current_state = WAIT_TWO) then
