@@ -73,7 +73,7 @@ type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, 
 signal save_current_state, save_next_state : saveStates;
 attribute syn_encoding of save_current_state : signal is "onehot";
 
-type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, WAIT_TWO, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_PACKET, CLOSE_SUB, CLOSE_QUEUE);
+type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, WAIT_TWO, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_PACKET, CLOSE_SUB, CLOSE_QUEUE, CLOSE_QUEUE_IMMEDIATELY);
 signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
@@ -518,19 +518,24 @@ begin
 		when CLOSE_SUB =>
 			load_state <= x"9";
 			if (subevent_size > ("00" & x"5000")) then
-				load_next_state <= CLOSE_QUEUE; --WAIT_FOR_SUBS;
+				load_next_state <= CLOSE_QUEUE_IMMEDIATELY; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
 			end if;
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
-			if (subevent_size > ("00" & x"5000")) then
-				load_next_state <= WAIT_FOR_SUBS; --WAIT_FOR_SUBS;
-			else
-				load_next_state <= PREPARE_TO_LOAD_SUB;
-			end if;
-			--load_next_state <= WAIT_FOR_SUBS; --PREPARE_TO_LOAD_SUB;
+--			if (subevent_size > ("00" & x"5000")) then
+--				load_next_state <= WAIT_FOR_SUBS; --WAIT_FOR_SUBS;
+--			else
+--				load_next_state <= PREPARE_TO_LOAD_SUB;
+--			end if;
+			load_next_state <= WAIT_FOR_SUBS; --PREPARE_TO_LOAD_SUB;
+			
+		when CLOSE_QUEUE_IMMEDIATELY =>
+			load_state <= x"b";
+			load_next_state <= WAIT_FOR_SUBS;
+			
 		
 		when others => load_next_state <= IDLE;
 
@@ -558,8 +563,7 @@ begin
 	if rising_edge(CLK_GBE) then
 		if (load_current_state = IDLE) then
 			queue_size <= (others => '0');
-		elsif (load_current_state = CLOSE_QUEUE and subevent_size > ("00" & x"5000")) then
-			--queue_size <= subevent_size + x"10" + x"8" + x"4";
+		elsif (load_current_state = CLOSE_QUEUE_IMMEDIATELY) then
 			queue_size <= (others => '0');
 		elsif (load_current_state = WAIT_TWO) then
 			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
@@ -580,7 +584,7 @@ end process;
 process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = IDLE or load_current_state = CLOSE_QUEUE) then
+		if (load_current_state = IDLE or load_current_state = CLOSE_QUEUE or load_current_state = CLOSE_QUEUE_IMMEDIATELY) then
 			number_of_subs <= (others => '0');
 		elsif (load_current_state = PREPARE_TO_LOAD_SUB) then
 			number_of_subs <= number_of_subs + x"1";
@@ -793,7 +797,7 @@ end process PC_EOD_PROC;
 PC_EOQ_PROC : process(CLK_GBE)
 begin
 	if rising_edge(CLK_GBE) then
-		if (load_current_state = CLOSE_QUEUE) then
+		if (load_current_state = CLOSE_QUEUE or load_current_state = CLOSE_QUEUE_IMMEDIATELY) then
 			PC_EOQ_OUT <= '1';
 		else
 			PC_EOQ_OUT <= '0';
