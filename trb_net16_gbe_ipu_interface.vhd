@@ -517,7 +517,7 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & x"5000")) then
+			if (subevent_size > ("00" & x"5000") and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
 				load_next_state <= CLOSE_QUEUE_IMMEDIATELY; --WAIT_FOR_SUBS;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
