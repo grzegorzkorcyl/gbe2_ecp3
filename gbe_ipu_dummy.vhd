@@ -87,7 +87,7 @@ begin
 		     Rst  => rst,
 		     Dout => s);
 		     
-		test_data_len <= "00" & (s(13 downto 0) and "11011111111111");
+		test_data_len <= "00" & s(13 downto 0);
 		     
 		process(clk)
 		begin
