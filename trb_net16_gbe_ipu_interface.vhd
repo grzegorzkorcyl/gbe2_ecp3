@@ -105,6 +105,7 @@ signal sf_data_q, sf_data_qq, sf_data_qqq, sf_data_qqqq, sf_data_qqqqq : std_log
 signal sf_wr_q, sf_wr_lock : std_logic;
 signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq, save_eod_qqqqq : std_logic;
 signal too_large_dropped : std_logic_vector(31 downto 0);
+signal previous_ttype, previous_bank : std_logic_vector(3 downto 0);
 
 begin
 
@@ -467,7 +468,9 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, 
+						subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, bank_select
+)
 begin
 	case (load_current_state) is
 
@@ -499,11 +502,16 @@ begin
 			load_state <= x"4";
 			load_next_state <= DECIDE;
 		
+		--TODO: all queue split conditions here and also in the size process
 		when DECIDE =>
 			load_state <= x"5";
 			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
 			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+				load_next_state <= CLOSE_QUEUE;
+			elsif (trigger_type /= previous_ttype) then
+				load_next_state <= CLOSE_QUEUE;
+			elsif (bank_select /= previous_bank) then
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -565,6 +573,7 @@ port map(
 );
 
 
+--TODO: all queue split conditions here 
 -- the queue size counter used only for closing current queue
 -- sums up all subevent sizes with their headers and stuff
 process(CLK_GBE)
@@ -580,6 +589,10 @@ begin
 			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			elsif (trigger_type /= previous_ttype) then
+				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			elsif (bank_select /= previous_bank) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			else
 				queue_size <= queue_size;
@@ -623,6 +636,22 @@ end process SF_RD_EN_PROC;
 
 --*****
 -- information extraction
+
+process(CLK_GBE)
+begin
+	if rising_edge(CLK_GBE) then
+		if (load_current_state = IDLE) then
+			previous_bank  <= x"0";
+			previous_ttype <= x"0";
+		elsif (load_current_state = CLOSE_QUEUE or load_current_state = CLOSE_QUEUE_IMMEDIATELY or load_current_state = CLOSE_SUB) then
+			previous_bank  <= bank_select;
+			previous_ttype <= trigger_type;
+		else
+			previous_bank  <= previous_bank;
+			previous_ttype <= previous_ttype;
+		end if;
+	end if;
+end process;
 
 TRIGGER_RANDOM_PROC : process(CLK_GBE)
 begin
