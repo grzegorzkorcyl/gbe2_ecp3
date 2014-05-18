@@ -469,7 +469,8 @@ begin
 end process LOAD_MACHINE_PROC;
 
 LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, 
-						subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, bank_select
+						subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, 
+						bank_select, MULT_EVT_ENABLE_IN
 )
 begin
 	case (load_current_state) is
@@ -539,10 +540,14 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
-				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
+			if (MULT_EVT_ENABLE_IN = '1') then
+				if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
+					load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
+				else
+					load_next_state <= WAIT_FOR_SUBS;
+				end if;
 			else
-				load_next_state <= WAIT_FOR_SUBS;
+				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
 			end if;
 			
 		when CLOSE_QUEUE =>
