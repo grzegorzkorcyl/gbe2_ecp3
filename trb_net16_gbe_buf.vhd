@@ -63,7 +63,7 @@ port(
 	BUS_ACK_OUT               : out std_logic;  -- gk 26.04.10
 	-- gk 23.04.10
 	LED_PACKET_SENT_OUT          : out std_logic;
-	LED_GBE_READY_OUT            : out std_logic;
+	LED_AN_DONE_N_OUT            : out std_logic;
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
@@ -475,7 +475,7 @@ global_reset <= not rst_n;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
-LED_GBE_READY_OUT   <= dhcp_done; --not pcs_an_complete;
+LED_AN_DONE_N_OUT   <= dhcp_done; --not pcs_an_complete;
 
 fc_ihl_version      <= x"45";
 fc_tos              <= x"10";
