@@ -1481,69 +1481,69 @@ end generate sim_gen;
 
 
 -- gk 04.08.10
-MON_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		monitor_fifos_q(3 downto 0)           <= monitor_fifos(3 downto 0);
-		if (dbg_pc1(28) = '1') then
-			monitor_fifos_q(5 downto 4)   <= b"11";
-		else 
-			monitor_fifos_q(5 downto 4)   <= b"00";
-		end if;
-		if (dbg_pc1(30) = '1') then
-			monitor_fifos_q(7 downto 6)   <= b"11";
-		else 
-			monitor_fifos_q(7 downto 6)   <= b"00";
-		end if;
-		if (dbg_fc1(28) = '1') then
-			monitor_fifos_q(11 downto 8)  <= b"1111";
-		else
-			monitor_fifos_q(11 downto 8)  <= b"0000";
-		end if;
-		if (pcs_an_complete = '0') then
-			monitor_fifos_q(15 downto 12) <= b"1111";
-		else
-			monitor_fifos_q(15 downto 12) <= b"0000";
-		end if;
-	end if;
-end process MON_PROC;
+--MON_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		monitor_fifos_q(3 downto 0)           <= monitor_fifos(3 downto 0);
+--		if (dbg_pc1(28) = '1') then
+--			monitor_fifos_q(5 downto 4)   <= b"11";
+--		else 
+--			monitor_fifos_q(5 downto 4)   <= b"00";
+--		end if;
+--		if (dbg_pc1(30) = '1') then
+--			monitor_fifos_q(7 downto 6)   <= b"11";
+--		else 
+--			monitor_fifos_q(7 downto 6)   <= b"00";
+--		end if;
+--		if (dbg_fc1(28) = '1') then
+--			monitor_fifos_q(11 downto 8)  <= b"1111";
+--		else
+--			monitor_fifos_q(11 downto 8)  <= b"0000";
+--		end if;
+--		if (pcs_an_complete = '0') then
+--			monitor_fifos_q(15 downto 12) <= b"1111";
+--		else
+--			monitor_fifos_q(15 downto 12) <= b"0000";
+--		end if;
+--	end if;
+--end process MON_PROC;
 
--- gk 28.07.10
-BYTES_SENT_CTR_PROC : process(CLK)
-begin
-	if rising_edge(CLK) then
-		if (RESET = '1') then
-			bytes_sent_ctr <= (others => '0');
-		elsif (fc_wr_en = '1') then
-			bytes_sent_ctr <= bytes_sent_ctr + x"1";
-		end if;
-	end if;
-end process BYTES_SENT_CTR_PROC;
-
--- gk 02.08.10
-DISCFRM_PROC : process(serdes_clk_125)
-begin
-	if rising_edge(serdes_clk_125) then
-		if (RESET = '1') then
-			discfrm_ctr <= (others => '0');
-		elsif (mac_tx_discfrm = '1') then
-			discfrm_ctr <= discfrm_ctr + x"1";
-		end if;
-	end if;
-end process DISCFRM_PROC;
-
-discfrm_sync : signal_sync
-	generic map(
-	  DEPTH => 2,
-	  WIDTH => 32
-	  )
-	port map(
-	  RESET    => RESET,
-	  D_IN     => discfrm_ctr,
-	  CLK0     => serdes_clk_125,
-	  CLK1     => CLK,
-	  D_OUT    => monitor_discfrm
-	  );
+---- gk 28.07.10
+--BYTES_SENT_CTR_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (RESET = '1') then
+--			bytes_sent_ctr <= (others => '0');
+--		elsif (fc_wr_en = '1') then
+--			bytes_sent_ctr <= bytes_sent_ctr + x"1";
+--		end if;
+--	end if;
+--end process BYTES_SENT_CTR_PROC;
+--
+---- gk 02.08.10
+--DISCFRM_PROC : process(serdes_clk_125)
+--begin
+--	if rising_edge(serdes_clk_125) then
+--		if (RESET = '1') then
+--			discfrm_ctr <= (others => '0');
+--		elsif (mac_tx_discfrm = '1') then
+--			discfrm_ctr <= discfrm_ctr + x"1";
+--		end if;
+--	end if;
+--end process DISCFRM_PROC;
+--
+--discfrm_sync : signal_sync
+--	generic map(
+--	  DEPTH => 2,
+--	  WIDTH => 32
+--	  )
+--	port map(
+--	  RESET    => RESET,
+--	  D_IN     => discfrm_ctr,
+--	  CLK0     => serdes_clk_125,
+--	  CLK1     => CLK,
+--	  D_OUT    => monitor_discfrm
+--	  );
 
 
 ------------------------------------------------------------------------------------------------

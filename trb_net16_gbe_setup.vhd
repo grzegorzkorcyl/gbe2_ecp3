@@ -250,7 +250,7 @@ begin
 end process WRITE_PROC;
 
 READ_PROC : process(CLK)
-	variable address : integer;
+	variable address : integer range 0 to 255;
 begin
 	if rising_edge(CLK) then
 		if (RESET = '1') then
