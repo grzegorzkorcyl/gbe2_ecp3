@@ -530,7 +530,7 @@ begin
 --			else
 --				load_next_state <= PREPARE_TO_LOAD_SUB;
 --			end if;
-			load_next_state <= WAIT_FOR_SUBS; --PREPARE_TO_LOAD_SUB;
+			load_next_state <= PREPARE_TO_LOAD_SUB;
 			
 		when CLOSE_QUEUE_IMMEDIATELY =>
 			load_state <= x"b";
