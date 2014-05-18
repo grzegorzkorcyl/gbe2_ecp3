@@ -55,8 +55,6 @@ port (
 	DEBUG_OUT		  : out std_logic_vector(63 downto 0);
 -- END OF INTERFACE
 
-	TRANSMITTER_BUSY_IN         : in    std_logic;
-
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
@@ -93,11 +91,17 @@ port (
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
 	CFG_READOUT_CTR_VALID_IN     : in std_logic;
 	CFG_INSERT_TTYPE_IN          : in std_logic;
+	CFG_MAX_SUB_IN               : in std_logic_vector(15 downto 0);
+	CFG_MAX_QUEUE_IN             : in std_logic_vector(15 downto 0);
+	CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
+	CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_DROP_IN_OUT    : out std_logic_vector(31 downto 0);
+	MONITOR_SELECT_DROP_OUT_OUT   : out std_logic_vector(31 downto 0);
 	
 	DATA_HIST_OUT : out hist_array
 );
@@ -127,12 +131,9 @@ signal pc_data					: std_logic_vector(7 downto 0);
 signal pc_eoq					: std_logic;
 signal pc_sos					: std_logic;
 signal pc_ready					: std_logic;
-signal pc_padding				: std_logic;
-signal pc_event_id				: std_logic_vector(31 downto 0);
 signal pc_sub_size				: std_logic_vector(31 downto 0);
 signal pc_trig_nr				: std_logic_vector(31 downto 0);
 signal pc_eos                   : std_logic;
-signal pc_transmit_on           : std_logic;
 
 signal tc_rd_en					: std_logic;
 signal tc_data					: std_logic_vector(8 downto 0);
@@ -155,6 +156,7 @@ signal constr_dbg : std_logic_vector(63 downto 0);
 signal hist_inst : hist_array;
 signal tc_sod_flag : std_logic;
 signal reset_all_hist : std_logic_vector(31 downto 0);
+signal ipu_monitor : std_logic_vector(223 downto 0);
 
 begin
 
@@ -235,11 +237,12 @@ port map(
 	DATA_GBE_ENABLE_IN		 => CFG_GBE_ENABLE_IN,
 	DATA_IPU_ENABLE_IN		 => CFG_IPU_ENABLE_IN,
 	MULT_EVT_ENABLE_IN		 => CFG_MULT_ENABLE_IN,
-	MAX_MESSAGE_SIZE_IN		 => x"0000_0fd0",
-	MIN_MESSAGE_SIZE_IN		 => x"0000_0007",
-	READOUT_CTR_IN			 => CFG_READOUT_CTR_IN, --x"00_0000",
-	READOUT_CTR_VALID_IN	 => CFG_READOUT_CTR_VALID_IN, --'0',
-	ALLOW_LARGE_IN			 => '0',
+	MAX_SUBEVENT_SIZE_IN     => CFG_MAX_SUB_IN,
+	MAX_QUEUE_SIZE_IN        => CFG_MAX_QUEUE_IN,
+	MAX_SUBS_IN_QUEUE_IN     => CFG_MAX_SUBS_IN_QUEUE_IN,
+	MAX_SINGLE_SUB_SIZE_IN   => CFG_MAX_SINGLE_SUB_IN,
+	READOUT_CTR_IN			 => CFG_READOUT_CTR_IN,
+	READOUT_CTR_VALID_IN	 => CFG_READOUT_CTR_VALID_IN,
 	-- PacketConstructor interface
 	PC_WR_EN_OUT			 => pc_wr_en,
 	PC_DATA_OUT				 => pc_data,
@@ -250,33 +253,28 @@ port map(
 	PC_SUB_SIZE_OUT			 => pc_sub_size,
 	PC_TRIG_NR_OUT			 => pc_trig_nr,
 	PC_TRIGGER_TYPE_OUT      => pc_trig_type,
-	PC_PADDING_OUT			 => pc_padding,
-	MONITOR_OUT              => open,
+	MONITOR_OUT              => ipu_monitor,
 	DEBUG_OUT                => ipu_dbg
 );
 
-PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr --trb_net16_gbe_packet_constr
+MONITOR_SELECT_DROP_OUT_OUT <= ipu_monitor(31 downto 0);
+
+PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,
-	MULT_EVT_ENABLE_IN		=> CFG_MULT_ENABLE_IN,
 	PC_WR_EN_IN				=> pc_wr_en,
 	PC_DATA_IN				=> pc_data,
 	PC_READY_OUT			=> pc_ready,
 	PC_START_OF_SUB_IN		=> pc_sos,
 	PC_END_OF_SUB_IN		=> pc_eos,
 	PC_END_OF_QUEUE_IN		=> pc_eoq,
-	PC_TRANSMIT_ON_OUT		=> pc_transmit_on,
 	PC_SUB_SIZE_IN			=> pc_sub_size,
-	PC_PADDING_IN			=> pc_padding,
-	PC_DECODING_IN			=> CFG_SUBEVENT_DEC_IN, --x"0002_0001", --pc_decoding,
-	PC_EVENT_ID_IN			=> CFG_SUBEVENT_ID_IN, --x"0000_8000", --pc_event_id,
+	PC_DECODING_IN			=> CFG_SUBEVENT_DEC_IN,
+	PC_EVENT_ID_IN			=> CFG_SUBEVENT_ID_IN,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_TRIGGER_TYPE_IN      => pc_trig_type,
-	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN, --x"0003_0062", --pc_queue_dec,
-	PC_MAX_FRAME_SIZE_IN    => (others => '0'), -- not used anymore
-	PC_MAX_QUEUE_SIZE_IN    => x"0000_0fd0",
-	PC_DELAY_IN             => (others => '0'),
+	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN,
 	PC_INSERT_TTYPE_IN      => CFG_INSERT_TTYPE_IN,
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
@@ -468,17 +466,9 @@ MONITOR_SELECT_SENT_BYTES_OUT <= mon_sent_bytes;
 MONITOR_SELECT_REC_BYTES_OUT  <= (others => '0');
 MONITOR_SELECT_REC_OUT        <= (others => '0');
 
-DEBUG_OUT(31 downto 0) <= ipu_dbg(31 downto 0);
+DEBUG_OUT(31 downto 0)  <= ipu_dbg(31 downto 0);
 DEBUG_OUT(63 downto 32) <= constr_dbg(31 downto 0);
 
--- SIMULATION DEBUGGING
-
-sim_debug_gen : if DO_SIMULATION = 1 generate
-	
-	
-	
-	
-end generate sim_debug_gen;
 	
 
 end trb_net16_gbe_response_constructor_TrbNetData;

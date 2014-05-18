@@ -40,6 +40,11 @@ port(
 	GBE_INSERT_TTYPE_OUT      : out std_logic;
 	GBE_SOFT_RESET_OUT        : out std_logic;
 	
+	GBE_MAX_SUB_OUT           : out std_logic_vector(15 downto 0);
+	GBE_MAX_QUEUE_OUT         : out std_logic_vector(15 downto 0);
+	GBE_MAX_SUBS_IN_QUEUE_OUT : out std_logic_vector(15 downto 0);
+	GBE_MAX_SINGLE_SUB_OUT    : out std_logic_vector(15 downto 0);
+	
 	MONITOR_RX_BYTES_IN       : in std_logic_vector(31 downto 0);
 	MONITOR_RX_FRAMES_IN      : in std_logic_vector(31 downto 0);
 	MONITOR_TX_BYTES_IN       : in std_logic_vector(31 downto 0);
@@ -51,6 +56,8 @@ port(
 	MONITOR_SELECT_REC_BYTES_IN   : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_IN  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_IN	      : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_DROP_IN_IN	  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_DROP_OUT_IN	  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 	DATA_HIST_IN : in hist_array;
@@ -76,6 +83,7 @@ signal data_out          : std_logic_vector(31 downto 0);
 signal allow_rx          : std_logic;
 signal additional_hdr    : std_logic;
 signal insert_ttype      : std_logic;
+  signal max_sub, max_queue, max_subs_in_queue, max_single_sub : std_logic_vector(15 downto 0);
 
 begin
 
@@ -97,6 +105,10 @@ begin
 		GBE_ALLOW_RX_OUT          <= '1'; --allow_rx;
 		GBE_INSERT_TTYPE_OUT      <= insert_ttype;
 		GBE_ADDITIONAL_HDR_OUT    <= additional_hdr;
+		GBE_MAX_SUB_OUT           <= max_sub;
+		GBE_MAX_QUEUE_OUT         <= max_queue;
+		GBE_MAX_SUBS_IN_QUEUE_OUT <= max_subs_in_queue;
+		GBE_MAX_SINGLE_SUB_OUT    <= max_single_sub;
 	end if;
 end process OUT_PROC;
 
@@ -131,6 +143,10 @@ begin
 			insert_ttype      <= '0';
 			additional_hdr    <= '1';	
 			GBE_SOFT_RESET_OUT <= '0';
+			max_sub           <= x"e998";  --  59800  
+			max_queue         <= x"ea60";  -- 60000   
+			max_subs_in_queue <= x"00c8";  -- 200     
+			max_single_sub    <= x"7d00";  -- 32000   
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 		
@@ -183,6 +199,19 @@ begin
 					
 				when x"0b" =>
 					insert_ttype     <= BUS_DATA_IN(0);
+					
+				when x"0c" =>
+					max_sub          <= BUS_DATA_IN(15 downto 0);
+					
+				when x"0d" =>
+					max_queue        <= BUS_DATA_IN(15 downto 0);
+					
+				when x"0e" =>
+					max_subs_in_queue <= BUS_DATA_IN(15 downto 0);
+					
+				when x"0f" =>
+					max_single_sub   <= BUS_DATA_IN(15 downto 0);
+					
 
 				when x"ff" =>
 					if (BUS_DATA_IN = x"ffff_ffff") then
@@ -207,6 +236,10 @@ begin
 					allow_rx           <= allow_rx;
 					additional_hdr     <= additional_hdr;
 					insert_ttype       <= insert_ttype;
+					max_sub            <= max_sub;          
+					max_queue          <= max_queue;        
+					max_subs_in_queue  <= max_subs_in_queue;
+					max_single_sub     <= max_single_sub;			
 			end case;
 		else
 			reset_values      <= '0';
@@ -274,6 +307,22 @@ begin
 					data_out(0) <= insert_ttype;
 					data_out(31 downto 1) <= (others => '0');
 					
+				when 12 =>
+					data_out(15 downto 0) <= max_sub;
+					data_out(31 downto 16) <= (others => '0');
+					
+				when 13 =>
+					data_out(15 downto 0) <= max_queue;
+					data_out(31 downto 16) <= (others => '0');
+					
+				when 14 =>
+					data_out(15 downto 0) <= max_subs_in_queue;
+					data_out(31 downto 16) <= (others => '0');
+					
+				when 15 =>
+					data_out(15 downto 0) <= max_single_sub;
+					data_out(31 downto 16) <= (others => '0');
+					
 				-- Histogram of sctrl data sizes
 				when 96 to 127 =>
 					data_out <= SCTRL_HIST_IN(address - 96);
@@ -314,7 +363,11 @@ begin
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 - 32 downto 2 * 64);
 				when 165 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 downto 2 * 64 + 32);
-						
+				when 166 =>
+					data_out <= MONITOR_SELECT_DROP_IN_IN(3 * 64 - 1 downto 2 * 64 + 32);
+				when 167 =>
+					data_out <= MONITOR_SELECT_DROP_OUT_IN(3 * 64 - 1 downto 2 * 64 + 32);
+							
 				-- TrbnetData
 				when 176 =>
 					data_out <= MONITOR_SELECT_REC_IN(4 * 32 - 1 downto 3 * 32);
@@ -328,6 +381,10 @@ begin
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 - 32 downto 3 * 64);
 				when 181 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 downto 3 * 64 + 32);
+				when 182 =>
+					data_out <= MONITOR_SELECT_DROP_IN_IN(4 * 64 - 1 downto 3 * 64 + 32);
+				when 183 =>
+					data_out <= MONITOR_SELECT_DROP_OUT_IN(4 * 64 - 1 downto 3 * 64 + 32);
 				
 				-- for older network monitors	
 				when 243 =>

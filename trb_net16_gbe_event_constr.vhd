@@ -16,7 +16,6 @@ entity trb_net16_gbe_event_constr is
 port(
 	RESET                   : in    std_logic;
 	CLK                     : in    std_logic;
-	MULT_EVT_ENABLE_IN      : in    std_logic;  -- gk 06.10.10
 	-- ports for user logic
 	PC_WR_EN_IN             : in    std_logic; -- write into queueConstr from userLogic
 	PC_DATA_IN              : in    std_logic_vector(7 downto 0);
@@ -24,18 +23,13 @@ port(
 	PC_START_OF_SUB_IN      : in    std_logic;
 	PC_END_OF_SUB_IN        : in    std_logic;  -- gk 07.10.10
 	PC_END_OF_QUEUE_IN      : in    std_logic;
-	PC_TRANSMIT_ON_OUT	    : out	std_logic;
 	-- queue and subevent layer headers
 	PC_SUB_SIZE_IN          : in    std_logic_vector(31 downto 0); -- store and swap
-	PC_PADDING_IN           : in    std_logic;  -- gk 29.03.10
 	PC_DECODING_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_EVENT_ID_IN          : in    std_logic_vector(31 downto 0); -- swap
 	PC_TRIG_NR_IN           : in    std_logic_vector(31 downto 0); -- store and swap!
 	PC_TRIGGER_TYPE_IN      : in	std_logic_vector(3 downto 0);
 	PC_QUEUE_DEC_IN         : in    std_logic_vector(31 downto 0); -- swap
-	PC_MAX_FRAME_SIZE_IN    : in	std_logic_vector(15 downto 0); -- DO NOT SWAP
-	PC_MAX_QUEUE_SIZE_IN    : in    std_logic_vector(31 downto 0);
-	PC_DELAY_IN             : in	std_logic_vector(31 downto 0);  -- gk 28.04.10
 	PC_INSERT_TTYPE_IN      : in    std_logic;
 	-- FrameConstructor ports
 	TC_RD_EN_IN             : in    std_logic;
@@ -68,10 +62,8 @@ signal shf_wr_en, shf_rd_en, shf_empty, shf_full : std_logic;
 signal sub_int_ctr : integer range 0 to 3;
 signal sub_size_to_save : std_logic_vector(31 downto 0);
 
-signal fc_data : std_logic_vector(7 downto 0);
-
 signal qsf_data : std_logic_vector(31 downto 0);
-signal qsf_q, qsf_qq : std_logic_vector(7 downto 0);
+signal qsf_q : std_logic_vector(7 downto 0);
 signal qsf_wr, qsf_wr_en, qsf_wr_en_q, qsf_wr_en_qq, qsf_wr_en_qqq, qsf_rd_en, qsf_rd_en_q, qsf_empty : std_logic;
 
 signal queue_size : std_logic_vector(31 downto 0);
@@ -84,16 +76,13 @@ signal tc_data : std_logic_vector(7 downto 0);
 signal df_data : std_logic_vector(7 downto 0);
 signal df_eos_q, df_eos_qq : std_logic;
 signal df_wr_en_q, df_wr_en_qq : std_logic;
-signal qsf_full, df_afull : std_logic;
+signal qsf_full : std_logic;
 
 signal padding_needed, insert_padding : std_logic;
 signal load_eod_q : std_logic;
-signal end_queue_marker, end_of_queue, end_of_queue_q : std_logic;
-signal next_q_size : std_logic_vector(31 downto 0);
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 signal shf_padding : std_logic;
 signal block_shf_after_divide, previous_tc_rd : std_logic;
-signal eoq_to_write_to_qsf : std_logic;
 
 begin
 	
@@ -190,23 +179,9 @@ begin
 	end if;
 end process SHF_WR_EN_PROC;
 
-VARIOUS_SYNC : process(RESET, CLK)
+VARIOUS_SYNC : process(CLK)
 begin
---	if RESET = '1' then
---		end_of_queue_q <= '0';
---	els
 	if rising_edge(CLK) then
-		
---		end_of_queue <= PC_END_OF_QUEUE_IN;
---		eoq_to_write_to_qsf <= PC_END_OF_QUEUE_IN and PC_END_OF_SUB_IN;
---		if (end_of_queue = '1') then
---			end_of_queue_q <= '1';
---		elsif (save_sub_hdr_current_state = SAVE_TRG_NR) then
---			end_of_queue_q <= '0';
---		else
---			end_of_queue_q <= end_of_queue_q ;
---		end if;
-		
 		shf_qq <= shf_q;
 	end if;
 end process VARIOUS_SYNC;
@@ -372,11 +347,6 @@ begin
 		qsf_wr_en_qq  <= qsf_wr_en_q;
 		qsf_wr_en_qqq <= qsf_wr_en_qq;
 		
---		if (end_of_queue_q = '1' and save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---			qsf_wr_en <= '1';
---		else
---			qsf_wr_en <= '0';
---		end if;
 		qsf_wr_en <= PC_END_OF_QUEUE_IN;
 	end if;
 end process QSF_WR_PROC;
@@ -397,35 +367,6 @@ begin
 		else
 			queue_size <= queue_size;
 		end if;
---		if (end_of_queue_q = '0') then
---			next_q_size <= x"0000_0008";  -- queue headers
---		
---			if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---				if (PC_SUB_SIZE_IN(2) = '1') then
---					queue_size <= queue_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
---				else
---					queue_size <= queue_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
---				end if;
---			else
---				queue_size <= queue_size;
---			end if;
---		else
---			queue_size <= queue_size;
---			
---			if (qsf_wr_en_qqq = '1') then
---				queue_size <= next_q_size;
---			else
---				if (save_sub_hdr_current_state = SAVE_SIZE and sub_int_ctr = 0) then
---					if (PC_SUB_SIZE_IN(2) = '1') then
---						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"4" + x"10" + x"8";  -- subevent data size + padding + subevent headers + subsubevent 
---					else
---						next_q_size <= next_q_size + PC_SUB_SIZE_IN + x"10" + x"8";  -- subevent data size + subevent headers + subsubevent
---					end if;
---				else
---					next_q_size <= next_q_size;
---				end if;
---			end if;
---		end if;
 	end if;
 end process QUEUE_SIZE_PROC;
 

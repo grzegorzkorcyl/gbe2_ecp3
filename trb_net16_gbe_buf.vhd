@@ -246,89 +246,15 @@ port (
 );
 end component;
 
-component fifo_4096x9 is
-port( 
-	Data    : in    std_logic_vector(8 downto 0);
-	WrClock : in    std_logic;
-	RdClock : in    std_logic;
-	WrEn    : in    std_logic;
-	RdEn    : in    std_logic;
-	Reset   : in    std_logic;
-	RPReset : in    std_logic;
-	Q       : out   std_logic_vector(8 downto 0);
-	Empty   : out   std_logic;
-	Full    : out   std_logic
-);
-end component;
-
-signal ig_bsm_save				: std_logic_vector(3 downto 0);
-signal ig_bsm_load				: std_logic_vector(3 downto 0);
-signal ig_cts_ctr				: std_logic_vector(2 downto 0);
-signal ig_rem_ctr				: std_logic_vector(3 downto 0);
-signal ig_debug					: std_logic_vector(31 downto 0);
-signal ig_data					: std_logic_vector(15 downto 0);
-signal ig_wcnt					: std_logic_vector(15 downto 0);
-signal ig_rcnt					: std_logic_vector(16 downto 0);
-signal ig_rd_en					: std_logic;
-signal ig_wr_en					: std_logic;
-signal ig_empty					: std_logic;
-signal ig_aempty				: std_logic;
-signal ig_full					: std_logic;
-signal ig_afull					: std_logic;
-
-signal pc_wr_en					: std_logic;
-signal pc_data					: std_logic_vector(7 downto 0);
-signal pc_eod					: std_logic;
-signal pc_sos					: std_logic;
-signal pc_ready					: std_logic;
-signal pc_padding				: std_logic;
 signal pc_decoding				: std_logic_vector(31 downto 0);
 signal pc_event_id				: std_logic_vector(31 downto 0);
 signal pc_queue_dec				: std_logic_vector(31 downto 0);
 signal pc_max_frame_size        : std_logic_vector(15 downto 0);
-signal pc_bsm_constr			: std_logic_vector(3 downto 0);
-signal pc_bsm_load				: std_logic_vector(3 downto 0);
-signal pc_bsm_save				: std_logic_vector(3 downto 0);
-signal pc_shf_empty				: std_logic;
-signal pc_shf_full				: std_logic;
-signal pc_shf_wr_en				: std_logic;
-signal pc_shf_rd_en				: std_logic;
-signal pc_shf_q					: std_logic_vector(7 downto 0);
-signal pc_df_empty				: std_logic;
-signal pc_df_full				: std_logic;
-signal pc_df_wr_en				: std_logic;
-signal pc_df_rd_en				: std_logic;
-signal pc_df_q					: std_logic_vector(7 downto 0);
-signal pc_all_ctr				: std_logic_vector(4 downto 0);
-signal pc_sub_ctr				: std_logic_vector(4 downto 0);
-signal pc_bytes_loaded			: std_logic_vector(15 downto 0);
-signal pc_size_left				: std_logic_vector(31 downto 0);
-signal pc_sub_size_to_save		: std_logic_vector(31 downto 0);
-signal pc_sub_size_loaded		: std_logic_vector(31 downto 0);
-signal pc_sub_bytes_loaded		: std_logic_vector(31 downto 0);
-signal pc_queue_size			: std_logic_vector(31 downto 0);
-signal pc_act_queue_size		: std_logic_vector(31 downto 0);
-
-signal fee_read					: std_logic;
 signal cts_readout_finished		: std_logic;
 signal cts_dataready			: std_logic;
 signal cts_length				: std_logic_vector(15 downto 0);
 signal cts_data					: std_logic_vector(31 downto 0); -- DHDR of rest packet
 signal cts_error_pattern		: std_logic_vector(31 downto 0);
-
-signal pc_sub_size				: std_logic_vector(31 downto 0);
-signal pc_trig_nr				: std_logic_vector(31 downto 0);
-
-signal tc_wr_en					: std_logic;
-signal tc_data					: std_logic_vector(7 downto 0);
-signal tc_ip_size				: std_logic_vector(15 downto 0);
-signal tc_udp_size				: std_logic_vector(15 downto 0);
-signal tc_ident					: std_logic_vector(15 downto 0);
-signal tc_flags_offset				: std_logic_vector(15 downto 0);
-signal tc_sod					: std_logic;
-signal tc_eod					: std_logic;
-signal tc_h_ready				: std_logic;
-signal tc_ready					: std_logic;
 signal fc_dest_mac				: std_logic_vector(47 downto 0);
 signal fc_dest_ip				: std_logic_vector(31 downto 0);
 signal fc_dest_udp				: std_logic_vector(15 downto 0);
@@ -340,8 +266,6 @@ signal fc_ihl_version			: std_logic_vector(7 downto 0);
 signal fc_tos					: std_logic_vector(7 downto 0);
 signal fc_ttl					: std_logic_vector(7 downto 0);
 signal fc_protocol				: std_logic_vector(7 downto 0);
-signal fc_bsm_constr			: std_logic_vector(7 downto 0);
-signal fc_bsm_trans				: std_logic_vector(3 downto 0);
 
 signal ft_data					: std_logic_vector(8 downto 0);-- gk 04.05.10
 signal ft_tx_empty				: std_logic;
@@ -379,55 +303,20 @@ signal pcs_stat_debug			: std_logic_vector(63 downto 0);
 
 signal stage_stat_regs			: std_logic_vector(31 downto 0);
 signal stage_ctrl_regs			: std_logic_vector(31 downto 0);
-
-signal analyzer_debug			: std_logic_vector(63 downto 0);
-
-signal ip_cfg_start			: std_logic;
-signal ip_cfg_bank			: std_logic_vector(3 downto 0);
-signal ip_cfg_done			: std_logic;
-
-signal ip_cfg_mem_addr			: std_logic_vector(7 downto 0);
-signal ip_cfg_mem_data			: std_logic_vector(31 downto 0);
-signal ip_cfg_mem_clk			: std_logic;
-
--- gk 22.04.10
-signal max_packet                    : std_logic_vector(31 downto 0);
-signal min_packet                    : std_logic_vector(31 downto 0);
 signal use_gbe                       : std_logic;
 signal use_trbnet                    : std_logic;
 signal use_multievents               : std_logic;
 -- gk 26.04.10
 signal readout_ctr                   : std_logic_vector(23 downto 0);
 signal readout_ctr_valid             : std_logic;
-signal gbe_trig_nr                   : std_logic_vector(31 downto 0);
--- gk 28.04.10
-signal pc_delay                      : std_logic_vector(31 downto 0);
--- gk 04.05.10
-signal ft_eod                        : std_logic;
--- gk 01.06.10
-signal dbg_ipu2gbe1                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe2                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe3                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe4                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe5                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe6                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe7                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe8                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe9                  : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe10                 : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe11                 : std_logic_vector(31 downto 0);
-signal dbg_ipu2gbe12                 : std_logic_vector(31 downto 0);
 signal dbg_pc1                       : std_logic_vector(31 downto 0);
-signal dbg_pc2                       : std_logic_vector(31 downto 0);
 signal dbg_fc1                       : std_logic_vector(31 downto 0);
-signal dbg_fc2                       : std_logic_vector(31 downto 0);
 signal dbg_ft1                       : std_logic_vector(31 downto 0);
 -- gk 08.06.10
 signal mac_tx_staten                 : std_logic;
 signal mac_tx_statevec               : std_logic_vector(30 downto 0);
 signal mac_tx_discfrm                : std_logic;
 
-signal dbg_rd_en                     : std_logic;
 signal dbg_q                         : std_logic_vector(15 downto 0);
 
 -- gk 21.07.10
@@ -435,41 +324,12 @@ signal allow_large                   : std_logic;
 
 -- gk 28.07.10
 signal bytes_sent_ctr                : std_logic_vector(31 downto 0);
-signal monitor_sent                  : std_logic_vector(31 downto 0);
 signal monitor_dropped               : std_logic_vector(31 downto 0);
-signal monitor_sm                    : std_logic_vector(31 downto 0);
-signal monitor_lr                    : std_logic_vector(31 downto 0);
-signal monitor_hr                    : std_logic_vector(31 downto 0);
 signal monitor_fifos                 : std_logic_vector(31 downto 0);
 signal monitor_fifos_q               : std_logic_vector(31 downto 0);
-signal monitor_discfrm               : std_logic_vector(31 downto 0);
 
 -- gk 02.08.10
 signal discfrm_ctr                   : std_logic_vector(31 downto 0);
-
--- gk 28.09.10
-signal dbg_reset_fifo                : std_logic;
-
--- gk 30.09.10
-signal fc_rd_en                      : std_logic;
-signal link_ok                       : std_logic;
-signal link_ok_timeout_ctr           : std_logic_vector(15 downto 0);
-
-type linkStates     is  (ACTIVE, INACTIVE, TIMEOUT, FINALIZE);
-signal link_current_state, link_next_state : linkStates;
-
-signal link_down_ctr                 : std_logic_vector(15 downto 0);
-signal link_down_ctr_lock            : std_logic;
-
-signal link_state                    : std_logic_vector(3 downto 0);
-
-signal monitor_empty                 : std_logic_vector(31 downto 0);
-
--- gk 07.10.10
-signal pc_eos                        : std_logic;
-
--- gk 09.12.10
-signal frame_delay                   : std_logic_vector(31 downto 0);
 
 -- gk 13.02.11
 signal pcs_rxd                       : std_logic_vector(7 downto 0);
@@ -489,9 +349,6 @@ signal fr_frame_valid                : std_logic;
 signal rc_rd_en                      : std_logic;
 signal rc_q                          : std_logic_vector(8 downto 0);
 signal rc_frames_rec_ctr             : std_logic_vector(31 downto 0);
-signal tc_pc_ready                   : std_logic;
-signal tc_pc_h_ready                 : std_logic;
-signal mc_ctrl_frame_req             : std_logic;
 signal mc_data                       : std_logic_vector(8 downto 0);
 signal mc_wr_en                      : std_logic;
 signal fc_wr_en                      : std_logic;
@@ -509,31 +366,13 @@ signal allow_rx                      : std_logic;
 signal fr_frame_size                 : std_logic_vector(15 downto 0);
 signal rc_frame_size                 : std_logic_vector(15 downto 0);
 signal mc_frame_size                 : std_logic_vector(15 downto 0);
-signal ic_dest_mac			: std_logic_vector(47 downto 0);
-signal ic_dest_ip			: std_logic_vector(31 downto 0);
-signal ic_dest_udp			: std_logic_vector(15 downto 0);
-signal ic_src_mac			: std_logic_vector(47 downto 0);
-signal ic_src_ip			: std_logic_vector(31 downto 0);
-signal ic_src_udp			: std_logic_vector(15 downto 0);
-signal pc_transmit_on			: std_logic;
 signal rc_bytes_rec                  : std_logic_vector(31 downto 0);
 signal rc_debug                      : std_logic_vector(63 downto 0);
-signal mc_busy                       : std_logic;
 signal tsmac_gbit_en                 : std_logic;
 signal mc_transmit_ctrl              : std_logic;
-signal mc_transmit_data              : std_logic;
 signal rc_loading_done               : std_logic;
 signal fr_get_frame                  : std_logic;
 signal mc_transmit_done              : std_logic;
-
-signal dbg_fr                        : std_logic_vector(95 downto 0);
-signal dbg_rc                        : std_logic_vector(63 downto 0);
-signal dbg_mc                        : std_logic_vector(63 downto 0);
-signal dbg_tc                        : std_logic_vector(63 downto 0);
-
-signal fr_allowed_types              : std_logic_vector(31 downto 0);
-signal fr_allowed_ip                 : std_logic_vector(31 downto 0);
-signal fr_allowed_udp                : std_logic_vector(31 downto 0);
 
 signal fr_frame_proto                : std_logic_vector(15 downto 0);
 signal rc_frame_proto                : std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
@@ -542,11 +381,12 @@ signal dbg_select_rec                : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1
 signal dbg_select_sent               : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 signal dbg_select_rec_bytes          : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 signal dbg_select_sent_bytes         : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_drop_in            : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+signal dbg_select_drop_out           : std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 signal dbg_select_gen                : std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 signal serdes_rx_clk                 : std_logic;
 
-signal vlan_id                       : std_logic_vector(31 downto 0);
 signal mc_type                       : std_logic_vector(15 downto 0);
 signal fr_src_mac                : std_logic_vector(47 downto 0);
 signal fr_dest_mac               : std_logic_vector(47 downto 0);
@@ -579,36 +419,24 @@ attribute syn_keep of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_
 attribute syn_preserve of pcs_rxd, pcs_txd, pcs_rx_en, pcs_tx_en, pcs_rx_er, pcs_tx_er : signal is true;
 
 signal pcs_txd_q, pcs_rxd_q : std_logic_vector(7 downto 0);
-signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q, mac_col_q, mac_crs_q : std_logic;
+signal pcs_tx_en_q, pcs_tx_er_q, pcs_rx_en_q, pcs_rx_er_q : std_logic;
 
 signal pcs_txd_qq, pcs_rxd_qq : std_logic_vector(7 downto 0);
-signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq, mac_col_qq, mac_crs_qq : std_logic;
-
-signal mc_ip_size, mc_udp_size, mc_flags : std_logic_vector(15 downto 0);
+signal pcs_tx_en_qq, pcs_tx_er_qq, pcs_rx_en_qq, pcs_rx_er_qq : std_logic;
 
 signal timeout_ctr : std_logic_vector(31 downto 0);
 signal timeout_noticed : std_Logic;
 attribute syn_keep of timeout_noticed : signal is true;
 attribute syn_preserve of timeout_noticed : signal is true;
 
-signal dummy_size : std_logic_vector(15 downto 0);
-signal dummy_pause : std_logic_vector(31 downto 0);
-
 signal make_reset    : std_logic;
 signal idle_too_long : std_logic;
-
-signal tc_data_not_valid : std_logic;
-
-signal mc_fc_h_ready, mc_fc_ready, mc_fc_wr_en : std_logic;
-signal mc_ident, mc_size_left : std_logic_vector(15 downto 0);
+signal mc_ident : std_logic_vector(15 downto 0);
 
 signal monitor_tx_packets : std_logic_vector(31 downto 0);
 signal monitor_rx_bytes, monitor_rx_frames, monitor_tx_bytes, monitor_tx_frames : std_logic_vector(31 downto 0);
 signal insert_ttype, additional_hdr : std_logic;
-signal reset_dhcp : std_logic;
 signal dbg_hist, dbg_hist2 : hist_array;
-signal soft_gbe_reset, soft_rst, dhcp_done : std_logic;
-signal rst_ctr : std_logic_vector(24 downto 0);
 signal mac_reset : std_logic;
 signal global_reset, rst_n, ff : std_logic;
 
@@ -624,6 +452,9 @@ signal global_reset, rst_n, ff : std_logic;
   signal gbe_fee_read                     : std_logic;
   signal gbe_fee_status_bits              : std_logic_vector(31 downto 0);
   signal gbe_fee_busy                     : std_logic;
+  
+  signal max_sub, max_queue, max_subs_in_queue, max_single_sub : std_logic_vector(15 downto 0);
+  signal dhcp_done, link_ok, soft_rst : std_logic;
 
 begin
 
@@ -756,8 +587,13 @@ main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
 		CFG_QUEUE_DEC_IN            => pc_queue_dec,
 		CFG_READOUT_CTR_IN          => readout_ctr,
 		CFG_READOUT_CTR_VALID_IN    => readout_ctr_valid,
-		CFG_ADDITIONAL_HDR_IN       => additional_hdr,
 		CFG_INSERT_TTYPE_IN         => insert_ttype,
+		CFG_MAX_SUB_IN              => max_sub,
+		CFG_MAX_QUEUE_IN            => max_queue,
+		CFG_MAX_SUBS_IN_QUEUE_IN    => max_subs_in_queue,
+		CFG_MAX_SINGLE_SUB_IN       => max_single_sub,
+		
+		CFG_ADDITIONAL_HDR_IN       => additional_hdr,
 	
 	  -- signal to/from Host interface of TriSpeed MAC
 		  TSM_HADDR_OUT		=> mac_haddr,
@@ -774,6 +610,8 @@ main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
 		  MONITOR_SELECT_REC_BYTES_OUT   => dbg_select_rec_bytes,
 		  MONITOR_SELECT_SENT_BYTES_OUT  => dbg_select_sent_bytes,
 		  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent,
+		  MONITOR_SELECT_DROP_IN_OUT     => dbg_select_drop_in,
+		  MONITOR_SELECT_DROP_OUT_OUT    => dbg_select_drop_out,
 		  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen,
 		
 			DATA_HIST_OUT => dbg_hist,
@@ -834,7 +672,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	  PCS_AN_COMPLETE_IN	=> pcs_an_complete,
 
   -- signals to/from hub
-	  MC_UNIQUE_ID_IN	=> MC_UNIQUE_ID_IN,
+	  MC_UNIQUE_ID_IN	     => MC_UNIQUE_ID_IN,
 	GSC_CLK_IN               => GSC_CLK_IN,
 	GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
 	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
@@ -883,8 +721,13 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	CFG_QUEUE_DEC_IN            => x"0003_0062",
 	CFG_READOUT_CTR_IN          => x"00_0000",
 	CFG_READOUT_CTR_VALID_IN    => '0',
-	CFG_ADDITIONAL_HDR_IN       => '0',
 	CFG_INSERT_TTYPE_IN         => '0',
+	CFG_MAX_SUB_IN              => x"e998",  --  59800 
+	CFG_MAX_QUEUE_IN            => x"ea60",  -- 60000 
+	CFG_MAX_SUBS_IN_QUEUE_IN    => x"00c8",  -- 200
+	CFG_MAX_SINGLE_SUB_IN       => x"7d00",  -- 32000
+	
+	CFG_ADDITIONAL_HDR_IN       => '0',
 
   -- signal to/from Host interface of TriSpeed MAC
 	  TSM_HADDR_OUT		=> mac_haddr,
@@ -901,6 +744,8 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	  MONITOR_SELECT_REC_BYTES_OUT   => dbg_select_rec_bytes,
 	  MONITOR_SELECT_SENT_BYTES_OUT  => dbg_select_sent_bytes,
 	  MONITOR_SELECT_SENT_OUT	     => dbg_select_sent,
+	  MONITOR_SELECT_DROP_IN_OUT     => dbg_select_drop_in,
+	  MONITOR_SELECT_DROP_OUT_OUT    => dbg_select_drop_out,
 	  MONITOR_SELECT_GEN_DBG_OUT     => dbg_select_gen,
 	
 		DATA_HIST_OUT => dbg_hist,
@@ -1069,6 +914,11 @@ port map(
 	GBE_INSERT_TTYPE_OUT        => insert_ttype,
 	GBE_SOFT_RESET_OUT          => soft_rst,
 	
+	GBE_MAX_SUB_OUT             => max_sub,
+	GBE_MAX_QUEUE_OUT           => max_queue,
+	GBE_MAX_SUBS_IN_QUEUE_OUT   => max_subs_in_queue,
+	GBE_MAX_SINGLE_SUB_OUT      => max_single_sub,
+	
 	MONITOR_RX_BYTES_IN         => monitor_rx_bytes,
 	MONITOR_RX_FRAMES_IN        => monitor_rx_frames,
 	MONITOR_TX_BYTES_IN         => monitor_tx_bytes,
@@ -1080,6 +930,8 @@ port map(
 	MONITOR_SELECT_REC_BYTES_IN   => dbg_select_rec_bytes,
 	MONITOR_SELECT_SENT_BYTES_IN  => dbg_select_sent_bytes,
 	MONITOR_SELECT_SENT_IN	      => dbg_select_sent,
+	MONITOR_SELECT_DROP_IN_IN     => dbg_select_drop_in,
+	MONITOR_SELECT_DROP_OUT_IN    => dbg_select_drop_out,
 	MONITOR_SELECT_GEN_DBG_IN     => dbg_select_gen,
 	
 	DATA_HIST_IN => dbg_hist,

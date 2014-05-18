@@ -572,8 +572,6 @@ port (
 	
 -- END OF INTERFACE
 
-	TRANSMITTER_BUSY_IN         : in    std_logic;
-
 	-- CTS interface
 	CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 	CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
@@ -608,15 +606,21 @@ port (
 	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
 	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
 	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
-	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;
 	CFG_INSERT_TTYPE_IN          : in std_logic;
+	CFG_MAX_SUB_IN               : in std_logic_vector(15 downto 0);
+	CFG_MAX_QUEUE_IN             : in std_logic_vector(15 downto 0);
+	CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
+	CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(31 downto 0);
 	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(31 downto 0);
+	MONITOR_SELECT_DROP_IN_OUT    : out std_logic_vector(31 downto 0);
+	MONITOR_SELECT_DROP_OUT_OUT   : out std_logic_vector(31 downto 0);
 	
-	DATA_HIST_OUT : out hist_array 
+	DATA_HIST_OUT : out hist_array
 );
 end component;
 

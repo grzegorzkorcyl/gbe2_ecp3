@@ -15,7 +15,7 @@ use work.trb_net_gbe_protocols.all;
 
 
 entity trb_net16_gbe_ipu_interface is
-	port (
+port (
 	CLK_IPU                     : in    std_logic;
 	CLK_GBE                     : in	std_logic;
 	RESET                       : in    std_logic;
@@ -44,12 +44,13 @@ entity trb_net16_gbe_ipu_interface is
 	DATA_GBE_ENABLE_IN			: in	std_logic; -- IPU data is forwarded to GbE
 	DATA_IPU_ENABLE_IN			: in	std_logic; -- IPU data is forwarded to CTS / TRBnet
 	MULT_EVT_ENABLE_IN			: in    std_logic;
-	MAX_MESSAGE_SIZE_IN			: in	std_logic_vector(31 downto 0); -- the maximum size of one HadesQueue  -- gk 08.04.10
-	MIN_MESSAGE_SIZE_IN			: in	std_logic_vector(31 downto 0); -- gk 20.07.10
+	MAX_SUBEVENT_SIZE_IN		: in	std_logic_vector(15 downto 0);
+	MAX_QUEUE_SIZE_IN           : in    std_logic_vector(15 downto 0);
+	MAX_SUBS_IN_QUEUE_IN        : in    std_logic_vector(15 downto 0);
+	MAX_SINGLE_SUB_SIZE_IN      : in    std_logic_vector(15 downto 0);
 	READOUT_CTR_IN				: in	std_logic_vector(23 downto 0); -- gk 26.04.10
 	READOUT_CTR_VALID_IN		: in	std_logic; -- gk 26.04.10
 	-- PacketConstructor interface
-	ALLOW_LARGE_IN				: in	std_logic;  -- gk 21.07.10
 	PC_WR_EN_OUT                : out   std_logic;
 	PC_DATA_OUT                 : out   std_logic_vector (7 downto 0);
 	PC_READY_IN                 : in    std_logic;
@@ -58,7 +59,6 @@ entity trb_net16_gbe_ipu_interface is
 	PC_EOQ_OUT                  : out   std_logic;
 	PC_SUB_SIZE_OUT             : out   std_logic_vector(31 downto 0);
 	PC_TRIG_NR_OUT              : out   std_logic_vector(31 downto 0);
-	PC_PADDING_OUT              : out   std_logic;
 	PC_TRIGGER_TYPE_OUT         : out	std_logic_vector(3 downto 0);
 	MONITOR_OUT                 : out   std_logic_vector(223 downto 0);
 	DEBUG_OUT                   : out   std_logic_vector(383 downto 0)
@@ -78,7 +78,7 @@ signal load_current_state, load_next_state : loadStates;
 attribute syn_encoding of load_current_state : signal is "onehot";
 
 signal sf_data : std_Logic_vector(15 downto 0);
-signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eos, sf_eos_q, sf_eos_qq : std_logic;
+signal save_eod, sf_wr_en, sf_rd_en, sf_reset, sf_empty, sf_full, sf_afull, sf_eos : std_logic;
 signal sf_q, pc_data : std_logic_vector(7 downto 0);
 
 signal cts_rnd, cts_trg : std_logic_vector(15 downto 0);
@@ -102,8 +102,9 @@ signal queue_size : std_logic_vector(17 downto 0);
 signal number_of_subs : std_logic_vector(15 downto 0);
 signal size_check_ctr : integer range 0 to 7;
 signal sf_data_q, sf_data_qq, sf_data_qqq, sf_data_qqqq, sf_data_qqqqq : std_logic_vector(15 downto 0);
-signal sf_wr_q, sf_wr_qq, sf_wr_qqq, sf_wr_qqqq, sf_wr_lock : std_logic;
+signal sf_wr_q, sf_wr_lock : std_logic;
 signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq, save_eod_qqqqq : std_logic;
+signal too_large_dropped : std_logic_vector(31 downto 0);
 
 begin
 
@@ -182,7 +183,7 @@ begin
 			
 		when ADD_SUBSUB4 =>
 			rec_state <= x"a";
-			save_next_state <= FINISH_4_WORDS; --CLEANUP;
+			save_next_state <= FINISH_4_WORDS;
 			
 		when FINISH_4_WORDS =>
 			rec_state <= x"b";
@@ -304,7 +305,7 @@ begin
 		
 		if (save_current_state = IDLE) then
 			sf_wr_lock <= '1';
-		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") < ("00" & x"e000")) then  -- condition to ALLOW an event to be passed forward
+		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") < ("00" & MAX_SUBEVENT_SIZE_IN)) then  -- condition to ALLOW an event to be passed forward
 			sf_wr_lock <= '0';
 		else
 			sf_wr_lock <= sf_wr_lock;
@@ -312,6 +313,20 @@ begin
 
 	end if;
 end process;
+
+process(RESET, CLK_IPU)
+begin
+	if (RESET = '1') then
+		too_large_dropped <= (others => '0');
+	elsif rising_edge(CLK_IPU) then
+		if (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") >= ("00" & MAX_SUBEVENT_SIZE_IN)) then
+			too_large_dropped <= too_large_dropped + x"1";
+		else
+			too_large_dropped <= too_large_dropped;
+		end if;
+	end if;
+end process;
+		
 
 SAVED_EVENTS_CTR_PROC : process(RESET, CLK_IPU)
 begin
@@ -452,7 +467,7 @@ begin
 	end if;
 end process LOAD_MACHINE_PROC;
 
-LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, subevent_size)
+LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN)
 begin
 	case (load_current_state) is
 
@@ -486,10 +501,9 @@ begin
 		
 		when DECIDE =>
 			load_state <= x"5";
-			--if (queue_size > ("00" & x"fa00")) then  -- max udp packet exceeded
-			if (queue_size > ("00" & x"ea60")) then  -- max udp packet exceeded
+			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
-			elsif (number_of_subs = x"00c8") then
+			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -517,19 +531,14 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & x"7d00") and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
-				load_next_state <= CLOSE_QUEUE_IMMEDIATELY; --WAIT_FOR_SUBS;
+			if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
+				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
 			end if;
 			
 		when CLOSE_QUEUE =>
 			load_state <= x"a";
---			if (subevent_size > ("00" & x"5000")) then
---				load_next_state <= WAIT_FOR_SUBS; --WAIT_FOR_SUBS;
---			else
---				load_next_state <= PREPARE_TO_LOAD_SUB;
---			end if;
 			load_next_state <= PREPARE_TO_LOAD_SUB;
 			
 		when CLOSE_QUEUE_IMMEDIATELY =>
@@ -568,9 +577,9 @@ begin
 		elsif (load_current_state = WAIT_TWO) then
 			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
 		elsif (load_current_state = DECIDE) then
-			if (queue_size > ("00" & x"ea60")) then
+			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (number_of_subs = x"00c8") then
+			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			else
 				queue_size <= queue_size;
@@ -816,8 +825,6 @@ PC_TRIG_NR_OUT <= readout_ctr(23 downto 16) & trigger_number & trigger_random;
 
 PC_TRIGGER_TYPE_OUT <= trigger_type;
 
-PC_PADDING_OUT <= '0'; --padding_needed; not used anymore
-
 
 process(CLK_GBE)
 begin
@@ -832,6 +839,7 @@ begin
 end process;
 
 DEBUG_OUT(383 downto 12) <= (others => '0');
-MONITOR_OUT <= (others => '0');
+MONITOR_OUT(31 downto 0) <= too_large_dropped;
+MONITOR_OUT(223 downto 32) <= (others => '0');
 
 end architecture RTL;

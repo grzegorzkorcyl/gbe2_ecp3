@@ -110,16 +110,21 @@ port (
 	SLV_DATA_IN                  : in std_logic_vector(31 downto 0);
 	SLV_DATA_OUT                 : out std_logic_vector(31 downto 0);
 	
-	CFG_GBE_ENABLE_IN            : in std_logic;
-	CFG_IPU_ENABLE_IN            : in std_logic;
-	CFG_MULT_ENABLE_IN           : in std_logic;
-	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0); 
-	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0); 
-	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0); 
-	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0); 
-	CFG_READOUT_CTR_VALID_IN     : in std_logic;  
-	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_GBE_ENABLE_IN            : in std_logic;                    
+	CFG_IPU_ENABLE_IN            : in std_logic;                    
+	CFG_MULT_ENABLE_IN           : in std_logic;                    
+	CFG_SUBEVENT_ID_IN			 : in std_logic_vector(31 downto 0);
+	CFG_SUBEVENT_DEC_IN          : in std_logic_vector(31 downto 0);
+	CFG_QUEUE_DEC_IN             : in std_logic_vector(31 downto 0);
+	CFG_READOUT_CTR_IN           : in std_logic_vector(23 downto 0);
+	CFG_READOUT_CTR_VALID_IN     : in std_logic;
 	CFG_INSERT_TTYPE_IN          : in std_logic;
+	CFG_MAX_SUB_IN               : in std_logic_vector(15 downto 0);
+	CFG_MAX_QUEUE_IN             : in std_logic_vector(15 downto 0);
+	CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
+	CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
+	  
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;   
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
@@ -139,6 +144,8 @@ port (
 	MONITOR_SELECT_REC_BYTES_OUT  : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_BYTES_OUT : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_SENT_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_DROP_IN_OUT    : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
+	MONITOR_SELECT_DROP_OUT_OUT   : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_OUT    : out	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
 	DATA_HIST_OUT : out hist_array;
@@ -331,9 +338,14 @@ port map(
 	CFG_SUBEVENT_DEC_IN         => CFG_SUBEVENT_DEC_IN,      
 	CFG_QUEUE_DEC_IN            => CFG_QUEUE_DEC_IN,         
 	CFG_READOUT_CTR_IN          => CFG_READOUT_CTR_IN,       
-	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN,  
-	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,
+	CFG_READOUT_CTR_VALID_IN    => CFG_READOUT_CTR_VALID_IN,
 	CFG_INSERT_TTYPE_IN         => CFG_INSERT_TTYPE_IN,
+	CFG_MAX_SUB_IN              => CFG_MAX_SUB_IN,
+	CFG_MAX_QUEUE_IN            => CFG_MAX_QUEUE_IN,
+	CFG_MAX_SUBS_IN_QUEUE_IN    => CFG_MAX_SUBS_IN_QUEUE_IN,
+	CFG_MAX_SINGLE_SUB_IN       => CFG_MAX_SINGLE_SUB_IN,
+	  
+	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,  
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,
@@ -345,6 +357,8 @@ port map(
 	MONITOR_SELECT_REC_BYTES_OUT  => MONITOR_SELECT_REC_BYTES_OUT,  
 	MONITOR_SELECT_SENT_BYTES_OUT => MONITOR_SELECT_SENT_BYTES_OUT, 
 	MONITOR_SELECT_SENT_OUT	      => MONITOR_SELECT_SENT_OUT,
+	MONITOR_SELECT_DROP_OUT_OUT   => MONITOR_SELECT_DROP_OUT_OUT,
+	MONITOR_SELECT_DROP_IN_OUT    => MONITOR_SELECT_DROP_IN_OUT,
 	MONITOR_SELECT_GEN_DBG_OUT    => MONITOR_SELECT_GEN_DBG_OUT,
 	
 	DATA_HIST_OUT => DATA_HIST_OUT,
