@@ -510,9 +510,9 @@ begin
 				load_next_state <= CLOSE_QUEUE;
 			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				load_next_state <= CLOSE_QUEUE;
-			elsif (trigger_type /= previous_ttype) then
+			elsif (trigger_type /= previous_ttype and previous_ttype /= x"0") then
 				load_next_state <= CLOSE_QUEUE;
-			elsif (bank_select /= previous_bank) then
+			elsif (bank_select /= previous_bank and previous_ttype /= x"0") then
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
