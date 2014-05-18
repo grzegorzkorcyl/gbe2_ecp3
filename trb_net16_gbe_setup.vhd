@@ -364,9 +364,9 @@ begin
 				when 165 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(3 * 64 - 1 downto 2 * 64 + 32);
 				when 166 =>
-					data_out <= MONITOR_SELECT_DROP_IN_IN(3 * 64 - 1 downto 2 * 64 + 32);
+					data_out <= MONITOR_SELECT_DROP_IN_IN(3 * 32 - 1 downto 2 * 32);
 				when 167 =>
-					data_out <= MONITOR_SELECT_DROP_OUT_IN(3 * 64 - 1 downto 2 * 64 + 32);
+					data_out <= MONITOR_SELECT_DROP_OUT_IN(3 * 32 - 1 downto 2 * 32);
 							
 				-- TrbnetData
 				when 176 =>
@@ -382,9 +382,9 @@ begin
 				when 181 =>
 					data_out <= MONITOR_SELECT_GEN_DBG_IN(4 * 64 - 1 downto 3 * 64 + 32);
 				when 182 =>
-					data_out <= MONITOR_SELECT_DROP_IN_IN(4 * 64 - 1 downto 3 * 64 + 32);
+					data_out <= MONITOR_SELECT_DROP_IN_IN(4 * 32 - 1 downto 3 * 32);
 				when 183 =>
-					data_out <= MONITOR_SELECT_DROP_OUT_IN(4 * 64 - 1 downto 3 * 64 + 32);
+					data_out <= MONITOR_SELECT_DROP_OUT_IN(4 * 32 - 1 downto 3 * 32);
 				
 				-- for older network monitors	
 				when 243 =>
