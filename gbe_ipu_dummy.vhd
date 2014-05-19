@@ -71,6 +71,7 @@ architecture RTL of gbe_ipu_dummy is
 	signal size_rand_en, delay_rand_en : std_logic;
 	signal delay_value : std_logic_vector(15 downto 0);
 	signal d, s : std_logic_vector(31 downto 0);
+	signal trigger_type : std_logic_vector(3 downto 0) := x"0";
 	
 begin
 	
@@ -450,6 +451,19 @@ begin
 		end if;
 	end process;
 	
+	process(rst, CLK)
+	begin
+		if rst = '1' then
+			trigger_type <= x"1";
+		elsif rising_edge(CLK) then
+			if (cts_number > x"0008" and cts_number < x"000b") then
+				trigger_type <= x"2";
+			else
+				trigger_type <= x"1";
+			end if;
+		end if;
+	end process;
+	
 	process(CLK)
 	begin
 		if rising_edge(CLK) then
@@ -493,7 +507,7 @@ begin
 		if rising_edge(CLK) then
 			case current_state is 
 				when WAIT_FOR_READ_1 =>
-					fee_data <= x"10bb";
+					fee_data <= trigger_type & x"0bb";
 				when WAIT_FOR_READ_2 =>
 					fee_data <= cts_number;
 				when WAIT_FOR_READ_3 =>
