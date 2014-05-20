@@ -508,7 +508,9 @@ begin
 			load_state <= x"5";
 			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
-			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+			elsif (MULT_EVT_ENABLE_IN = '1' and number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+				load_next_state <= CLOSE_QUEUE;
+			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				load_next_state <= CLOSE_QUEUE;
 --			elsif (trigger_type /= previous_ttype and previous_ttype /= x"0") then
 --				load_next_state <= CLOSE_QUEUE;
@@ -540,14 +542,10 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (MULT_EVT_ENABLE_IN = '1') then
-				if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
-					load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
-				else
-					load_next_state <= WAIT_FOR_SUBS;
-				end if;
-			else
+			if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
 				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
+			else
+				load_next_state <= WAIT_FOR_SUBS;
 			end if;
 			
 		when CLOSE_QUEUE =>
@@ -593,7 +591,11 @@ begin
 		elsif (load_current_state = DECIDE) then
 			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+--			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+--				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			elsif (MULT_EVT_ENABLE_IN = '1' and number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
+				queue_size <= subevent_size + x"10" + x"8" + x"4";
+			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 --			elsif (trigger_type /= previous_ttype and previous_ttype /= x"0") then
 --				queue_size <= subevent_size + x"10" + x"8" + x"4";
