@@ -471,7 +471,7 @@ begin
 	end if;
 end process reset_sync;
 
-global_reset <= not rst_n;
+global_reset <= not rst_n or soft_rst;
 
 -- gk 23.04.10
 LED_PACKET_SENT_OUT <= '0'; --timeout_noticed; --pc_ready;
