@@ -456,12 +456,12 @@ begin
 		if rst = '1' then
 			trigger_type <= x"1";
 		elsif rising_edge(CLK) then
---			if (cts_number > x"0008" and cts_number < x"000b") then
---				trigger_type <= x"2";
---			else
---				trigger_type <= x"1";
---			end if;
-			trigger_type <= cts_number(3 downto 0);
+			if (cts_number > x"0008" and cts_number < x"000b") then
+				trigger_type <= x"2";
+			else
+				trigger_type <= x"1";
+			end if;
+			--trigger_type <= cts_number(3 downto 0);
 		end if;
 	end process;
 	
