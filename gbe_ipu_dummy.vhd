@@ -75,7 +75,7 @@ architecture RTL of gbe_ipu_dummy is
 	
 begin
 	
-	pause_wait_7 <= 1;
+	send_word_pause <= 1;
 	
 	
 	fixed_size_gen : if FIXED_SIZE_MODE = 1 generate
