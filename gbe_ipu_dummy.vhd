@@ -75,6 +75,8 @@ architecture RTL of gbe_ipu_dummy is
 	
 begin
 	
+	pause_wait_7 <= 1;
+	
 	
 	fixed_size_gen : if FIXED_SIZE_MODE = 1 generate
 		test_data_len <= std_logic_vector(to_unsigned(FIXED_SIZE, 16));
