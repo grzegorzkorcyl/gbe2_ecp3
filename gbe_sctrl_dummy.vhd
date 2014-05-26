@@ -143,7 +143,7 @@ begin
 		if rising_edge(CLK) then
 			if (current_state = IDLE) then
 				ptr <= 31;
-			elsif (current_state = GENERATE_REQUEST and RC_RD_EN_IN = '1') then
+			elsif (current_state = GENERATE_REQUEST and RC_RD_EN_IN = '1' and ptr /= 0) then
 				ptr <= ptr - 1;
 			else
 				ptr <= ptr;
