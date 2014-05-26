@@ -60,7 +60,7 @@ begin
 	
 	reply_size <= 100;
 	
-	RC_FRAME_PROTO_OUT <= "00100" when current_state = GENERATE_REQUEST else "00000";
+	RC_FRAME_PROTO_OUT <= "00100" when current_state = GENERATE_REQUEST or (current_state = WAIT_A_BIT and wait_ctr = 0) else "00000";
 	
 	data <= x"abcd0031ffffffffffff00080030005000000000000000330000000000000008";
 	
