@@ -459,7 +459,7 @@ signal global_reset, rst_n, ff : std_logic;
 signal dum_busy, dum_read, dum_dataready, dum_rd_en, dum_frame_ready : std_logic;
 signal dum_data : std_logic_vector(15 downto 0);
 signal dum_frame_proto : std_logic_vector(4 downto 0);
-signal dum_q : std_logic_vector(7 downto 0);
+signal dum_q : std_logic_vector(8 downto 0);
 
 begin
 
