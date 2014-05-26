@@ -49,7 +49,7 @@ architecture RTL of gbe_sctrl_dummy is
 	type states is (IDLE, TIMEOUT, GENERATE_REQUEST, WAIT_A_BIT, GENERATE_REPLY, CLEANUP);
 	signal current_state, next_state : states;
 	
-	signal data : std_logic_vector(251 downto 0);
+	signal data : std_logic_vector(255 downto 0);
 	signal ptr : integer range 0 to 255;
 	signal timeout_ctr : integer range 0 to 65535;
 	signal wait_ctr,  reply_delay, reply_ctr, reply_size : integer range 0 to 65535;
