@@ -66,7 +66,8 @@ begin
 	
 	RC_FRAME_WAITING_OUT <= '1' when current_state = GENERATE_REQUEST else '0';
 
-	RC_Q_OUT <= data(ptr * 8 - 1 downto (ptr - 1 ) * 8);
+	RC_Q_OUT(7 downto 0) <= data(ptr * 8 - 1 downto (ptr - 1 ) * 8);
+	RC_Q_OUT(8) <= '1' when current_state = GENERATE_REQUEST and ptr = 0 else '0';
 
 	GSC_REPLY_DATA_OUT <= std_logic_vector(to_unsigned(reply_ctr, 16));
 	
