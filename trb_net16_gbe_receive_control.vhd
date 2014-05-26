@@ -119,16 +119,12 @@ RC_FRAME_PROTO_OUT <= proto_code;  -- no more ones as the incorrect value, last 
 --DEBUG_OUT(19 downto 12) <= frames_readout_ctr(7 downto 0);
 --DEBUG_OUT(31 downto 20) <= bytes_rec_ctr(11 downto 0);
 
-LOAD_MACHINE_PROC : process(CLK)
+LOAD_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		load_current_state <= IDLE;
   elsif rising_edge(CLK) then
---    if (RESET = '1') then
---      load_current_state <= IDLE;
---    else
       load_current_state <= load_next_state;
---    end if;
   end if;
 end process LOAD_MACHINE_PROC;
 
@@ -198,7 +194,7 @@ end process;
 --  end if;
 --end process SYNC_PROC;
 
-FRAMES_REC_CTR_PROC : process(CLK)
+FRAMES_REC_CTR_PROC : process(RESET, CLK)
 begin
   if (RESET = '1') then
       frames_received_ctr <= (others => '0');
@@ -211,7 +207,7 @@ begin
   end if;
 end process FRAMES_REC_CTR_PROC;
 
-FRAMES_READOUT_CTR_PROC : process(CLK)
+FRAMES_READOUT_CTR_PROC : process(RESET, CLK)
 begin
   if (RESET = '1') then
       frames_readout_ctr <= (others => '0');
@@ -225,7 +221,7 @@ begin
 end process FRAMES_READOUT_CTR_PROC;
 
 -- debug only
-BYTES_REC_CTR_PROC : process(CLK)
+BYTES_REC_CTR_PROC : process(RESET, CLK)
 begin
     if (RESET = '1') then
       bytes_rec_ctr <= (others => '0');
