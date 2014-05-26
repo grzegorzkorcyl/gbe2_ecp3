@@ -62,6 +62,8 @@ begin
 	
 	RC_FRAME_PROTO_OUT <= "00100" when current_state = GENERATE_REQUEST or (current_state = WAIT_A_BIT and wait_ctr = 0) else "00000";
 	
+	RC_FRAME_SIZE_OUT <= x"0020";
+	
 	data <= x"abcd0031ffffffffffff00080030005000000000000000330000000000000008";
 	
 	RC_FRAME_WAITING_OUT <= '1' when current_state = GENERATE_REQUEST else '0';
@@ -74,6 +76,8 @@ begin
 	GSC_REPLY_DATAREADY_OUT <= '1' when current_state = GENERATE_REPLY else '0';
 	
 	GSC_BUSY_OUT <= '1' when current_state = GENERATE_REPLY else '0';
+	
+	
 
 	process(RST, CLK)
 	begin

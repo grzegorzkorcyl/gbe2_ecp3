@@ -457,7 +457,7 @@ signal global_reset, rst_n, ff : std_logic;
   signal dhcp_done, link_ok, soft_rst : std_logic;
     
 signal dum_busy, dum_read, dum_dataready, dum_rd_en, dum_frame_ready : std_logic;
-signal dum_data : std_logic_vector(15 downto 0);
+signal dum_data, dum_frame_size : std_logic_vector(15 downto 0);
 signal dum_frame_proto : std_logic_vector(4 downto 0);
 signal dum_q : std_logic_vector(8 downto 0);
 
@@ -645,7 +645,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	  RC_LOADING_DONE_OUT	=> rc_loading_done,
 	  RC_DATA_IN		=> dum_q, --rc_q,
 	  RC_RD_EN_OUT		=> dum_rd_en, --rc_rd_en,
-	  RC_FRAME_SIZE_IN	=> rc_frame_size,
+	  RC_FRAME_SIZE_IN	=> dum_frame_size, --rc_frame_size,
 	  RC_FRAME_PROTO_IN	=> dum_frame_proto, --rc_frame_proto,
 
 	  RC_SRC_MAC_ADDRESS_IN	=> rc_src_mac,
@@ -802,7 +802,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		RC_RD_EN_IN		           => dum_rd_en,
 		RC_Q_OUT		           => dum_q,
 		RC_FRAME_WAITING_OUT	   => dum_frame_ready,
-		RC_LOADING_DONE_IN	       => '0',
+		RC_LOADING_DONE_IN	       => dum_frame_size,
 		RC_FRAME_SIZE_OUT	       => open,
 		RC_FRAME_PROTO_OUT	       => dum_frame_proto,
 		                           
