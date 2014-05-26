@@ -404,15 +404,11 @@ begin
 	if RESET = '1' then
 			redirect_current_state <= IDLE;
 	elsif rising_edge(CLK) then
---		if (RESET = '1') then
---			redirect_current_state <= IDLE;
---		else
 		if RX_PATH_ENABLE = 1 then
 			redirect_current_state <= redirect_next_state;
 		else
 			redirect_current_state <= IDLE;
 		end if;
---		end if;
 	end if;
 end process REDIRECT_MACHINE_PROC;
 

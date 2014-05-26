@@ -227,7 +227,7 @@ generic map(
 	USE_125MHZ_EXTCLK       => 0,
 	
 		FIXED_SIZE_MODE => 1,
-		FIXED_SIZE => 2500, --10000, --10,
+		FIXED_SIZE => 5000, --10000, --10,
 		FIXED_DELAY_MODE => 1,
 		FIXED_DELAY => 100 --4096
 )

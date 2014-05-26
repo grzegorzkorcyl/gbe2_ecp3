@@ -789,36 +789,36 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		FEE_BUSY_OUT		     =>gbe_fee_busy
 	);          
 	
-	sctrl_dummy : gbe_sctrl_dummy
-	generic map(
-		DO_SIMULATION => DO_SIMULATION,
-		FIXED_DELAY_MODE => 0,
-		FIXED_DELAY => 4096	
-	)
-	port map(
-		clk => clk,
-		rst => global_reset,
-		
-		RC_RD_EN_IN		           => dum_rd_en,
-		RC_Q_OUT		           => dum_q,
-		RC_FRAME_WAITING_OUT	   => dum_frame_ready,
-		RC_LOADING_DONE_IN	       => '0',
-		RC_FRAME_SIZE_OUT	       => dum_frame_size,
-		RC_FRAME_PROTO_OUT	       => dum_frame_proto,
-		                           
-		RC_SRC_MAC_ADDRESS_OUT	   => open,
-		RC_DEST_MAC_ADDRESS_OUT    => open,
-		RC_SRC_IP_ADDRESS_OUT	   => open,
-		RC_DEST_IP_ADDRESS_OUT	   => open, 
-		RC_SRC_UDP_PORT_OUT	       => open,
-		RC_DEST_UDP_PORT_OUT	   => open,
-		                           
-		GSC_REPLY_DATAREADY_OUT    => dum_dataready,
-		GSC_REPLY_DATA_OUT         => dum_data,
-		GSC_REPLY_PACKET_NUM_OUT   => open,
-		GSC_REPLY_READ_IN          => dum_read,
-		GSC_BUSY_OUT               => dum_busy
-	);
+--	sctrl_dummy : gbe_sctrl_dummy
+--	generic map(
+--		DO_SIMULATION => DO_SIMULATION,
+--		FIXED_DELAY_MODE => 0,
+--		FIXED_DELAY => 4096	
+--	)
+--	port map(
+--		clk => clk,
+--		rst => global_reset,
+--		
+--		RC_RD_EN_IN		           => dum_rd_en,
+--		RC_Q_OUT		           => dum_q,
+--		RC_FRAME_WAITING_OUT	   => dum_frame_ready,
+--		RC_LOADING_DONE_IN	       => '0',
+--		RC_FRAME_SIZE_OUT	       => dum_frame_size,
+--		RC_FRAME_PROTO_OUT	       => dum_frame_proto,
+--		                           
+--		RC_SRC_MAC_ADDRESS_OUT	   => open,
+--		RC_DEST_MAC_ADDRESS_OUT    => open,
+--		RC_SRC_IP_ADDRESS_OUT	   => open,
+--		RC_DEST_IP_ADDRESS_OUT	   => open, 
+--		RC_SRC_UDP_PORT_OUT	       => open,
+--		RC_DEST_UDP_PORT_OUT	   => open,
+--		                           
+--		GSC_REPLY_DATAREADY_OUT    => dum_dataready,
+--		GSC_REPLY_DATA_OUT         => dum_data,
+--		GSC_REPLY_PACKET_NUM_OUT   => open,
+--		GSC_REPLY_READ_IN          => dum_read,
+--		GSC_BUSY_OUT               => dum_busy
+--	);
 	
 	            
  end generate main_with_dummy_gen;
