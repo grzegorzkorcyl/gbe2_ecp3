@@ -124,6 +124,19 @@ begin
 				
 		end case;
 	end process;
+	
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (current_state = IDLE) then
+				timeout_ctr <= 0;
+			elsif (current_state = TIMEOUT) then
+				timeout_ctr <= timeout_ctr + 1;
+			else
+				timeout_ctr <= timeout_ctr;
+			end if;
+		end if;
+	end process;
 			
 	process(CLK)
 	begin
