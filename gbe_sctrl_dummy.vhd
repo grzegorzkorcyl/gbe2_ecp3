@@ -83,7 +83,7 @@ begin
 		end if;
 	end process;
 	
-	process(current_state, timeout_ctr, FIXED_DELAY, ptr, wait_ctr, reply_delay, reply_ctr, reply_size)
+	process(current_state, timeout_ctr, ptr, wait_ctr, reply_delay, reply_ctr, reply_size)
 	begin
 		case current_state is 
 			
