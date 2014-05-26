@@ -802,8 +802,8 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		RC_RD_EN_IN		           => dum_rd_en,
 		RC_Q_OUT		           => dum_q,
 		RC_FRAME_WAITING_OUT	   => dum_frame_ready,
-		RC_LOADING_DONE_IN	       => dum_frame_size,
-		RC_FRAME_SIZE_OUT	       => open,
+		RC_LOADING_DONE_IN	       => '0',
+		RC_FRAME_SIZE_OUT	       => dum_frame_size,
 		RC_FRAME_PROTO_OUT	       => dum_frame_proto,
 		                           
 		RC_SRC_MAC_ADDRESS_OUT	   => open,
