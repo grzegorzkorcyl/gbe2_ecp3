@@ -170,6 +170,38 @@ component gbe_ipu_dummy is
 	);
 end component;
 
+component gbe_sctrl_dummy is
+	generic (
+		DO_SIMULATION : integer range 0 to 1 := 0;
+		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
+		FIXED_DELAY : integer range 0 to 65535 := 4096	
+	);
+	port (
+		clk : in std_logic;
+		rst : in std_logic;
+		
+		RC_RD_EN_IN		: in	std_logic;
+		RC_Q_OUT		: out	std_logic_vector(8 downto 0);
+		RC_FRAME_WAITING_OUT	: out	std_logic;
+		RC_LOADING_DONE_IN	: in	std_logic;
+		RC_FRAME_SIZE_OUT	: out	std_logic_vector(15 downto 0);
+		RC_FRAME_PROTO_OUT	: out	std_logic_vector(c_MAX_PROTOCOLS - 1 downto 0);
+		
+		RC_SRC_MAC_ADDRESS_OUT	: out	std_logic_vector(47 downto 0);
+		RC_DEST_MAC_ADDRESS_OUT : out	std_logic_vector(47 downto 0);
+		RC_SRC_IP_ADDRESS_OUT	: out	std_logic_vector(31 downto 0);
+		RC_DEST_IP_ADDRESS_OUT	: out	std_logic_vector(31 downto 0);
+		RC_SRC_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
+		RC_DEST_UDP_PORT_OUT	: out	std_logic_vector(15 downto 0);
+		
+		GSC_REPLY_DATAREADY_OUT   : out std_logic;
+		GSC_REPLY_DATA_OUT        : out std_logic_vector(15 downto 0);
+		GSC_REPLY_PACKET_NUM_OUT  : out std_logic_vector(2 downto 0);
+		GSC_REPLY_READ_IN       : in std_logic;
+		GSC_BUSY_OUT              : out std_logic
+	);
+end component;
+
 component trb_net16_gbe_buf is
 generic( 
 	DO_SIMULATION		: integer range 0 to 1 := 1;

@@ -455,6 +455,11 @@ signal global_reset, rst_n, ff : std_logic;
   
   signal max_sub, max_queue, max_subs_in_queue, max_single_sub : std_logic_vector(15 downto 0);
   signal dhcp_done, link_ok, soft_rst : std_logic;
+    
+signal dum_busy, dum_read, dum_dataready, dum_rd_en, dum_frame_ready : std_logic;
+signal dum_data : std_logic_vector(15 downto 0);
+signal dum_frame_proto : std_logic_vector(4 downto 0);
+signal dum_q : std_logic_vector(7 downto 0);
 
 begin
 
@@ -636,12 +641,12 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	  MC_DHCP_DONE_OUT => dhcp_done,
 
   -- signals to/from receive controller
-	  RC_FRAME_WAITING_IN	=> rc_frame_ready,
+	  RC_FRAME_WAITING_IN	=> dum_frame_ready, --rc_frame_ready,
 	  RC_LOADING_DONE_OUT	=> rc_loading_done,
-	  RC_DATA_IN		=> rc_q,
-	  RC_RD_EN_OUT		=> rc_rd_en,
+	  RC_DATA_IN		=> dum_q, --rc_q,
+	  RC_RD_EN_OUT		=> dum_rd_en, --rc_rd_en,
 	  RC_FRAME_SIZE_IN	=> rc_frame_size,
-	  RC_FRAME_PROTO_IN	=> rc_frame_proto,
+	  RC_FRAME_PROTO_IN	=> dum_frame_proto, --rc_frame_proto,
 
 	  RC_SRC_MAC_ADDRESS_IN	=> rc_src_mac,
 	  RC_DEST_MAC_ADDRESS_IN  => rc_dest_mac,
@@ -678,11 +683,11 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,
 	GSC_INIT_PACKET_NUM_OUT  => GSC_INIT_PACKET_NUM_OUT,
 	GSC_INIT_READ_IN         => GSC_INIT_READ_IN,
-	GSC_REPLY_DATAREADY_IN   => GSC_REPLY_DATAREADY_IN,
-	GSC_REPLY_DATA_IN        => GSC_REPLY_DATA_IN,
+	GSC_REPLY_DATAREADY_IN   => dum_dataready, --GSC_REPLY_DATAREADY_IN,
+	GSC_REPLY_DATA_IN        => dum_data, --GSC_REPLY_DATA_IN,
 	GSC_REPLY_PACKET_NUM_IN  => GSC_REPLY_PACKET_NUM_IN,
-	GSC_REPLY_READ_OUT       => GSC_REPLY_READ_OUT,
-	GSC_BUSY_IN              => GSC_BUSY_IN,
+	GSC_REPLY_READ_OUT       => dum_read, --GSC_REPLY_READ_OUT,
+	GSC_BUSY_IN              => dum_busy, --GSC_BUSY_IN,
 
 	MAKE_RESET_OUT           => make_reset, --MAKE_RESET_OUT,
 	
@@ -782,7 +787,40 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		FEE_READ_IN				 =>gbe_fee_read,
 		FEE_STATUS_BITS_OUT	     =>gbe_fee_status_bits,
 		FEE_BUSY_OUT		     =>gbe_fee_busy
-	);                      
+	);          
+	
+	sctrl_dummy : gbe_sctrl_dummy
+	generic map(
+		DO_SIMULATION => DO_SIMULATION,
+		FIXED_DELAY_MODE => 0,
+		FIXED_DELAY => 4096	
+	)
+	port map(
+		clk => clk,
+		rst => global_reset,
+		
+		RC_RD_EN_IN		           => dum_rd_en,
+		RC_Q_OUT		           => dum_q,
+		RC_FRAME_WAITING_OUT	   => dum_frame_ready,
+		RC_LOADING_DONE_IN	       => '0',
+		RC_FRAME_SIZE_OUT	       => open,
+		RC_FRAME_PROTO_OUT	       => dum_frame_proto,
+		                           
+		RC_SRC_MAC_ADDRESS_OUT	   => open,
+		RC_DEST_MAC_ADDRESS_OUT    => open,
+		RC_SRC_IP_ADDRESS_OUT	   => open,
+		RC_DEST_IP_ADDRESS_OUT	   => open, 
+		RC_SRC_UDP_PORT_OUT	       => open,
+		RC_DEST_UDP_PORT_OUT	   => open,
+		                           
+		GSC_REPLY_DATAREADY_OUT    => dum_dataready,
+		GSC_REPLY_DATA_OUT         => dum_data,
+		GSC_REPLY_PACKET_NUM_OUT   => open,
+		GSC_REPLY_READ_IN          => dum_read,
+		GSC_BUSY_OUT               => dum_busy
+	);
+	
+	            
  end generate main_with_dummy_gen;
 
   MAKE_RESET_OUT <= make_reset; -- or idle_too_long;

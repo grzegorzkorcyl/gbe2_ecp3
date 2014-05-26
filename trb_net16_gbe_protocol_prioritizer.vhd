@@ -35,7 +35,7 @@ architecture trb_net16_gbe_protocol_prioritizer of trb_net16_gbe_protocol_priori
 
 begin
 
-PRIORITIZE : process(CLK, FRAME_TYPE_IN, PROTOCOL_CODE_IN)
+PRIORITIZE : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		CODE_OUT <= (others => '0');
