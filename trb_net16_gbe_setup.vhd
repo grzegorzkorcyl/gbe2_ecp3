@@ -203,7 +203,7 @@ begin
 				when x"0c" =>
 					max_sub          <= BUS_DATA_IN(15 downto 0);
 					
-				when x"0d" =>
+				when x"10" =>
 					max_queue        <= BUS_DATA_IN(15 downto 0);
 					
 				when x"0e" =>
@@ -311,16 +311,16 @@ begin
 					data_out(15 downto 0) <= max_sub;
 					data_out(31 downto 16) <= (others => '0');
 					
-				when 13 =>
-					data_out(15 downto 0) <= max_queue;
-					data_out(31 downto 16) <= (others => '0');
-					
 				when 14 =>
 					data_out(15 downto 0) <= max_subs_in_queue;
 					data_out(31 downto 16) <= (others => '0');
 					
 				when 15 =>
 					data_out(15 downto 0) <= max_single_sub;
+					data_out(31 downto 16) <= (others => '0');
+					
+				when 16 =>
+					data_out(15 downto 0) <= max_queue;
 					data_out(31 downto 16) <= (others => '0');
 					
 				-- Histogram of sctrl data sizes
