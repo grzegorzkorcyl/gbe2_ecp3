@@ -136,7 +136,7 @@ begin
 	
 	
 	CTS_INFORMATION_OUT <= x"d2";
-	CTS_READOUT_TYPE_OUT <= x"1";
+	CTS_READOUT_TYPE_OUT <= trigger_type; --x"1";
 	CTS_CODE_OUT <= x"aa";
 	CTS_START_READOUT_OUT <= cts_start_readout;
 	CTS_READ_OUT <= cts_read;
@@ -510,7 +510,7 @@ begin
 		if rising_edge(CLK) then
 			case current_state is 
 				when WAIT_FOR_READ_1 =>
-					fee_data <= trigger_type & x"0bb";
+					fee_data <= x"00bb";
 				when WAIT_FOR_READ_2 =>
 					fee_data <= cts_number;
 				when WAIT_FOR_READ_3 =>
