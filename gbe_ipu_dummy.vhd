@@ -136,7 +136,7 @@ begin
 	
 	
 	CTS_INFORMATION_OUT <= x"d2";
-	CTS_READOUT_TYPE_OUT <= trigger_type; --x"1";
+	CTS_READOUT_TYPE_OUT <= x"1"; --trigger_type; --x"1";
 	CTS_CODE_OUT <= x"aa";
 	CTS_START_READOUT_OUT <= cts_start_readout;
 	CTS_READ_OUT <= cts_read;
