@@ -356,9 +356,9 @@ end process LOADED_BYTES_PROC;
 
 TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
-TC_DEST_MAC_OUT       <= ic_dest_mac; --x"c4e870211b00"; --ic_dest_mac;
-TC_DEST_IP_OUT        <= ic_dest_ip; --x"0300a8c0"; --ic_dest_ip;
-TC_DEST_UDP_OUT       <= ic_dest_udp; --x"c35c"; --ic_dest_udp;
+TC_DEST_MAC_OUT       <= x"c4e870211b00"; --ic_dest_mac;
+TC_DEST_IP_OUT        <= x"0300a8c0"; --ic_dest_ip;
+TC_DEST_UDP_OUT       <= x"c35c"; --ic_dest_udp;
 
 
 rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
