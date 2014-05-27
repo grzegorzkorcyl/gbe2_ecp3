@@ -641,12 +641,12 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	  MC_DHCP_DONE_OUT => dhcp_done,
 
   -- signals to/from receive controller
-	  RC_FRAME_WAITING_IN	=> dum_frame_ready, --rc_frame_ready,
+	  RC_FRAME_WAITING_IN	=> rc_frame_ready,
 	  RC_LOADING_DONE_OUT	=> rc_loading_done,
-	  RC_DATA_IN		=> dum_q, --rc_q,
-	  RC_RD_EN_OUT		=> dum_rd_en, --rc_rd_en,
-	  RC_FRAME_SIZE_IN	=> dum_frame_size, --rc_frame_size,
-	  RC_FRAME_PROTO_IN	=> dum_frame_proto, --rc_frame_proto,
+	  RC_DATA_IN		=> rc_q,
+	  RC_RD_EN_OUT		=> rc_rd_en,
+	  RC_FRAME_SIZE_IN	=> rc_frame_size,
+	  RC_FRAME_PROTO_IN	=> rc_frame_proto,
 
 	  RC_SRC_MAC_ADDRESS_IN	=> rc_src_mac,
 	  RC_DEST_MAC_ADDRESS_IN  => rc_dest_mac,
