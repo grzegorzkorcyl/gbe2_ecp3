@@ -512,9 +512,9 @@ begin
 				load_next_state <= CLOSE_QUEUE;
 			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				load_next_state <= CLOSE_QUEUE;
-			elsif (trigger_type /= previous_ttype and queue_size > x"0030") then
+			elsif (trigger_type /= previous_ttype and number_of_subs /= x"0000") then
 				load_next_state <= CLOSE_QUEUE;
-			elsif (bank_select /= previous_bank and queue_size > x"0030") then
+			elsif (bank_select /= previous_bank and number_of_subs /= x"0000") then
 				load_next_state <= CLOSE_QUEUE;
 			else
 				load_next_state <= PREPARE_TO_LOAD_SUB;
@@ -591,15 +591,13 @@ begin
 		elsif (load_current_state = DECIDE) then
 			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
---			elsif (number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
---				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			elsif (MULT_EVT_ENABLE_IN = '1' and number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (trigger_type /= previous_ttype and queue_size > x"0030") then
+			elsif (trigger_type /= previous_ttype and number_of_subs /= x"0000") then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (bank_select /= previous_bank and queue_size > x"0030") then
+			elsif (bank_select /= previous_bank and number_of_subs /= x"0000") then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			else
 				queue_size <= queue_size;
