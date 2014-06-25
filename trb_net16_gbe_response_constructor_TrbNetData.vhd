@@ -119,12 +119,12 @@ signal ip_cfg_mem_addr			: std_logic_vector(7 downto 0);
 signal ip_cfg_mem_data			: std_logic_vector(31 downto 0);
 signal ip_cfg_mem_clk			: std_logic;
 
-signal ic_dest_mac				: std_logic_vector(47 downto 0);
-signal ic_dest_ip				: std_logic_vector(31 downto 0);
-signal ic_dest_udp				: std_logic_vector(15 downto 0);
-signal ic_src_mac				: std_logic_vector(47 downto 0);
-signal ic_src_ip				: std_logic_vector(31 downto 0);
-signal ic_src_udp				: std_logic_vector(15 downto 0);
+signal ic_dest_mac, ic_dest_mac_shift : std_logic_vector(47 downto 0);
+signal ic_dest_ip, ic_dest_ip_shift	: std_logic_vector(31 downto 0);
+signal ic_dest_udp, ic_dest_udp_shift : std_logic_vector(15 downto 0);
+signal ic_src_mac, ic_src_mac_shift	: std_logic_vector(47 downto 0);
+signal ic_src_ip, ic_src_ip_shift : std_logic_vector(31 downto 0);
+signal ic_src_udp, ic_src_udp_shift	: std_logic_vector(15 downto 0);
 
 signal pc_wr_en					: std_logic;
 signal pc_data					: std_logic_vector(7 downto 0);
@@ -357,20 +357,25 @@ end process LOADED_BYTES_PROC;
 TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
 
-process (clk) is
+TC_DEST_MAC_OUT       <= ic_dest_mac_shift; --x"c4e870211b00"; --ic_dest_mac;
+TC_DEST_IP_OUT        <= ic_dest_ip_shift; --x"0300a8c0"; --ic_dest_ip;
+TC_DEST_UDP_OUT       <= ic_dest_udp_shift; --x"c35c"; --ic_dest_udp;
+
+process(CLK)
 begin
-	if rising_edge(clk) then
-		if dissect_current_state = IDLE and tc_sod = '1' then
-			TC_DEST_MAC_OUT       <= ic_dest_mac; --x"c4e870211b00"; --ic_dest_mac;
-			TC_DEST_IP_OUT        <= ic_dest_ip; --x"0300a8c0"; --ic_dest_ip;
-			TC_DEST_UDP_OUT       <= ic_dest_udp; --x"c35c"; --ic_dest_udp;
+	if rising_edge(CLK) then
+		if (ip_cfg_start = '1') then
+			ic_dest_mac_shift <= ic_dest_mac;
+			ic_dest_ip_shift <= ic_dest_ip;
+			ic_dest_udp_shift <= ic_dest_udp;
 		else
-			TC_DEST_MAC_OUT       <= (others => '0');
-			TC_DEST_IP_OUT        <= (others => '0');
-			TC_DEST_UDP_OUT       <= (others => '0');
-		end if;
+			ic_dest_mac_shift <= ic_dest_mac_shift;
+			ic_dest_ip_shift <= ic_dest_ip_shift;
+			ic_dest_udp_shift <= ic_dest_udp_shift;
+		end if; 		
 	end if;
 end process;
+	
 
 
 rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
