@@ -71,7 +71,8 @@ architecture RTL of gbe_ipu_dummy is
 	signal size_rand_en, delay_rand_en : std_logic;
 	signal delay_value : std_logic_vector(15 downto 0);
 	signal d, s : std_logic_vector(31 downto 0);
-	signal trigger_type : std_logic_vector(3 downto 0) := x"0";
+	signal trigger_type, bank_select : std_logic_vector(3 downto 0) := x"0";
+	
 	
 begin
 	
@@ -135,7 +136,7 @@ begin
 	end generate variable_delay_gen;
 	
 	
-	CTS_INFORMATION_OUT <= x"d2";
+	CTS_INFORMATION_OUT <= x"d" & bank_select;
 	CTS_READOUT_TYPE_OUT <= trigger_type; --x"1";
 	CTS_CODE_OUT <= x"aa";
 	CTS_START_READOUT_OUT <= cts_start_readout;
@@ -466,6 +467,8 @@ begin
 			trigger_type <= cts_number(3 downto 0);
 		end if;
 	end process;
+	
+	bank_select <= trigger_type;
 	
 	process(CLK)
 	begin
