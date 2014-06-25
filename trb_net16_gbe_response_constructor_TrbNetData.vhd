@@ -356,9 +356,21 @@ end process LOADED_BYTES_PROC;
 
 TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
-TC_DEST_MAC_OUT       <= ic_dest_mac; --x"c4e870211b00"; --ic_dest_mac;
-TC_DEST_IP_OUT        <= ic_dest_ip; --x"0300a8c0"; --ic_dest_ip;
-TC_DEST_UDP_OUT       <= ic_dest_udp; --x"c35c"; --ic_dest_udp;
+
+process (clk) is
+begin
+	if rising_edge(clk) then
+		if dissect_current_state = IDLE and tc_sod = '1' then
+			TC_DEST_MAC_OUT       <= ic_dest_mac; --x"c4e870211b00"; --ic_dest_mac;
+			TC_DEST_IP_OUT        <= ic_dest_ip; --x"0300a8c0"; --ic_dest_ip;
+			TC_DEST_UDP_OUT       <= ic_dest_udp; --x"c35c"; --ic_dest_udp;
+		else
+			TC_DEST_MAC_OUT       <= (others => '0');
+			TC_DEST_IP_OUT        <= (others => '0');
+			TC_DEST_UDP_OUT       <= (others => '0');
+		end if;
+	end if;
+end process;
 
 
 rx_enable_gen : if (RX_PATH_ENABLE = 1) generate

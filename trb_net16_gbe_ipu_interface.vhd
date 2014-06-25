@@ -769,7 +769,6 @@ end process READOUT_CTR_PROC;
 --*****
 -- event builder selection
 
---TODO: close the current multievent packet in case event builder address changes
 
 BANK_SELECT_PROC : process(CLK_GBE)
 begin
