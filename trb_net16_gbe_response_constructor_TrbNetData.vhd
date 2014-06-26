@@ -357,24 +357,24 @@ end process LOADED_BYTES_PROC;
 TC_FRAME_SIZE_OUT 	  <= event_bytes;
 TC_FRAME_TYPE_OUT     <= x"0008";
 
-TC_DEST_MAC_OUT       <= ic_dest_mac; --x"c4e870211b00"; --ic_dest_mac;
-TC_DEST_IP_OUT        <= ic_dest_ip; --x"0300a8c0"; --ic_dest_ip;
-TC_DEST_UDP_OUT       <= ic_dest_udp; --x"c35c"; --ic_dest_udp;
+TC_DEST_MAC_OUT       <= ic_dest_mac_shift; --x"c4e870211b00"; --ic_dest_mac;
+TC_DEST_IP_OUT        <= ic_dest_ip_shift; --x"0300a8c0"; --ic_dest_ip;
+TC_DEST_UDP_OUT       <= ic_dest_udp_shift; --x"c35c"; --ic_dest_udp;
 
---process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (ip_cfg_start = '1') then
---			ic_dest_mac_shift <= ic_dest_mac;
---			ic_dest_ip_shift <= ic_dest_ip;
---			ic_dest_udp_shift <= ic_dest_udp;
---		else
---			ic_dest_mac_shift <= ic_dest_mac_shift;
---			ic_dest_ip_shift <= ic_dest_ip_shift;
---			ic_dest_udp_shift <= ic_dest_udp_shift;
---		end if; 		
---	end if;
---end process;
+process(CLK)
+begin
+	if rising_edge(CLK) then
+		if (ip_cfg_start = '1') then
+			ic_dest_mac_shift <= ic_dest_mac;
+			ic_dest_ip_shift <= ic_dest_ip;
+			ic_dest_udp_shift <= ic_dest_udp;
+		else
+			ic_dest_mac_shift <= ic_dest_mac_shift;
+			ic_dest_ip_shift <= ic_dest_ip_shift;
+			ic_dest_udp_shift <= ic_dest_udp_shift;
+		end if; 		
+	end if;
+end process;
 	
 
 
