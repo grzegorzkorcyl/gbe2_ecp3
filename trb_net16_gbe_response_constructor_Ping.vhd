@@ -66,9 +66,6 @@ end trb_net16_gbe_response_constructor_Ping;
 
 architecture trb_net16_gbe_response_constructor_Ping of trb_net16_gbe_response_constructor_Ping is
 
---attribute HGROUP : string;
---attribute HGROUP of trb_net16_gbe_response_constructor_Ping : architecture is "GBE_MAIN_group";
-
 attribute syn_encoding	: string;
 
 type dissect_states is (IDLE, READ_FRAME, WAIT_FOR_LOAD, LOAD_FRAME, CLEANUP);
@@ -79,7 +76,6 @@ type stats_states is (IDLE, LOAD_SENT, LOAD_RECEIVED, CLEANUP);
 signal stats_current_state, stats_next_state : stats_states;
 attribute syn_encoding of stats_current_state : signal is "onehot";
 
-signal rec_frames               : std_logic_vector(15 downto 0);
 signal sent_frames              : std_logic_vector(15 downto 0);
 
 signal saved_data               : std_logic_vector(447 downto 0);
@@ -95,32 +91,18 @@ signal checksum_l, checksum_r   : std_logic_vector(19 downto 0);
 signal checksum_ll, checksum_rr : std_logic_vector(15 downto 0);
 signal checksum_lll, checksum_rrr : std_logic_vector(15 downto 0);
 
-signal fifo_wr_en, fifo_rd_en   : std_logic;
-signal fifo_q                   : std_logic_vector(7 downto 0);
-
-
-signal stat_data_temp           : std_logic_vector(31 downto 0);
-
-signal tc_wr                    : std_logic;
-
-signal data_reg                 : std_logic_vector(511 downto 0);
-
 begin
 
-DISSECT_MACHINE_PROC : process(CLK)
+DISSECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		dissect_current_state <= IDLE;
 	elsif rising_edge(CLK) then
---		if (RESET = '1') then
---			dissect_current_state <= IDLE;
---		else
-			dissect_current_state <= dissect_next_state;
---		end if;
+		dissect_current_state <= dissect_next_state;
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, data_length)
+DISSECT_MACHINE : process(dissect_current_state, PS_WR_EN_IN, PS_SELECTED_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, data_length)
 begin
 	case dissect_current_state is
 	
@@ -171,17 +153,6 @@ begin
 	end if;
 end process DATA_CTR_PROC;
 
---TC_WR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1') then
---			tc_wr <= '1';
---		else
---			tc_wr <= '0';
---		end if;
---	end if;
---end process TC_WR_PROC;
-
 DATA_LENGTH_PROC: process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -214,25 +185,6 @@ begin
 		end if;
 	end if;
 end process SAVE_VALUES_PROC;
-
-----TODO: change it to one register 64B
---fifo : fifo_2048x8
---  PORT map(
---    Reset   => RESET,
---	RPReset => RESET,
---    WrClock => CLK,
---	RdClock => CLK,
---    Data    => PS_DATA_IN(7 downto 0),
---    WrEn    => fifo_wr_en,
---    RdEn    => fifo_rd_en,
---    Q       => fifo_q,
---    Full    => open,
---    Empty   => open
---  );
-  
-----TODO: change it to synchronous
---fifo_wr_en <= '1' when (dissect_current_state = READ_FRAME and data_ctr > 8) else '0';
---fifo_rd_en <= '1' when (dissect_current_state = LOAD_FRAME and data_ctr > 8) else '0';
 
 CS_PROC : process(CLK)
 begin
@@ -281,7 +233,7 @@ end process CS_PROC;
 checksum(7 downto 0)  <= not (checksum_rrr(7 downto 0) + checksum_lll(15 downto 8));
 checksum(15 downto 8) <= not (checksum_lll(7 downto 0) + checksum_rrr(15 downto 8));
 
-TC_DATA_PROC : process(dissect_current_state, data_ctr, saved_headers, saved_data, data_length)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		tc_data(8) <= '0';
@@ -293,7 +245,7 @@ begin
 				end loop;
 			else  -- data
 				for i in 0 to 7 loop
-					tc_data(i) <= saved_data((data_ctr - 8 - 2) * 8 + i); --fifo_q(i);
+					tc_data(i) <= saved_data((data_ctr - 8 - 2) * 8 + i);
 				end loop;
 			
 				-- mark the last byte
@@ -309,8 +261,6 @@ begin
 		
 	end if;
 end process TC_DATA_PROC;
-
---TC_WR_EN_OUT <= tc_wr;
 
 PS_RESPONSE_SYNC : process(CLK)
 begin

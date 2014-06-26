@@ -181,15 +181,11 @@ begin
 	if RESET = '1' then
 		main_current_state <= BOOTING;
 	elsif rising_edge(CLK) then
---		if (RESET = '1') then
---			main_current_state <= BOOTING;
---		else
-			main_current_state <= main_next_state;
---		end if;
+		main_current_state <= main_next_state;
 	end if;
 end process MAIN_MACHINE_PROC;
 
-MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, saved_true_ip, saved_proposed_ip, wait_ctr, receive_current_state, PS_DATA_IN)
+MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN)
 begin
 
 	case (main_current_state) is
@@ -247,11 +243,7 @@ begin
 		
 		when ESTABLISHED =>
 			state2 <= x"6";
---			if (saved_proposed_ip = saved_true_ip) then
-				main_next_state <= ESTABLISHED;
---			else
---				main_next_state <= BOOTING;
---			end if;
+			main_next_state <= ESTABLISHED;
 	
 	end case;
 
@@ -280,11 +272,7 @@ begin
 	if RESET = '1' then
 		receive_current_state <= IDLE;
 	elsif rising_edge(CLK) then
-		--if (main_current_state = BOOTING) then
-		--	receive_current_state <= IDLE;
-		--else
-			receive_current_state <= receive_next_state;
-		--end if;
+		receive_current_state <= receive_next_state;
 	end if;
 end process RECEIVE_MACHINE_PROC;
 
@@ -296,7 +284,7 @@ begin
 			state3 <= x"1";
 			if (PS_ACTIVATE_IN = '1' and PS_WR_EN_IN = '1') then
 				if (main_current_state = WAITING_FOR_OFFER or main_current_state = WAITING_FOR_ACK) then  -- ready to receive dhcp frame
-					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) then --or (PS_DEST_MAC_ADDRESS_IN = x"ffffffffffff") then  -- check if i'm the addressee (discards broadcasts also)
+					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) then -- check if i'm the addressee (discards broadcasts also)
 						receive_next_state <= SAVE_VALUES;
 					else
 						receive_next_state <= DISCARD;  -- discard if the frame is not for me
@@ -585,24 +573,12 @@ begin
 		if (construct_current_state = IDLE) then
 			load_ctr <= 0;
 		elsif (TC_RD_EN_IN = '1') and (PS_SELECTED_IN = '1') then
---		elsif (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
 			load_ctr <= load_ctr + 1;
 		else
 			load_ctr <= load_ctr;
 		end if;
 	end if;
 end process LOAD_CTR_PROC;
-
---TC_WR_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (construct_current_state /= IDLE and construct_current_state /= CLEANUP and PS_SELECTED_IN = '1') then
---			TC_WR_EN_OUT <= '1';
---		else
---			TC_WR_EN_OUT <= '0';
---		end if;
---	end if;
---end process TC_WR_PROC;
 
 TC_DATA_PROC : process(CLK)
 begin

@@ -423,7 +423,7 @@ begin
 			else
 				redirect_next_state <= IDLE;
 			end if;
-		-- gk 16.11.11
+		
 		when CHECK_TYPE =>
 			if (link_current_state = ACTIVE) then
 				redirect_next_state <= CHECK_BUSY;
@@ -433,11 +433,10 @@ begin
 				redirect_next_state <= DROP;
 			end if;			
 			
-		-- gk 07.11.11
 		when DROP =>
 			redirect_state <= x"7";
 			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
-				redirect_next_state <= WAIT_ONE; --FINISH;
+				redirect_next_state <= WAIT_ONE;
 			else
 				redirect_next_state <= DROP;
 			end if;
@@ -453,7 +452,7 @@ begin
 		when LOAD =>
 			redirect_state <= x"2";
 			if (loaded_bytes_ctr = RC_FRAME_SIZE_IN - x"1") then
-				redirect_next_state <= WAIT_ONE; --FINISH;
+				redirect_next_state <= WAIT_ONE;
 			else
 				redirect_next_state <= LOAD;
 			end if;
@@ -537,14 +536,10 @@ end process FIRST_BYTE_PROC;
 FLOW_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
-			flow_current_state <= IDLE;
-  elsif rising_edge(CLK) then
---    if (RESET = '1') then
---      flow_current_state <= IDLE;
---    else
-      flow_current_state <= flow_next_state;
---    end if;
-  end if;
+		flow_current_state <= IDLE;
+	elsif rising_edge(CLK) then
+		flow_current_state <= flow_next_state;
+	end if;
 end process FLOW_MACHINE_PROC;
 
 FLOW_MACHINE : process(flow_current_state, TC_TRANSMIT_DONE_IN, ps_response_ready, tc_data)
@@ -594,11 +589,6 @@ begin
 		end if;
 	end if;
 end process;
---TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = TRANSMIT_CTRL) else '0';
---TC_TRANSMIT_CTRL_OUT <= '1' when (flow_current_state = IDLE and ps_response_ready = '1') else '0';
-
---mc_busy <= '0' when flow_current_state = IDLE else '1';
---mc_busy <= '1' when flow_current_state = TRANSMIT_CTRL or flow_current_state = WAIT_FOR_FC else '0';
 
 --***********************
 --	LINK STATE CONTROL
@@ -608,14 +598,6 @@ begin
 	if MC_RESET_LINK_IN = '1' then
 		link_current_state <= INACTIVE;
 	elsif rising_edge(CLK) then
---		--if (RESET = '1') then
---		if (RESET_FOR_DHCP = '1') then
---			if (g_SIMULATE = 0) then
---				link_current_state <= INACTIVE;
---			else
---				link_current_state <= FINALIZE; --ACTIVE; --GET_ADDRESS; --ACTIVE;
---			end if;
---		else
 		if RX_PATH_ENABLE = 1 and DO_SIMULATION = 0 then
 			link_current_state <= link_next_state;
 		elsif DO_SIMULATION = 1 then
@@ -623,7 +605,6 @@ begin
 		else
 			link_current_state <= ACTIVE;
 		end if;
---		end if;
 	end if;
 end process;
 
