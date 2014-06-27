@@ -275,7 +275,7 @@ port map(
 	PC_TRIG_NR_IN			=> pc_trig_nr,
 	PC_TRIGGER_TYPE_IN      => pc_trig_type_shift,
 	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN,
-	PC_INSERT_TTYPE_IN      => '1', --CFG_INSERT_TTYPE_IN,
+	PC_INSERT_TTYPE_IN      => CFG_INSERT_TTYPE_IN,
 	TC_RD_EN_IN				=> tc_rd_en,
 	TC_DATA_OUT				=> tc_data,
 	TC_EVENT_SIZE_OUT		=> tc_size,
