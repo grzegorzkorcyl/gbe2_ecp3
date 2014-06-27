@@ -139,7 +139,7 @@ signal tc_rd_en					: std_logic;
 signal tc_data					: std_logic_vector(8 downto 0);
 signal tc_size					: std_logic_vector(15 downto 0);
 signal tc_sod					: std_logic;
-signal pc_trig_type             : std_logic_vector(3 downto 0);
+signal pc_trig_type, pc_trig_type_shift : std_logic_vector(3 downto 0);
 
 type dissect_states is (IDLE, WAIT_FOR_LOAD, LOAD, CLEANUP);
 signal dissect_current_state, dissect_next_state : dissect_states;
@@ -273,7 +273,7 @@ port map(
 	PC_DECODING_IN			=> CFG_SUBEVENT_DEC_IN,
 	PC_EVENT_ID_IN			=> CFG_SUBEVENT_ID_IN,
 	PC_TRIG_NR_IN			=> pc_trig_nr,
-	PC_TRIGGER_TYPE_IN      => pc_trig_type,
+	PC_TRIGGER_TYPE_IN      => pc_trig_type_shift,
 	PC_QUEUE_DEC_IN			=> CFG_QUEUE_DEC_IN,
 	PC_INSERT_TTYPE_IN      => '1', --CFG_INSERT_TTYPE_IN,
 	TC_RD_EN_IN				=> tc_rd_en,
@@ -368,10 +368,12 @@ begin
 			ic_dest_mac_shift <= ic_dest_mac;
 			ic_dest_ip_shift <= ic_dest_ip;
 			ic_dest_udp_shift <= ic_dest_udp;
+			pc_trig_type_shift <= pc_trig_type;
 		else
 			ic_dest_mac_shift <= ic_dest_mac_shift;
 			ic_dest_ip_shift <= ic_dest_ip_shift;
 			ic_dest_udp_shift <= ic_dest_udp_shift;
+			pc_trig_type_shift <= pc_trig_type_shift;
 		end if; 		
 	end if;
 end process;
