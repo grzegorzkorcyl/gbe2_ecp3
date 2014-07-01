@@ -464,7 +464,8 @@ begin
 --			else
 --				trigger_type <= x"1";
 --			end if;
-			trigger_type <= cts_number(3 downto 0);
+			--trigger_type <= cts_number(3 downto 0);
+			trigger_type <= x"1";
 		end if;
 	end process;
 	
