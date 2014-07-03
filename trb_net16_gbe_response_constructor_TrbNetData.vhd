@@ -225,7 +225,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 	begin
 		if rising_edge(CLK) then
 			if (sim_check_current = SAVE_HDR) then
-				hdr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data;
+				hdr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data(7 downto 0);
 			else
 				hdr <= hdr;
 			end if;
