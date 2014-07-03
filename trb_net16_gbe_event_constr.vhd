@@ -613,28 +613,59 @@ end process ACTUAL_Q_SIZE_PROC;
 
 TC_EVENT_SIZE_OUT <= actual_q_size;  -- queue size without termination
 
+--TERMINATION_PROC : process(CLK)
+--begin
+--	if rising_edge(CLK) then
+--		if (load_current_state = IDLE) then
+--			termination <= (others => '0');
+--		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
+--			termination(255 downto 8) <= termination(247 downto 0);
+--			
+--			for I in 0 to 7 loop
+--				case (load_current_state) is
+--					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
+--					when LOAD_SUB  => termination(I) <= shf_q(I);
+--					when LOAD_DATA => termination(I) <= df_q(I);
+--					when others    => termination(I) <= '0';
+--				end case;
+--			end loop;
+--			
+--		else
+--			termination <= termination;
+--		end if;
+--	end if;
+--end process TERMINATION_PROC;
+
 TERMINATION_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		if (load_current_state = IDLE) then
-			termination <= (others => '0');
+			termination(255 downto 8) <= (others => '0');
 		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
-			termination(255 downto 8) <= termination(247 downto 0);
-			
-			for I in 0 to 7 loop
+			termination(255 downto 8) <= termination(247 downto 0);			
+		else
+			termination(255 downto 8) <= termination(255 downto 8);
+		end if;
+	end if;
+end process TERMINATION_PROC;
+
+term_bits_gen : for I in 0 to 7 generate
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
 				case (load_current_state) is
 					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
 					when LOAD_SUB  => termination(I) <= shf_q(I);
 					when LOAD_DATA => termination(I) <= df_q(I);
 					when others    => termination(I) <= '0';
 				end case;
-			end loop;
-			
-		else
-			termination <= termination;
+			else
+				termination(I) <= termination(I);
+			end if;
 		end if;
-	end if;
-end process TERMINATION_PROC;
+	end process;
+end generate term_bits_gen;
 
 TERM_CTR_PROC : process(CLK)
 begin

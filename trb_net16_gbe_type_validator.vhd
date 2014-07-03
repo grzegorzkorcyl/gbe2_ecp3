@@ -54,7 +54,7 @@ signal zeros                   : std_logic_vector(c_MAX_FRAME_TYPES - 1 downto 0
 begin
 
 -- DO NOT TOUCH
-IP_RESULTS_GEN : for i in 0 to 1 generate --c_MAX_IP_PROTOCOLS - 1 generate
+IP_RESULTS_GEN : for i in 0 to c_MAX_IP_PROTOCOLS - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -67,7 +67,7 @@ begin
 end process;
 end generate IP_RESULTS_GEN;
 
-UDP_RESULTS_GEN : for i in 0 to 3 generate -- c_MAX_UDP_PROTOCOLS - 1 generate
+UDP_RESULTS_GEN : for i in 0 to c_MAX_UDP_PROTOCOLS - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -81,7 +81,7 @@ end process;
 end generate UDP_RESULTS_GEN;
 
 
-RESULT_GEN : for i in 0 to 1 generate --c_MAX_FRAME_TYPES - 1 generate
+RESULT_GEN : for i in 0 to c_MAX_FRAME_TYPES - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
