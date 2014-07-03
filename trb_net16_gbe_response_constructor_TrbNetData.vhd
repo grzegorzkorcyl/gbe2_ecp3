@@ -220,7 +220,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				
 			when CLEANUP =>
 				
-				assert (hdr /= tlr) report "--------- >>>> Header Trailer mismatch" severity failure;
+				assert (hdr = tlr) report "--------- >>>> Header Trailer mismatch" severity failure;
 				
 				sim_check_next <= IDLE;
 				
