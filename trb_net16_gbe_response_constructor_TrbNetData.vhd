@@ -224,10 +224,21 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 	process(CLK)
 	begin
 		if rising_edge(CLK) then
-			if (sim_check_current = SAVE_HDR) then
+			if (sim_check_current = SAVE_HDR and loaded_bytes > x"0001") then
 				hdr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data(7 downto 0);
 			else
 				hdr <= hdr;
+			end if;
+		end if;
+	end process;
+	
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (sim_check_current = SAVE_TLR) then
+				tlr((to_integer(unsigned(tc_size - loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(tc_size - loaded_bytes)) * 8)) <= tc_data(7 downto 0);
+			else
+				tlr <= tlr;
 			end if;
 		end if;
 	end process;
