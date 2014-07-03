@@ -158,7 +158,91 @@ signal tc_sod_flag : std_logic;
 signal reset_all_hist : std_logic_vector(31 downto 0);
 signal ipu_monitor : std_logic_vector(223 downto 0);
 
+--  JUST FOR DEBUGING PURPOSE
+type sim_check_states is (IDLE, SAVE_HDR, GO_OVER_DATA, SAVE_TLR, CLEANUP);
+signal sim_check_current, sim_check_next : sim_check_states;
+
+signal hdr, tlr : std_logic_vector(255 downto 0);
+
+
+
 begin
+	
+	
+sim_check_gen : if DO_SIMULATION = 1 generate
+
+	process(RESET, CLK)
+	begin
+		if RESET = '1' then
+			sim_check_current <= IDLE;
+		elsif rising_edge(CLK) then
+			sim_check_current <= sim_check_next;
+		end if;
+	end process;	
+	
+	process(sim_check_current, tc_sod, loaded_bytes, tc_size)
+	begin
+		case (sim_check_current) is 
+			
+			when IDLE =>
+				if (tc_sod = '1') then
+					sim_check_next <= SAVE_HDR;
+				else
+					sim_check_next <= IDLE;
+				end if;
+				
+			when SAVE_HDR =>
+				if (loaded_bytes = x"001f") then
+					sim_check_next <= GO_OVER_DATA;
+				else
+					sim_check_next <= SAVE_HDR;
+				end if;
+				
+			when GO_OVER_DATA =>
+				if (loaded_bytes + x"001f" = tc_size) then
+					sim_check_next <= SAVE_TLR;
+				else
+					sim_check_next <= GO_OVER_DATA;
+				end if;					
+				
+			when SAVE_TLR =>
+				if (loaded_bytes = tc_size) then
+					sim_check_next <= CLEANUP;
+				else
+					sim_check_next <= SAVE_TLR;
+				end if;
+				
+			when CLEANUP =>
+				sim_check_next <= IDLE;
+				
+		end case;
+	end process;
+	
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (sim_check_current = SAVE_HDR) then
+				hdr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data;
+			else
+				hdr <= hdr;
+			end if;
+		end if;
+	end process;
+	
+--	process(CLK)
+--	begin
+--		if rising_edge(CLK) then
+--			if (sim_check_current = SAVE_TLR) then
+--				tlr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data;
+--			else
+--				tlr <= tlr;
+--			end if;
+--		end if;
+--	end process;
+
+end generate sim_check_gen;	
+	
+	
 
 
 THE_IP_CONFIGURATOR: ip_configurator
@@ -488,7 +572,7 @@ MONITOR_SELECT_REC_OUT        <= (others => '0');
 DEBUG_OUT(31 downto 0)  <= ipu_dbg(31 downto 0);
 DEBUG_OUT(63 downto 32) <= constr_dbg(31 downto 0);
 
-	
+
 
 end trb_net16_gbe_response_constructor_TrbNetData;
 
