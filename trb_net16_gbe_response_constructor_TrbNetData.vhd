@@ -159,7 +159,7 @@ signal reset_all_hist : std_logic_vector(31 downto 0);
 signal ipu_monitor : std_logic_vector(223 downto 0);
 
 --  JUST FOR DEBUGING PURPOSE
-type sim_check_states is (IDLE, SAVE_HDR, GO_OVER_DATA, SAVE_TLR, GET_ONE_MORE, CLEANUP);
+type sim_check_states is (IDLE, SAVE_HDR, GO_OVER_DATA, SAVE_TLR, GET_ONE_MORE, GET_SECOND_MORE, CLEANUP);
 signal sim_check_current, sim_check_next : sim_check_states;
 
 signal hdr, tlr : std_logic_vector(255 downto 0);
@@ -180,7 +180,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 		end if;
 	end process;	
 	
-	process(sim_check_current, tc_sod, loaded_bytes, tc_size, hdr, tlr)
+	process(sim_check_current, tc_sod, loaded_bytes, tc_size, hdr, tlr, event_bytes)
 	begin
 		case (sim_check_current) is 
 			
@@ -213,6 +213,9 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;
 				
 			when GET_ONE_MORE =>
+				sim_check_next <= GET_SECOND_MORE;
+				
+			when GET_SECOND_MORE =>
 				sim_check_next <= CLEANUP;
 				
 			when CLEANUP =>
@@ -242,6 +245,8 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				tlr((to_integer(unsigned(loaded_bytes - tc_size - 2) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 2)) * 8)) <= tc_data(7 downto 0);
 			elsif (sim_check_current = GET_ONE_MORE) then
 				tlr((to_integer(unsigned(loaded_bytes - tc_size - 1) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 1)) * 8)) <= tc_data(7 downto 0);
+			elsif (sim_check_current = GET_ONE_MORE) then
+				tlr((to_integer(unsigned(loaded_bytes - tc_size) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size)) * 8)) <= tc_data(7 downto 0);
 			else
 				tlr <= tlr;
 			end if;
