@@ -214,7 +214,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				
 			when CLEANUP =>
 				
-				assert (hdr /= tlr) report "Header Trailer mismatch" severity error;
+				assert (hdr /= tlr) report "--------- >>>> Header Trailer mismatch" severity failure;
 				
 				sim_check_next <= IDLE;
 				
@@ -236,7 +236,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 	begin
 		if rising_edge(CLK) then
 			if (sim_check_current = SAVE_TLR) then
-				tlr((to_integer(unsigned(loaded_bytes - tc_size - 1) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 1)) * 8)) <= tc_data(7 downto 0);
+				tlr((to_integer(unsigned(loaded_bytes - tc_size - 2) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 2)) * 8)) <= tc_data(7 downto 0);
 			else
 				tlr <= tlr;
 			end if;
