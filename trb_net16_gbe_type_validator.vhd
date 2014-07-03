@@ -54,8 +54,7 @@ signal zeros                   : std_logic_vector(c_MAX_FRAME_TYPES - 1 downto 0
 begin
 
 -- DO NOT TOUCH
-IP_RESULTS_GEN : for i in 0 to c_MAX_IP_PROTOCOLS - 1 generate
-
+IP_RESULTS_GEN : for i in 0 to 1 generate --c_MAX_IP_PROTOCOLS - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -66,14 +65,9 @@ begin
 		end if;
 	end if;
 end process;
---	ip_result(i) <= '1' when (
---					IP_PROTOCOLS(i) = IP_PROTOCOLS_IN and
---					ALLOWED_IP_PROTOCOLS_IN(i) = '1'
---				) else '0';
-
 end generate IP_RESULTS_GEN;
 
-UDP_RESULTS_GEN : for i in 0 to c_MAX_UDP_PROTOCOLS - 1 generate
+UDP_RESULTS_GEN : for i in 0 to 3 generate -- c_MAX_UDP_PROTOCOLS - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -84,15 +78,10 @@ begin
 		end if;
 	end if;
 end process;
---	udp_result(i) <= '1' when (
---					UDP_PROTOCOLS(i) = UDP_PROTOCOL_IN and
---					ALLOWED_UDP_PROTOCOLS_IN(i) = '1'
---				) else '0';
-
 end generate UDP_RESULTS_GEN;
 
 
-RESULT_GEN : for i in 0 to c_MAX_FRAME_TYPES - 1 generate
+RESULT_GEN : for i in 0 to 1 generate --c_MAX_FRAME_TYPES - 1 generate
 process(CLK)
 begin
 	if rising_edge(CLK) then
@@ -103,11 +92,6 @@ begin
 		end if;
 	end if;
 end process;
---	result(i) <= '1' when (
---				FRAME_TYPES(i) = FRAME_TYPE_IN and 
---				ALLOWED_TYPES_IN(i) = '1'
---			) else '0';
-
 end generate RESULT_GEN;
 
 PARTIALLY_VALID_PROC : process(CLK)
@@ -124,18 +108,16 @@ begin
 				partially_valid <= '0';
 			end if;
 		elsif (result /= zeros) then-- other frame
-			partially_valid <= '1'; --or_all(result);
+			partially_valid <= '1';
 		else
 			partially_valid <= '0';			
 		end if;
 	end if;
 end process PARTIALLY_VALID_PROC;
 
-VALID_OUT_PROC : process(CLK) --partially_valid, SAVED_VLAN_ID_IN, VLAN_ID_IN)
+VALID_OUT_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
-	--	if (RESET = '1') then
-	--		VALID_OUT <= '0';
 		if (partially_valid = '1') then
 			if (SAVED_VLAN_ID_IN = x"0000") then
 				VALID_OUT <= '1';
@@ -151,53 +133,6 @@ begin
 		end if;
 	end if;
 end process VALID_OUT_PROC;
-
-	--if rising_edge(CLK) then
-	--	if (SAVED_VLAN_ID_IN = x"0000") then  -- frame without vlan tag
-	--		if (FRAME_TYPE_IN = x"0800") then  -- in case of ip frame
-	--			if (IP_PROTOCOLS_IN = x"11") then -- in case of udp inside ip
-	--				VALID_OUT <= or_all(udp_result);
-	--			elsif (IP_PROTOCOLS_IN = x"01") then  -- in case of ICMP
-	--				VALID_OUT <= '1';
-	--			else  -- do not accept other protocols than udp inside ip
-	--				VALID_OUT <= '0';
-	--			end if;
-	--		else  -- in case of other frame_type
-	--			VALID_OUT <= or_all(result);
-	--		end if;
-	--		
-	--	-- cases for tagged frames
-	--	elsif (VLAN_ID_IN = x"0000_0000") then -- no vlan id configured
-	--		VALID_OUT <= '0';
-	--	elsif (SAVED_VLAN_ID_IN = VLAN_ID_IN(15 downto 0)) then  -- match to first vlan id
-	--		if (FRAME_TYPE_IN = x"0800") then  -- in case of ip frame
-	--			if (IP_PROTOCOLS_IN = x"11") then -- in case of udp inside ip
-	--				VALID_OUT <= or_all(udp_result);
-	--			elsif (IP_PROTOCOLS_IN = x"01") then  -- in case of ICMP
-	--				VALID_OUT <= '1';
-	--			else  -- do not accept other protocols than udp inside ip
-	--				VALID_OUT <= '0';
-	--			end if;
-	--		else  -- in case of other frame_type
-	--			VALID_OUT <= or_all(result);
-	--		end if;
-	--	elsif (SAVED_VLAN_ID_IN = VLAN_ID_IN(31 downto 16)) then  -- match to second vlan id
-	--		if (FRAME_TYPE_IN = x"0800") then  -- in case of ip frame
-	--			if (IP_PROTOCOLS_IN = x"11") then -- in case of udp inside ip
-	--				VALID_OUT <= or_all(udp_result);
-	--			elsif (IP_PROTOCOLS_IN = x"01") then  -- in case of ICMP
-	--				VALID_OUT <= '1';
-	--			else  -- do not accept other protocols than udp inside ip
-	--				VALID_OUT <= '0';
-	--			end if;
-	--		else  -- in case of other frame_type
-	--			VALID_OUT <= or_all(result);
-	--		end if;
-	--	else
-	--		VALID_OUT <= '0';
-	--	end if;
-	--end if;
---end process VALID_OUT_PROC;
 
 end trb_net16_gbe_type_validator;
 
