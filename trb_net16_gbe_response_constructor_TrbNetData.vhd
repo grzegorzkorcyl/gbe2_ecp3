@@ -192,7 +192,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;
 				
 			when SAVE_HDR =>
-				if (loaded_bytes = x"001f") then
+				if (loaded_bytes = x"001f" + x"0002") then
 					sim_check_next <= GO_OVER_DATA;
 				else
 					sim_check_next <= SAVE_HDR;
@@ -206,7 +206,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;					
 				
 			when SAVE_TLR =>
-				if (loaded_bytes = event_bytes) then
+				if (loaded_bytes = event_bytes + x"0001") then
 					sim_check_next <= CLEANUP;
 				else
 					sim_check_next <= SAVE_TLR;
