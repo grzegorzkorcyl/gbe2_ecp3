@@ -199,7 +199,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;
 				
 			when GO_OVER_DATA =>
-				if (loaded_bytes = tc_size) then
+				if (loaded_bytes = tc_size + x"0001") then
 					sim_check_next <= SAVE_TLR;
 				else
 					sim_check_next <= GO_OVER_DATA;
@@ -236,24 +236,13 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 	begin
 		if rising_edge(CLK) then
 			if (sim_check_current = SAVE_TLR) then
-				tlr((to_integer(unsigned(loaded_bytes - tc_size - 1) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 1)) * 8)) <= tc_data(7 downto 0);
+				tlr((to_integer(unsigned(loaded_bytes - tc_size - 2) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes - tc_size - 2)) * 8)) <= tc_data(7 downto 0);
 			else
 				tlr <= tlr;
 			end if;
 		end if;
 	end process;
 	
-	
---	process(CLK)
---	begin
---		if rising_edge(CLK) then
---			if (sim_check_current = SAVE_TLR) then
---				tlr((to_integer(unsigned(loaded_bytes) * 8)) + 7 downto (to_integer(unsigned(loaded_bytes)) * 8)) <= tc_data;
---			else
---				tlr <= tlr;
---			end if;
---		end if;
---	end process;
 
 end generate sim_check_gen;	
 	
