@@ -180,7 +180,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 		end if;
 	end process;	
 	
-	process(sim_check_current, tc_sod, loaded_bytes, tc_size)
+	process(sim_check_current, tc_sod, loaded_bytes, tc_size, hdr, tlr)
 	begin
 		case (sim_check_current) is 
 			
@@ -213,6 +213,9 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;
 				
 			when CLEANUP =>
+				
+				assert (hdr /= tlr) report "Header Trailer mismatch" severity error;
+				
 				sim_check_next <= IDLE;
 				
 		end case;
@@ -228,6 +231,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 			end if;
 		end if;
 	end process;
+	
 	
 --	process(CLK)
 --	begin
