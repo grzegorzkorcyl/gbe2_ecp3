@@ -206,7 +206,7 @@ sim_check_gen : if DO_SIMULATION = 1 generate
 				end if;					
 				
 			when SAVE_TLR =>
-				if (loaded_bytes = event_bytes + x"0001") then
+				if (loaded_bytes = event_bytes) then
 					sim_check_next <= CLEANUP;
 				else
 					sim_check_next <= SAVE_TLR;
