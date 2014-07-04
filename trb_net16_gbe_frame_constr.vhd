@@ -243,21 +243,17 @@ begin
 end process ipCsProc;
 
 
-constructMachineProc: process( CLK )
+constructMachineProc: process(RESET, CLK )
 begin
 	if RESET = '1' then
 		constructCurrentState <= IDLE;
 	elsif( rising_edge(CLK) ) then
---		if( RESET = '1' ) then
---			constructCurrentState <= IDLE;
---		else
-			constructCurrentState <= constructNextState;
---		end if;
+		constructCurrentState <= constructNextState;
 	end if;
 end process constructMachineProc;
 
 --find next state of construct machine
-constructMachine: process( constructCurrentState, delay_ctr, FRAME_DELAY_IN, START_OF_DATA_IN, END_OF_DATA_IN, headers_int_counter, put_udp_headers, CUR_MAX, FRAME_TYPE_IN, DEST_IP_ADDRESS_IN, DEST_UDP_PORT_IN)
+constructMachine: process( constructCurrentState, delay_ctr, FRAME_DELAY_IN, START_OF_DATA_IN, END_OF_DATA_IN, headers_int_counter, put_udp_headers, CUR_MAX, FRAME_TYPE_IN, DEST_UDP_PORT_IN)
 begin
 	constructNextState <= constructCurrentState;
 	if( headers_int_counter = cur_max ) then    --can be checked everytime - if not in use, counter and cur_max are 0
@@ -403,7 +399,7 @@ begin
 	end if;
 end process putUdpHeadersProc;
 
-fpfWrEnProc : process(constructCurrentState, WR_EN_IN, RESET, LINK_OK_IN)
+fpfWrEnProc : process(constructCurrentState, WR_EN_IN, LINK_OK_IN)
 begin
 	if (LINK_OK_IN = '0') then  -- gk 01.10.10
 		fpf_wr_en <= '0';
