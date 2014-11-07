@@ -52,6 +52,8 @@ signal partially_valid         : std_logic;  -- only protocols, vlan to be check
 signal zeros                   : std_logic_vector(c_MAX_FRAME_TYPES - 1 downto 0);
 
 begin
+	
+	zeros <= (others => '0');
 
 -- DO NOT TOUCH
 IP_RESULTS_GEN : for i in 0 to c_MAX_IP_PROTOCOLS - 1 generate
