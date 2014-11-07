@@ -517,7 +517,7 @@ begin
 	MAC_RX_EN_IN <='0';
 	MAC_RX_EOF_IN <= '0';
 	
-	wait for 10 us;
+	wait for 6 us;
 	
 		wait until rising_edge(RX_MAC_CLK);
 	MAC_RX_EN_IN <= '1';
@@ -661,7 +661,7 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"01";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"02";
+	MAC_RXD_IN		<= x"05";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
