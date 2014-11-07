@@ -108,7 +108,7 @@ begin
 	end generate variable_size_gen;
 	
 	fixed_delay_gen : if FIXED_DELAY_MODE = 1 generate
-		timeout_stop <= FIXED_DELAY when DO_SIMULATION = 0 else 100;
+		timeout_stop <= FIXED_DELAY; -- when DO_SIMULATION = 0 else 100;
 	end generate fixed_delay_gen;
 	
 	variable_delay_gen : if FIXED_DELAY_MODE = 0 generate
