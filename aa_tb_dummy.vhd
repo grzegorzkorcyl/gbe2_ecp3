@@ -674,7 +674,7 @@ begin
 	
 	wait for 5 us;
 	
-		wait until rising_edge(RX_MAC_CLK);
+	wait until rising_edge(RX_MAC_CLK);
 	MAC_RX_EN_IN <= '1';
 -- dest mac
 	MAC_RXD_IN		<= x"02";
@@ -726,7 +726,7 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"ee";
+	MAC_RXD_IN		<= x"01";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"cc";
 	wait until rising_edge(RX_MAC_CLK);
