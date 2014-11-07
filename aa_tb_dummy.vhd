@@ -232,7 +232,7 @@ generic map(
 		FIXED_SIZE_MODE => 1,
 		FIXED_SIZE => 14000, --8832, --5000, --10000, --10, --335
 		FIXED_DELAY_MODE => 1,
-		FIXED_DELAY => 10000 --4096
+		FIXED_DELAY => 800 --4096
 )
 port map(
 	CLK							=> clk,
@@ -804,8 +804,7 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RX_EN_IN <='0';
 	MAC_RX_EOF_IN <= '0';
-	
-	
+		
 	wait for 100 us;
 	wait;
 
