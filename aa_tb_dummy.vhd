@@ -354,6 +354,10 @@ end process;
 testbench_proc : process
 begin
 	reset <= '1'; 
+	
+	MAC_RX_EN_IN <= '0';
+	MAC_RXD_IN <= x"00";
+	MAC_RX_EOF_IN <= '0';
 
 	wait for 100 ns;
 	reset <= '0';
