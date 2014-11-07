@@ -139,7 +139,7 @@ begin
 end process NEW_FRAME_PROC;
 
 
-FILTER_MACHINE_PROC : process(RX_MAC_CLK)
+FILTER_MACHINE_PROC : process(RX_MAC_CLK, RESET)
 begin
 	if RESET = '1' then
 		filter_current_state <= IDLE;
