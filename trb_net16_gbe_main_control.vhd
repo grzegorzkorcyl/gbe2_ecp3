@@ -601,7 +601,7 @@ begin
 		if RX_PATH_ENABLE = 1 and DO_SIMULATION = 0 then
 			link_current_state <= link_next_state;
 		elsif DO_SIMULATION = 1 then
-			link_current_state <= INACTIVE;
+			link_current_state <= link_next_state; --INACTIVE;
 		else
 			link_current_state <= INACTIVE;
 		end if;
