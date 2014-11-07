@@ -84,7 +84,7 @@ signal sizes_fifo_empty                     : std_logic;
 
 signal remove_ctr                           : std_logic_vector(7 downto 0);
 signal new_frame                            : std_logic;
-signal new_frame_lock                       : std_logic;
+signal new_frame_lock                       : std_logic := '0';
 signal saved_frame_type                     : std_logic_vector(15 downto 0);
 signal saved_vid                            : std_logic_vector(15 downto 0);
 signal saved_src_mac                        : std_logic_vector(47 downto 0);
