@@ -143,7 +143,7 @@ begin
 			insert_ttype      <= '0';
 			additional_hdr    <= '1';	
 			GBE_SOFT_RESET_OUT <= '0';
-			max_sub           <= x"e998";  --  59800  
+			max_sub           <= x"2000"; --x"e998";  --  59800
 			max_queue         <= x"ea60";  -- 60000   
 			max_subs_in_queue <= x"00c8";  -- 200     
 			max_single_sub    <= x"7d00";  -- 32000   
