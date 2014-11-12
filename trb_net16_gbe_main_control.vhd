@@ -596,10 +596,10 @@ end process;
 LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
 begin
 	if MC_RESET_LINK_IN = '1' then
-		link_current_state <= ACTIVE; --INACTIVE;
+		link_current_state <= INACTIVE;
 	elsif rising_edge(CLK) then
 		if RX_PATH_ENABLE = 1 and DO_SIMULATION = 0 then
-			link_current_state <= ACTIVE; --link_next_state;
+			link_current_state <= link_next_state;
 		elsif DO_SIMULATION = 1 then
 			link_current_state <= INACTIVE;
 		else
@@ -647,7 +647,7 @@ begin
 			if (PCS_AN_COMPLETE_IN = '0') then
 				link_next_state <= INACTIVE;
 			else
-				link_next_state <= WAIT_FOR_BOOT; --ACTIVE;
+				link_next_state <= ACTIVE;
 			end if;
 			
 		when WAIT_FOR_BOOT =>
