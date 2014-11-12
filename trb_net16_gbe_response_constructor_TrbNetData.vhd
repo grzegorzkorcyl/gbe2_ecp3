@@ -459,8 +459,8 @@ TC_FRAME_TYPE_OUT     <= x"0008";
 --TC_DEST_IP_OUT        <= ic_dest_ip_shift; --x"0300a8c0"; --ic_dest_ip;
 --TC_DEST_UDP_OUT       <= ic_dest_udp_shift; --x"c35c"; --ic_dest_udp;
 
-TC_DEST_MAC_OUT       <= x"c4e870211b00"; --ic_dest_mac;
-TC_DEST_IP_OUT        <= x"0300a8c0"; --ic_dest_ip;
+TC_DEST_MAC_OUT       <= x"87883c290c00"; --ic_dest_mac;
+TC_DEST_IP_OUT        <= x"0188a8c0"; --ic_dest_ip;
 TC_DEST_UDP_OUT       <= x"c35b"; --ic_dest_udp;
 
 process(CLK)
