@@ -126,7 +126,7 @@ generic map(
 	
 		FIXED_SIZE_MODE => 0,
 		INCREMENTAL_MODE => 1,
-		FIXED_SIZE => 335, --20000, --8832, --5000, --10000, --10, --335
+		FIXED_SIZE => 325, --335, --20000, --8832, --5000, --10000, --10, --335
 		FIXED_DELAY_MODE => 1,
 		FIXED_DELAY => 800 --4096
 )
