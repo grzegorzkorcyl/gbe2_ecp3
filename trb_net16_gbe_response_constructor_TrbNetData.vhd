@@ -482,15 +482,18 @@ end process;
 	
 
 
-rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
-	TC_SRC_MAC_OUT        <= g_MY_MAC;
-	TC_SRC_IP_OUT         <= g_MY_IP;
-end generate rx_enable_gen;
+--rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
+--	TC_SRC_MAC_OUT        <= g_MY_MAC;
+--	TC_SRC_IP_OUT         <= g_MY_IP;
+--end generate rx_enable_gen;
+--
+--rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
+--	TC_SRC_MAC_OUT        <= g_MY_MAC;
+--	TC_SRC_IP_OUT         <= ic_src_ip;
+--end generate rx_disable_gen;
 
-rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
-	TC_SRC_MAC_OUT        <= g_MY_MAC;
-	TC_SRC_IP_OUT         <= ic_src_ip;
-end generate rx_disable_gen;
+TC_SRC_MAC_OUT <= x"99883c290c00";
+TC_SRC_IP_OUT <= x"0288a8c0";
 
 TC_SRC_UDP_OUT        <= ic_src_udp;
 TC_IP_PROTOCOL_OUT    <= x"11";
