@@ -22,6 +22,7 @@ generic(
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1;
 	
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
 		FIXED_DELAY : integer range 0 to 65535 := 4096
@@ -761,6 +762,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	generic map(
 		DO_SIMULATION => DO_SIMULATION,
 		FIXED_SIZE_MODE => FIXED_SIZE_MODE,
+		INCREMENTAL_MODE => INCREMENTAL_MODE,
 		FIXED_SIZE => FIXED_SIZE,
 		FIXED_DELAY_MODE => FIXED_DELAY_MODE,
 		FIXED_DELAY => FIXED_DELAY

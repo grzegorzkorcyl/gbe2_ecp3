@@ -141,6 +141,7 @@ component gbe_ipu_dummy is
 	generic (
 		DO_SIMULATION : integer range 0 to 1 := 0;
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
 		FIXED_DELAY : integer range 0 to 65535 := 4096
@@ -210,6 +211,7 @@ generic(
 	USE_125MHZ_EXTCLK       : integer range 0 to 1 := 1;
 		
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
+		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
 		FIXED_DELAY : integer range 0 to 65535 := 4096

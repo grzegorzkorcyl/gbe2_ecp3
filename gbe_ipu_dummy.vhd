@@ -17,6 +17,7 @@ entity gbe_ipu_dummy is
 		DO_SIMULATION : integer range 0 to 1 := 0;
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
+		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
 		FIXED_DELAY : integer range 0 to 65535 := 4096
 	);
@@ -72,6 +73,7 @@ architecture RTL of gbe_ipu_dummy is
 	signal delay_value : std_logic_vector(15 downto 0);
 	signal d, s : std_logic_vector(31 downto 0);
 	signal trigger_type, bank_select : std_logic_vector(3 downto 0) := x"0";
+	signal constructed_events : std_logic_vector(15 downto 0) := x"0000";
 	
 	
 begin
@@ -83,15 +85,15 @@ begin
 		test_data_len <= std_logic_vector(to_unsigned(FIXED_SIZE, 16));
 	end generate fixed_size_gen;
 	
-	variable_size_gen : if FIXED_SIZE_MODE = 0 generate
+	random_size_gen : if FIXED_SIZE_MODE = 0 and INCREMENTAL_MODE = 0 generate
 		
 		size_rand_inst : random_size
 		port map(Clk  => clk,
 		     Enb  => size_rand_en,
 		     Rst  => rst,
-		     Dout => s);
+		     Dout => s
+		);
 		     
-		--test_data_len <= "000" & s(12 downto 0);
 		test_data_len <= (x"00" & "00" & s(4 downto 0)) + x"0001";
 		     
 		process(clk)
@@ -105,7 +107,18 @@ begin
 			end if;
 		end process;
 		
-	end generate variable_size_gen;
+	end generate random_size_gen;
+	
+	incremental_size_gen : if FIXED_SIZE_MODE = 0 and INCREMENTAL_MODE = 1 generate
+		
+		process(clk)
+		begin
+			if rising_edge(clk) then
+				test_data_len <= std_logic_vector(to_unsigned(FIXED_SIZE, 16)) + constructed_events;
+			end if;
+		end process;
+		
+	end generate incremental_size_gen;
 	
 	fixed_delay_gen : if FIXED_DELAY_MODE = 1 generate
 		timeout_stop <= FIXED_DELAY; -- when DO_SIMULATION = 0 else 100;
@@ -543,6 +556,17 @@ begin
 				cts_read <= '1';
 			else
 				cts_read <= '0';
+			end if;
+		end if;
+	end process;
+	
+	process(CLK)
+	begin
+		if rising_edge(CLK) then
+			if (current_state = CLOSE) then
+				constructed_events <= constructed_events + x"1";
+			else
+				constructed_events <= constructed_events;
 			end if;
 		end if;
 	end process;
