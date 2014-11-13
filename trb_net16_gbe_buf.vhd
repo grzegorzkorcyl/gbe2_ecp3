@@ -25,7 +25,7 @@ generic(
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
-		FIXED_DELAY : integer range 0 to 4294967295 := 4096
+		FIXED_DELAY : integer range 0 to 4294967294 := 4096
 );
 port(
 	CLK							: in	std_logic;
