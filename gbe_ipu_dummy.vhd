@@ -19,7 +19,7 @@ entity gbe_ipu_dummy is
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
-		FIXED_DELAY : integer range 0 to 65535 := 4096
+		FIXED_DELAY : integer range 0 to 4294967295 := 4096
 	);
 	port (
 		clk : in std_logic;
@@ -61,8 +61,8 @@ architecture RTL of gbe_ipu_dummy is
 	, LOOP_OVER_DATA, SEND_ONE_WORD, WAIT_A_SEC_7, LOWER_BUSY, WAIT_A_SEC_8, WAIT_A_SEC_9, PULSE_WITH_READ);
 	signal current_state, next_state : states;
 	
-	signal ctr : integer range 0 to 65535 := 0;
-	signal timeout_stop : integer range 0 to 65535 := 4096;
+	signal ctr : integer range 0 to 4294967295 := 0;
+	signal timeout_stop : integer range 0 to 4294967295 := 4096;
 	signal pause_cts_fee : integer range 0 to 65535 := 8;
 	signal pause_dready : integer range 0 to 65535 := 3;
 	signal pause_wait_1, pause_wait_2, pause_wait_3, pause_wait_4, pause_wait_5, pause_wait_6, send_word_pause, pause_wait_7, pause_wait_8, pause_wait_9 : integer range 0 to 10 := 4;
