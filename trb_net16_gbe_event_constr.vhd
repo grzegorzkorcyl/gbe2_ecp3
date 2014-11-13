@@ -83,6 +83,7 @@ signal load_eod_q : std_logic;
 signal loaded_queue_bytes : std_logic_vector(15 downto 0);
 signal shf_padding : std_logic;
 signal block_shf_after_divide, previous_tc_rd : std_logic;
+signal block_term_after_divide : std_logic;
 
 begin
 	
@@ -512,7 +513,15 @@ begin
 			header_ctr <= 3;
 		elsif (TC_RD_EN_IN = '1') then
 			if (load_current_state = LOAD_Q_HEADERS or load_current_state = LOAD_TERM or load_current_state = LOAD_PADDING) then
-				header_ctr <= header_ctr - 1;
+				if (load_current_state = LOAD_TERM) then
+					if (block_term_after_divide = '1') then
+						header_ctr <= 31;
+					else
+						header_ctr <= header_ctr - 1;
+					end if;
+				else
+					header_ctr <= header_ctr - 1;
+				end if;
 			elsif (load_current_state = LOAD_SUB and block_shf_after_divide = '0') then
 				header_ctr <= header_ctr - 1;
 			else
@@ -584,6 +593,7 @@ begin
 	end if;
 end process;
 block_shf_after_divide <= '1' when previous_tc_rd = '0' and TC_RD_EN_IN = '1' and header_ctr = 15 else '0';
+block_term_after_divide <= '1' when previous_tc_rd = '0' and TC_RD_EN_IN = '1' and header_ctr = 31 else '0'; 
 
 QUEUE_FIFO_RD_PROC : process(CLK)
 begin
@@ -612,29 +622,6 @@ begin
 end process ACTUAL_Q_SIZE_PROC;
 
 TC_EVENT_SIZE_OUT <= actual_q_size;  -- queue size without termination
-
---TERMINATION_PROC : process(CLK)
---begin
---	if rising_edge(CLK) then
---		if (load_current_state = IDLE) then
---			termination <= (others => '0');
---		elsif (TC_RD_EN_IN = '1' and term_ctr /= 33 and term_ctr /= 0) then
---			termination(255 downto 8) <= termination(247 downto 0);
---			
---			for I in 0 to 7 loop
---				case (load_current_state) is
---					when LOAD_Q_HEADERS => termination(I) <= qsf_q(I);
---					when LOAD_SUB  => termination(I) <= shf_q(I);
---					when LOAD_DATA => termination(I) <= df_q(I);
---					when others    => termination(I) <= '0';
---				end case;
---			end loop;
---			
---		else
---			termination <= termination;
---		end if;
---	end if;
---end process TERMINATION_PROC;
 
 TERMINATION_PROC : process(CLK)
 begin
