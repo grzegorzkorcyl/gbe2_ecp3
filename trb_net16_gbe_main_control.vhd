@@ -593,20 +593,35 @@ end process;
 --***********************
 --	LINK STATE CONTROL
 
-LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
-begin
-	if MC_RESET_LINK_IN = '1' then
-		link_current_state <= INACTIVE;
-	elsif rising_edge(CLK) then
-		if RX_PATH_ENABLE = 1 and DO_SIMULATION = 0 then
-			link_current_state <= link_next_state;
-		elsif DO_SIMULATION = 1 then
+lsm_impl_gen : if DO_SIMULATION = 0 generate
+	LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
+	begin
+		if MC_RESET_LINK_IN = '1' then
 			link_current_state <= INACTIVE;
-		else
-			link_current_state <= INACTIVE;
+		elsif rising_edge(CLK) then
+			if RX_PATH_ENABLE = 1 then
+				link_current_state <= link_next_state;
+			else
+				link_current_state <= INACTIVE;
+			end if;
 		end if;
-	end if;
-end process;
+	end process;
+end generate lsm_impl_gen;
+
+lsm_sim_gen : if DO_SIMULATION = 1 generate
+	LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
+	begin
+		if MC_RESET_LINK_IN = '1' then
+			link_current_state <= GET_ADDRESS;
+		elsif rising_edge(CLK) then
+			if RX_PATH_ENABLE = 1 then
+				link_current_state <= link_next_state;
+			else
+				link_current_state <= ACTIVE;
+			end if;
+		end if;
+	end process;
+end generate lsm_sim_gen;
 
 LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr)
 begin
