@@ -25,6 +25,8 @@ generic(
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
+		UP_DOWN_MODE : integer range 0 to 1 := 0;
+		UP_DOWN_LIMIT : integer range 0 to 16777215 := 0;
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215
 );
 port(
@@ -764,6 +766,8 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		FIXED_SIZE_MODE => FIXED_SIZE_MODE,
 		INCREMENTAL_MODE => INCREMENTAL_MODE,
 		FIXED_SIZE => FIXED_SIZE,
+		UP_DOWN_MODE => UP_DOWN_MODE,
+		UP_DOWN_LIMIT => UP_DOWN_LIMIT,
 		FIXED_DELAY_MODE => FIXED_DELAY_MODE,
 		FIXED_DELAY => FIXED_DELAY
 	)

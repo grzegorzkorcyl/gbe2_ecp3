@@ -18,6 +18,8 @@ entity gbe_ipu_dummy is
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
+		UP_DOWN_MODE : integer range 0 to 1 := 0;
+		UP_DOWN_LIMIT : integer range 0 to 16777215 := 0;
 		FIXED_DELAY_MODE : integer range 0 to 1 := 1;
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215
 	);
@@ -74,6 +76,7 @@ architecture RTL of gbe_ipu_dummy is
 	signal d, s : std_logic_vector(31 downto 0);
 	signal trigger_type, bank_select : std_logic_vector(3 downto 0) := x"0";
 	signal constructed_events : std_logic_vector(15 downto 0) := x"0000";
+	signal increment_flag : std_logic;
 	
 	
 begin
@@ -560,15 +563,54 @@ begin
 		end if;
 	end process;
 	
-	process(CLK)
-	begin
-		if rising_edge(CLK) then
-			if (current_state = CLOSE) then
-				constructed_events <= constructed_events + x"1";
-			else
-				constructed_events <= constructed_events;
+	
+	static_incr_gen : if UP_DOWN_MODE = 0 generate
+	
+		process(CLK)
+		begin
+			if rising_edge(CLK) then
+				if (current_state = CLOSE) then
+					constructed_events <= constructed_events + x"1";
+				else
+					constructed_events <= constructed_events;
+				end if;
 			end if;
-		end if;
-	end process;
+		end process;
+	
+	end generate static_incr_gen;
+	
+	up_down_gen : if UP_DOWN_MODE = 1 generate
+		
+		process(CLK)
+		begin
+			if rising_edge(CLK) then
+				if (current_state = CLOSE) then
+					if (increment_flag = '1') then
+						constructed_events <= constructed_events + x"1";
+					else
+						constructed_events <= constructed_events - x"1";
+					end if;						
+				else
+					constructed_events <= constructed_events;
+				end if;
+			end if;
+		end process;
+		
+		process(CLK)
+		begin
+			if rising_edge(CLK) then
+				if (current_state = CLOSE and test_data_len = UP_DOWN_LIMIT) then
+					increment_flag <= '0';
+				elsif (current_state = CLOSE and test_data_len = UP_DOWN_LIMIT) then
+					increment_flag <= '1';
+				else
+					increment_flag <= increment_flag;
+				end if;
+			end if;
+		end process;
+		
+	end generate up_down_gen;
+		
+	
 
 end architecture RTL;
