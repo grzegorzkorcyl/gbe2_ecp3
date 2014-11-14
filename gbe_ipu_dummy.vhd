@@ -601,7 +601,7 @@ begin
 			if rising_edge(CLK) then
 				if (current_state = CLOSE and test_data_len = UP_DOWN_LIMIT) then
 					increment_flag <= '0';
-				elsif (current_state = CLOSE and test_data_len = UP_DOWN_LIMIT) then
+				elsif (current_state = CLOSE and test_data_len = FIXED_SIZE) then
 					increment_flag <= '1';
 				else
 					increment_flag <= increment_flag;
