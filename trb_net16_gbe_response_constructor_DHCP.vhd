@@ -193,7 +193,7 @@ begin
 		when BOOTING =>
 			state2 <= x"1";
 			if (DHCP_START_IN = '1') then
-				main_next_state <=SENDING_DISCOVER;  --DELAY
+				main_next_state <= DELAY;
 			else
 				main_next_state <= BOOTING;
 			end if;
