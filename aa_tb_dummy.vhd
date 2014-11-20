@@ -130,7 +130,7 @@ generic map(
 		UP_DOWN_MODE => 1,
 		UP_DOWN_LIMIT => 17500, --330,
 		FIXED_DELAY_MODE => 1,
-		FIXED_DELAY => 800 --4096
+		FIXED_DELAY => 16777215 --4096
 )
 port map(
 	CLK							=> clk,
