@@ -733,7 +733,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	CFG_MAX_SUB_IN              => x"e998",  -- 59800 
 	CFG_MAX_QUEUE_IN            => x"ea60",  -- 60000 
 	CFG_MAX_SUBS_IN_QUEUE_IN    => x"00c8",  -- 200
-	CFG_MAX_SINGLE_SUB_IN       => x"e998"; --x"7d00",  -- 32000
+	CFG_MAX_SINGLE_SUB_IN       => x"e998", --x"7d00",  -- 32000
 	
 	CFG_ADDITIONAL_HDR_IN       => '0',
 
