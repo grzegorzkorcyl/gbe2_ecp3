@@ -721,7 +721,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => '1',
+	CFG_GBE_ENABLE_IN           => '0',
 	CFG_IPU_ENABLE_IN           => '0',
 	CFG_MULT_ENABLE_IN          => '0',
 	CFG_SUBEVENT_ID_IN			=> x"0000_00cf",
