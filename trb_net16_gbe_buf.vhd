@@ -721,7 +721,7 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 	SLV_DATA_IN                 => SLV_DATA_IN,
 	SLV_DATA_OUT                => SLV_DATA_OUT,
 	
-	CFG_GBE_ENABLE_IN           => '0',
+	CFG_GBE_ENABLE_IN           => use_gbe,
 	CFG_IPU_ENABLE_IN           => '0',
 	CFG_MULT_ENABLE_IN          => '0',
 	CFG_SUBEVENT_ID_IN			=> x"0000_00cf",
@@ -984,7 +984,17 @@ port map(
 end generate;
 
 setup_sim_gen : if (DO_SIMULATION = 1) generate
-	use_gbe <= '1';
+	
+	process
+	begin
+		use_gbe <= '1';
+		wait for 50 us;
+		use_gbe <= '0';
+		wait for 50 us;
+		use_gbe <= '1';
+		wait;
+	end process;
+	
 	allow_rx <= '1';
 	allow_large <= '0';
 end generate;
