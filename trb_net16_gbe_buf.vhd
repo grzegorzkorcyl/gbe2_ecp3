@@ -776,23 +776,23 @@ main_with_dummy_gen : if USE_INTERNAL_TRBNET_DUMMY = 1 generate
 		rst => global_reset,
 		GBE_READY_IN => dhcp_done,
 		                    
-		CTS_NUMBER_OUT		     =>gbe_cts_number,
-		CTS_CODE_OUT		     =>gbe_cts_code,
-		CTS_INFORMATION_OUT	     =>gbe_cts_information,
-		CTS_READOUT_TYPE_OUT     =>gbe_cts_readout_type,
-		CTS_START_READOUT_OUT    =>gbe_cts_start_readout,
-		CTS_DATA_IN				 =>(others => '0'),
-		CTS_DATAREADY_IN	     =>'0',
-		CTS_READOUT_FINISHED_IN	 =>gbe_cts_readout_finished,
-		CTS_READ_OUT		     =>open,
-		CTS_LENGTH_IN		     =>(others => '0'),
-		CTS_ERROR_PATTERN_IN     =>gbe_cts_status_bits,
+		CTS_NUMBER_OUT		     => gbe_cts_number,
+		CTS_CODE_OUT		     => gbe_cts_code,
+		CTS_INFORMATION_OUT	     => gbe_cts_information,
+		CTS_READOUT_TYPE_OUT     => gbe_cts_readout_type,
+		CTS_START_READOUT_OUT    => gbe_cts_start_readout,
+		CTS_DATA_IN				 => (others => '0'),
+		CTS_DATAREADY_IN	     => '0',
+		CTS_READOUT_FINISHED_IN	 => gbe_cts_readout_finished,
+		CTS_READ_OUT		     => open,
+		CTS_LENGTH_IN		     => (others => '0'),
+		CTS_ERROR_PATTERN_IN     => gbe_cts_status_bits,
 		-- Data payload interfac =>
-		FEE_DATA_OUT		     =>gbe_fee_data,
-		FEE_DATAREADY_OUT	     =>gbe_fee_dataready,
-		FEE_READ_IN				 =>gbe_fee_read,
-		FEE_STATUS_BITS_OUT	     =>gbe_fee_status_bits,
-		FEE_BUSY_OUT		     =>gbe_fee_busy
+		FEE_DATA_OUT		     => gbe_fee_data,
+		FEE_DATAREADY_OUT	     => gbe_fee_dataready,
+		FEE_READ_IN				 => gbe_fee_read,
+		FEE_STATUS_BITS_OUT	     => gbe_fee_status_bits,
+		FEE_BUSY_OUT		     => gbe_fee_busy
 	);          
 	
 --	sctrl_dummy : gbe_sctrl_dummy

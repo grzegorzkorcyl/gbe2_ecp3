@@ -286,7 +286,7 @@ begin
 			save_eod_qqqqq  <= save_eod_qqqq;
 		end if;
 		
-sf_wr_q <= sf_wr_en and not sf_wr_lock;
+sf_wr_q <= sf_wr_en and (not sf_wr_lock) and DATA_GBE_ENABLE_IN;
 
 	end if;
 end process;
@@ -334,7 +334,7 @@ begin
 	if (RESET = '1') then
 		saved_events_ctr <= (others => '0');
 	elsif rising_edge(CLK_IPU) then
-		if (save_current_state = ADD_SUBSUB4 and sf_wr_lock = '0') then
+		if (save_current_state = ADD_SUBSUB4 and sf_wr_lock = '0' and DATA_GBE_ENABLE_IN = '1') then
 			saved_events_ctr <= saved_events_ctr + x"1";
 		else
 			saved_events_ctr <= saved_events_ctr;
