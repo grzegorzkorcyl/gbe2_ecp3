@@ -107,33 +107,8 @@ signal save_eod_q, save_eod_qq, save_eod_qqq, save_eod_qqqq, save_eod_qqqqq : st
 signal too_large_dropped : std_logic_vector(31 downto 0);
 signal previous_ttype, previous_bank : std_logic_vector(3 downto 0);
 
-signal l_gbe_enable, l_ipu_enable, l_mult_evt_enable : std_logic;
-signal l_sub_size, l_queue_size, l_subs_in_queue, l_single_sub_size : std_logic_vector(15 downto 0);
 
 begin
-	
-	process(CLK_IPU)
-	begin
-		if rising_edge(CLK_IPU) then
-			if (save_current_state = IDLE and load_current_state = IDLE) then
-				l_gbe_enable <= DATA_GBE_ENABLE_IN;
-				l_ipu_enable <= DATA_IPU_ENABLE_IN;
-				l_mult_evt_enable <= MULT_EVT_ENABLE_IN;
-				l_sub_size <= MAX_SUBEVENT_SIZE_IN;
-				l_queue_size <= MAX_QUEUE_SIZE_IN;
-				l_subs_in_queue <= MAX_SUBS_IN_QUEUE_IN;
-				l_single_sub_size <= MAX_SINGLE_SUB_SIZE_IN;
-			else
-				l_gbe_enable <= l_gbe_enable;
-				l_ipu_enable <= l_ipu_enable;
-				l_mult_evt_enable <= l_mult_evt_enable;
-				l_sub_size <= l_sub_size;
-				l_queue_size <= l_queue_size;
-				l_subs_in_queue <= l_subs_in_queue;
-				l_single_sub_size <= l_single_sub_size;
-			end if;
-		end if;
-	end process;
 
 --*********
 -- RECEIVING PART
@@ -312,7 +287,7 @@ begin
 			save_eod_qqqqq  <= save_eod_qqqq;
 		end if;
 		
-sf_wr_q <= sf_wr_en and (not sf_wr_lock) and l_gbe_enable;
+sf_wr_q <= sf_wr_en and (not sf_wr_lock) and DATA_GBE_ENABLE_IN;
 
 	end if;
 end process;
@@ -332,7 +307,7 @@ begin
 		
 		if (save_current_state = IDLE) then
 			sf_wr_lock <= '1';
-		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") < ("00" & l_sub_size)) then  -- condition to ALLOW an event to be passed forward
+		elsif (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") < ("00" & MAX_SUBEVENT_SIZE_IN)) then  -- condition to ALLOW an event to be passed forward
 			sf_wr_lock <= '0';
 		else
 			sf_wr_lock <= sf_wr_lock;
@@ -346,7 +321,7 @@ begin
 	if (RESET = '1') then
 		too_large_dropped <= (others => '0');
 	elsif rising_edge(CLK_IPU) then
-		if (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") >= ("00" & l_sub_size)) then
+		if (save_current_state = SAVE_DATA and size_check_ctr = 2 and sf_wr_en = '1' and (sf_data & "00") >= ("00" & MAX_SUBEVENT_SIZE_IN)) then
 			too_large_dropped <= too_large_dropped + x"1";
 		else
 			too_large_dropped <= too_large_dropped;
@@ -360,7 +335,7 @@ begin
 	if (RESET = '1') then
 		saved_events_ctr <= (others => '0');
 	elsif rising_edge(CLK_IPU) then
-		if (save_current_state = ADD_SUBSUB4 and sf_wr_lock = '0' and l_gbe_enable = '1') then
+		if (save_current_state = ADD_SUBSUB4 and sf_wr_lock = '0' and DATA_GBE_ENABLE_IN = '1') then
 			saved_events_ctr <= saved_events_ctr + x"1";
 		else
 			saved_events_ctr <= saved_events_ctr;
@@ -495,8 +470,8 @@ begin
 end process LOAD_MACHINE_PROC;
 
 LOAD_MACHINE : process(load_current_state, saved_events_ctr_gbe, loaded_events_ctr, loaded_bytes_ctr, PC_READY_IN, sf_eos, queue_size, number_of_subs, 
-						subevent_size, l_mult_evt_enable, l_queue_size, l_subs_in_queue, previous_bank, previous_ttype, trigger_type, 
-						bank_select, l_single_sub_size
+						subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, 
+						bank_select, MULT_EVT_ENABLE_IN
 )
 begin
 	case (load_current_state) is
@@ -532,11 +507,11 @@ begin
 		--TODO: all queue split conditions here and also in the size process
 		when DECIDE =>
 			load_state <= x"5";
-			if (queue_size > ("00" & l_queue_size)) then  -- max udp packet exceeded
+			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then  -- max udp packet exceeded
 				load_next_state <= CLOSE_QUEUE;
-			elsif (l_mult_evt_enable = '1' and number_of_subs = l_subs_in_queue) then
+			elsif (MULT_EVT_ENABLE_IN = '1' and number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				load_next_state <= CLOSE_QUEUE;
-			elsif (l_mult_evt_enable = '0' and number_of_subs = 1) then
+			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				load_next_state <= CLOSE_QUEUE;
 			elsif (trigger_type /= previous_ttype and number_of_subs /= x"0000") then
 				load_next_state <= CLOSE_QUEUE;
@@ -568,7 +543,7 @@ begin
 		
 		when CLOSE_SUB =>
 			load_state <= x"9";
-			if (subevent_size > ("00" & l_single_sub_size) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
+			if (subevent_size > ("00" & MAX_SINGLE_SUB_SIZE_IN) and queue_size = (subevent_size + x"10" + x"8" + x"4")) then
 				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
 			else
 				load_next_state <= WAIT_FOR_SUBS;
@@ -615,11 +590,11 @@ begin
 		elsif (load_current_state = WAIT_TWO) then
 			queue_size <= queue_size + subevent_size + x"10" + x"8" + x"4";
 		elsif (load_current_state = DECIDE) then
-			if (queue_size > ("00" & l_queue_size)) then
+			if (queue_size > ("00" & MAX_QUEUE_SIZE_IN)) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (l_mult_evt_enable = '1' and number_of_subs = l_subs_in_queue) then
+			elsif (MULT_EVT_ENABLE_IN = '1' and number_of_subs = MAX_SUBS_IN_QUEUE_IN) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
-			elsif (l_mult_evt_enable = '0' and number_of_subs = 1) then
+			elsif (MULT_EVT_ENABLE_IN = '0' and number_of_subs = 1) then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";
 			elsif (trigger_type /= previous_ttype and number_of_subs /= x"0000") then
 				queue_size <= subevent_size + x"10" + x"8" + x"4";

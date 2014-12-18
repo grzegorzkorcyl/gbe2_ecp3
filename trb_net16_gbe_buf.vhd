@@ -985,16 +985,16 @@ end generate;
 
 setup_sim_gen : if (DO_SIMULATION = 1) generate
 	
-	process
-	begin
-		use_gbe <= '1';
-		wait for 50 us;
-		use_gbe <= '0';
-		wait for 50 us;
-		use_gbe <= '1';
-		wait;
-	end process;
-	
+--	process
+--	begin
+--		use_gbe <= '1';
+--		wait for 50 us;
+--		use_gbe <= '0';
+--		wait for 50 us;
+--		use_gbe <= '1';
+--		wait;
+--	end process;
+	use_gbe <= '1';
 	allow_rx <= '1';
 	allow_large <= '0';
 end generate;
