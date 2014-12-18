@@ -245,7 +245,9 @@ port map (
 
 -- protocol No. 2 DHCP
 DHCP : trb_net16_gbe_response_constructor_DHCP
-generic map( STAT_ADDRESS_BASE => 0
+generic map(
+	STAT_ADDRESS_BASE => 0,
+	DO_SIMULATION => DO_SIMULATION
 )
 port map (
 	CLK			            => CLK,

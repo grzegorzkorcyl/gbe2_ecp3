@@ -15,7 +15,9 @@ use work.trb_net_gbe_protocols.all;
 -- 
 
 entity trb_net16_gbe_response_constructor_DHCP is
-generic ( STAT_ADDRESS_BASE : integer := 0
+generic (
+	STAT_ADDRESS_BASE : integer := 0;
+	DO_SIMULATION : integer := 0
 );
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -123,6 +125,8 @@ attribute syn_keep : boolean;
 attribute syn_keep of state, state2 : signal is true;
 attribute syn_preserve of state, state2 : signal is true;
 
+signal wait_value : std_logic_vector(31 downto 0);
+
 begin
 
 
@@ -185,7 +189,9 @@ begin
 	end if;
 end process MAIN_MACHINE_PROC;
 
-MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN)
+wait_value <= x"2000_0000" when DO_SIMULATION = 0 else x"0000_0010";
+
+MAIN_MACHINE : process(main_current_state, DHCP_START_IN, construct_current_state, wait_ctr, receive_current_state, PS_DATA_IN, wait_value)
 begin
 
 	case (main_current_state) is
@@ -199,7 +205,7 @@ begin
 			end if;
 			
 		when DELAY =>
-			if (wait_ctr = x"2000_0000") then
+			if (wait_ctr = wait_value) then
 				main_next_state <= SENDING_DISCOVER;
 			else
 				main_next_state <= DELAY;
@@ -217,7 +223,7 @@ begin
 			state2 <= x"3"; 
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= SENDING_REQUEST;
-			elsif (wait_ctr = x"2000_0000") then
+			elsif (wait_ctr = wait_value) then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_OFFER;
@@ -235,7 +241,7 @@ begin
 			state2 <= x"5";
 			if (receive_current_state = SAVE_VALUES) and (PS_DATA_IN(8) = '1') then
 				main_next_state <= ESTABLISHED;
-			elsif (wait_ctr = x"2000_0000") then
+			elsif (wait_ctr = wait_value) then
 				main_next_state <= BOOTING;
 			else
 				main_next_state <= WAITING_FOR_ACK;

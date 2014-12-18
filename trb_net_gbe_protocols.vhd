@@ -217,7 +217,9 @@ port (
 end component;
 
 component trb_net16_gbe_response_constructor_DHCP is
-generic ( STAT_ADDRESS_BASE : integer := 0
+generic (
+	STAT_ADDRESS_BASE : integer := 0;
+	DO_SIMULATION : integer := 0
 );
 port (
 	CLK			: in	std_logic;  -- system clock
