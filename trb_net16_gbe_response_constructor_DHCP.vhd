@@ -249,7 +249,7 @@ begin
 		
 		when ESTABLISHED =>
 			state2 <= x"6";
-			if (wait_ctr = x"2000_0000") then
+			if (wait_ctr = x"0000_1000") then
 				main_next_state <= SENDING_DISCOVER;
 			else
 				main_next_state <= ESTABLISHED;
