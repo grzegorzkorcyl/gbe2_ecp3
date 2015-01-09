@@ -264,7 +264,9 @@ begin
 	if rising_edge(CLK) then
 		if (main_current_state = SENDING_DISCOVER or main_current_state = SENDING_REQUEST or main_current_state = BOOTING) then
 			wait_ctr <= (others => '0');
-		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER or main_current_state = DELAY) then
+		elsif (main_current_state = WAITING_FOR_ACK and receive_current_state = SAVE_VALUES and PS_DATA_IN(8) = '1') then
+			wait_ctr <= (others => '0');
+		elsif (main_current_state = WAITING_FOR_ACK or main_current_state = WAITING_FOR_OFFER or main_current_state = DELAY or main_current_state = ESTABLISHED) then
 			wait_ctr <= wait_ctr + x"1";
 		else
 			wait_ctr <= wait_ctr;
