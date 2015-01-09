@@ -111,7 +111,7 @@ debug(63 downto 32) <= (others => '0');
 --debug(31 downto 0)  <= sent_ctr;
 
 
-TransmitStateMachineProc : process (TX_MAC_CLK)
+TransmitStateMachineProc : process (TX_MAC_CLK, reset)
 begin
 	if RESET = '1' then
 		transmitCurrentState <= T_IDLE;
@@ -167,7 +167,7 @@ begin
 	end if;
 end process FifoAvailProc;
 
-FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, RESET)
+FifoEmptyProc : process(transmitCurrentState, START_OF_PACKET_IN, TX_EMPTY_IN, LINK_OK_IN)
 begin
 	if (LINK_OK_IN = '0') then -- gk 01.10.10
 		FifoEmpty <= '1';
@@ -185,7 +185,7 @@ end process FifoEmptyProc;
 tx_fifoeof_i <= '1' when ((DATA_ENDFLAG_IN = '1') and (transmitCurrentState = T_TRANSMIT)) 
 					else '0';
 					
-SENT_CTR_PROC : process(TX_MAC_CLK)
+SENT_CTR_PROC : process(TX_MAC_CLK, RESET)
 begin
 	if (RESET = '1') then
 			sent_ctr <= (others => '0');
