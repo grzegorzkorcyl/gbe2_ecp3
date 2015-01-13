@@ -520,7 +520,7 @@ begin
 	end if;
 end process;
 
-transmitMachineProc: process( RD_CLK )
+transmitMachineProc: process( RD_CLK, RESET )
 begin
 	if RESET = '1' then
 		transmitCurrentState <= T_IDLE;

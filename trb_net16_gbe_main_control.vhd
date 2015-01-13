@@ -138,6 +138,9 @@ port (
 	TSM_HDATA_EN_N_IN	: in	std_logic;
 	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
 	TSM_RX_STAT_EN_IN   : in	std_logic;
+	
+	MAC_READY_CONF_IN		: in	std_logic;
+	MAC_RECONF_OUT			: out	std_logic;
 
 	
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
@@ -623,7 +626,7 @@ lsm_sim_gen : if DO_SIMULATION = 1 generate
 	end process;
 end generate lsm_sim_gen;
 
-LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, tsm_ready, link_ok_timeout_ctr)
+LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, 	MAC_READY_CONF_IN, tsm_ready, link_ok_timeout_ctr)
 begin
 	case link_current_state is
 		
@@ -651,7 +654,8 @@ begin
 			link_state <= x"4";
 			if (PCS_AN_COMPLETE_IN = '0') then
 			  link_next_state <= INACTIVE;
-			elsif (tsm_ready = '1') then
+			--elsif (tsm_ready = '1') then
+			elsif (MAC_READY_CONF_IN = '1') then
 			  link_next_state <= FINALIZE; --INACTIVE;
 			else
 			  link_next_state <= ENABLE_MAC;
@@ -806,6 +810,7 @@ begin
 		end if;
 	end if;
 end process;
+MAC_RECONF_OUT <= tsm_reconf;
 --tsm_reconf <= '1' when (link_current_state = INACTIVE) and (PCS_AN_COMPLETE_IN = '0') else '0';
 
 TSM_HADDR_OUT     <= tsm_haddr;

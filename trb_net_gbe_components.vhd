@@ -601,7 +601,7 @@ port (
 	  
 	CFG_ADDITIONAL_HDR_IN        : in std_logic;   
 	
-	MAKE_RESET_OUT           : out std_logic;
+	MAKE_RESET_OUT           	: out std_logic;
 	
 -- signal to/from Host interface of TriSpeed MAC
 	TSM_HADDR_OUT		: out	std_logic_vector(7 downto 0);
@@ -613,6 +613,9 @@ port (
 	TSM_HDATA_EN_N_IN	: in	std_logic;
 	TSM_RX_STAT_VEC_IN  : in    std_logic_vector(31 downto 0);
 	TSM_RX_STAT_EN_IN   : in	std_logic;
+	
+	MAC_READY_CONF_IN		: in	std_logic;
+	MAC_RECONF_OUT			: out	std_logic;
 
 	
 	MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
