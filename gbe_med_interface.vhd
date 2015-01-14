@@ -13,7 +13,7 @@ entity gbe_med_interface is
 	generic (
 		DO_SIMULATION : integer range 0 to 1;
 		NUMBER_OF_GBE_LINKS : integer range 1 to 4;
-		LINKS_ACTIVE : std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0)
+		LINKS_ACTIVE : std_logic_vector(3 downto 0)
 	);
 	port (
 		RESET					: in	std_logic;
