@@ -438,7 +438,7 @@ begin
 			signal_detect			=> signal_detected(i),
 			gbe_mode				=> '1',
 			sgmii_mode				=> '0',
-			operational_rate		=> operational_rate,
+			operational_rate		=> operational_rate( (i + 1) * 2 - 1 downto (i * 2)),
 			debug_link_timer_short	=> '0',
 	 
 			force_isolate			=> '0',
@@ -475,7 +475,7 @@ begin
 			xmit_autoneg 			=> xmit(i),
 	 
 	 		serdes_recovered_clk	=> sd_rx_clk(i), -- 125MHz recovered from receive bit stream
-			rx_data					=> sd_rx_data_q, -- RX data from SerDes
+			rx_data					=> sd_rx_data_q( (i + 1) * 8 - 1 downto i * 8), -- RX data from SerDes
 			rx_kcntl				=> sd_rx_kcntl_q(i), -- RX komma control from SerDes
 			rx_err_decode_mode		=> '0', -- receive error control mode fixed to normal
 			rx_even					=> '0', -- unused (receive error control mode = normal, tie to GND)
