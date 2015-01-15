@@ -418,19 +418,19 @@ begin
 			sd_tx_correct_disp_q <= sd_tx_correct_disp;
 		end if;
 	end process SYNC_TX_PROC;
-   
-	SYNC_RX_PROC : process(sd_rx_clk)
-	begin
-		if rising_edge(sd_rx_clk) then
-			sd_rx_data_q <= sd_rx_data;
-			sd_rx_kcntl_q <= sd_rx_kcntl;
-			sd_rx_disp_error_q <= sd_rx_disp_error;
-			sd_rx_cv_error_q <= sd_rx_cv_error;
-		end if;
-	end process SYNC_RX_PROC;
 	
 
-	pcs_gen : for i in 0 to NUMBER_OF_GBE_LINKS - 1 generate	
+	pcs_gen : for i in 0 to NUMBER_OF_GBE_LINKS - 1 generate
+	
+		SYNC_RX_PROC : process(sd_rx_clk)
+		begin
+			if rising_edge(sd_rx_clk(i)) then
+				sd_rx_data_q( (i + 1) * 8 - 1 downto i * 8) <= sd_rx_data( (i + 1) * 8 - 1 downto i * 8);
+				sd_rx_kcntl_q(i) <= sd_rx_kcntl(i);
+				sd_rx_disp_error_q(i) <= sd_rx_disp_error(i);
+				sd_rx_cv_error_q(i) <= sd_rx_cv_error(i);
+			end if;
+		end process SYNC_RX_PROC;	
 		
 		SGMII_GBE_PCS : sgmii_gbe_pcs35
 		port map(
