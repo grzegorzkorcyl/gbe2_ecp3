@@ -30,7 +30,7 @@ entity gbe_wrapper is
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215;
 		
 		NUMBER_OF_GBE_LINKS : integer range 1 to 4;
-		LINKS_ACTIVE : std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0)
+		LINKS_ACTIVE : std_logic_vector(3 downto 0)
 	);
 	port (
 		CLK_SYS_IN		: in std_logic;
