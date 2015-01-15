@@ -516,7 +516,7 @@ begin
 			link_partner_rate => mr_lp_adv_ability(i * 16 + 11 downto i * 16 + 10),
 			non_an_rate       => "10", -- 1Gbps is rate when auto-negotiation disabled
 		                          
-			operational_rate  => operational_rate
+			operational_rate  => operational_rate( (i + 1) * 2 - 1 downto i * 2)
 		);
 		
 		u0_ri : register_interface_hb port map(
