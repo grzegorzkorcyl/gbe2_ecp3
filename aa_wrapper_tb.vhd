@@ -245,6 +245,7 @@ begin
 		     
 		     MAC_READY_CONF_IN        => '1',
 		     MAC_RECONF_OUT           => open,
+		     MAC_AN_READY_IN		  => '1',
 		     MAC_FIFOAVAIL_OUT        => open,
 		     MAC_FIFOEOF_OUT          => mac_fifoeof,
 		     MAC_FIFOEMPTY_OUT        => open,
