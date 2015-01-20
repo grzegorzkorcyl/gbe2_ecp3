@@ -35,6 +35,7 @@ entity gbe_logic_wrapper is
 			-- connection to MAC
 		MAC_READY_CONF_IN		: in	std_logic;
 		MAC_RECONF_OUT			: out	std_logic;
+		MAC_AN_READY_IN			: in	std_logic;
 
 		MAC_FIFOAVAIL_OUT		: out	std_logic;
 		MAC_FIFOEOF_OUT			: out	std_logic;
@@ -296,10 +297,10 @@ begin
 			  TC_TRANSMIT_DONE_IN		=> mc_transmit_done,
 		
 		  -- signals to/from sgmii/gbe pcs_an_complete
-			  PCS_AN_COMPLETE_IN		=> open,
+			  PCS_AN_COMPLETE_IN		=> MAC_AN_READY_IN,
 		
 		  -- signals to/from hub
-			  MC_UNIQUE_ID_IN			=> MC_UNIQUE_ID_IN,
+			MC_UNIQUE_ID_IN			=> MC_UNIQUE_ID_IN,
 			GSC_CLK_IN               => GSC_CLK_IN,
 			GSC_INIT_DATAREADY_OUT   => GSC_INIT_DATAREADY_OUT,
 			GSC_INIT_DATA_OUT        => GSC_INIT_DATA_OUT,

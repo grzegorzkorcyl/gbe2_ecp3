@@ -100,6 +100,7 @@ architecture RTL of gbe_wrapper is
 	
 	signal mac_ready_conf		: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal mac_reconf			: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
+	signal mac_an_ready			: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal mac_fifoavail		: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal mac_fifoeof			: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal mac_fifoempty		: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
@@ -157,6 +158,7 @@ begin
 		     
 		     MAC_READY_CONF_OUT  => mac_ready_conf,
 		     MAC_RECONF_IN       => mac_reconf,
+		     MAC_AN_READY_OUT	 => mac_an_ready,
 		     MAC_FIFOAVAIL_IN    => mac_fifoavail,
 		     MAC_FIFOEOF_IN      => mac_fifoeof,
 		     MAC_FIFOEMPTY_IN    => mac_fifoempty,
@@ -207,6 +209,7 @@ begin
 		     
 		     MAC_READY_CONF_IN        => mac_ready_conf(3),
 		     MAC_RECONF_OUT           => mac_reconf(3),
+		     MAC_AN_READY_IN		  => mac_an_ready(3),
 		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(3),
 		     MAC_FIFOEOF_OUT          => mac_fifoeof(3),
 		     MAC_FIFOEMPTY_OUT        => mac_fifoempty(3),

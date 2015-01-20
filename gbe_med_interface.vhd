@@ -26,6 +26,7 @@ entity gbe_med_interface is
 		-- MAC status and config
 		MAC_READY_CONF_OUT		: out	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 		MAC_RECONF_IN			: in	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
+		MAC_AN_READY_OUT		: out	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 		
 		-- MAC data interface
 		MAC_FIFOAVAIL_IN		: in	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
@@ -490,6 +491,8 @@ begin
 			mr_restart_an			=> mr_restart_an(i),
 			mr_adv_ability			=> mr_adv_ability( (i + 1) * 16 - 1 downto i * 16)
 	 	);
+	 	
+	 	MAC_AN_READY_OUT(i) <= an_complete(i);
 	 	
 		u0_reset_controller_pcs : reset_controller_pcs port map(
 			rst_n           => rst_n,
