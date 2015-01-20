@@ -432,7 +432,7 @@ begin
 		  TC_TRANSMIT_DONE_IN   => mc_transmit_done,
 	
 	  -- signals to/from sgmii/gbe pcs_an_complete
-		  PCS_AN_COMPLETE_IN	=> open,
+		  PCS_AN_COMPLETE_IN	=> MAC_AN_READY_IN,
 	
 	  -- signals to/from hub
 		  MC_UNIQUE_ID_IN	     => MC_UNIQUE_ID_IN,
