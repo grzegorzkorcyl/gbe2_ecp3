@@ -127,6 +127,8 @@ attribute syn_preserve of state, state2 : signal is true;
 
 signal wait_value : std_logic_vector(31 downto 0);
 
+signal my_ip : std_logic_vector(31 downto 0);
+
 begin
 
 
@@ -157,7 +159,8 @@ vendor_values2(47 downto 16)  <= saved_server_ip;
 
 --*****************
 -- setting of global variable for IP address
-g_MY_IP <= saved_true_ip when main_current_state = ESTABLISHED else (others => '0'); 
+--g_MY_IP <= saved_true_ip when main_current_state = ESTABLISHED else (others => '0'); 
+my_ip <= saved_true_ip when main_current_state = ESTABLISHED else (others => '0');
 --
 --*****************
 

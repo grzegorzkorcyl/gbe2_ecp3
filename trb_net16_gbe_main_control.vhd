@@ -248,6 +248,8 @@ attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_s
 
 signal mc_busy                      : std_logic;
 
+signal my_mac : std_logic_vector(47 downto 0);
+
 begin
 
 unique_id <= MC_UNIQUE_ID_IN;
@@ -767,7 +769,8 @@ MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 
 --*************
 -- GENERATE MAC_ADDRESS
-g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
+--g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
+my_mac <= unique_id(31 downto 8) & x"be0002";
 
 --*************
 
