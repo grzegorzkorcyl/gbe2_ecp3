@@ -92,7 +92,9 @@ entity gbe_wrapper is
 		BUS_READ_EN_IN            : in std_logic;
 		BUS_ACK_OUT               : out std_logic;
 			
-		MAKE_RESET_OUT					: out std_logic
+		MAKE_RESET_OUT					: out std_logic;
+		
+		DEBUG_OUT				  : out std_logic_vector(127 downto 0)
 	);
 end entity gbe_wrapper;
 
@@ -642,6 +644,16 @@ begin
 		setup_sim_gen : if (DO_SIMULATION = 1) generate
 			cfg_gbe_enable <= '1';
 			cfg_allow_rx <= '1';
+		end generate;
+		
+		
+		include_debug_gen : if (INCLUDE_DEBUG = 1) generate
+			DEBUG_OUT(0) <= mac_an_ready(3);
+			DEBUG_OUT(1) <= clk_125_rx_from_pcs(3);
+			DEBUG_OUT(2) <= RESET;
+			DEBUG_OUT(3) <= CLK_125_IN;
+			
+			DEBUG_OUT(127 downto 4) <= (others => '0');			
 		end generate;
 
 end architecture RTL;
