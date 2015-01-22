@@ -953,9 +953,9 @@ THE_CALIBRATION_PLL : pll_in125_out20
   		     
   		     FEE_DATA_IN              => gbe_fee_data,       
   		     FEE_DATAREADY_IN         => gbe_fee_dataready,  
-  		     FEE_READ_OUT             => gbe_fee_read,       
+  		     FEE_READ_OUT             => gbe_fee_read,
   		     FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
-  		     FEE_BUSY_IN              => gbe_fee_busy,       
+  		     FEE_BUSY_IN              => gbe_fee_busy,
   		     
   		     MC_UNIQUE_ID_IN          => mc_unique_id,
   		     
@@ -968,7 +968,7 @@ THE_CALIBRATION_PLL : pll_in125_out20
   		     GSC_REPLY_DATA_IN        => gsc_reply_data,       
   		     GSC_REPLY_PACKET_NUM_IN  => gsc_reply_packet_num, 
   		     GSC_REPLY_READ_OUT       => gsc_reply_read,       
-  		     GSC_BUSY_IN              => gsc_busy,             
+  		     GSC_BUSY_IN              => gsc_busy,
   		     
 			SLV_ADDR_IN                  => mb_ip_mem_addr(7 downto 0),
 			SLV_READ_IN                  => mb_ip_mem_read,
