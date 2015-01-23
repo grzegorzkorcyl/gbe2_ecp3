@@ -15,11 +15,11 @@ use work.trb_net_gbe_components.all;
 
 entity gbe_wrapper is
 	generic (
-		DO_SIMULATION : integer range 0 to 1;
-		INCLUDE_DEBUG : integer range 0 to 1;
+		DO_SIMULATION : integer range 0 to 1 := 0;
+		INCLUDE_DEBUG : integer range 0 to 1 := 0;
 		
-		USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1;
-		RX_PATH_ENABLE : integer range 0 to 1;
+		USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1 := 0;
+		RX_PATH_ENABLE : integer range 0 to 1 := 1;
 		
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
@@ -29,8 +29,8 @@ entity gbe_wrapper is
 		UP_DOWN_LIMIT : integer range 0 to 16777215 := 0;
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215;
 		
-		NUMBER_OF_GBE_LINKS : integer range 1 to 4;
-		LINKS_ACTIVE : std_logic_vector(3 downto 0)
+		NUMBER_OF_GBE_LINKS : integer range 1 to 4 := 1;
+		LINKS_ACTIVE : std_logic_vector(3 downto 0) := "1111"
 	);
 	port (
 		CLK_SYS_IN		: in std_logic;
