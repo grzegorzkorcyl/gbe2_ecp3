@@ -269,14 +269,14 @@ end component;
 	
 begin
 	
-	rx_power <= "1111";
-	tx_power <= "1111";
+	rx_power <= "1";
+	tx_power <= "1";
 	
 	rst_n <= not RESET;
 	
-	SD_TXDIS_OUT <= "0000";
+	SD_TXDIS_OUT <= "0";
 	
-	CLK_125_OUT    <= CLK_125_IN & CLK_125_IN & CLK_125_IN & CLK_125_IN;
+	CLK_125_OUT(0)    <= CLK_125_IN;
 	CLK_125_RX_OUT <= sd_rx_clk;
 	
 	gbe_serdes : entity work.serdes_gbe_4ch
