@@ -649,8 +649,8 @@ begin
 		
 		
 		include_debug_gen : if (INCLUDE_DEBUG = 1) generate
-			DEBUG_OUT(0) <= mac_an_ready(3);
-			DEBUG_OUT(1) <= clk_125_rx_from_pcs(3);
+			DEBUG_OUT(0) <= mac_an_ready(0);
+			DEBUG_OUT(1) <= clk_125_rx_from_pcs(0);
 			DEBUG_OUT(2) <= RESET;
 			DEBUG_OUT(3) <= CLK_125_IN;
 			
