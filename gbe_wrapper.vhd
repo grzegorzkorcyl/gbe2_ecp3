@@ -230,6 +230,7 @@ begin
 		     MAC_RX_EOF_IN            => mac_rx_eof(0),
 		     MAC_RX_ERROR_IN          => mac_rx_err(0),
 		     
+		     
 		     CTS_NUMBER_IN            => CTS_NUMBER_IN,
 		     CTS_CODE_IN              => CTS_CODE_IN,
 		     CTS_INFORMATION_IN       => CTS_INFORMATION_IN,
