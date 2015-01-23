@@ -148,7 +148,7 @@ begin
 	
 	physical : entity work.gbe_med_interface
 	generic map(DO_SIMULATION       => DO_SIMULATION,
-		        NUMBER_OF_GBE_LINKS => NUMBER_OF_GBE_LINKS,
+		        NUMBER_OF_GBE_LINKS => 4,
 		        LINKS_ACTIVE        => LINKS_ACTIVE)
 	port map(
 			 RESET               => RESET,
