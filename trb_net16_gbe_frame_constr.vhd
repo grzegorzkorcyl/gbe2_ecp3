@@ -100,15 +100,15 @@ signal udp_size             : std_logic_vector(15 downto 0);
 signal udp_checksum         : std_logic_vector(15 downto 0);
 signal ft_sop               : std_logic;
 signal put_udp_headers      : std_logic;
-signal ready_frames_ctr     : std_logic_vector(15 downto 0);
-signal sent_frames_ctr      : std_logic_vector(15 downto 0);
+signal ready_frames_ctr     : std_logic_vector(15 downto 0) := x"0000";
+signal sent_frames_ctr      : std_logic_vector(15 downto 0) := x"0000";
 signal debug                : std_logic_vector(63 downto 0);
 signal ready                : std_logic;
 signal headers_ready        : std_logic;
 
 signal cur_max : integer range 0 to 10;
 
-signal ready_frames_ctr_q   : std_logic_vector(15 downto 0);
+signal ready_frames_ctr_q   : std_logic_vector(15 downto 0) := x"0000";
 signal ip_cs_temp_right     : std_logic_vector(15 downto 0); -- gk 29.03.10
 
 signal fpf_reset            : std_logic;  -- gk 01.01.01
