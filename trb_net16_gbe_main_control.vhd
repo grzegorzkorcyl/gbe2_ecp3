@@ -617,7 +617,7 @@ lsm_sim_gen : if DO_SIMULATION = 1 generate
 	LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
 	begin
 		if MC_RESET_LINK_IN = '1' then
-			link_current_state <= INACTIVE; --GET_ADDRESS;
+			link_current_state <= GET_ADDRESS;
 		elsif rising_edge(CLK) then
 			if RX_PATH_ENABLE = 1 then
 				link_current_state <= link_next_state;

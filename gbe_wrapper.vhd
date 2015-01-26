@@ -205,30 +205,30 @@ begin
 	port map(
 			 CLK_SYS_IN               => CLK_SYS_IN,
 		     CLK_125_IN               => CLK_125_IN,
-		     CLK_RX_125_IN            => clk_125_rx_from_pcs(0),
+		     CLK_RX_125_IN            => clk_125_rx_from_pcs(3),
 		     RESET                    => RESET,
 		     GSR_N                    => GSR_N,
 		     
-		     MAC_READY_CONF_IN        => mac_ready_conf(0),
-		     MAC_RECONF_OUT           => mac_reconf(0),
-		     MAC_AN_READY_IN		  => mac_an_ready(0),
-		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(0),
-		     MAC_FIFOEOF_OUT          => mac_fifoeof(0),
-		     MAC_FIFOEMPTY_OUT        => mac_fifoempty(0),
-		     MAC_RX_FIFOFULL_OUT      => mac_rx_fifofull(0),
-		     MAC_TX_DATA_OUT          => mac_tx_data(1 * 8 - 1 downto 0 * 8),
-		     MAC_TX_READ_IN           => mac_tx_read(0),
-		     MAC_TX_DISCRFRM_IN       => mac_tx_discrfrm(0),
-		     MAC_TX_STAT_EN_IN        => mac_tx_stat_en(0),
-		     MAC_TX_STATS_IN          => mac_tx_stats(1 * 31 - 1 downto 0 * 31),
-		     MAC_TX_DONE_IN           => mac_tx_done(0),
-		     MAC_RX_FIFO_ERR_IN       => mac_rx_fifo_err(0),
-		     MAC_RX_STATS_IN          => mac_rx_stats(1 * 32 - 1 downto 0 * 32),
-		     MAC_RX_DATA_IN           => mac_rx_data(1 * 8 - 1 downto 0 * 8),
-		     MAC_RX_WRITE_IN          => mac_rx_write(0),
-		     MAC_RX_STAT_EN_IN        => mac_rx_stat_en(0),
-		     MAC_RX_EOF_IN            => mac_rx_eof(0),
-		     MAC_RX_ERROR_IN          => mac_rx_err(0),
+		     MAC_READY_CONF_IN        => mac_ready_conf(3),
+		     MAC_RECONF_OUT           => mac_reconf(3),
+		     MAC_AN_READY_IN		  => mac_an_ready(3),
+		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(3),
+		     MAC_FIFOEOF_OUT          => mac_fifoeof(3),
+		     MAC_FIFOEMPTY_OUT        => mac_fifoempty(3),
+		     MAC_RX_FIFOFULL_OUT      => mac_rx_fifofull(3),
+		     MAC_TX_DATA_OUT          => mac_tx_data(4 * 8 - 1 downto 3 * 8),
+		     MAC_TX_READ_IN           => mac_tx_read(3),
+		     MAC_TX_DISCRFRM_IN       => mac_tx_discrfrm(3),
+		     MAC_TX_STAT_EN_IN        => mac_tx_stat_en(3),
+		     MAC_TX_STATS_IN          => mac_tx_stats(4 * 31 - 1 downto 3 * 31),
+		     MAC_TX_DONE_IN           => mac_tx_done(3),
+		     MAC_RX_FIFO_ERR_IN       => mac_rx_fifo_err(3),
+		     MAC_RX_STATS_IN          => mac_rx_stats(4 * 32 - 1 downto 3 * 32),
+		     MAC_RX_DATA_IN           => mac_rx_data(4 * 8 - 1 downto 3 * 8),
+		     MAC_RX_WRITE_IN          => mac_rx_write(3),
+		     MAC_RX_STAT_EN_IN        => mac_rx_stat_en(3),
+		     MAC_RX_EOF_IN            => mac_rx_eof(3),
+		     MAC_RX_ERROR_IN          => mac_rx_err(3),
 		     
 		     
 		     CTS_NUMBER_IN            => CTS_NUMBER_IN,
@@ -649,8 +649,8 @@ begin
 		
 		
 		include_debug_gen : if (INCLUDE_DEBUG = 1) generate
-			DEBUG_OUT(0) <= mac_an_ready(0);
-			DEBUG_OUT(1) <= clk_125_rx_from_pcs(0);
+			DEBUG_OUT(0) <= mac_an_ready(3);
+			DEBUG_OUT(1) <= clk_125_rx_from_pcs(3);
 			DEBUG_OUT(2) <= RESET;
 			DEBUG_OUT(3) <= CLK_125_IN;
 			
