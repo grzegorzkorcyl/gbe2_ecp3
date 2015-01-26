@@ -112,6 +112,8 @@ signal gbe_ready, gsr : std_logic;
 
 	signal MAC_RX_EOF_IN, MAC_RX_EN_IN : std_logic;
 	signal MAC_RXD_IN : std_logic_vector(7 downto 0);
+	signal mac_read : std_logic;
+	signal mac_fifoavail : std_logic;
 
 begin
 	
@@ -246,12 +248,12 @@ begin
 		     MAC_READY_CONF_IN        => '1',
 		     MAC_RECONF_OUT           => open,
 		     MAC_AN_READY_IN		  => '1',
-		     MAC_FIFOAVAIL_OUT        => open,
+		     MAC_FIFOAVAIL_OUT        => mac_fifoavail,
 		     MAC_FIFOEOF_OUT          => mac_fifoeof,
 		     MAC_FIFOEMPTY_OUT        => open,
 		     MAC_RX_FIFOFULL_OUT      => open,
 		     MAC_TX_DATA_OUT          => open,
-		     MAC_TX_READ_IN           => '1',
+		     MAC_TX_READ_IN           => mac_read,
 		     MAC_TX_DISCRFRM_IN       => '0',
 		     MAC_TX_STAT_EN_IN        => '0',
 		     MAC_TX_STATS_IN          => (others => '0'),
@@ -348,6 +350,14 @@ begin
 	mac_tx_done <= '1';
 	wait until rising_edge(rx_mac_clk);
 end process;
+
+process(rx_mac_clk)
+begin
+	if rising_edge(rx_mac_clk) then
+		mac_read <= mac_fifoavail;
+	end if;
+end process;
+	
 
 testbench_proc : process
 begin
