@@ -56,7 +56,7 @@ architecture trb_net16_gbe_frame_constr of trb_net16_gbe_frame_constr is
 --attribute HGROUP : string;
 --attribute HGROUP of trb_net16_gbe_frame_constr : architecture  is "GBE_LINK_group";
 
-component fifo_8kx9 is --fifo_4096x9 is
+component fifo_4096x9 is --fifo_8kx9 is
 port( 
 	Data    : in    std_logic_vector(8 downto 0);
 	WrClock : in    std_logic;
@@ -479,7 +479,7 @@ begin
 end process fpfResetProc;
 --fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
-FINAL_PACKET_FIFO: fifo_8kx9 --fifo_4096x9
+FINAL_PACKET_FIFO: fifo_4096x9 --fifo_8kx9
 port map( 
 	Data(7 downto 0)    => fpf_data_q,
 	Data(8)             => fpf_eod, --END_OF_DATA_IN,
