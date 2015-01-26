@@ -479,7 +479,7 @@ begin
 end process fpfResetProc;
 --fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
-FINAL_PACKET_FIFO: fifo_4096x9 --fifo_8kx9
+FINAL_PACKET_FIFO: entity work.fifo_64kx9 --fifo_4096x9 --fifo_8kx9
 port map( 
 	Data(7 downto 0)    => fpf_data_q,
 	Data(8)             => fpf_eod, --END_OF_DATA_IN,
