@@ -602,7 +602,7 @@ lsm_impl_gen : if DO_SIMULATION = 0 generate
 	LINK_STATE_MACHINE_PROC : process(MC_RESET_LINK_IN, CLK)
 	begin
 		if MC_RESET_LINK_IN = '1' then
-			link_current_state <= INACTIVE;
+			link_current_state <= WAIT_FOR_BOOT; --INACTIVE;
 		elsif rising_edge(CLK) then
 			if RX_PATH_ENABLE = 1 then
 				link_current_state <= link_next_state;
@@ -673,15 +673,15 @@ begin
 			
 		when WAIT_FOR_BOOT =>
 			link_state <= x"6";
-			if (PCS_AN_COMPLETE_IN = '0') then
-				link_next_state <= INACTIVE;
-			else
+--			if (PCS_AN_COMPLETE_IN = '0') then
+--				link_next_state <= INACTIVE;
+--			else
 				if (wait_ctr = x"0000_1000") then
 					link_next_state <= GET_ADDRESS;
 				else
 					link_next_state <= WAIT_FOR_BOOT;
 				end if;
-			end if;
+--			end if;
 		
 		when GET_ADDRESS =>
 			link_state <= x"7";
