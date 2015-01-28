@@ -210,7 +210,7 @@ begin
 		     GSR_N                    => GSR_N,
 		     
 		     MAC_READY_CONF_IN        => '1', --mac_ready_conf(3),
-		     MAC_RECONF_OUT           => open, --mac_reconf(3),
+		     MAC_RECONF_OUT           => mac_reconf(3),
 		     MAC_AN_READY_IN		  => '1', --mac_an_ready(3),
 		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(3),
 		     MAC_FIFOEOF_OUT          => mac_fifoeof(3),
