@@ -718,11 +718,11 @@ begin
 			link_ok_timeout_ctr <= link_ok_timeout_ctr + x"1";
 		end if;
 		
-		if (link_current_state = ACTIVE or link_current_state = GET_ADDRESS) then
-			link_ok <= '1';
-		else
-			link_ok <= '0';
-		end if;
+--		if (link_current_state = ACTIVE or link_current_state = GET_ADDRESS) then
+--			link_ok <= '1';
+--		else
+--			link_ok <= '0';
+--		end if;
 		
 		if (link_current_state = GET_ADDRESS) then
 			dhcp_start <= '1';
@@ -733,6 +733,7 @@ begin
 end process LINK_OK_CTR_PROC;
 
 --link_ok <= '1' when (link_current_state = ACTIVE) or (link_current_state = GET_ADDRESS) else '0';
+link_ok <= '1';
 
 WAIT_CTR_PROC : process(CLK)
 begin
@@ -777,30 +778,30 @@ my_mac <= unique_id(31 downto 8) & x"be0002";
 --****************
 -- TRI SPEED MAC CONTROLLER
 
-TSMAC_CONTROLLER : trb_net16_gbe_mac_control
-port map(
-	CLK				=> CLK,
-	RESET			=> MC_RESET_LINK_IN, 
-	
--- signals to/from main controller
-	MC_TSMAC_READY_OUT	=> tsm_ready,
-	MC_RECONF_IN		=> tsm_reconf,
-	MC_GBE_EN_IN		=> '1',
-	MC_RX_DISCARD_FCS	=> '0',
-	MC_PROMISC_IN		=> '1',
-	MC_MAC_ADDR_IN		=> g_MY_MAC, --x"001122334455",
-
--- signal to/from Host interface of TriSpeed MAC
-	TSM_HADDR_OUT		=> tsm_haddr,
-	TSM_HDATA_OUT		=> tsm_hdata,
-	TSM_HCS_N_OUT		=> tsm_hcs_n,
-	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
-	TSM_HREAD_N_OUT		=> tsm_hread_n,
-	TSM_HREADY_N_IN		=> TSM_HREADY_N_IN,
-	TSM_HDATA_EN_N_IN	=> TSM_HDATA_EN_N_IN,
-
-	DEBUG_OUT		=> open
-);
+--TSMAC_CONTROLLER : trb_net16_gbe_mac_control
+--port map(
+--	CLK				=> CLK,
+--	RESET			=> MC_RESET_LINK_IN, 
+--	
+---- signals to/from main controller
+--	MC_TSMAC_READY_OUT	=> tsm_ready,
+--	MC_RECONF_IN		=> tsm_reconf,
+--	MC_GBE_EN_IN		=> '1',
+--	MC_RX_DISCARD_FCS	=> '0',
+--	MC_PROMISC_IN		=> '1',
+--	MC_MAC_ADDR_IN		=> g_MY_MAC, --x"001122334455",
+--
+---- signal to/from Host interface of TriSpeed MAC
+--	TSM_HADDR_OUT		=> tsm_haddr,
+--	TSM_HDATA_OUT		=> tsm_hdata,
+--	TSM_HCS_N_OUT		=> tsm_hcs_n,
+--	TSM_HWRITE_N_OUT	=> tsm_hwrite_n,
+--	TSM_HREAD_N_OUT		=> tsm_hread_n,
+--	TSM_HREADY_N_IN		=> TSM_HREADY_N_IN,
+--	TSM_HDATA_EN_N_IN	=> TSM_HDATA_EN_N_IN,
+--
+--	DEBUG_OUT		=> open
+--);
 
 --DEBUG_OUT <= mac_control_debug;
 process(CLK)

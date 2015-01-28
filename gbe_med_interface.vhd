@@ -686,8 +686,6 @@ begin
 		end process;
 		
 		
-		
-		
 	end generate sim_gen;
 	
 
