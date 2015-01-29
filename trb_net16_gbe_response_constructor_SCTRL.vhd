@@ -20,6 +20,8 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		RESET			: in	std_logic;
 		
 	-- INTERFACE	
+		MY_MAC_IN				: in std_logic_vector(47 downto 0);
+		MY_IP_IN				: in std_logic_vector(31 downto 0);
 		PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 		PS_WR_EN_IN		: in	std_logic;
 		PS_ACTIVATE_IN		: in	std_logic;
@@ -467,8 +469,8 @@ TC_DEST_MAC_OUT    <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT     <= PS_SRC_IP_ADDRESS_IN;
 TC_DEST_UDP_OUT(7 downto 0)    <= PS_SRC_UDP_PORT_IN(15 downto 8);
 TC_DEST_UDP_OUT(15 downto 8)   <= PS_SRC_UDP_PORT_IN(7 downto 0);
-TC_SRC_MAC_OUT     <= g_MY_MAC;
-TC_SRC_IP_OUT      <= g_MY_IP;
+TC_SRC_MAC_OUT     <= MY_MAC_IN;
+TC_SRC_IP_OUT      <= MY_IP_IN;
 TC_SRC_UDP_OUT     <= x"9065"; --x"a861";
 TC_IP_PROTOCOL_OUT <= x"11";
 TC_IDENT_OUT       <= x"3" & reply_ctr(11 downto 0);

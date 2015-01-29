@@ -389,6 +389,8 @@ port (
 	MC_BUSY_IN          : in	std_logic;
 	
 	-- misc signals for response constructors
+	MY_MAC_IN			: in	std_logic_vector(47 downto 0);
+	MY_IP_OUT			: out	std_logic_vector(31 downto 0);	
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 		

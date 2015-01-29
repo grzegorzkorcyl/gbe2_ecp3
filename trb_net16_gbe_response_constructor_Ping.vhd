@@ -23,6 +23,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN				: in std_logic_vector(47 downto 0);
+	MY_IP_IN				: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -282,8 +284,8 @@ end process PS_RESPONSE_SYNC;
 TC_FRAME_SIZE_OUT   <= std_logic_vector(to_unsigned(data_length, 16));
 TC_FRAME_TYPE_OUT   <= x"0008";
 TC_DEST_UDP_OUT     <= x"0000";  -- not used
-TC_SRC_MAC_OUT      <= g_MY_MAC;
-TC_SRC_IP_OUT       <= g_MY_IP;
+TC_SRC_MAC_OUT      <= MY_MAC_IN;
+TC_SRC_IP_OUT       <= MY_IP_IN;
 TC_SRC_UDP_OUT      <= x"0000";  -- not used
 TC_IP_PROTOCOL_OUT  <= X"01"; -- ICMP
 TC_IDENT_OUT        <= x"2" & sent_frames(11 downto 0);

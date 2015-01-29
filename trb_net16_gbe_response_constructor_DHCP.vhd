@@ -23,7 +23,9 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
 	
--- INTERFACE	
+-- INTERFACE
+	MY_MAC_IN		: in	std_logic_vector(47 downto 0);
+	MY_IP_IN		: in	std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -58,6 +60,7 @@ port (
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
+	MY_IP_OUT			: out	std_logic_vector(31 downto 0);
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 
@@ -137,7 +140,7 @@ begin
 TC_DEST_MAC_OUT <= x"ffffffffffff" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else saved_server_mac;
 TC_DEST_IP_OUT  <= x"ffffffff" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else saved_server_ip;
 TC_DEST_UDP_OUT <= x"4300";
-TC_SRC_MAC_OUT  <= g_MY_MAC;
+TC_SRC_MAC_OUT  <= MY_MAC_IN;
 TC_SRC_IP_OUT   <= x"00000000" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else saved_proposed_ip;
 TC_SRC_UDP_OUT  <= x"4400";
 TC_IP_PROTOCOL_OUT <= x"11"; -- udp
@@ -147,11 +150,11 @@ bootp_hdr(23 downto 16) <= x"06";  -- hardware address length
 bootp_hdr(31 downto 24) <= x"00";  -- hops
 bootp_hdr(63 downto 32) <= transaction_id;  -- transaction id;
 bootp_hdr(95 downto 64) <= x"0000_0000";  -- seconds elapsed/flags
-transaction_id <= x"cefa" & g_MY_MAC(47 downto 32);
+transaction_id <= x"cefa" & MY_MAC_IN(47 downto 32);
 vendor_values(31 downto 0)    <= x"63538263"; -- magic cookie (dhcp message)
 vendor_values(55 downto 32)   <= x"010135" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else x"030135"; -- dhcp discover, then dhcp request
 vendor_values(79 downto 56)   <= x"01073d"; -- client identifier
-vendor_values(127 downto 80)  <= g_MY_MAC;  -- client identifier
+vendor_values(127 downto 80)  <= MY_MAC_IN;  -- client identifier
 vendor_values(143 downto 128) <= x"040c";  -- client name
 vendor_values(175 downto 144) <= x"33425254";  -- client name (TRB3)
 vendor_values2(15 downto 0)   <= x"0436";  -- server identifier
@@ -161,6 +164,7 @@ vendor_values2(47 downto 16)  <= saved_server_ip;
 -- setting of global variable for IP address
 --g_MY_IP <= saved_true_ip when main_current_state = ESTABLISHED else (others => '0'); 
 my_ip <= saved_true_ip when main_current_state = ESTABLISHED else (others => '0');
+MY_IP_OUT <= my_ip;
 --
 --*****************
 
@@ -291,7 +295,7 @@ begin
 	end if;
 end process RECEIVE_MACHINE_PROC;
 
-RECEIVE_MACHINE : process(receive_current_state, main_current_state, bootp_hdr, saved_dhcp_type, saved_transaction_id, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, g_MY_MAC, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
+RECEIVE_MACHINE : process(receive_current_state, main_current_state, bootp_hdr, saved_dhcp_type, saved_transaction_id, PS_DATA_IN, PS_DEST_MAC_ADDRESS_IN, MY_MAC_IN, PS_ACTIVATE_IN, PS_WR_EN_IN, save_ctr)
 begin
 	case receive_current_state is
 	
@@ -299,7 +303,7 @@ begin
 			state3 <= x"1";
 			if (PS_ACTIVATE_IN = '1' and PS_WR_EN_IN = '1') then
 				if (main_current_state = WAITING_FOR_OFFER or main_current_state = WAITING_FOR_ACK) then  -- ready to receive dhcp frame
-					if (PS_DEST_MAC_ADDRESS_IN = g_MY_MAC) then -- check if i'm the addressee (discards broadcasts also)
+					if (PS_DEST_MAC_ADDRESS_IN = MY_MAC_IN) then -- check if i'm the addressee (discards broadcasts also)
 						receive_next_state <= SAVE_VALUES;
 					else
 						receive_next_state <= DISCARD;  -- discard if the frame is not for me
@@ -626,7 +630,7 @@ begin
 			
 			when MY_MAC =>
 				for i in 0 to 7 loop
-					tc_data(i) <= g_MY_MAC((load_ctr - 28) * 8 + i);
+					tc_data(i) <= MY_MAC_IN((load_ctr - 28) * 8 + i);
 				end loop;
 				tc_data(8) <= '0';
 			

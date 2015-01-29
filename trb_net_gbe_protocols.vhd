@@ -9,12 +9,12 @@ package trb_net_gbe_protocols is
 
 type hist_array is array(31 downto 0) of std_logic_vector(31 downto 0);
 
-signal g_SIMULATE             : integer range 0 to 1 := 0;
+--signal g_SIMULATE             : integer range 0 to 1 := 0;
 
--- g_MY_IP is being set by DHCP Response Constructor
-signal g_MY_IP                : std_logic_vector(31 downto 0);
--- g_MY_MAC is being set by Main Controller
-signal g_MY_MAC               : std_logic_vector(47 downto 0) := x"001122334455";
+---- g_MY_IP is being set by DHCP Response Constructor
+--signal g_MY_IP                : std_logic_vector(31 downto 0);
+---- g_MY_MAC is being set by Main Controller
+--signal g_MY_MAC               : std_logic_vector(47 downto 0) := x"001122334455";
 
 constant c_MAX_FRAME_TYPES    : integer range 1 to 16 := 2;
 constant c_MAX_PROTOCOLS      : integer range 1 to 16 := 5; --5; --4; --5;
@@ -39,7 +39,9 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
 	
--- INTERFACE	
+-- INTERFACE
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -83,6 +85,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -129,6 +133,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -171,7 +177,9 @@ port (
 	CLK			: in	std_logic;  -- system clock
 	RESET			: in	std_logic;
 	
--- INTERFACE	
+-- INTERFACE
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);	
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -226,6 +234,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -261,6 +271,7 @@ port (
 	SENT_FRAMES_OUT		: out	std_logic_vector(15 downto 0);
 -- END OF INTERFACE
 
+	MY_IP_OUT			: out	std_logic_vector(31 downto 0); 
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 -- debug
@@ -276,6 +287,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -324,6 +337,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -370,6 +385,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -414,6 +431,8 @@ generic ( STAT_ADDRESS_BASE : integer := 0
 		RESET			: in	std_logic;
 		
 	-- INTERFACE	
+		MY_MAC_IN		: in std_logic_vector(47 downto 0);
+		MY_IP_IN		: in std_logic_vector(31 downto 0);
 		PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 		PS_WR_EN_IN		: in	std_logic;
 		PS_ACTIVATE_IN		: in	std_logic;
@@ -480,6 +499,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -539,6 +560,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN		: in std_logic_vector(47 downto 0);
+	MY_IP_IN		: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;

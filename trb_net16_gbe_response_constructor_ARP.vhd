@@ -22,6 +22,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN				: in std_logic_vector(47 downto 0);
+	MY_IP_IN				: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		       : in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		       : in	std_logic;
 	PS_ACTIVATE_IN		   : in	std_logic;
@@ -103,12 +105,12 @@ values(31 downto 16)   <= x"0008";  -- protocol type
 values(39 downto 32)   <= x"06";  -- hardware size
 values(47 downto 40)   <= x"04";  -- protocol size
 values(63 downto 48)   <= x"0200"; --opcode (reply)
-values(111 downto 64)  <= g_MY_MAC;  -- sender (my) mac
-values(143 downto 112) <= g_MY_IP;
+values(111 downto 64)  <= MY_MAC_IN;  -- sender (my) mac
+values(143 downto 112) <= MY_IP_IN;
 values(191 downto 144) <= PS_SRC_MAC_ADDRESS_IN;  -- target mac
 values(223 downto 192) <= saved_sender_ip;  -- target ip
 
-DISSECT_MACHINE_PROC : process(CLK)
+DISSECT_MACHINE_PROC : process(RESET, CLK)
 begin
 	if RESET = '1' then
 		dissect_current_state <= IDLE;
@@ -121,7 +123,7 @@ begin
 	end if;
 end process DISSECT_MACHINE_PROC;
 
-DISSECT_MACHINE : process(dissect_current_state, g_MY_IP, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, PS_SELECTED_IN, saved_target_ip)
+DISSECT_MACHINE : process(dissect_current_state, MY_IP_IN, PS_WR_EN_IN, PS_ACTIVATE_IN, PS_DATA_IN, data_ctr, PS_SELECTED_IN, saved_target_ip)
 begin
 	case dissect_current_state is
 	
@@ -143,7 +145,7 @@ begin
 			
 		when DECIDE =>
 			state <= x"3";
-			if (saved_target_ip = g_MY_IP or g_SIMULATE = 1) then
+			if (saved_target_ip = MY_IP_IN) then
 				dissect_next_state <= WAIT_FOR_LOAD;
 			-- in case the request is not for me, drop it
 			else
@@ -241,7 +243,7 @@ begin
 	end if;
 end process SAVE_VALUES_PROC;
 
-TC_DATA_PROC : process(dissect_current_state, data_ctr, values)
+TC_DATA_PROC : process(CLK)
 begin
 	if rising_edge(CLK) then
 		tc_data(8) <= '0';
@@ -290,7 +292,7 @@ TC_FRAME_TYPE_OUT   <= x"0608";
 TC_DEST_MAC_OUT     <= PS_SRC_MAC_ADDRESS_IN;
 TC_DEST_IP_OUT      <= x"00000000";  -- doesnt matter
 TC_DEST_UDP_OUT     <= x"0000";  -- doesnt matter
-TC_SRC_MAC_OUT      <= g_MY_MAC;
+TC_SRC_MAC_OUT      <= MY_MAC_IN;
 TC_SRC_IP_OUT       <= x"00000000";  -- doesnt matter
 TC_SRC_UDP_OUT      <= x"0000";  -- doesnt matter
 TC_IP_PROTOCOL_OUT  <= x"00"; -- doesnt matter

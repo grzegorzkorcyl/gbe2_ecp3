@@ -59,6 +59,8 @@ port (
 	MC_BUSY_IN      : in	std_logic;
 	
 	-- misc signals for response constructors
+	MY_MAC_IN			: in	std_logic_vector(47 downto 0);
+	MY_IP_OUT			: out	std_logic_vector(31 downto 0);	
 	DHCP_START_IN		: in	std_logic;
 	DHCP_DONE_OUT		: out	std_logic;
 	
@@ -191,6 +193,8 @@ attribute syn_keep : boolean;
 attribute syn_keep of state, mult : signal is true;
 attribute syn_preserve of state, mult : signal is true;
 
+signal my_ip : std_logic_vector(31 downto 0); 
+
 
 begin
 
@@ -204,7 +208,10 @@ port map (
 	CLK						=> CLK,
 	RESET					=> RESET,
 	
--- INTERFACE	
+-- INTERFACE
+	MY_MAC_IN				=> MY_MAC_IN,
+	MY_IP_IN				=> my_ip,
+
 	PS_DATA_IN				=> PS_DATA_IN,
 	PS_WR_EN_IN				=> PS_WR_EN_IN,
 	PS_ACTIVATE_IN			=> PS_PROTO_SELECT_IN(0),
@@ -254,6 +261,9 @@ port map (
 	RESET			        => RESET_FOR_DHCP, --RESET,
 	
 -- INTERFACE	
+	MY_MAC_IN				=> MY_MAC_IN,
+	MY_IP_IN				=> my_ip,
+	
 	PS_DATA_IN		        => PS_DATA_IN,
 	PS_WR_EN_IN		        => PS_WR_EN_IN,
 	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(1),
@@ -290,6 +300,7 @@ port map (
 	SENT_FRAMES_OUT		    => open, --SENT_FRAMES_OUT(2 * 16 - 1 downto 1 * 16),
 -- END OF INTERFACE
 
+	MY_IP_OUT				=> my_ip,
 	DHCP_START_IN		    => DHCP_START_IN,
 	DHCP_DONE_OUT		    => DHCP_DONE_OUT,
 	 
@@ -304,7 +315,10 @@ port map (
 	CLK			            => CLK,
 	RESET			        => RESET,
 	
----- INTERFACE	
+---- INTERFACE
+	MY_MAC_IN				=> MY_MAC_IN,
+	MY_IP_IN				=> my_ip,
+	
 	PS_DATA_IN		        => PS_DATA_IN,
 	PS_WR_EN_IN		        => PS_WR_EN_IN,
 	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(4),
@@ -351,6 +365,9 @@ port map (
 	RESET			        => RESET,
 	
 -- INTERFACE	
+	MY_MAC_IN				=> MY_MAC_IN,
+	MY_IP_IN				=> my_ip,
+	
 	PS_DATA_IN		        => PS_DATA_IN,
 	PS_WR_EN_IN		        => PS_WR_EN_IN,
 	PS_ACTIVATE_IN		    => PS_PROTO_SELECT_IN(2),
@@ -418,6 +435,9 @@ port map (
 	RESET						=> RESET,
 	
 -- INTERFACE	
+	MY_MAC_IN				=> MY_MAC_IN,
+	MY_IP_IN				=> my_ip,
+	
 	PS_DATA_IN					=> PS_DATA_IN,
 	PS_WR_EN_IN					=> PS_WR_EN_IN,
 	PS_ACTIVATE_IN				=> PS_PROTO_SELECT_IN(3),

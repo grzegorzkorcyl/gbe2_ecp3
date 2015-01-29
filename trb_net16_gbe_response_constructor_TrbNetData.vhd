@@ -21,6 +21,8 @@ port (
 	RESET			: in	std_logic;
 	
 -- INTERFACE	
+	MY_MAC_IN				: in std_logic_vector(47 downto 0);
+	MY_IP_IN				: in std_logic_vector(31 downto 0);
 	PS_DATA_IN		: in	std_logic_vector(8 downto 0);
 	PS_WR_EN_IN		: in	std_logic;
 	PS_ACTIVATE_IN		: in	std_logic;
@@ -483,12 +485,12 @@ end process;
 
 
 rx_enable_gen : if (RX_PATH_ENABLE = 1) generate
-	TC_SRC_MAC_OUT        <= g_MY_MAC;
-	TC_SRC_IP_OUT         <= g_MY_IP;
+	TC_SRC_MAC_OUT        <= MY_MAC_IN;
+	TC_SRC_IP_OUT         <= MY_IP_IN;
 end generate rx_enable_gen;
 
 rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
-	TC_SRC_MAC_OUT        <= g_MY_MAC;
+	TC_SRC_MAC_OUT        <= MY_MAC_IN;
 	TC_SRC_IP_OUT         <= ic_src_ip;
 end generate rx_disable_gen;
 

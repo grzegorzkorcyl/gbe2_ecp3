@@ -293,6 +293,8 @@ port map(
 	
 	MC_BUSY_IN      => mc_busy,
 	
+	MY_MAC_IN			=> my_mac,
+	MY_IP_OUT			=> open,
 	DHCP_START_IN		=> dhcp_start,
 	DHCP_DONE_OUT		=> dhcp_done,
 	
@@ -770,8 +772,8 @@ MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 
 --*************
 -- GENERATE MAC_ADDRESS
-g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
---my_mac <= unique_id(31 downto 8) & x"be0002";
+--g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
+my_mac <= unique_id(31 downto 8) & x"be0002";
 
 --*************
 
