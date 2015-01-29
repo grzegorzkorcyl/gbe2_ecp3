@@ -253,6 +253,10 @@ begin
 	end process reset_sync;
 	
 	global_reset <= not rst_n;
+	
+	fc_ihl_version      <= x"45";
+	fc_tos              <= x"10";
+	fc_ttl              <= x"ff";
 
 
 	main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
