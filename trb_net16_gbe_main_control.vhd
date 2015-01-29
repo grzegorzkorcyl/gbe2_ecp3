@@ -770,8 +770,8 @@ MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 
 --*************
 -- GENERATE MAC_ADDRESS
---g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
-my_mac <= unique_id(31 downto 8) & x"be0002";
+g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
+--my_mac <= unique_id(31 downto 8) & x"be0002";
 
 --*************
 

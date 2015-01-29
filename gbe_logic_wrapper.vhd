@@ -17,6 +17,12 @@ entity gbe_logic_wrapper is
 		USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1;
 		RX_PATH_ENABLE : integer range 0 to 1;
 		
+		INCLUDE_READOUT : integer range 0 to 1 := 0;
+		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
+		INCLUDE_DHCP : integer range 0 to 1 := 0;
+		INCLUDE_ARP : integer range 0 to 1 := 0;
+		INCLUDE_PING : integer range 0 to 1 := 0;
+		
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;
 		FIXED_SIZE : integer range 0 to 65535 := 10;
