@@ -510,6 +510,7 @@ port (
 	MC_RESET_LINK_IN	: in	std_logic;
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
 	MC_DHCP_DONE_OUT : out std_logic;
+	MC_MY_MAC_OUT : out std_logic_vector(47 downto 0);
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -746,6 +747,7 @@ port (
 	LINK_OK_IN              : in    std_logic;
 	ALLOW_RX_IN		: in	std_logic;
 	RX_MAC_CLK		: in	std_logic;  -- receiver serdes clock
+	MY_MAC_IN		: in	std_logic_vector(47 downto 0);
 
 -- input signals from TS_MAC
 	MAC_RX_EOF_IN		: in	std_logic;

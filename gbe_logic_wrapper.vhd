@@ -237,6 +237,7 @@ architecture RTL of gbe_logic_wrapper is
 	signal dbg_ft : std_logic_vector(63 downto 0);
 	signal dbg_q : std_logic_vector(15 downto 0);
 	signal make_reset : std_logic;
+	signal my_mac : std_logic_vector(47 downto 0);
 	
 begin
 	
@@ -269,6 +270,7 @@ begin
 			  MC_RESET_LINK_IN			=> global_reset,
 			  MC_IDLE_TOO_LONG_OUT 		=> open,
 			  MC_DHCP_DONE_OUT 			=> dhcp_done,
+			  MC_MY_MAC_OUT				=> my_mac,
 		
 		  -- signals to/from receive controller
 			  RC_FRAME_WAITING_IN		=> rc_frame_ready,
@@ -784,6 +786,7 @@ begin
 		LINK_OK_IN				=> link_ok,
 		ALLOW_RX_IN				=> CFG_ALLOW_RX_IN,
 		RX_MAC_CLK				=> CLK_RX_125_IN,
+		MY_MAC_IN				=> my_mac,
 	
 	  -- input signals from TS_MAC
 		MAC_RX_EOF_IN			=> MAC_RX_EOF_IN,

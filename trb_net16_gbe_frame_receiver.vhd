@@ -23,6 +23,7 @@ port (
 	LINK_OK_IN              : in    std_logic;
 	ALLOW_RX_IN		: in	std_logic;
 	RX_MAC_CLK		: in	std_logic;  -- receiver serdes clock
+	MY_MAC_IN		: in	std_logic_vector(47 downto 0);
 
 -- input signals from TS_MAC
 	MAC_RX_EOF_IN		: in	std_logic;
@@ -152,7 +153,7 @@ begin
 	end if;
 end process FILTER_MACHINE_PROC;
 
-FILTER_MACHINE : process(filter_current_state, saved_frame_type, LINK_OK_IN, saved_proto, g_MY_MAC, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
+FILTER_MACHINE : process(filter_current_state, saved_frame_type, LINK_OK_IN, saved_proto, MY_MAC_IN, saved_dest_mac, remove_ctr, new_frame, MAC_RX_EOF_IN, frame_type_valid, ALLOW_RX_IN)
 begin
 
 	case filter_current_state is
@@ -170,7 +171,7 @@ begin
 			state <= x"3";
 			if (remove_ctr = x"03") then  -- counter starts with a delay that's why only 3
 				-- destination MAC address filtering here 
-				if (saved_dest_mac = g_MY_MAC) or (saved_dest_mac = x"ffffffffffff") then  -- must accept broadcasts for ARP
+				if (saved_dest_mac = MY_MAC_IN) or (saved_dest_mac = x"ffffffffffff") then  -- must accept broadcasts for ARP
 					filter_next_state <= REMOVE_SRC;
 				else
 					filter_next_state <= DECIDE;
