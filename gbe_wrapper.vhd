@@ -29,7 +29,7 @@ entity gbe_wrapper is
 		UP_DOWN_LIMIT : integer range 0 to 16777215 := 0;
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215;
 		
-		NUMBER_OF_GBE_LINKS : integer range 1 to 4 := 1;
+		NUMBER_OF_GBE_LINKS : integer range 1 to 4 := 4;
 		LINKS_ACTIVE : std_logic_vector(3 downto 0) := "1111"
 	);
 	port (
@@ -148,7 +148,7 @@ begin
 	
 	physical : entity work.gbe_med_interface
 	generic map(DO_SIMULATION       => DO_SIMULATION,
-		        NUMBER_OF_GBE_LINKS => 4,
+		        NUMBER_OF_GBE_LINKS => NUMBER_OF_GBE_LINKS,
 		        LINKS_ACTIVE        => LINKS_ACTIVE)
 	port map(
 			 RESET               => RESET,
