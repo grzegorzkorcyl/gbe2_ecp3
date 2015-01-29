@@ -114,7 +114,8 @@ signal pause    : integer range 0 to 28;
 signal stat_data_temp           : std_logic_vector(31 downto 0);
 
 begin
-pause <= 10 when g_SIMULATE = 1 else 28;
+--pause <= 10 when g_SIMULATE = 1 else 28;
+pause <= 28;
 
 
 mem : statts_mem
@@ -197,16 +198,12 @@ begin
 		if (RESET = '1') then
 			construct_current_state <= IDLE;
 		else
-			if (g_SIMULATE = 1) then
-				construct_current_state <= IDLE;
-			else
-				construct_current_state <= construct_next_state;
-			end if;
+			construct_current_state <= construct_next_state;
 		end if;
 	end if;
 end process CONSTRUCT_MACHINE_PROC;
 
-CONSTRUCT_MACHINE : process(construct_current_state, timer_lock, TC_BUSY_IN, PS_SELECTED_IN, timer, load_ctr)
+CONSTRUCT_MACHINE : process(construct_current_state, timer_lock, TC_BUSY_IN, PS_SELECTED_IN, timer, load_ctr, pause)
 begin
 	case construct_current_state is
 	
