@@ -202,7 +202,7 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> 0,
+		        INCLUDE_READOUT		=> 1,
 				INCLUDE_SLOWCTRL	=> 0,
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
@@ -314,7 +314,7 @@ begin
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 
 		        INCLUDE_READOUT		=> 0,
-				INCLUDE_SLOWCTRL	=> 0,
+				INCLUDE_SLOWCTRL	=> 1,
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,

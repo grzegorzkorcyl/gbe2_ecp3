@@ -256,11 +256,11 @@ begin
 		
 		when ESTABLISHED =>
 			state2 <= x"6";
-			if (wait_ctr = x"2000_0000") then
-				main_next_state <= SENDING_DISCOVER;
-			else
+--			if (wait_ctr = x"2000_0000") then
+--				main_next_state <= SENDING_DISCOVER;
+--			else
 				main_next_state <= ESTABLISHED;
-			end if;
+--			end if;
 	
 	end case;
 
