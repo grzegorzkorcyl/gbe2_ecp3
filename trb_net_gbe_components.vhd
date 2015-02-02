@@ -351,7 +351,13 @@ end component;
 component trb_net16_gbe_protocol_selector is
 generic(
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
-		DO_SIMULATION  : integer range 0 to 1 := 0
+		DO_SIMULATION  : integer range 0 to 1 := 0;
+		
+		INCLUDE_READOUT : integer range 0 to 1 := 0;
+		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
+		INCLUDE_DHCP : integer range 0 to 1 := 0;
+		INCLUDE_ARP : integer range 0 to 1 := 0;
+		INCLUDE_PING : integer range 0 to 1 := 0
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -499,7 +505,13 @@ end component;
 component trb_net16_gbe_main_control is
 generic(
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
-		DO_SIMULATION  : integer range 0 to 1 := 0
+		DO_SIMULATION  : integer range 0 to 1 := 0;
+		
+		INCLUDE_READOUT : integer range 0 to 1 := 0;
+		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
+		INCLUDE_DHCP : integer range 0 to 1 := 0;
+		INCLUDE_ARP : integer range 0 to 1 := 0;
+		INCLUDE_PING : integer range 0 to 1 := 0
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -511,6 +523,7 @@ port (
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
 	MC_DHCP_DONE_OUT : out std_logic;
 	MC_MY_MAC_OUT : out std_logic_vector(47 downto 0);
+	MC_MY_MAC_IN : in std_logic_vector(47 downto 0);
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;

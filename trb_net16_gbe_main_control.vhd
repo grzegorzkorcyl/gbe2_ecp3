@@ -21,7 +21,13 @@ use work.trb_net_gbe_protocols.all;
 entity trb_net16_gbe_main_control is
 	generic(
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
-		DO_SIMULATION  : integer range 0 to 1 := 0
+		DO_SIMULATION  : integer range 0 to 1 := 0;
+		
+		INCLUDE_READOUT : integer range 0 to 1 := 0;
+		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
+		INCLUDE_DHCP : integer range 0 to 1 := 0;
+		INCLUDE_ARP : integer range 0 to 1 := 0;
+		INCLUDE_PING : integer range 0 to 1 := 0
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -33,6 +39,7 @@ port (
 	MC_IDLE_TOO_LONG_OUT : out std_logic;
 	MC_DHCP_DONE_OUT : out std_logic;
 	MC_MY_MAC_OUT : out std_logic_vector(47 downto 0);
+	MC_MY_MAC_IN : in std_logic_vector(47 downto 0);
 
 -- signals to/from receive controller
 	RC_FRAME_WAITING_IN	: in	std_logic;
@@ -249,8 +256,6 @@ attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_s
 
 signal mc_busy                      : std_logic;
 
-signal my_mac : std_logic_vector(47 downto 0);
-
 begin
 
 unique_id <= MC_UNIQUE_ID_IN;
@@ -258,7 +263,13 @@ unique_id <= MC_UNIQUE_ID_IN;
 protocol_selector : trb_net16_gbe_protocol_selector
 generic map(
 		RX_PATH_ENABLE => RX_PATH_ENABLE,
-		DO_SIMULATION  => DO_SIMULATION
+		DO_SIMULATION  => DO_SIMULATION,
+		
+		INCLUDE_READOUT  => INCLUDE_READOUT,
+		INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
+		INCLUDE_DHCP     => INCLUDE_DHCP,
+		INCLUDE_ARP      => INCLUDE_ARP,
+		INCLUDE_PING     => INCLUDE_PING
 		)
 port map(
 	CLK			=> CLK,
@@ -294,7 +305,7 @@ port map(
 	
 	MC_BUSY_IN      => mc_busy,
 	
-	MY_MAC_IN			=> my_mac,
+	MY_MAC_IN			=> MC_MY_MAC_IN,
 	MY_IP_OUT			=> open,
 	DHCP_START_IN		=> dhcp_start,
 	DHCP_DONE_OUT		=> dhcp_done,
@@ -774,8 +785,7 @@ MC_LINK_OK_OUT <= link_ok; -- or nothing_sent;
 --*************
 -- GENERATE MAC_ADDRESS
 --g_MY_MAC <= unique_id(31 downto 8) & x"be0002";
-my_mac <= unique_id(31 downto 8) & x"be0002";
-MC_MY_MAC_OUT <= my_mac;
+MC_MY_MAC_OUT <= unique_id(31 downto 8) & x"be0002";
 
 --*************
 

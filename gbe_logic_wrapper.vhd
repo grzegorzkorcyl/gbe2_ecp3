@@ -38,6 +38,9 @@ entity gbe_logic_wrapper is
 		RESET : in std_logic;
 		GSR_N : in std_logic;
 		
+		MY_MAC_OUT : out std_logic_vector(47 downto 0);
+		MY_MAC_IN  : in std_logic_vector(47 downto 0);
+		
 			-- connection to MAC
 		MAC_READY_CONF_IN		: in	std_logic;
 		MAC_RECONF_OUT			: out	std_logic;
@@ -257,13 +260,21 @@ begin
 	fc_ihl_version      <= x"45";
 	fc_tos              <= x"10";
 	fc_ttl              <= x"ff";
+	
+	MY_MAC_OUT <= my_mac;
 
 
 	main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate
 		MAIN_CONTROL : trb_net16_gbe_main_control
 			generic map(
 				RX_PATH_ENABLE => RX_PATH_ENABLE,
-				DO_SIMULATION  => DO_SIMULATION
+				DO_SIMULATION  => DO_SIMULATION,
+				
+				INCLUDE_READOUT  => INCLUDE_READOUT,
+				INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
+				INCLUDE_DHCP     => INCLUDE_DHCP,
+				INCLUDE_ARP      => INCLUDE_ARP,
+				INCLUDE_PING     => INCLUDE_PING
 				)
 		  port map(
 			  CLK						=> CLK_SYS_IN,
@@ -275,6 +286,7 @@ begin
 			  MC_IDLE_TOO_LONG_OUT 		=> open,
 			  MC_DHCP_DONE_OUT 			=> dhcp_done,
 			  MC_MY_MAC_OUT				=> my_mac,
+			  MC_MY_MAC_IN				=> MY_MAC_IN,
 		
 		  -- signals to/from receive controller
 			  RC_FRAME_WAITING_IN		=> rc_frame_ready,
@@ -398,7 +410,13 @@ begin
 		MAIN_CONTROL : trb_net16_gbe_main_control
 		generic map(
 			RX_PATH_ENABLE => RX_PATH_ENABLE,
-			DO_SIMULATION  => DO_SIMULATION
+			DO_SIMULATION  => DO_SIMULATION,
+			
+			INCLUDE_READOUT  => INCLUDE_READOUT,
+			INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
+			INCLUDE_DHCP     => INCLUDE_DHCP,
+			INCLUDE_ARP      => INCLUDE_ARP,
+			INCLUDE_PING     => INCLUDE_PING
 			)
 	  	port map(
 		  CLK			=> CLK_SYS_IN,
@@ -409,6 +427,8 @@ begin
 		  MC_RESET_LINK_IN	=> global_reset,
 		  MC_IDLE_TOO_LONG_OUT => open,
 		  MC_DHCP_DONE_OUT => dhcp_done,
+		  MC_MY_MAC_OUT				=> my_mac,
+		  MC_MY_MAC_IN				=> MY_MAC_IN,
 	
 	  -- signals to/from receive controller
 		  RC_FRAME_WAITING_IN	=> rc_frame_ready,
@@ -790,7 +810,7 @@ begin
 		LINK_OK_IN				=> link_ok,
 		ALLOW_RX_IN				=> CFG_ALLOW_RX_IN,
 		RX_MAC_CLK				=> CLK_RX_125_IN,
-		MY_MAC_IN				=> my_mac,
+		MY_MAC_IN				=> MY_MAC_IN,
 	
 	  -- input signals from TS_MAC
 		MAC_RX_EOF_IN			=> MAC_RX_EOF_IN,
