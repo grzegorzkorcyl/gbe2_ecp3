@@ -208,7 +208,11 @@ begin
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
-		        
+				
+		        FRAME_BUFFER_SIZE	 => 2,
+				READOUT_BUFFER_SIZE  => 4,
+				SLOWCTRL_BUFFER_SIZE => 2,
+				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
 		        INCREMENTAL_MODE          => INCREMENTAL_MODE,
 		        FIXED_SIZE                => FIXED_SIZE,
@@ -315,6 +319,7 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => cfg_max_subs_in_queue,
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
+		     CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
 		     
 		     MAKE_RESET_OUT           => MAKE_RESET_OUT
 		);
@@ -330,6 +335,10 @@ begin
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
+				
+				FRAME_BUFFER_SIZE	 => 2,
+				READOUT_BUFFER_SIZE  => 4,
+				SLOWCTRL_BUFFER_SIZE => 2,
 
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
 		        INCREMENTAL_MODE          => INCREMENTAL_MODE,
@@ -437,6 +446,7 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => cfg_max_subs_in_queue,
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
+		     CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -452,6 +462,10 @@ begin
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
+						        
+				FRAME_BUFFER_SIZE	 => 2,
+				READOUT_BUFFER_SIZE  => 4,
+				SLOWCTRL_BUFFER_SIZE => 2,
 				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
 		        INCREMENTAL_MODE          => INCREMENTAL_MODE,
@@ -563,6 +577,10 @@ begin
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
+				
+		        FRAME_BUFFER_SIZE	 => 2,
+				READOUT_BUFFER_SIZE  => 4,
+				SLOWCTRL_BUFFER_SIZE => 2,
 				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
 		        INCREMENTAL_MODE          => INCREMENTAL_MODE,

@@ -1055,6 +1055,7 @@ port(
 	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
 	GBE_INSERT_TTYPE_OUT      : out std_logic;
 	GBE_SOFT_RESET_OUT        : out std_logic;
+	GBE_MAX_REPLY_OUT         : out std_logic_vector(31 downto 0);
 	
 	GBE_MAX_SUB_OUT           : out std_logic_vector(15 downto 0);
 	GBE_MAX_QUEUE_OUT         : out std_logic_vector(15 downto 0);
