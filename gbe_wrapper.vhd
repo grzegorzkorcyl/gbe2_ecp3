@@ -172,6 +172,7 @@ begin
 	mac_1 <= master_mac(31 downto 8) & x"de0002";
 	mac_2 <= master_mac(31 downto 8) & x"ee0002";
 	
+	
 	physical : entity work.gbe_med_interface
 	generic map(DO_SIMULATION       => DO_SIMULATION,
 		        NUMBER_OF_GBE_LINKS => NUMBER_OF_GBE_LINKS,
@@ -702,7 +703,8 @@ begin
 	generic map(
 		DO_SIMULATION          => DO_SIMULATION,
 		INCLUDE_DEBUG          => INCLUDE_DEBUG,
-		NUMBER_OF_OUTPUT_LINKS => 2)
+		NUMBER_OF_OUTPUT_LINKS => 2
+	)
 	port map(
 		CLK_SYS_IN                  => CLK_SYS_IN,
 		RESET                       => RESET,

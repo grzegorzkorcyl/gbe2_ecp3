@@ -13,6 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 ENTITY aa_wrapper_tb IS
+	generic(NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 2);
 END aa_wrapper_tb;
 
 ARCHITECTURE behavior OF aa_wrapper_tb IS
@@ -45,46 +46,6 @@ ARCHITECTURE behavior OF aa_wrapper_tb IS
 end component;
 
 signal clk, reset,RX_MAC_CLK : std_logic;
-signal fc_data                   : std_logic_vector(7 downto 0);
-signal fc_wr_en                  : std_logic;
-signal fc_sod                    : std_logic;
-signal fc_eod                    : std_logic;
-signal fc_h_ready                : std_logic;
-signal fc_ip_size                : std_logic_vector(15 downto 0);
-signal fc_udp_size               : std_logic_vector(15 downto 0);
-signal fc_ready                  : std_logic;
-signal fc_dest_mac               : std_logic_vector(47 downto 0);
-signal fc_dest_ip                : std_logic_vector(31 downto 0);
-signal fc_dest_udp               : std_logic_vector(15 downto 0);
-signal fc_src_mac                : std_logic_vector(47 downto 0);
-signal fc_src_ip                 : std_logic_vector(31 downto 0);
-signal fc_src_udp                : std_logic_vector(15 downto 0);
-signal fc_type                   : std_logic_vector(15 downto 0);
-signal fc_ihl                    : std_logic_vector(7 downto 0);
-signal fc_tos                    : std_logic_vector(7 downto 0);
-signal fc_ident                  : std_logic_vector(15 downto 0);
-signal fc_flags                  : std_logic_vector(15 downto 0);
-signal fc_ttl                    : std_logic_vector(7 downto 0);
-signal fc_proto                  : std_logic_vector(7 downto 0);
-signal tc_src_mac                : std_logic_vector(47 downto 0);
-signal tc_dest_mac               : std_logic_vector(47 downto 0);
-signal tc_src_ip                 : std_logic_vector(31 downto 0);
-signal tc_dest_ip                : std_logic_vector(31 downto 0);
-signal tc_src_udp                : std_logic_vector(15 downto 0);
-signal tc_dest_udp               : std_logic_vector(15 downto 0);
-signal tc_dataready, tc_rd_en, tc_done : std_logic;
-signal tc_ip_proto : std_logic_vector(7 downto 0);
-signal tc_data : std_logic_vector(8 downto 0);
-signal tc_frame_size, tc_size_left, tc_frame_type, tc_flags, tc_ident : std_logic_vector(15 downto 0);
-signal response_ready, selected, dhcp_start, mc_busy : std_logic;
-
-signal ps_data : std_logic_vector(8 downto 0);
-signal ps_wr_en, ps_rd_en, ps_frame_ready : std_logic;
-signal ps_proto, ps_busy : std_logic_vector(4 downto 0);
-signal ps_frame_size : std_logic_vector(15 downto 0);
-
-signal gsc_reply_dataready, gsc_busy : std_logic;
-signal gsc_reply_data : std_logic_vector(15 downto 0);
 
 SIGNAL CTS_NUMBER_IN :  std_logic_vector(15 downto 0);
 SIGNAL CTS_CODE_IN :  std_logic_vector(7 downto 0);
@@ -104,140 +65,62 @@ SIGNAL FEE_STATUS_BITS_IN :  std_logic_vector(31 downto 0) := x"0000_0000";
 SIGNAL FEE_BUSY_IN :  std_logic;
 
 
-signal ft_data : std_logic_vector(8 downto 0);
-signal ft_tx_empty, ft_start_of_packet : std_logic;
+signal mac_tx_done, mac_fifoeof : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal gsr : std_logic;
 
-signal mac_tx_done, mac_fifoeof : std_logic;
-signal gbe_ready, gsr : std_logic;
+signal MAC_RX_EOF_IN, MAC_RX_EN_IN : std_logic;
+signal MAC_RXD_IN : std_logic_vector(7 downto 0);
+signal mac_read : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mac_fifoavail : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal master_mac : std_logic_vector(47 downto 0);
 
-	signal MAC_RX_EOF_IN, MAC_RX_EN_IN : std_logic;
-	signal MAC_RXD_IN : std_logic_vector(7 downto 0);
-	signal mac_read : std_logic;
-	signal mac_fifoavail : std_logic;
+signal mlt_cts_number		    : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+signal mlt_cts_code		        : std_logic_vector (8 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+signal mlt_cts_information	    : std_logic_vector (8 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+signal mlt_cts_readout_type     : std_logic_vector (4 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+signal mlt_cts_start_readout    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_data			    : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_dataready	    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_readout_finished : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_read		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_length		    : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_cts_error_pattern    : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_fee_data		        : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_fee_dataready	    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_fee_read			    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_fee_status	        : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal mlt_fee_busy		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
 
 begin
 	
 	gsr <= not reset;
-	
---buf : trb_net16_gbe_buf
---generic map( 
---	DO_SIMULATION		=> 1,
---	RX_PATH_ENABLE      => 1,
---	USE_INTERNAL_TRBNET_DUMMY => 1,
---	USE_125MHZ_EXTCLK       => 0,
---	
---		FIXED_SIZE_MODE => 0,
---		INCREMENTAL_MODE => 1,
---		FIXED_SIZE => 100, --13750, --325, --335, --20000, --8832, --5000, --10000, --10, --335
---		UP_DOWN_MODE => 1,
---		UP_DOWN_LIMIT => 120, --17500, --330,
---		FIXED_DELAY_MODE => 1,
---		FIXED_DELAY => 16777215 --4096
---)
---port map(
---	CLK							=> clk,
---	TEST_CLK					=> RX_MAC_CLK,
---	CLK_125_IN				=> RX_MAC_CLK,
---	RESET						=> reset,
---	GSR_N						=> gsr,
---	-- Debug
---	STAGE_STAT_REGS_OUT			=> open,
---	STAGE_CTRL_REGS_IN			=> (others => '0'),
---	-- configuration interface
---	IP_CFG_START_IN				=> '0',
---	IP_CFG_BANK_SEL_IN			=> (others => '0'),
---	IP_CFG_DONE_OUT				=> open,
---	IP_CFG_MEM_ADDR_OUT			=> open,
---	IP_CFG_MEM_DATA_IN			=> (others => '0'),
---	IP_CFG_MEM_CLK_OUT			=> open,
---	MR_RESET_IN					=> '0',
---	MR_MODE_IN					=> '0',
---	MR_RESTART_IN				=> '0',
---	-- gk 29.03.10
---	SLV_ADDR_IN                  => (others => '0'),
---	SLV_READ_IN                  => '0',
---	SLV_WRITE_IN                 => '0',
---	SLV_BUSY_OUT                 => open,
---	SLV_ACK_OUT                  => open,
---	SLV_DATA_IN                  => (others => '0'),
---	SLV_DATA_OUT                 => open,
---	-- gk 22.04.10
---	-- registers setup interface
---	BUS_ADDR_IN               => (others => '0'),
---	BUS_DATA_IN               => (others => '0'),
---	BUS_DATA_OUT              => open,
---	BUS_WRITE_EN_IN           => '0',
---	BUS_READ_EN_IN            => '0',
---	BUS_ACK_OUT               => open,
---	-- gk 23.04.10
---	LED_PACKET_SENT_OUT         => open,
---	LED_AN_DONE_N_OUT           => gbe_ready,
---	-- CTS interface
---	CTS_NUMBER_IN				=> cts_number_in,            
---	CTS_CODE_IN					=> cts_code_in,              
---	CTS_INFORMATION_IN			=> cts_information_in,       
---	CTS_READOUT_TYPE_IN			=> cts_readout_type_in,      
---	CTS_START_READOUT_IN		=> cts_start_readout_in,     
---	CTS_DATA_OUT				=> cts_data_out,             
---	CTS_DATAREADY_OUT			=> cts_dataready_out,        
---	CTS_READOUT_FINISHED_OUT	=> cts_readout_finished_out, 
---	CTS_READ_IN					=> cts_read_in,              
---	CTS_LENGTH_OUT				=> cts_length_out,           
---	CTS_ERROR_PATTERN_OUT		=> cts_error_pattern_out,    
---	-- Data payload interface
---	FEE_DATA_IN					 => fee_data_in,             
---	FEE_DATAREADY_IN			 => fee_dataready_in,        
---	FEE_READ_OUT				 => fee_read_out,            
---	FEE_STATUS_BITS_IN			 => fee_status_bits_in,      
---	FEE_BUSY_IN					 => fee_busy_in,  
---	--SFP Connection
---	SFP_RXD_P_IN				=> '0',
---	SFP_RXD_N_IN				=> '0',
---	SFP_TXD_P_OUT				=> open,
---	SFP_TXD_N_OUT				=> open,
---	SFP_REFCLK_P_IN				=> '0',
---	SFP_REFCLK_N_IN				=> '0',
---	SFP_PRSNT_N_IN				=> '0',
---	SFP_LOS_IN					=> '0',
---	SFP_TXDIS_OUT				=> open,
---	
---	-- interface between main_controller and hub logic
---	MC_UNIQUE_ID_IN          => (others => '0'),		
---	GSC_CLK_IN               => clk,
---	GSC_INIT_DATAREADY_OUT   => open,
---	GSC_INIT_DATA_OUT        => open,
---	GSC_INIT_PACKET_NUM_OUT  => open,
---	GSC_INIT_READ_IN         => '0',
---	GSC_REPLY_DATAREADY_IN  => '0',
---	GSC_REPLY_DATA_IN        => (others => '0'),
---	GSC_REPLY_PACKET_NUM_IN  => (others => '0'),
---	GSC_REPLY_READ_OUT       => open,
---	GSC_BUSY_IN             => '0',
---	
---	MAKE_RESET_OUT           => open,
---
---	-- for simulation of receiving part only
---	MAC_RX_EOF_IN		=> MAC_RX_EOF_IN,
---	MAC_RXD_IN		=> MAC_RXD_IN,
---	MAC_RX_EN_IN		=> MAC_RX_EN_IN,
---
---
---	-- debug ports
---	ANALYZER_DEBUG_OUT			=> open
---);
+
 
 	gbe_inst1 : entity work.gbe_logic_wrapper
-	generic map(DO_SIMULATION             => 1,
-		        INCLUDE_DEBUG             => 0,
-		        USE_INTERNAL_TRBNET_DUMMY => 1,
-		        RX_PATH_ENABLE            => 1,
-		        FIXED_SIZE_MODE           => 0,
-		        INCREMENTAL_MODE          => 1,
-		        FIXED_SIZE                => 100,
-		        FIXED_DELAY_MODE          => 1,
-		        UP_DOWN_MODE              => 1,
-		        UP_DOWN_LIMIT             => 120,
-		        FIXED_DELAY               => 16777215)
+	generic map(
+		DO_SIMULATION             => 1,
+        INCLUDE_DEBUG             => 1,
+        USE_INTERNAL_TRBNET_DUMMY => 0,
+        RX_PATH_ENABLE            => 1,
+        
+        INCLUDE_READOUT		=> 1,
+		INCLUDE_SLOWCTRL	=> 0,
+		INCLUDE_DHCP		=> 1,
+		INCLUDE_ARP			=> 1,
+		INCLUDE_PING		=> 1,
+		
+        FRAME_BUFFER_SIZE	 => 1,
+		READOUT_BUFFER_SIZE  => 2,
+		SLOWCTRL_BUFFER_SIZE => 2,
+		
+        FIXED_SIZE_MODE           => 1,
+        INCREMENTAL_MODE          => 1,
+        FIXED_SIZE                => 100,
+        FIXED_DELAY_MODE          => 1,
+        UP_DOWN_MODE              => 1,
+        UP_DOWN_LIMIT             => 200,
+        FIXED_DELAY               => 1
+	)
 	port map(
 			 CLK_SYS_IN               => clk,
 		     CLK_125_IN               => RX_MAC_CLK,
@@ -245,19 +128,22 @@ begin
 		     RESET                    => RESET,
 		     GSR_N                    => gsr,
 		     
+		     MY_MAC_OUT => master_mac,
+			 MY_MAC_IN  => x"111111111111",
+		     
 		     MAC_READY_CONF_IN        => '1',
 		     MAC_RECONF_OUT           => open,
 		     MAC_AN_READY_IN		  => '1',
-		     MAC_FIFOAVAIL_OUT        => mac_fifoavail,
-		     MAC_FIFOEOF_OUT          => mac_fifoeof,
+		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(0),
+		     MAC_FIFOEOF_OUT          => mac_fifoeof(0),
 		     MAC_FIFOEMPTY_OUT        => open,
 		     MAC_RX_FIFOFULL_OUT      => open,
 		     MAC_TX_DATA_OUT          => open,
-		     MAC_TX_READ_IN           => mac_read,
+		     MAC_TX_READ_IN           => mac_read(0),
 		     MAC_TX_DISCRFRM_IN       => '0',
 		     MAC_TX_STAT_EN_IN        => '0',
 		     MAC_TX_STATS_IN          => (others => '0'),
-		     MAC_TX_DONE_IN           => mac_tx_done,
+		     MAC_TX_DONE_IN           => mac_tx_done(0),
 		     MAC_RX_FIFO_ERR_IN       => '0',
 		     MAC_RX_STATS_IN          => (others => '0'),
 		     MAC_RX_DATA_IN           => MAC_RXD_IN,
@@ -266,23 +152,22 @@ begin
 		     MAC_RX_EOF_IN            => MAC_RX_EOF_IN,
 		     MAC_RX_ERROR_IN          => '0',
 		     
-		     CTS_NUMBER_IN            => (others => '0'), --CTS_NUMBER_IN,
-		     CTS_CODE_IN              => (others => '0'), --CTS_CODE_IN,
-		     CTS_INFORMATION_IN       => (others => '0'), --CTS_INFORMATION_IN,
-		     CTS_READOUT_TYPE_IN      => (others => '0'), --CTS_READOUT_TYPE_IN,
-		     CTS_START_READOUT_IN     => '0', --CTS_START_READOUT_IN,
-		     CTS_DATA_OUT             => open, --CTS_DATA_OUT,
-		     CTS_DATAREADY_OUT        => open, --CTS_DATAREADY_OUT,
-		     CTS_READOUT_FINISHED_OUT => open, --CTS_READOUT_FINISHED_OUT,
-		     CTS_READ_IN              => '0', --CTS_READ_IN,
-		     CTS_LENGTH_OUT           => open, --CTS_LENGTH_OUT,
-		     CTS_ERROR_PATTERN_OUT    => open, --CTS_ERROR_PATTERN_OUT,
-		     
-		     FEE_DATA_IN              => (others => '0'), --FEE_DATA_IN,
-		     FEE_DATAREADY_IN         => '0', --FEE_DATAREADY_IN,
-		     FEE_READ_OUT             => open, --FEE_READ_OUT,
-		     FEE_STATUS_BITS_IN       => (others => '0'), --FEE_STATUS_BITS_IN,
-		     FEE_BUSY_IN              => '0', --FEE_BUSY_IN,
+		     CTS_NUMBER_IN            => mlt_cts_number(1 * 16 - 1 downto 0 * 16),		  
+		     CTS_CODE_IN              => mlt_cts_code(1 * 8 - 1 downto 0 * 8),	          
+		     CTS_INFORMATION_IN       => mlt_cts_information(1 * 8 - 1 downto 0 * 8),	  
+		     CTS_READOUT_TYPE_IN      => mlt_cts_readout_type(1 * 4 - 1 downto 0 * 4),    
+		     CTS_START_READOUT_IN     => mlt_cts_start_readout(0),                        
+		     CTS_DATA_OUT             => mlt_cts_data(1 * 32 - 1 downto 0 * 32),			
+		     CTS_DATAREADY_OUT        => mlt_cts_dataready(0),	                          
+		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(0),                     
+		     CTS_READ_IN              => mlt_cts_read(0),		                          
+		     CTS_LENGTH_OUT           => mlt_cts_length(1 * 16 - 1 downto 0 * 16),		  
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(1 * 32 - 1 downto 0 * 32), 
+		     FEE_DATA_IN              => mlt_fee_data(1 * 16 - 1 downto 0 * 16),		  
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(0),	                          
+		     FEE_READ_OUT             => mlt_fee_read(0),			                      
+		     FEE_STATUS_BITS_IN       => mlt_fee_status(1 * 32 - 1 downto 0 * 32),	      
+		     FEE_BUSY_IN              => mlt_fee_busy(0),		                          
 		     
 		     MC_UNIQUE_ID_IN          => (others => '0'),
 		     
@@ -322,9 +207,202 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => x"0002",
 		     CFG_MAX_SINGLE_SUB_IN    => x"0578",
 		     CFG_ADDITIONAL_HDR_IN    => '0',
+		     CFG_MAX_REPLY_SIZE_IN	  => x"0000_fa00",
 		     
 		     MAKE_RESET_OUT           => open
 		);
+		
+	gbe_inst2 : entity work.gbe_logic_wrapper
+	generic map(
+		DO_SIMULATION             => 1,
+        INCLUDE_DEBUG             => 1,
+        USE_INTERNAL_TRBNET_DUMMY => 0,
+        RX_PATH_ENABLE            => 1,
+        
+        INCLUDE_READOUT		=> 1,
+		INCLUDE_SLOWCTRL	=> 0,
+		INCLUDE_DHCP		=> 1,
+		INCLUDE_ARP			=> 1,
+		INCLUDE_PING		=> 1,
+		
+        FRAME_BUFFER_SIZE	 => 1,
+		READOUT_BUFFER_SIZE  => 2,
+		SLOWCTRL_BUFFER_SIZE => 2,
+		
+        FIXED_SIZE_MODE           => 1,
+        INCREMENTAL_MODE          => 1,
+        FIXED_SIZE                => 100,
+        FIXED_DELAY_MODE          => 1,
+        UP_DOWN_MODE              => 1,
+        UP_DOWN_LIMIT             => 200,
+        FIXED_DELAY               => 1
+        )
+	port map(
+			 CLK_SYS_IN               => clk,
+		     CLK_125_IN               => RX_MAC_CLK,
+		     CLK_RX_125_IN            => RX_MAC_CLK,
+		     RESET                    => RESET,
+		     GSR_N                    => gsr,
+		     
+		     MY_MAC_OUT => open,
+			 MY_MAC_IN  => x"222222222222",
+		     
+		     MAC_READY_CONF_IN        => '1',
+		     MAC_RECONF_OUT           => open,
+		     MAC_AN_READY_IN		  => '1',
+		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(1),
+		     MAC_FIFOEOF_OUT          => mac_fifoeof(1),
+		     MAC_FIFOEMPTY_OUT        => open,
+		     MAC_RX_FIFOFULL_OUT      => open,
+		     MAC_TX_DATA_OUT          => open,
+		     MAC_TX_READ_IN           => mac_read(1),
+		     MAC_TX_DISCRFRM_IN       => '0',
+		     MAC_TX_STAT_EN_IN        => '0',
+		     MAC_TX_STATS_IN          => (others => '0'),
+		     MAC_TX_DONE_IN           => mac_tx_done(1),
+		     MAC_RX_FIFO_ERR_IN       => '0',
+		     MAC_RX_STATS_IN          => (others => '0'),
+		     MAC_RX_DATA_IN           => MAC_RXD_IN,
+		     MAC_RX_WRITE_IN          => MAC_RX_EN_IN,
+		     MAC_RX_STAT_EN_IN        => '0',
+		     MAC_RX_EOF_IN            => MAC_RX_EOF_IN,
+		     MAC_RX_ERROR_IN          => '0',
+		     
+		     CTS_NUMBER_IN            => mlt_cts_number(2 * 16 - 1 downto 1 * 16),		   
+		     CTS_CODE_IN              => mlt_cts_code(2 * 8 - 1 downto 1 * 8),	           
+		     CTS_INFORMATION_IN       => mlt_cts_information(2 * 8 - 1 downto 1 * 8),	   
+		     CTS_READOUT_TYPE_IN      => mlt_cts_readout_type(2 * 4 - 1 downto 1 * 4),     
+		     CTS_START_READOUT_IN     => mlt_cts_start_readout(1),                         
+		     CTS_DATA_OUT             => mlt_cts_data(2 * 32 - 1 downto 1 * 32),			
+		     CTS_DATAREADY_OUT        => mlt_cts_dataready(1),	                           
+		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(1),                      
+		     CTS_READ_IN              => mlt_cts_read(1),		                           
+		     CTS_LENGTH_OUT           => mlt_cts_length(2 * 16 - 1 downto 1 * 16),		   
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(2 * 32 - 1 downto 1 * 32),  
+		     FEE_DATA_IN              => mlt_fee_data(2 * 16 - 1 downto 1 * 16),		   
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(1),	                           
+		     FEE_READ_OUT             => mlt_fee_read(1),			                       
+		     FEE_STATUS_BITS_IN       => mlt_fee_status(2 * 32 - 1 downto 1 * 32),	       
+		     FEE_BUSY_IN              => mlt_fee_busy(1),                                  
+		     
+		     MC_UNIQUE_ID_IN          => (others => '0'),
+		     
+		     GSC_CLK_IN               => clk,
+		     GSC_INIT_DATAREADY_OUT   => open, --GSC_INIT_DATAREADY_OUT,
+		     GSC_INIT_DATA_OUT        => open, --GSC_INIT_DATA_OUT,
+		     GSC_INIT_PACKET_NUM_OUT  => open, --GSC_INIT_PACKET_NUM_OUT,
+		     GSC_INIT_READ_IN         => '0', --GSC_INIT_READ_IN,
+		     GSC_REPLY_DATAREADY_IN   => '0', --GSC_REPLY_DATAREADY_IN,
+		     GSC_REPLY_DATA_IN        => (others => '0'), --GSC_REPLY_DATA_IN,
+		     GSC_REPLY_PACKET_NUM_IN  => (others => '0'), --GSC_REPLY_PACKET_NUM_IN,
+		     GSC_REPLY_READ_OUT       => open, --GSC_REPLY_READ_OUT,
+		     GSC_BUSY_IN              => '0', --GSC_BUSY_IN,
+		     
+		     SLV_ADDR_IN              => (others => '0'), --SLV_ADDR_IN,
+		     SLV_READ_IN              => '0', --SLV_READ_IN,
+		     SLV_WRITE_IN             => '0', --SLV_WRITE_IN,
+		     SLV_BUSY_OUT             => open, --SLV_BUSY_OUT,
+		     SLV_ACK_OUT              => open, --SLV_ACK_OUT,
+		     SLV_DATA_IN              => (others => '0'), --SLV_DATA_IN,
+		     SLV_DATA_OUT             => open, --SLV_DATA_OUT,
+		     
+		     CFG_GBE_ENABLE_IN        => '1',
+		     CFG_IPU_ENABLE_IN        => '0',
+		     CFG_MULT_ENABLE_IN       => '0',
+		     CFG_MAX_FRAME_IN         => x"0578",
+		     CFG_ALLOW_RX_IN		  => '1',
+		     CFG_SOFT_RESET_IN		  => '0',
+		     CFG_SUBEVENT_ID_IN       => (others => '0'),
+		     CFG_SUBEVENT_DEC_IN      => (others => '0'),
+		     CFG_QUEUE_DEC_IN         => (others => '0'),
+		     CFG_READOUT_CTR_IN       => (others => '0'),
+		     CFG_READOUT_CTR_VALID_IN => '0',
+		     CFG_INSERT_TTYPE_IN      => '0',
+		     CFG_MAX_SUB_IN           => x"0578",
+		     CFG_MAX_QUEUE_IN         => x"1000",
+		     CFG_MAX_SUBS_IN_QUEUE_IN => x"0002",
+		     CFG_MAX_SINGLE_SUB_IN    => x"0578",
+		     CFG_ADDITIONAL_HDR_IN    => '0',
+		     CFG_MAX_REPLY_SIZE_IN    => x"0000_fa00",
+		     
+		     MAKE_RESET_OUT           => open
+		);
+		
+	ipu_mult : entity work.gbe_ipu_multiplexer
+	generic map(
+		DO_SIMULATION          => 1,
+		INCLUDE_DEBUG          => 1,
+		NUMBER_OF_OUTPUT_LINKS => 2
+	)
+	port map(
+		CLK_SYS_IN                  => CLK,
+		RESET                       => RESET,
+		CTS_NUMBER_IN               => CTS_NUMBER_IN,
+		CTS_CODE_IN                 => CTS_CODE_IN,
+		CTS_INFORMATION_IN          => CTS_INFORMATION_IN,
+		CTS_READOUT_TYPE_IN         => CTS_READOUT_TYPE_IN,
+		CTS_START_READOUT_IN        => CTS_START_READOUT_IN,
+		CTS_DATA_OUT                => CTS_DATA_OUT,
+		CTS_DATAREADY_OUT           => CTS_DATAREADY_OUT,
+		CTS_READOUT_FINISHED_OUT    => CTS_READOUT_FINISHED_OUT,
+		CTS_READ_IN                 => CTS_READ_IN,
+		CTS_LENGTH_OUT              => CTS_LENGTH_OUT,
+		CTS_ERROR_PATTERN_OUT       => CTS_ERROR_PATTERN_OUT,
+		FEE_DATA_IN                 => FEE_DATA_IN,
+		FEE_DATAREADY_IN            => FEE_DATAREADY_IN,
+		FEE_READ_OUT                => FEE_READ_OUT,
+		FEE_STATUS_BITS_IN          => FEE_STATUS_BITS_IN,
+		FEE_BUSY_IN                 => FEE_BUSY_IN,
+		 
+		MLT_CTS_NUMBER_OUT          => mlt_cts_number,		    
+		MLT_CTS_CODE_OUT            => mlt_cts_code,		        
+		MLT_CTS_INFORMATION_OUT     => mlt_cts_information,	    
+		MLT_CTS_READOUT_TYPE_OUT    => mlt_cts_readout_type,     
+		MLT_CTS_START_READOUT_OUT   => mlt_cts_start_readout,    
+		MLT_CTS_DATA_IN             => mlt_cts_data,			    
+		MLT_CTS_DATAREADY_IN        => mlt_cts_dataready,	    
+		MLT_CTS_READOUT_FINISHED_IN => mlt_cts_readout_finished, 
+		MLT_CTS_READ_OUT            => mlt_cts_read,		        
+		MLT_CTS_LENGTH_IN           => mlt_cts_length,		    
+		MLT_CTS_ERROR_PATTERN_IN    => mlt_cts_error_pattern,    
+		MLT_FEE_DATA_OUT            => mlt_fee_data,		        
+		MLT_FEE_DATAREADY_OUT       => mlt_fee_dataready,	    
+		MLT_FEE_READ_IN             => mlt_fee_read,			    
+		MLT_FEE_STATUS_BITS_OUT     => mlt_fee_status,	        
+		MLT_FEE_BUSY_OUT            => mlt_fee_busy,		        
+		 
+		DEBUG_OUT                   => open
+	);
+	
+	dummy_inst : entity work.gbe_ipu_dummy
+		generic map(DO_SIMULATION    => 1,
+			        FIXED_SIZE_MODE  => 1,
+			        FIXED_SIZE       => 100,
+			        INCREMENTAL_MODE => 0,
+			        UP_DOWN_MODE     => 0,
+			        UP_DOWN_LIMIT    => 100,
+			        FIXED_DELAY_MODE => 1,
+			        FIXED_DELAY      => 50)
+		port map(clk                     => CLK,
+			     rst                     => RESET,
+			     GBE_READY_IN            => '1',
+			     CTS_NUMBER_OUT          => CTS_NUMBER_IN,
+			     CTS_CODE_OUT            => CTS_CODE_IN,
+			     CTS_INFORMATION_OUT     => CTS_INFORMATION_IN,
+			     CTS_READOUT_TYPE_OUT    => CTS_READOUT_TYPE_IN,
+			     CTS_START_READOUT_OUT   => CTS_START_READOUT_IN,
+			     CTS_DATA_IN             => CTS_DATA_OUT,
+			     CTS_DATAREADY_IN        => CTS_DATAREADY_OUT,
+			     CTS_READOUT_FINISHED_IN => CTS_READOUT_FINISHED_OUT,
+			     CTS_READ_OUT            => CTS_READ_IN,
+			     CTS_LENGTH_IN           => CTS_LENGTH_OUT,
+			     CTS_ERROR_PATTERN_IN    => CTS_ERROR_PATTERN_OUT,
+			     FEE_DATA_OUT            => FEE_DATA_IN,
+			     FEE_DATAREADY_OUT       => FEE_DATAREADY_IN,
+			     FEE_READ_IN             => FEE_READ_OUT,
+			     FEE_STATUS_BITS_OUT     => FEE_STATUS_BITS_IN,
+			     FEE_BUSY_OUT            => FEE_BUSY_IN
+	);
 
 -- 125 MHz MAC clock
 CLOCK2_GEN_PROC: process
@@ -344,17 +422,28 @@ end process CLOCK_GEN_PROC;
 process
 begin
 
-	mac_tx_done <= '0';
-	wait until rising_edge(mac_fifoeof);
+	mac_tx_done(0) <= '0';
+	wait until rising_edge(mac_fifoeof(0));
 	wait until rising_edge(rx_mac_clk);
-	mac_tx_done <= '1';
+	mac_tx_done(0) <= '1';
+	wait until rising_edge(rx_mac_clk);
+end process;
+
+process
+begin
+
+	mac_tx_done(1) <= '0';
+	wait until rising_edge(mac_fifoeof(1));
+	wait until rising_edge(rx_mac_clk);
+	mac_tx_done(1) <= '1';
 	wait until rising_edge(rx_mac_clk);
 end process;
 
 process(rx_mac_clk)
 begin
 	if rising_edge(rx_mac_clk) then
-		mac_read <= mac_fifoavail;
+		mac_read(0) <= mac_fifoavail(0);
+		mac_read(1) <= mac_fifoavail(1);
 	end if;
 end process;
 	
