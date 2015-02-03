@@ -465,7 +465,7 @@ end generate sctrl_gen;
 
 no_sctrl_gen : if INCLUDE_SLOWCTRL = 0 generate
 	resp_ready(2) <= '0';
-	busy(20) <= '0';
+	busy(2) <= '0';
 end generate no_sctrl_gen;
 
 trbnet_gen : if INCLUDE_READOUT = 1 generate 
