@@ -264,6 +264,11 @@ arp_gen : if INCLUDE_ARP = 1 generate
 	);
 end generate arp_gen;
 
+no_arp_gen : if INCLUDE_ARP = 0 generate
+	resp_ready(0) <= '0';
+	busy(0) <= '0';
+end generate no_arp_gen;
+
 
 dhcp_gen : if INCLUDE_DHCP = 1 generate
 	-- protocol No. 2 DHCP
@@ -324,6 +329,11 @@ dhcp_gen : if INCLUDE_DHCP = 1 generate
 	 );
 end generate dhcp_gen;
 
+no_dhcp_gen : if INCLUDE_DHCP = 0 generate
+	resp_ready(1) <= '0';
+	busy(1) <= '0';
+end generate no_dhcp_gen;
+
 ping_gen : if INCLUDE_PING = 1 generate
 	 --protocol No. 3 Ping
 	Ping : trb_net16_gbe_response_constructor_Ping
@@ -375,6 +385,11 @@ ping_gen : if INCLUDE_PING = 1 generate
 	-- END OF INTERFACE
 	);
 end generate ping_gen;
+
+no_ping_gen : if INCLUDE_PING = 0 generate
+	resp_ready(4) <= '0';
+	busy(4) <= '0';
+end generate no_ping_gen;
 
 sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate 
 	SCTRL : trb_net16_gbe_response_constructor_SCTRL
@@ -447,6 +462,11 @@ sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate
 		DATA_HIST_OUT => SCTRL_HIST_OUT
 	);
 end generate sctrl_gen;
+
+no_sctrl_gen : if INCLUDE_SLOWCTRL = 0 generate
+	resp_ready(2) <= '0';
+	busy(20) <= '0';
+end generate no_sctrl_gen;
 
 trbnet_gen : if INCLUDE_READOUT = 1 generate 
 	TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
@@ -551,6 +571,11 @@ trbnet_gen : if INCLUDE_READOUT = 1 generate
 		DATA_HIST_OUT => DATA_HIST_OUT
 	);
 end generate trbnet_gen;
+
+no_readout_gen : if INCLUDE_READOUT = 0 generate
+	resp_ready(3) <= '0';
+	busy(3) <= '0';
+end generate no_readout_gen;
 
 --stat_gen : if g_SIMULATE = 0 generate
 --Stat : trb_net16_gbe_response_constructor_Stat

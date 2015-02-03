@@ -422,7 +422,6 @@ end process CLOCK_GEN_PROC;
 
 process
 begin
-
 	mac_tx_done(0) <= '0';
 	wait until rising_edge(mac_fifoeof(0));
 	wait until rising_edge(rx_mac_clk);
@@ -432,7 +431,6 @@ end process;
 
 process
 begin
-
 	mac_tx_done(1) <= '0';
 	wait until rising_edge(mac_fifoeof(1));
 	wait until rising_edge(rx_mac_clk);
