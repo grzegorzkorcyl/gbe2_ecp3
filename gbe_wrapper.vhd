@@ -30,7 +30,9 @@ entity gbe_wrapper is
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215;
 		
 		NUMBER_OF_GBE_LINKS : integer range 1 to 4 := 4;
-		LINKS_ACTIVE : std_logic_vector(3 downto 0) := "1111"
+		LINKS_ACTIVE : std_logic_vector(3 downto 0) := "1111";
+		
+		NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 0
 	);
 	port (
 		CLK_SYS_IN		: in std_logic;
@@ -147,6 +149,23 @@ architecture RTL of gbe_wrapper is
 	signal master_mac, mac_0, mac_1, mac_2 : std_logic_vector(47 downto 0);
 	signal cfg_max_reply : std_logic_vector(31 downto 0);
 	
+	signal mlt_cts_number		    : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+	signal mlt_cts_code		        : std_logic_vector (8 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+	signal mlt_cts_information	    : std_logic_vector (8 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+	signal mlt_cts_readout_type     : std_logic_vector (4 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
+	signal mlt_cts_start_readout    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_data			    : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_dataready	    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_readout_finished : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_read		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_length		    : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_cts_error_pattern    : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_fee_data		        : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_fee_dataready	    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_fee_read			    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_fee_status	        : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	signal mlt_fee_busy		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+	
 begin
 	
 	mac_0 <= master_mac(31 downto 8) & x"ce0002";
@@ -209,8 +228,8 @@ begin
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
 				
-		        FRAME_BUFFER_SIZE	 => 2,
-				READOUT_BUFFER_SIZE  => 4,
+		        FRAME_BUFFER_SIZE	 => 1,
+				READOUT_BUFFER_SIZE  => 2,
 				SLOWCTRL_BUFFER_SIZE => 2,
 				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
@@ -252,23 +271,22 @@ begin
 		     MAC_RX_ERROR_IN          => mac_rx_err(3),
 		     
 		     
-		     CTS_NUMBER_IN            => CTS_NUMBER_IN,
-		     CTS_CODE_IN              => CTS_CODE_IN,
-		     CTS_INFORMATION_IN       => CTS_INFORMATION_IN,
-		     CTS_READOUT_TYPE_IN      => CTS_READOUT_TYPE_IN,
-		     CTS_START_READOUT_IN     => CTS_START_READOUT_IN,
-		     CTS_DATA_OUT             => CTS_DATA_OUT,
-		     CTS_DATAREADY_OUT        => CTS_DATAREADY_OUT,
-		     CTS_READOUT_FINISHED_OUT => CTS_READOUT_FINISHED_OUT,
-		     CTS_READ_IN              => CTS_READ_IN,
-		     CTS_LENGTH_OUT           => CTS_LENGTH_OUT,
-		     CTS_ERROR_PATTERN_OUT    => CTS_ERROR_PATTERN_OUT,
-		     
-		     FEE_DATA_IN              => FEE_DATA_IN,
-		     FEE_DATAREADY_IN         => FEE_DATAREADY_IN,
-		     FEE_READ_OUT             => FEE_READ_OUT,
-		     FEE_STATUS_BITS_IN       => FEE_STATUS_BITS_IN,
-		     FEE_BUSY_IN              => FEE_BUSY_IN,
+		     CTS_NUMBER_IN            => mlt_cts_number(1 * 16 - 1 downto 0 * 16),		    
+		     CTS_CODE_IN              => mlt_cts_code(1 * 8 - 1 downto 0 * 8),	        
+		     CTS_INFORMATION_IN       => mlt_cts_information(1 * 8 - 1 downto 0 * 8),	    
+		     CTS_READOUT_TYPE_IN      => mlt_cts_readout_type(1 * 4 - 1 downto 0 * 4),     
+		     CTS_START_READOUT_IN     => mlt_cts_start_readout(0),    
+		     CTS_DATA_OUT             => mlt_cts_data(1 * 32 - 1 downto 0 * 32),			    
+		     CTS_DATAREADY_OUT        => mlt_cts_dataready(0),	    
+		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(0), 
+		     CTS_READ_IN              => mlt_cts_read(0),		        
+		     CTS_LENGTH_OUT           => mlt_cts_length(1 * 16 - 1 downto 0 * 16),		    
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(4 * 32 - 1 downto 0 * 32),    
+		     FEE_DATA_IN              => mlt_fee_data(1 * 16 - 1 downto 0 * 16),		        
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(0),	    
+		     FEE_READ_OUT             => mlt_fee_read(0),			    
+		     FEE_STATUS_BITS_IN       => mlt_fee_status(1 * 32 - 1 downto 0 * 32),	        
+		     FEE_BUSY_IN              => mlt_fee_busy(0),		        
 		     
 		     MC_UNIQUE_ID_IN          => MC_UNIQUE_ID_IN,
 		    
@@ -336,7 +354,7 @@ begin
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
 				
-				FRAME_BUFFER_SIZE	 => 2,
+				FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
 				SLOWCTRL_BUFFER_SIZE => 2,
 
@@ -457,14 +475,14 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> 0,
+		        INCLUDE_READOUT		=> 1,
 				INCLUDE_SLOWCTRL	=> 0,
 				INCLUDE_DHCP		=> 1,
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
 						        
-				FRAME_BUFFER_SIZE	 => 2,
-				READOUT_BUFFER_SIZE  => 4,
+				FRAME_BUFFER_SIZE	 => 1,
+				READOUT_BUFFER_SIZE  => 2,
 				SLOWCTRL_BUFFER_SIZE => 2,
 				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
@@ -505,23 +523,22 @@ begin
 		     MAC_RX_EOF_IN            => mac_rx_eof(1),
 		     MAC_RX_ERROR_IN          => mac_rx_err(1),
 		     
-		     CTS_NUMBER_IN            => (others => '0'), --CTS_NUMBER_IN,
-		     CTS_CODE_IN              => (others => '0'), --CTS_CODE_IN,
-		     CTS_INFORMATION_IN       => (others => '0'), --CTS_INFORMATION_IN,
-		     CTS_READOUT_TYPE_IN      => (others => '0'), --CTS_READOUT_TYPE_IN,
-		     CTS_START_READOUT_IN     => '0', --CTS_START_READOUT_IN,
-		     CTS_DATA_OUT             => open, --CTS_DATA_OUT,
-		     CTS_DATAREADY_OUT        => open, --CTS_DATAREADY_OUT,
-		     CTS_READOUT_FINISHED_OUT => open, --CTS_READOUT_FINISHED_OUT,
-		     CTS_READ_IN              => '0', --CTS_READ_IN,
-		     CTS_LENGTH_OUT           => open, --CTS_LENGTH_OUT,
-		     CTS_ERROR_PATTERN_OUT    => open, --CTS_ERROR_PATTERN_OUT,
-		     
-		     FEE_DATA_IN              => (others => '0'), --FEE_DATA_IN,
-		     FEE_DATAREADY_IN         => '0', --FEE_DATAREADY_IN,
-		     FEE_READ_OUT             => open, --FEE_READ_OUT,
-		     FEE_STATUS_BITS_IN       => (others => '0'), --FEE_STATUS_BITS_IN,
-		     FEE_BUSY_IN              => '0', --FEE_BUSY_IN,
+		     CTS_NUMBER_IN            => mlt_cts_number(2 * 16 - 1 downto 1 * 16),		    
+		     CTS_CODE_IN              => mlt_cts_code(2 * 8 - 1 downto 1 * 8),	        
+		     CTS_INFORMATION_IN       => mlt_cts_information(2 * 8 - 1 downto 1 * 8),	    
+		     CTS_READOUT_TYPE_IN      => mlt_cts_readout_type(2 * 4 - 1 downto 1 * 4),     
+		     CTS_START_READOUT_IN     => mlt_cts_start_readout(1),    
+		     CTS_DATA_OUT             => mlt_cts_data(2 * 32 - 1 downto 1 * 32),			    
+		     CTS_DATAREADY_OUT        => mlt_cts_dataready(1),	    
+		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(1), 
+		     CTS_READ_IN              => mlt_cts_read(1),		        
+		     CTS_LENGTH_OUT           => mlt_cts_length(2 * 16 - 1 downto 1 * 16),		    
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(2 * 32 - 1 downto 1 * 32),    
+		     FEE_DATA_IN              => mlt_fee_data(2 * 16 - 1 downto 1 * 16),		        
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(3),	    
+		     FEE_READ_OUT             => mlt_fee_read(1),			    
+		     FEE_STATUS_BITS_IN       => mlt_fee_status(2 * 32 - 1 downto 1 * 32),	        
+		     FEE_BUSY_IN              => mlt_fee_busy(1),
 		     
 		     MC_UNIQUE_ID_IN          => MC_UNIQUE_ID_IN,
 		     
@@ -578,7 +595,7 @@ begin
 				INCLUDE_ARP			=> 1,
 				INCLUDE_PING		=> 1,
 				
-		        FRAME_BUFFER_SIZE	 => 2,
+		        FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
 				SLOWCTRL_BUFFER_SIZE => 2,
 				
@@ -680,6 +697,51 @@ begin
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
+		
+	ipu_mult : entity work.gbe_ipu_multiplexer
+	generic map(
+		DO_SIMULATION          => DO_SIMULATION,
+		INCLUDE_DEBUG          => INCLUDE_DEBUG,
+		NUMBER_OF_OUTPUT_LINKS => 2)
+	port map(
+		CLK_SYS_IN                  => CLK_SYS_IN,
+		RESET                       => RESET,
+		CTS_NUMBER_IN               => CTS_NUMBER_IN,
+		CTS_CODE_IN                 => CTS_CODE_IN,
+		CTS_INFORMATION_IN          => CTS_INFORMATION_IN,
+		CTS_READOUT_TYPE_IN         => CTS_READOUT_TYPE_IN,
+		CTS_START_READOUT_IN        => CTS_START_READOUT_IN,
+		CTS_DATA_OUT                => CTS_DATA_OUT,
+		CTS_DATAREADY_OUT           => CTS_DATAREADY_OUT,
+		CTS_READOUT_FINISHED_OUT    => CTS_READOUT_FINISHED_OUT,
+		CTS_READ_IN                 => CTS_READ_IN,
+		CTS_LENGTH_OUT              => CTS_LENGTH_OUT,
+		CTS_ERROR_PATTERN_OUT       => CTS_ERROR_PATTERN_OUT,
+		FEE_DATA_IN                 => FEE_DATA_IN,
+		FEE_DATAREADY_IN            => FEE_DATAREADY_IN,
+		FEE_READ_OUT                => FEE_READ_OUT,
+		FEE_STATUS_BITS_IN          => FEE_STATUS_BITS_IN,
+		FEE_BUSY_IN                 => FEE_BUSY_IN,
+		 
+		MLT_CTS_NUMBER_OUT          => mlt_cts_number,		    
+		MLT_CTS_CODE_OUT            => mlt_cts_code,		        
+		MLT_CTS_INFORMATION_OUT     => mlt_cts_information,	    
+		MLT_CTS_READOUT_TYPE_OUT    => mlt_cts_readout_type,     
+		MLT_CTS_START_READOUT_OUT   => mlt_cts_start_readout,    
+		MLT_CTS_DATA_IN             => mlt_cts_data,			    
+		MLT_CTS_DATAREADY_IN        => mlt_cts_dataready,	    
+		MLT_CTS_READOUT_FINISHED_IN => mlt_cts_readout_finished, 
+		MLT_CTS_READ_OUT            => mlt_cts_read,		        
+		MLT_CTS_LENGTH_IN           => mlt_cts_length,		    
+		MLT_CTS_ERROR_PATTERN_IN    => mlt_cts_error_pattern,    
+		MLT_FEE_DATA_OUT            => mlt_fee_data,		        
+		MLT_FEE_DATAREADY_OUT       => mlt_fee_dataready,	    
+		MLT_FEE_READ_IN             => mlt_fee_read,			    
+		MLT_FEE_STATUS_BITS_OUT     => mlt_fee_status,	        
+		MLT_FEE_BUSY_OUT            => mlt_fee_busy,		        
+		 
+		DEBUG_OUT                   => open
+	);
 		     
 	setup_imp_gen : if (DO_SIMULATION = 0) generate
 		SETUP : gbe_setup
