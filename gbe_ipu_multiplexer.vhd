@@ -80,8 +80,10 @@ begin
 			cts_readout   <= CTS_START_READOUT_IN;
 			cts_readout_q <= cts_readout;
 			
-			if (cts_readout = '0' and cts_readout_q = '1') then
+			if (cts_readout = '0' and cts_readout_q = '1' and client_ptr < NUMBER_OF_OUTPUT_LINKS - 1) then
 				client_ptr <= client_ptr + 1;
+			elsif (cts_readout = '0' and cts_readout_q = '1' and client_ptr = NUMBER_OF_OUTPUT_LINKS - 1) then
+				client_ptr <= 0;
 			else
 				client_ptr <= client_ptr;
 			end if;
