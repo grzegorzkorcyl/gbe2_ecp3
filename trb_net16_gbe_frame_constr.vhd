@@ -9,6 +9,9 @@ use work.trb_net_components.all;
 use work.trb_net16_hub_func.all;
 
 entity trb_net16_gbe_frame_constr is
+	generic (
+		FRAME_BUFFER_SIZE : integer range 1 to 4 := 1
+	);
 port( 
 	-- ports for user logic
 	RESET                   : in    std_logic;
@@ -57,6 +60,21 @@ architecture trb_net16_gbe_frame_constr of trb_net16_gbe_frame_constr is
 --attribute HGROUP of trb_net16_gbe_frame_constr : architecture  is "GBE_LINK_group";
 
 component fifo_4096x9 is --fifo_8kx9 is
+port( 
+	Data    : in    std_logic_vector(8 downto 0);
+	WrClock : in    std_logic;
+	RdClock : in    std_logic;
+	WrEn    : in    std_logic;
+	RdEn    : in    std_logic;
+	Reset   : in    std_logic;
+	RPReset : in    std_logic;
+	Q       : out   std_logic_vector(8 downto 0);
+	Empty   : out   std_logic;
+	Full    : out   std_logic
+);
+end component;
+
+component fifo_8kx9 is
 port( 
 	Data    : in    std_logic_vector(8 downto 0);
 	WrClock : in    std_logic;
@@ -479,20 +497,40 @@ begin
 end process fpfResetProc;
 --fpf_reset <= '1' when (RESET = '1') or (LINK_OK_IN = '0') else '0';  -- gk 01.10.10
 
-FINAL_PACKET_FIFO: fifo_4096x9 --fifo_8kx9
-port map( 
-	Data(7 downto 0)    => fpf_data_q,
-	Data(8)             => fpf_eod, --END_OF_DATA_IN,
-	WrClock             => CLK,
-	RdClock             => RD_CLK,
-	WrEn                => fpf_wr_en_q,
-	RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
-	Reset               => fpf_reset,
-	RPReset             => fpf_reset,
-	Q                   => fpf_q,
-	Empty               => fpf_empty,
-	Full                => fpf_full
-);
+
+fpf_4k_gen : if FRAME_BUFFER_SIZE = 1 generate
+	FINAL_PACKET_FIFO: fifo_4096x9
+	port map( 
+		Data(7 downto 0)    => fpf_data_q,
+		Data(8)             => fpf_eod, --END_OF_DATA_IN,
+		WrClock             => CLK,
+		RdClock             => RD_CLK,
+		WrEn                => fpf_wr_en_q,
+		RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
+		Reset               => fpf_reset,
+		RPReset             => fpf_reset,
+		Q                   => fpf_q,
+		Empty               => fpf_empty,
+		Full                => fpf_full
+	);
+end generate fpf_4k_gen;
+
+fpf_8k_gen : if FRAME_BUFFER_SIZE = 2 generate
+	FINAL_PACKET_FIFO: fifo_8kx9
+	port map( 
+		Data(7 downto 0)    => fpf_data_q,
+		Data(8)             => fpf_eod, --END_OF_DATA_IN,
+		WrClock             => CLK,
+		RdClock             => RD_CLK,
+		WrEn                => fpf_wr_en_q,
+		RdEn                => fpf_rd_en, --FT_TX_RD_EN_IN,
+		Reset               => fpf_reset,
+		RPReset             => fpf_reset,
+		Q                   => fpf_q,
+		Empty               => fpf_empty,
+		Full                => fpf_full
+	);
+end generate fpf_8k_gen;
 
 --fpf_rd_en <= FT_TX_RD_EN_IN;
 fpf_rd_en <= '1' when ((link_ok_125 = '1') and (FT_TX_RD_EN_IN = '1'))

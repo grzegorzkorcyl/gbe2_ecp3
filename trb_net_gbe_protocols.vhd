@@ -424,7 +424,8 @@ port (
 end component;
 
 component trb_net16_gbe_response_constructor_SCTRL is
-generic ( STAT_ADDRESS_BASE : integer := 0
+generic ( STAT_ADDRESS_BASE : integer := 0;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 := 1
 );
 	port (
 		CLK			: in	std_logic;  -- system clock
@@ -553,7 +554,9 @@ end component;
 component trb_net16_gbe_response_constructor_TrbNetData is
 generic (
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
-		DO_SIMULATION  : integer range 0 to 1 := 0
+		DO_SIMULATION  : integer range 0 to 1 := 0;
+		
+		READOUT_BUFFER_SIZE : integer range 1 to 4 := 1
 		);
 port (
 	CLK			: in	std_logic;  -- system clock

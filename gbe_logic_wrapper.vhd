@@ -17,8 +17,11 @@ entity gbe_logic_wrapper is
 		USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1;
 		RX_PATH_ENABLE : integer range 0 to 1;
 		
+		FRAME_BUFFER_SIZE : integer range 1 to 4 := 1;
 		INCLUDE_READOUT : integer range 0 to 1 := 0;
+		READOUT_BUFFER_SIZE : integer range 1 to 4 := 1;
 		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 := 1; 
 		INCLUDE_DHCP : integer range 0 to 1 := 0;
 		INCLUDE_ARP : integer range 0 to 1 := 0;
 		INCLUDE_PING : integer range 0 to 1 := 0;
@@ -274,7 +277,10 @@ begin
 				INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
 				INCLUDE_DHCP     => INCLUDE_DHCP,
 				INCLUDE_ARP      => INCLUDE_ARP,
-				INCLUDE_PING     => INCLUDE_PING
+				INCLUDE_PING     => INCLUDE_PING,
+			
+				READOUT_BUFFER_SIZE => READOUT_BUFFER_SIZE,
+				SLOWCTRL_BUFFER_SIZE => SLOWCTRL_BUFFER_SIZE
 				)
 		  port map(
 			  CLK						=> CLK_SYS_IN,
@@ -416,7 +422,10 @@ begin
 			INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
 			INCLUDE_DHCP     => INCLUDE_DHCP,
 			INCLUDE_ARP      => INCLUDE_ARP,
-			INCLUDE_PING     => INCLUDE_PING
+			INCLUDE_PING     => INCLUDE_PING,
+			
+			READOUT_BUFFER_SIZE => READOUT_BUFFER_SIZE,
+			SLOWCTRL_BUFFER_SIZE => SLOWCTRL_BUFFER_SIZE
 			)
 	  	port map(
 		  CLK			=> CLK_SYS_IN,
@@ -686,6 +695,9 @@ begin
 	end generate transmit_with_dummy_gen;
 
 	FRAME_CONSTRUCTOR: trb_net16_gbe_frame_constr
+	generic map (
+		FRAME_BUFFER_SIZE => FRAME_BUFFER_SIZE
+	)
 	port map( 
 		-- ports for user logic
 		RESET					=> global_reset,

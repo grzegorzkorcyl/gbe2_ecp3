@@ -13,7 +13,8 @@ use work.trb_net_gbe_protocols.all;
 
 
 entity trb_net16_gbe_response_constructor_SCTRL is
-generic ( STAT_ADDRESS_BASE : integer := 0
+generic ( STAT_ADDRESS_BASE : integer := 0;
+	SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 := 1
 );
 	port (
 		CLK			: in	std_logic;  -- system clock
@@ -323,20 +324,37 @@ begin
 	end if;
 end process PACKET_NUM_PROC;
 
---temporairly changed to a smaller fifo
-transmit_fifo : fifo_65536x18x9 --fifo_4kx18x9 --fifo_65536x18x9
-  PORT map(
-    Reset             => tx_fifo_reset,
-	RPReset           => tx_fifo_reset,
-    WrClock           => CLK,
-	RdClock           => CLK,
-	Data              => tx_fifo_data,
-    WrEn              => tx_fifo_wr,
-    RdEn              => tx_fifo_rd,
-    Q                 => tx_fifo_q,
-    Full              => tx_full,
-    Empty             => tx_empty
-  );
+tf_4k_gen : if SLOWCTRL_BUFFER_SIZE = 1 generate
+	transmit_fifo : fifo_4kx18x9
+	  PORT map(
+	    Reset             => tx_fifo_reset,
+		RPReset           => tx_fifo_reset,
+	    WrClock           => CLK,
+		RdClock           => CLK,
+		Data              => tx_fifo_data,
+	    WrEn              => tx_fifo_wr,
+	    RdEn              => tx_fifo_rd,
+	    Q                 => tx_fifo_q,
+	    Full              => tx_full,
+	    Empty             => tx_empty
+	  );
+end generate tf_4k_gen;
+
+tf_65k_gen : if SLOWCTRL_BUFFER_SIZE = 2 generate
+	transmit_fifo : fifo_65536x18x9
+	  PORT map(
+	    Reset             => tx_fifo_reset,
+		RPReset           => tx_fifo_reset,
+	    WrClock           => CLK,
+		RdClock           => CLK,
+		Data              => tx_fifo_data,
+	    WrEn              => tx_fifo_wr,
+	    RdEn              => tx_fifo_rd,
+	    Q                 => tx_fifo_q,
+	    Full              => tx_full,
+	    Empty             => tx_empty
+	  );
+end generate tf_65k_gen;
 
 TX_FIFO_WR_SYNC : process(CLK)
 begin

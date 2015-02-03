@@ -13,6 +13,9 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 entity trb_net16_gbe_event_constr is
+generic (
+	READOUT_BUFFER_SIZE : integer range 1 to 4 := 1
+);
 port(
 	RESET                   : in    std_logic;
 	CLK                     : in    std_logic;
@@ -121,21 +124,59 @@ begin
 	end if;
 end process DF_WR_EN_PROC;
 
-DATA_FIFO : fifo_64kx9
-port map(
-	Data(7 downto 0) =>  df_data,
-	Data(8)          =>  df_eos_q,
-	WrClock          =>  CLK,
-	RdClock          =>  CLK,
-	WrEn             =>  df_wr_en_qq,
-	RdEn             =>  df_rd_en,
-	Reset            =>  RESET,
-	RPReset          =>  RESET,
-	Q(7 downto 0)    =>  df_q,
-	Q(8)             =>  load_eod,
-	Empty            =>  df_empty,
-	Full             =>  df_full
-);
+df_64k_gen : if READOUT_BUFFER_SIZE = 4 generate
+	DATA_FIFO : fifo_64kx9
+	port map(
+		Data(7 downto 0) =>  df_data,
+		Data(8)          =>  df_eos_q,
+		WrClock          =>  CLK,
+		RdClock          =>  CLK,
+		WrEn             =>  df_wr_en_qq,
+		RdEn             =>  df_rd_en,
+		Reset            =>  RESET,
+		RPReset          =>  RESET,
+		Q(7 downto 0)    =>  df_q,
+		Q(8)             =>  load_eod,
+		Empty            =>  df_empty,
+		Full             =>  df_full
+	);
+end generate df_64k_gen;
+
+df_8k_gen : if READOUT_BUFFER_SIZE = 2 generate
+	DATA_FIFO : entity work.fifo_8kx9
+	port map(
+		Data(7 downto 0) =>  df_data,
+		Data(8)          =>  df_eos_q,
+		WrClock          =>  CLK,
+		RdClock          =>  CLK,
+		WrEn             =>  df_wr_en_qq,
+		RdEn             =>  df_rd_en,
+		Reset            =>  RESET,
+		RPReset          =>  RESET,
+		Q(7 downto 0)    =>  df_q,
+		Q(8)             =>  load_eod,
+		Empty            =>  df_empty,
+		Full             =>  df_full
+	);
+end generate df_8k_gen;
+
+df_4k_gen : if READOUT_BUFFER_SIZE = 1 generate
+	DATA_FIFO : fifo_4096x9
+	port map(
+		Data(7 downto 0) =>  df_data,
+		Data(8)          =>  df_eos_q,
+		WrClock          =>  CLK,
+		RdClock          =>  CLK,
+		WrEn             =>  df_wr_en_qq,
+		RdEn             =>  df_rd_en,
+		Reset            =>  RESET,
+		RPReset          =>  RESET,
+		Q(7 downto 0)    =>  df_q,
+		Q(8)             =>  load_eod,
+		Empty            =>  df_empty,
+		Full             =>  df_full
+	);
+end generate df_4k_gen;
 
 DF_QQ_PROC : process(CLK)
 begin

@@ -26,7 +26,10 @@ entity trb_net16_gbe_protocol_selector is
 		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
 		INCLUDE_DHCP : integer range 0 to 1 := 0;
 		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0
+		INCLUDE_PING : integer range 0 to 1 := 0;
+		
+		READOUT_BUFFER_SIZE : integer range 1 to 4;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -374,7 +377,8 @@ end generate ping_gen;
 
 sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate 
 	SCTRL : trb_net16_gbe_response_constructor_SCTRL
-	generic map( STAT_ADDRESS_BASE => 8
+	generic map( STAT_ADDRESS_BASE => 8,
+		SLOWCTRL_BUFFER_SIZE => SLOWCTRL_BUFFER_SIZE
 	)
 	port map (
 		CLK			            => CLK,
@@ -446,7 +450,9 @@ trbnet_gen : if INCLUDE_READOUT = 1 generate
 	TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 	generic map(
 			RX_PATH_ENABLE => RX_PATH_ENABLE,
-			DO_SIMULATION  => DO_SIMULATION
+			DO_SIMULATION  => DO_SIMULATION,
+			
+			READOUT_BUFFER_SIZE => READOUT_BUFFER_SIZE
 			)
 	port map (
 		CLK							=> CLK,

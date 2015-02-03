@@ -59,6 +59,9 @@ port (
 end component;
 
 component trb_net16_gbe_event_constr is
+generic (
+	READOUT_BUFFER_SIZE : integer range 1 to 4 := 1
+);
 port(
 	RESET                   : in    std_logic;
 	CLK                     : in    std_logic;
@@ -357,7 +360,10 @@ generic(
 		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
 		INCLUDE_DHCP : integer range 0 to 1 := 0;
 		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0
+		INCLUDE_PING : integer range 0 to 1 := 0;
+		
+		READOUT_BUFFER_SIZE : integer range 1 to 4;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -511,7 +517,10 @@ generic(
 		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
 		INCLUDE_DHCP : integer range 0 to 1 := 0;
 		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0
+		INCLUDE_PING : integer range 0 to 1 := 0;
+		
+		READOUT_BUFFER_SIZE : integer range 1 to 4;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -888,6 +897,9 @@ port(
 end component;
 
 component trb_net16_gbe_frame_constr is
+generic (
+	FRAME_BUFFER_SIZE : integer range 1 to 4 := 1
+);
 port( 
 	-- ports for user logic
 	RESET                   : in    std_logic;

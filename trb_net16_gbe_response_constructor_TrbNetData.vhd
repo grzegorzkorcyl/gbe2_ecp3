@@ -14,7 +14,8 @@ use work.trb_net_gbe_protocols.all;
 entity trb_net16_gbe_response_constructor_TrbNetData is
 generic (
 	RX_PATH_ENABLE : integer range 0 to 1 := 1;
-	DO_SIMULATION  : integer range 0 to 1 := 0
+	DO_SIMULATION  : integer range 0 to 1 := 0;
+	READOUT_BUFFER_SIZE : integer range 1 to 4 := 1
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -360,6 +361,9 @@ port map(
 MONITOR_SELECT_DROP_OUT_OUT <= ipu_monitor(31 downto 0);
 
 PACKET_CONSTRUCTOR : trb_net16_gbe_event_constr
+generic map(
+	READOUT_BUFFER_SIZE => READOUT_BUFFER_SIZE
+)
 port map(
 	CLK						=> CLK,
 	RESET					=> RESET,
