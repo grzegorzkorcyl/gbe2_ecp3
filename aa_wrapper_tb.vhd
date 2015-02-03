@@ -465,17 +465,17 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RX_EN_IN <= '1';
 -- dest mac
-	MAC_RXD_IN		<= x"02";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"be";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
 -- src mac
 	MAC_RXD_IN		<= x"00";
