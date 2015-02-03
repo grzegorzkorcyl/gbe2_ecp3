@@ -27,7 +27,10 @@ entity trb_net16_gbe_main_control is
 		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
 		INCLUDE_DHCP : integer range 0 to 1 := 0;
 		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0
+		INCLUDE_PING : integer range 0 to 1 := 0;
+		
+		READOUT_BUFFER_SIZE : integer range 1 to 4;
+		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
 	);
 port (
 	CLK			: in	std_logic;  -- system clock
@@ -269,7 +272,10 @@ generic map(
 		INCLUDE_SLOWCTRL => INCLUDE_SLOWCTRL,
 		INCLUDE_DHCP     => INCLUDE_DHCP,
 		INCLUDE_ARP      => INCLUDE_ARP,
-		INCLUDE_PING     => INCLUDE_PING
+		INCLUDE_PING     => INCLUDE_PING,
+		
+		READOUT_BUFFER_SIZE  => READOUT_BUFFER_SIZE,
+		SLOWCTRL_BUFFER_SIZE => SLOWCTRL_BUFFER_SIZE
 		)
 port map(
 	CLK			=> CLK,
