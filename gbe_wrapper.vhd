@@ -535,7 +535,7 @@ begin
 		     CTS_LENGTH_OUT           => mlt_cts_length(2 * 16 - 1 downto 1 * 16),		    
 		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(2 * 32 - 1 downto 1 * 32),    
 		     FEE_DATA_IN              => mlt_fee_data(2 * 16 - 1 downto 1 * 16),		        
-		     FEE_DATAREADY_IN         => mlt_fee_dataready(3),	    
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(1),	    
 		     FEE_READ_OUT             => mlt_fee_read(1),			    
 		     FEE_STATUS_BITS_IN       => mlt_fee_status(2 * 32 - 1 downto 1 * 32),	        
 		     FEE_BUSY_IN              => mlt_fee_busy(1),
