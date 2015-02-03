@@ -128,7 +128,8 @@ port (
 	CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
 	CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 	  
-	CFG_ADDITIONAL_HDR_IN        : in std_logic;   
+	CFG_ADDITIONAL_HDR_IN        : in std_logic;
+	CFG_MAX_REPLY_SIZE_IN        : in std_logic_vector(31 downto 0);
 	
 	-- input for statistics from outside	
 	STAT_DATA_IN             : in std_logic_vector(31 downto 0);
@@ -435,6 +436,7 @@ sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate
 		GSC_REPLY_READ_OUT      => GSC_REPLY_READ_OUT,
 		GSC_BUSY_IN             => GSC_BUSY_IN,
 		CFG_ADDITIONAL_HDR_IN   => CFG_ADDITIONAL_HDR_IN,
+		CFG_MAX_REPLY_SIZE_IN   => CFG_MAX_REPLY_SIZE_IN,
 		MAKE_RESET_OUT          => MAKE_RESET_OUT,
 		
 		MONITOR_SELECT_REC_OUT	      => MONITOR_SELECT_REC_OUT(3 * 32 - 1 downto 2 * 32),

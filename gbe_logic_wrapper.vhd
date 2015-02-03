@@ -125,6 +125,7 @@ entity gbe_logic_wrapper is
 		CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
 		CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 		CFG_ADDITIONAL_HDR_IN        : in std_logic;   
+		CFG_MAX_REPLY_SIZE_IN        : in std_logic_vector(31 downto 0);
 	
 		MAKE_RESET_OUT					: out std_logic		
 	);
@@ -385,6 +386,7 @@ begin
 			CFG_MAX_SUBS_IN_QUEUE_IN    => CFG_MAX_SUBS_IN_QUEUE_IN,
 			CFG_MAX_SINGLE_SUB_IN       => CFG_MAX_SINGLE_SUB_IN,
 			CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,
+			CFG_MAX_REPLY_SIZE_IN       => CFG_MAX_REPLY_SIZE_IN,
 			
 			TSM_HADDR_OUT		=> open, --mac_haddr,
 		  	TSM_HDATA_OUT		=> open, --mac_hdataout,
@@ -532,6 +534,7 @@ begin
 		CFG_MAX_SINGLE_SUB_IN       => x"e998", --x"7d00",  -- 32000
 		
 		CFG_ADDITIONAL_HDR_IN       => '0',
+		CFG_MAX_REPLY_SIZE_IN       => x"0000_fa00",
 	
 	  -- signal to/from Host interface of TriSpeed MAC
 		  TSM_HADDR_OUT		=> open, --mac_haddr,

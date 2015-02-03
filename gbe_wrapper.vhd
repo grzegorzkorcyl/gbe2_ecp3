@@ -145,6 +145,7 @@ architecture RTL of gbe_wrapper is
 	signal dbg_hist, dbg_hist2 : hist_array;
 	
 	signal master_mac, mac_0, mac_1, mac_2 : std_logic_vector(47 downto 0);
+	signal cfg_max_reply : std_logic_vector(31 downto 0);
 	
 begin
 	
@@ -546,6 +547,7 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => cfg_max_subs_in_queue,
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
+			 CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -656,6 +658,7 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => cfg_max_subs_in_queue,
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
+			 CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -688,6 +691,7 @@ begin
 			GBE_ADDITIONAL_HDR_OUT      => cfg_additional_hdr,
 			GBE_INSERT_TTYPE_OUT        => cfg_insert_ttype,
 			GBE_SOFT_RESET_OUT          => cfg_soft_rst,
+			GBE_MAX_REPLY_OUT			=> cfg_max_reply,
 			
 			GBE_MAX_SUB_OUT             => cfg_max_sub,
 			GBE_MAX_QUEUE_OUT           => cfg_max_queue,

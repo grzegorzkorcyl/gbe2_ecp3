@@ -481,6 +481,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0;
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
 		CFG_ADDITIONAL_HDR_IN    : in std_logic;
+		CFG_MAX_REPLY_SIZE_IN    : in std_logic_vector(31 downto 0);
 	-- end of protocol specific ports
 
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);

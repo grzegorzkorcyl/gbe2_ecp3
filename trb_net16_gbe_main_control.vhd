@@ -135,7 +135,8 @@ port (
 	CFG_MAX_SUBS_IN_QUEUE_IN     : in std_logic_vector(15 downto 0);
 	CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 	  
-	CFG_ADDITIONAL_HDR_IN        : in std_logic;   
+	CFG_ADDITIONAL_HDR_IN        : in std_logic; 
+	CFG_MAX_REPLY_SIZE_IN        : in std_logic_vector(31 downto 0);
 	
 	MAKE_RESET_OUT           : out std_logic;
 	
@@ -370,7 +371,8 @@ port map(
 	CFG_MAX_SUBS_IN_QUEUE_IN    => CFG_MAX_SUBS_IN_QUEUE_IN,
 	CFG_MAX_SINGLE_SUB_IN       => CFG_MAX_SINGLE_SUB_IN,
 	  
-	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,  
+	CFG_ADDITIONAL_HDR_IN       => CFG_ADDITIONAL_HDR_IN,     
+	CFG_MAX_REPLY_SIZE_IN       => CFG_MAX_REPLY_SIZE_IN,
 	
 	-- input for statistics from outside
 	STAT_DATA_IN       => stat_data,

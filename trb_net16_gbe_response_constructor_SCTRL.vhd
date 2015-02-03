@@ -70,6 +70,7 @@ generic ( STAT_ADDRESS_BASE : integer := 0;
 		GSC_BUSY_IN              : in std_logic;
 		MAKE_RESET_OUT           : out std_logic;
 		CFG_ADDITIONAL_HDR_IN    : in std_logic;
+		CFG_MAX_REPLY_SIZE_IN    : in std_logic;
 	-- end of protocol specific ports
 	
 		MONITOR_SELECT_REC_OUT	      : out	std_logic_vector(31 downto 0);
@@ -445,8 +446,10 @@ begin
 	if rising_edge(CLK) then
 		if (dissect_current_state = IDLE) then
 			too_much_data <= '0';
-		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = x"fa00") then
+		elsif (dissect_current_state = SAVE_RESPONSE) and (tx_data_ctr = CFG_MAX_REPLY_SIZE_IN(15 downto 0)) then
 			too_much_data <= '1';
+		else
+			too_much_data <= too_much_data;
 		end if;
 	end if;
 end process TOO_MUCH_DATA_PROC;
@@ -459,6 +462,8 @@ begin
 			tx_loaded_ctr <= x"0000";
 		elsif (dissect_current_state = LOAD_FRAME and PS_SELECTED_IN = '1' and TC_RD_EN_IN = '1') then
 			tx_loaded_ctr <= tx_loaded_ctr + x"1";
+		else
+			tx_loaded_ctr <= tx_loaded_ctr;
 		end if;
 	end if;
 end process TX_LOADED_CTR_PROC;

@@ -39,6 +39,7 @@ port(
 	GBE_ADDITIONAL_HDR_OUT    : out std_logic;
 	GBE_INSERT_TTYPE_OUT      : out std_logic;
 	GBE_SOFT_RESET_OUT        : out std_logic;
+	GBE_MAX_REPLY_OUT         : out std_logic_vector(31 downto 0);
 	
 	GBE_MAX_SUB_OUT           : out std_logic_vector(15 downto 0);
 	GBE_MAX_QUEUE_OUT         : out std_logic_vector(15 downto 0);
@@ -83,6 +84,7 @@ signal data_out          : std_logic_vector(31 downto 0);
 signal allow_rx          : std_logic;
 signal additional_hdr    : std_logic;
 signal insert_ttype      : std_logic;
+signal max_reply         : std_logic_vector(31 downto 0);
   signal max_sub, max_queue, max_subs_in_queue, max_single_sub : std_logic_vector(15 downto 0);
 
 begin
@@ -109,6 +111,7 @@ begin
 		GBE_MAX_QUEUE_OUT         <= max_queue;
 		GBE_MAX_SUBS_IN_QUEUE_OUT <= max_subs_in_queue;
 		GBE_MAX_SINGLE_SUB_OUT    <= max_single_sub;
+		GBE_MAX_REPLY_OUT         <= max_reply;
 	end if;
 end process OUT_PROC;
 
@@ -147,6 +150,7 @@ begin
 			max_queue         <= x"ea60";  -- 60000   
 			max_subs_in_queue <= x"00c8";  -- 200     
 			max_single_sub    <= x"7d00";  -- 32000   
+			max_reply         <= x"0000_fa00";
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 		
@@ -212,6 +216,9 @@ begin
 				when x"0f" =>
 					max_single_sub   <= BUS_DATA_IN(15 downto 0);
 					
+				when x"11" =>
+					max_reply        <= BUS_DATA_IN;
+					
 
 				when x"ff" =>
 					if (BUS_DATA_IN = x"ffff_ffff") then
@@ -239,7 +246,8 @@ begin
 					max_sub            <= max_sub;          
 					max_queue          <= max_queue;        
 					max_subs_in_queue  <= max_subs_in_queue;
-					max_single_sub     <= max_single_sub;			
+					max_single_sub     <= max_single_sub;	
+					max_reply          <= max_reply;		
 			end case;
 		else
 			reset_values      <= '0';
@@ -323,6 +331,9 @@ begin
 					data_out(15 downto 0) <= max_queue;
 					data_out(31 downto 16) <= (others => '0');
 					
+				when 17 =>
+					data_out <= max_reply;
+										
 				-- Histogram of sctrl data sizes
 				when 96 to 127 =>
 					data_out <= SCTRL_HIST_IN(address - 96);
