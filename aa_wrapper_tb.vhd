@@ -130,7 +130,7 @@ begin
 		     GSR_N                    => gsr,
 		     
 		     MY_MAC_OUT => master_mac,
-			 MY_MAC_IN  => x"111111111111",
+			 MY_MAC_IN  => x"000000000000",
 		     
 		     MAC_READY_CONF_IN        => '1',
 		     MAC_RECONF_OUT           => open,
@@ -246,7 +246,7 @@ begin
 		     GSR_N                    => gsr,
 		     
 		     MY_MAC_OUT => open,
-			 MY_MAC_IN  => x"222222222222",
+			 MY_MAC_IN  => x"000000000000",
 		     
 		     MAC_READY_CONF_IN        => '1',
 		     MAC_RECONF_OUT           => open,
