@@ -90,22 +90,27 @@ begin
 	end process;
 
 
-	MLT_CTS_NUMBER_OUT(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr) <= CTS_NUMBER_IN;			
-	MLT_CTS_CODE_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_CODE_IN;
-	MLT_CTS_INFORMATION_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_INFORMATION_IN;
-	MLT_CTS_READOUT_TYPE_OUT(4 * (client_ptr + 1 ) - 1 downto 4 * client_ptr) <= CTS_READOUT_TYPE_IN;
-	MLT_CTS_START_READOUT_OUT(client_ptr) <= CTS_START_READOUT_IN;
-	CTS_DATA_OUT <= MLT_CTS_DATA_IN(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr);				
-	CTS_DATAREADY_OUT <= MLT_CTS_DATAREADY_IN(client_ptr);		
-	CTS_READOUT_FINISHED_OUT <= MLT_CTS_READOUT_FINISHED_IN(client_ptr);
-	MLT_CTS_READ_OUT(client_ptr) <= CTS_READ_IN;
-	CTS_LENGTH_OUT <= MLT_CTS_LENGTH_IN(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr);
-	CTS_ERROR_PATTERN_OUT <= MLT_CTS_ERROR_PATTERN_IN(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr);
-	
-	MLT_FEE_DATA_OUT(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr) <= FEE_DATA_IN;			
-	MLT_FEE_DATAREADY_OUT(client_ptr) <= FEE_DATAREADY_IN;		
-	FEE_READ_OUT <= MLT_FEE_READ_IN(client_ptr);
-	MLT_FEE_STATUS_BITS_OUT(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr) <= FEE_STATUS_BITS_IN;
-	MLT_FEE_BUSY_OUT(client_ptr) <= FEE_BUSY_IN;
+	process(CLK_SYS_IN)
+	begin
+		if rising_edge(CLK_SYS_IN) then
+			MLT_CTS_NUMBER_OUT(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr) <= CTS_NUMBER_IN;			
+			MLT_CTS_CODE_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_CODE_IN;
+			MLT_CTS_INFORMATION_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_INFORMATION_IN;
+			MLT_CTS_READOUT_TYPE_OUT(4 * (client_ptr + 1 ) - 1 downto 4 * client_ptr) <= CTS_READOUT_TYPE_IN;
+			MLT_CTS_START_READOUT_OUT(client_ptr) <= CTS_START_READOUT_IN;
+			CTS_DATA_OUT <= MLT_CTS_DATA_IN(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr);				
+			CTS_DATAREADY_OUT <= MLT_CTS_DATAREADY_IN(client_ptr);		
+			CTS_READOUT_FINISHED_OUT <= MLT_CTS_READOUT_FINISHED_IN(client_ptr);
+			MLT_CTS_READ_OUT(client_ptr) <= CTS_READ_IN;
+			CTS_LENGTH_OUT <= MLT_CTS_LENGTH_IN(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr);
+			CTS_ERROR_PATTERN_OUT <= MLT_CTS_ERROR_PATTERN_IN(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr);
+			
+			MLT_FEE_DATA_OUT(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr) <= FEE_DATA_IN;			
+			MLT_FEE_DATAREADY_OUT(client_ptr) <= FEE_DATAREADY_IN;		
+			FEE_READ_OUT <= MLT_FEE_READ_IN(client_ptr);
+			MLT_FEE_STATUS_BITS_OUT(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr) <= FEE_STATUS_BITS_IN;
+			MLT_FEE_BUSY_OUT(client_ptr) <= FEE_BUSY_IN;
+		end if;
+	end process;
 
 end architecture RTL;			
