@@ -562,9 +562,9 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";  --transcation id
+	MAC_RXD_IN		<= x"ff";  --transcation id
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";--transcation id
+	MAC_RXD_IN		<= x"ff";--transcation id
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"fa";--transcation id
 	wait until rising_edge(RX_MAC_CLK);
@@ -716,9 +716,9 @@ begin
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"00";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
-	MAC_RXD_IN		<= x"00";
+	MAC_RXD_IN		<= x"ff";
 	wait until rising_edge(RX_MAC_CLK);
 	MAC_RXD_IN		<= x"fa";
 	wait until rising_edge(RX_MAC_CLK);
