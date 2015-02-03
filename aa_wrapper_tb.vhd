@@ -90,6 +90,7 @@ signal mlt_fee_dataready	    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downt
 signal mlt_fee_read			    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
 signal mlt_fee_status	        : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
 signal mlt_fee_busy		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
+signal gbe_ready : std_logic;
 
 begin
 	
@@ -385,7 +386,7 @@ begin
 			        FIXED_DELAY      => 50)
 		port map(clk                     => CLK,
 			     rst                     => RESET,
-			     GBE_READY_IN            => '1',
+			     GBE_READY_IN            => gbe_ready,
 			     CTS_NUMBER_OUT          => CTS_NUMBER_IN,
 			     CTS_CODE_OUT            => CTS_CODE_IN,
 			     CTS_INFORMATION_OUT     => CTS_INFORMATION_IN,
@@ -452,6 +453,7 @@ testbench_proc : process
 begin
 	reset <= '1'; 
 	
+	gbe_ready <= '0';
 	MAC_RX_EN_IN <= '0';
 	MAC_RXD_IN <= x"00";
 	MAC_RX_EOF_IN <= '0';
@@ -1036,7 +1038,9 @@ begin
 	MAC_RX_EN_IN <='0';
 	MAC_RX_EOF_IN <= '0';
 	
-	wait for 8 us;
+	wait for 2 us;
+	
+	gbe_ready <= '1';
 	
 	
 --	for i in 0 to 100 loop
