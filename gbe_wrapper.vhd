@@ -281,7 +281,7 @@ begin
 		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(0), 
 		     CTS_READ_IN              => mlt_cts_read(0),		        
 		     CTS_LENGTH_OUT           => mlt_cts_length(1 * 16 - 1 downto 0 * 16),		    
-		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(4 * 32 - 1 downto 0 * 32),    
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(1 * 32 - 1 downto 0 * 32),    
 		     FEE_DATA_IN              => mlt_fee_data(1 * 16 - 1 downto 0 * 16),		        
 		     FEE_DATAREADY_IN         => mlt_fee_dataready(0),	    
 		     FEE_READ_OUT             => mlt_fee_read(0),			    
