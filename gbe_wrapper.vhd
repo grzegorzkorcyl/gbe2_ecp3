@@ -230,7 +230,7 @@ begin
 				INCLUDE_PING		=> 1,
 				
 		        FRAME_BUFFER_SIZE	 => 1,
-				READOUT_BUFFER_SIZE  => 24,
+				READOUT_BUFFER_SIZE  => 4,
 				SLOWCTRL_BUFFER_SIZE => 2,
 				
 		        FIXED_SIZE_MODE           => FIXED_SIZE_MODE,
