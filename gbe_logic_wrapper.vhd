@@ -43,6 +43,7 @@ entity gbe_logic_wrapper is
 		
 		MY_MAC_OUT : out std_logic_vector(47 downto 0);
 		MY_MAC_IN  : in std_logic_vector(47 downto 0);
+		DHCP_DONE_OUT : out std_logic;
 		
 			-- connection to MAC
 		MAC_READY_CONF_IN		: in	std_logic;
@@ -266,6 +267,7 @@ begin
 	fc_ttl              <= x"ff";
 	
 	MY_MAC_OUT <= my_mac;
+	DHCP_DONE_OUT <= dhcp_done;
 
 
 	main_gen : if USE_INTERNAL_TRBNET_DUMMY = 0 generate

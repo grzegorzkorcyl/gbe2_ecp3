@@ -66,7 +66,7 @@ end entity gbe_ipu_multiplexer;
 
 architecture RTL of gbe_ipu_multiplexer is
 	
-	signal client_ptr : integer range 0 to 4 := NUMBER_OF_OUTPUT_LINKS;
+	signal client_ptr : integer range 0 to NUMBER_OF_OUTPUT_LINKS - 1 := 0;
 	signal cts_readout, cts_readout_q : std_logic;
 	
 begin
@@ -92,9 +92,9 @@ begin
 	end process;
 
 
-	process(CLK_SYS_IN)
-	begin
-		if rising_edge(CLK_SYS_IN) then
+--	process(CLK_SYS_IN)
+--	begin
+--		if rising_edge(CLK_SYS_IN) then
 			MLT_CTS_NUMBER_OUT(16 * (client_ptr + 1 ) - 1 downto 16 * client_ptr) <= CTS_NUMBER_IN;			
 			MLT_CTS_CODE_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_CODE_IN;
 			MLT_CTS_INFORMATION_OUT(8 * (client_ptr + 1 ) - 1 downto 8 * client_ptr) <= CTS_INFORMATION_IN;
@@ -112,7 +112,7 @@ begin
 			FEE_READ_OUT <= MLT_FEE_READ_IN(client_ptr);
 			MLT_FEE_STATUS_BITS_OUT(32 * (client_ptr + 1 ) - 1 downto 32 * client_ptr) <= FEE_STATUS_BITS_IN;
 			MLT_FEE_BUSY_OUT(client_ptr) <= FEE_BUSY_IN;
-		end if;
-	end process;
+--		end if;
+--	end process;
 
 end architecture RTL;			
