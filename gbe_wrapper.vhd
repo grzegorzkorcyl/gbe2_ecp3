@@ -828,7 +828,7 @@ begin
 			DEBUG_OUT                   => open
 		);
 		
-		dummy : gbe_ipu_dummy
+		dummy : entity work.gbe_ipu_dummy
 		generic map(
 			DO_SIMULATION => DO_SIMULATION,
 			FIXED_SIZE_MODE => FIXED_SIZE_MODE,
