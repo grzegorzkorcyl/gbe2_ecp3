@@ -781,7 +781,7 @@ begin
 		);
 	end generate real_ipu_gen;
 	
-	dummy_ipu_gen : if USE_EXTERNAL_TRBNET_DUMMY = 1 generate 	
+	dummy_ipu_gen : if (USE_EXTERNAL_TRBNET_DUMMY = 1) generate 	
 		ipu_mult : entity work.gbe_ipu_multiplexer
 		generic map(
 			DO_SIMULATION          => DO_SIMULATION,
