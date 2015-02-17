@@ -127,6 +127,13 @@ entity gbe_logic_wrapper is
 		CFG_MAX_SINGLE_SUB_IN        : in std_logic_vector(15 downto 0);
 		CFG_ADDITIONAL_HDR_IN        : in std_logic;   
 		CFG_MAX_REPLY_SIZE_IN        : in std_logic_vector(31 downto 0);
+		
+		MONITOR_RX_BYTES_OUT       : out std_logic_vector(31 downto 0);
+		MONITOR_RX_FRAMES_OUT      : out std_logic_vector(31 downto 0);
+		MONITOR_TX_BYTES_OUT       : out std_logic_vector(31 downto 0);
+		MONITOR_TX_FRAMES_OUT      : out std_logic_vector(31 downto 0);
+		MONITOR_TX_PACKETS_OUT     : out std_logic_vector(31 downto 0);
+		MONITOR_DROPPED_OUT        : out std_logic_vector(31 downto 0);
 	
 		MAKE_RESET_OUT					: out std_logic		
 	);
@@ -888,7 +895,22 @@ begin
 		    monitor_dropped <= (others => '0');
 		
 	end generate rx_disable_gen;
-
+	
+	
+	MONITOR_RX_FRAMES_OUT  <= monitor_rx_frames;
+	MONITOR_RX_BYTES_OUT   <= monitor_rx_bytes;
+	MONITOR_TX_FRAMES_OUT  <= monitor_tx_frames;
+	MONITOR_TX_BYTES_OUT   <= monitor_tx_bytes;
+	MONITOR_TX_PACKETS_OUT <= monitor_tx_packets;
+	MONITOR_DROPPED_OUT    <= monitor_dropped;
+	
+	
+--	MONITOR_RX_BYTES_OUT    <= monitor_rx_bytes(4 * 32 - 1 downto 3 * 32) + monitor_rx_bytes(3 * 32 - 1 downto 2 * 32) + monitor_rx_bytes(2 * 32 - 1 downto 1 * 32) + monitor_rx_bytes(1 * 32 - 1 downto 0 * 32);
+--	MONITOR_RX_FRAMES_OUT   <= monitor_rx_frames(4 * 32 - 1 downto 3 * 32) + monitor_rx_frames(3 * 32 - 1 downto 2 * 32) + monitor_rx_frames(2 * 32 - 1 downto 1 * 32) + monitor_rx_frames(1 * 32 - 1 downto 0 * 32); 
+--	MONITOR_TX_BYTES_OUT    <= monitor_tx_bytes(4 * 32 - 1 downto 3 * 32) + monitor_tx_bytes(3 * 32 - 1 downto 2 * 32) + monitor_tx_bytes(2 * 32 - 1 downto 1 * 32) + monitor_tx_bytes(1 * 32 - 1 downto 0 * 32); 
+--	MONITOR_TX_FRAMES_OUT   <= monitor_tx_frames(4 * 32 - 1 downto 3 * 32) + monitor_tx_frames(3 * 32 - 1 downto 2 * 32) + monitor_tx_frames(2 * 32 - 1 downto 1 * 32) + monitor_tx_frames(1 * 32 - 1 downto 0 * 32);
+--	MONITOR_TX_PACKETS_OUT  <= monitor_tx_packets(4 * 32 - 1 downto 3 * 32) + monitor_tx_packets(3 * 32 - 1 downto 2 * 32) + monitor_tx_packets(2 * 32 - 1 downto 1 * 32) + monitor_tx_packets(1 * 32 - 1 downto 0 * 32);
+--	MONITOR_DROPPED_OUT     <= (others => '0');
 
 
 end architecture RTL;

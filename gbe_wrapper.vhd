@@ -180,6 +180,8 @@ architecture RTL of gbe_wrapper is
 	signal local_fee_busy : std_logic;
 	signal dhcp_done : std_logic_vector(3 downto 0);
 	signal all_links_ready : std_logic;
+	signal monitor_rx_frames, monitor_rx_bytes, monitor_tx_frames, monitor_tx_bytes, monitor_tx_packets, monitor_dropped : std_logic_vector(4 * 32 - 1 downto 0);
+	signal sum_rx_frames, sum_rx_bytes, sum_tx_frames, sum_tx_bytes, sum_tx_packets, sum_dropped : std_logic_vector(31 downto 0);
 	
 begin
 	
@@ -356,6 +358,13 @@ begin
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
 		     CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
+		     			 
+			 MONITOR_RX_FRAMES_OUT    => monitor_rx_frames(4 * 32 - 1 downto 3 * 32),
+			 MONITOR_RX_BYTES_OUT     => monitor_rx_bytes(4 * 32 - 1 downto 3 * 32),
+			 MONITOR_TX_FRAMES_OUT    => monitor_tx_frames(4 * 32 - 1 downto 3 * 32),
+			 MONITOR_TX_BYTES_OUT     => monitor_tx_bytes(4 * 32 - 1 downto 3 * 32),
+			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(4 * 32 - 1 downto 3 * 32),
+			 MONITOR_DROPPED_OUT      => monitor_dropped(4 * 32 - 1 downto 3 * 32),
 		     
 		     MAKE_RESET_OUT           => MAKE_RESET_OUT
 		);
@@ -483,6 +492,13 @@ begin
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
 		     CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
+		     			 
+			 MONITOR_RX_FRAMES_OUT    => monitor_rx_frames(3 * 32 - 1 downto 2 * 32),
+			 MONITOR_RX_BYTES_OUT     => monitor_rx_bytes(3 * 32 - 1 downto 2 * 32),
+			 MONITOR_TX_FRAMES_OUT    => monitor_tx_frames(3 * 32 - 1 downto 2 * 32),
+			 MONITOR_TX_BYTES_OUT     => monitor_tx_bytes(3 * 32 - 1 downto 2 * 32),
+			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(3 * 32 - 1 downto 2 * 32),
+			 MONITOR_DROPPED_OUT      => monitor_dropped(3 * 32 - 1 downto 2 * 32),
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -620,7 +636,14 @@ begin
 		     CFG_MAX_SUBS_IN_QUEUE_IN => cfg_max_subs_in_queue,
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
-			 CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
+			 CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,	
+			 		 
+			 MONITOR_RX_FRAMES_OUT    => monitor_rx_frames(2 * 32 - 1 downto 1 * 32),
+			 MONITOR_RX_BYTES_OUT     => monitor_rx_bytes(2 * 32 - 1 downto 1 * 32),
+			 MONITOR_TX_FRAMES_OUT    => monitor_tx_frames(2 * 32 - 1 downto 1 * 32),
+			 MONITOR_TX_BYTES_OUT     => monitor_tx_bytes(2 * 32 - 1 downto 1 * 32),
+			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(2 * 32 - 1 downto 1 * 32),
+			 MONITOR_DROPPED_OUT      => monitor_dropped(2 * 32 - 1 downto 1 * 32),
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -736,6 +759,13 @@ begin
 		     CFG_MAX_SINGLE_SUB_IN    => cfg_max_single_sub,
 		     CFG_ADDITIONAL_HDR_IN    => cfg_additional_hdr,
 			 CFG_MAX_REPLY_SIZE_IN    => cfg_max_reply,
+			 
+			 MONITOR_RX_FRAMES_OUT    => monitor_rx_frames(1 * 32 - 1 downto 0 * 32),
+			 MONITOR_RX_BYTES_OUT     => monitor_rx_bytes(1 * 32 - 1 downto 0 * 32),
+			 MONITOR_TX_FRAMES_OUT    => monitor_tx_frames(1 * 32 - 1 downto 0 * 32),
+			 MONITOR_TX_BYTES_OUT     => monitor_tx_bytes(1 * 32 - 1 downto 0 * 32),
+			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(1 * 32 - 1 downto 0 * 32),
+			 MONITOR_DROPPED_OUT      => monitor_dropped(1 * 32 - 1 downto 0 * 32),
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
@@ -906,12 +936,12 @@ begin
 			GBE_MAX_SUBS_IN_QUEUE_OUT   => cfg_max_subs_in_queue,
 			GBE_MAX_SINGLE_SUB_OUT      => cfg_max_single_sub,
 			
-			MONITOR_RX_BYTES_IN         => (others => '0'), --monitor_rx_bytes,
-			MONITOR_RX_FRAMES_IN        => (others => '0'), --monitor_rx_frames,
-			MONITOR_TX_BYTES_IN         => (others => '0'), --monitor_tx_bytes,
-			MONITOR_TX_FRAMES_IN        => (others => '0'), --monitor_tx_frames,
-			MONITOR_TX_PACKETS_IN       => (others => '0'), --monitor_tx_packets,
-			MONITOR_DROPPED_IN          => (others => '0'), --monitor_dropped,
+			MONITOR_RX_BYTES_IN         => sum_rx_bytes,
+			MONITOR_RX_FRAMES_IN        => sum_rx_frames,
+			MONITOR_TX_BYTES_IN         => sum_tx_bytes,
+			MONITOR_TX_FRAMES_IN        => sum_tx_frames,
+			MONITOR_TX_PACKETS_IN       => sum_tx_packets,
+			MONITOR_DROPPED_IN          => sum_dropped,
 			
 			MONITOR_SELECT_REC_IN	      => (others => '0'), --dbg_select_rec,
 			MONITOR_SELECT_REC_BYTES_IN   => (others => '0'), --dbg_select_rec_bytes,
@@ -924,8 +954,16 @@ begin
 			DATA_HIST_IN => dbg_hist,
 			SCTRL_HIST_IN => dbg_hist2
 		);
-		end generate;
-		
+	end generate;
+	
+	sum_rx_bytes   <= monitor_rx_bytes(4 * 32 - 1 downto 3 * 32) + monitor_rx_bytes(3 * 32 - 1 downto 2 * 32) + monitor_rx_bytes(2 * 32 - 1 downto 1 * 32) + monitor_rx_bytes(1 * 32 - 1 downto 0 * 32);
+	sum_rx_frames  <= monitor_rx_frames(4 * 32 - 1 downto 3 * 32) + monitor_rx_frames(3 * 32 - 1 downto 2 * 32) + monitor_rx_frames(2 * 32 - 1 downto 1 * 32) + monitor_rx_frames(1 * 32 - 1 downto 0 * 32);    
+	sum_tx_bytes   <= monitor_tx_bytes(4 * 32 - 1 downto 3 * 32) + monitor_tx_bytes(3 * 32 - 1 downto 2 * 32) + monitor_tx_bytes(2 * 32 - 1 downto 1 * 32) + monitor_tx_bytes(1 * 32 - 1 downto 0 * 32);        
+	sum_tx_frames  <= monitor_tx_frames(4 * 32 - 1 downto 3 * 32) + monitor_tx_frames(3 * 32 - 1 downto 2 * 32) + monitor_tx_frames(2 * 32 - 1 downto 1 * 32) + monitor_tx_frames(1 * 32 - 1 downto 0 * 32);    
+	sum_tx_packets <= monitor_tx_packets(4 * 32 - 1 downto 3 * 32) + monitor_tx_packets(3 * 32 - 1 downto 2 * 32) + monitor_tx_packets(2 * 32 - 1 downto 1 * 32) + monitor_tx_packets(1 * 32 - 1 downto 0 * 32);
+	sum_dropped    <= monitor_dropped(4 * 32 - 1 downto 3 * 32) + monitor_dropped(3 * 32 - 1 downto 2 * 32) + monitor_dropped(2 * 32 - 1 downto 1 * 32) + monitor_dropped(1 * 32 - 1 downto 0 * 32);                                                                                                                                                                          
+	
+	
 		setup_sim_gen : if (DO_SIMULATION = 1) generate
 			cfg_gbe_enable <= '1';
 			cfg_allow_rx <= '1';
