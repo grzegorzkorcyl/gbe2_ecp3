@@ -241,7 +241,7 @@ end component;
 	signal rx_cdr_lol: std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal tx_pll_lol, quad_rst : std_logic;
 	signal tx_pcs_rst, rx_pcs_rst, rx_serdes_rst : std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
-	signal rst_n : std_logic;
+	--signal rst_n : std_logic;
 	signal rx_clk_en : std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal tx_clk_en : std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0);
 	signal operational_rate : std_logic_vector(NUMBER_OF_GBE_LINKS * 2 - 1 downto 0);
@@ -267,12 +267,25 @@ end component;
 	signal tsm_hdata : std_logic_vector(NUMBER_OF_GBE_LINKS * 8 - 1 downto 0);
 	signal tsm_haddr : std_logic_vector(NUMBER_OF_GBE_LINKS * 8 - 1 downto 0);
 	
+	signal synced_rst, ff : std_logic;
+	
 begin
 	
 	rx_power <= "1111";
 	tx_power <= "1111";
 	
-	rst_n <= not RESET;
+	--rst_n <= not RESET;
+	
+	reset_sync : process(GSR_N, CLK_SYS_IN)
+	begin
+		if (GSR_N = '0') then
+			ff <= '0';
+			synced_rst <= '0';
+		elsif rising_edge(CLK_SYS_IN) then
+			ff <= '1';
+			synced_rst <= ff;
+		end if;
+	end process reset_sync;
 	
 	SD_TXDIS_OUT <= "0000";
 	
@@ -437,7 +450,7 @@ begin
 			
 			SGMII_GBE_PCS : sgmii_gbe_pcs35
 			port map(
-				rst_n					=> rst_n,
+				rst_n					=> synced_rst, --rst_n,
 				signal_detect			=> signal_detected(i),
 				gbe_mode				=> '1',
 				sgmii_mode				=> '0',
@@ -497,7 +510,7 @@ begin
 		 	MAC_AN_READY_OUT(i) <= an_complete(i);
 		 	
 			u0_reset_controller_pcs : reset_controller_pcs port map(
-				rst_n           => rst_n,
+				rst_n           => synced_rst, --rst_n,
 				clk             => CLK_125_IN,
 				tx_plol         => tx_pll_lol,
 				rx_cdr_lol      => rx_cdr_lol(i),
@@ -507,7 +520,7 @@ begin
 			);
 			
 			u0_reset_controller_cdr : reset_controller_cdr port map(
-				rst_n           => rst_n,
+				rst_n           => synced_rst, --rst_n,
 				clk             => CLK_125_IN,
 				cdr_lol         => rx_cdr_lol(i),
 				cdr_rst_out     => rx_serdes_rst(i)
@@ -526,7 +539,7 @@ begin
 			
 			u0_ri : register_interface_hb port map(
 					-- Control Signals
-				rst_n      => rst_n,
+				rst_n      => synced_rst, --rst_n,
 				hclk       => CLK_125_IN,
 				gbe_mode   => '1',
 				sgmii_mode => '0',
