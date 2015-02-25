@@ -159,7 +159,7 @@ begin
 			max_single_sub    <= x"7d00";  -- 32000   
 			max_reply         <= x"0000_fa00";
 			dummy_event       <= x"0100";
-			dummy_mode        <= 0;
+			dummy_mode        <= '0';
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 		

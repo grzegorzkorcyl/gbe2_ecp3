@@ -1076,6 +1076,9 @@ port(
 	MONITOR_SELECT_DROP_IN_IN	  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_DROP_OUT_IN	  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
+		
+	DUMMY_EVENT_SIZE_OUT : out std_logic_vector(15 downto 0);
+	DUMMY_TRIGGERED_MODE_OUT : out std_logic;
 	
 	DATA_HIST_IN : in hist_array;
 	SCTRL_HIST_IN : in hist_array
