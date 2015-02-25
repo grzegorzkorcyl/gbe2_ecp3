@@ -25,6 +25,10 @@ ARCHITECTURE behavior OF aa_wrapper_tb IS
 		rst : in std_logic;
 		GBE_READY_IN : in std_logic;
 		
+		CFG_EVENT_SIZE_IN : in std_logic_vector(15 downto 0);
+		CFG_TRIGGERED_MODE_IN : in std_logic;
+		TRIGGER_IN : in std_logic;
+		
 		CTS_NUMBER_OUT				: out	std_logic_vector (15 downto 0);
 		CTS_CODE_OUT					: out	std_logic_vector (7  downto 0);
 		CTS_INFORMATION_OUT			: out	std_logic_vector (7  downto 0);
@@ -91,6 +95,7 @@ signal mlt_fee_read			    : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0
 signal mlt_fee_status	        : std_logic_vector (32 * NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
 signal mlt_fee_busy		        : std_logic_vector(NUMBER_OF_OUTPUT_LINKS - 1 downto 0);
 signal gbe_ready : std_logic;
+signal trigger : std_logic;
 
 begin
 	
@@ -387,6 +392,11 @@ begin
 		port map(clk                     => CLK,
 			     rst                     => RESET,
 			     GBE_READY_IN            => gbe_ready,
+			     
+			     CFG_EVENT_SIZE_IN       => x"0100",
+			     CFG_TRIGGERED_MODE_IN   => '1',
+			     TRIGGER_IN              => trigger,
+			     
 			     CTS_NUMBER_OUT          => CTS_NUMBER_IN,
 			     CTS_CODE_OUT            => CTS_CODE_IN,
 			     CTS_INFORMATION_OUT     => CTS_INFORMATION_IN,
@@ -451,6 +461,7 @@ testbench_proc : process
 begin
 	reset <= '1'; 
 	
+	trigger <= '0';
 	gbe_ready <= '0';
 	MAC_RX_EN_IN <= '0';
 	MAC_RXD_IN <= x"00";
@@ -770,6 +781,14 @@ begin
 	
 	
 	wait for 5 us;
+	
+	
+	wait until rising_edge(CLK);
+	trigger <= '1';
+	wait until rising_edge(CLK);
+	wait until rising_edge(CLK);
+	trigger <= '0';
+	
 --	
 --	wait until rising_edge(RX_MAC_CLK);
 --	MAC_RX_EN_IN <= '1';
