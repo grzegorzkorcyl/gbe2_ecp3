@@ -363,11 +363,11 @@ begin
 				when IDLE =>
 					ctr <= 0;
 				when TIMEOUT =>
-					if ctr /= timeout_stop then
-						ctr <= ctr + 1;
-					else
+--					if ctr /= timeout_stop then
+--						ctr <= ctr + 1;
+--					else
 						ctr <= 0;
-					end if;
+--					end if;
 				when CTS_START =>
 					if (ctr /= pause_cts_fee) then
 						ctr <= ctr + 1;
