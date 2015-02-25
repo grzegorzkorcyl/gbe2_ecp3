@@ -49,6 +49,7 @@ entity gbe_wrapper is
 		SD_LOS_IN				: in	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0); -- SFP Loss Of Signal ('0' = OK, '1' = no signal)
 		SD_TXDIS_OUT			: out	std_logic_vector(NUMBER_OF_GBE_LINKS - 1 downto 0); -- SFP disable
 		
+		TRIGGER_IN              : in std_logic; -- for debug purpose only
 			-- CTS interface
 		CTS_NUMBER_IN				: in	std_logic_vector (15 downto 0);
 		CTS_CODE_IN					: in	std_logic_vector (7  downto 0);
@@ -182,6 +183,9 @@ architecture RTL of gbe_wrapper is
 	signal all_links_ready : std_logic;
 	signal monitor_rx_frames, monitor_rx_bytes, monitor_tx_frames, monitor_tx_bytes, monitor_tx_packets, monitor_dropped : std_logic_vector(4 * 32 - 1 downto 0);
 	signal sum_rx_frames, sum_rx_bytes, sum_tx_frames, sum_tx_bytes, sum_tx_packets, sum_dropped : std_logic_vector(31 downto 0);
+	
+	signal dummy_event : std_logic_vector(15 downto 0);
+	signal dummy_mode : std_logic;
 	
 begin
 	
@@ -880,6 +884,10 @@ begin
 --			clk => CLK_SYS_IN,
 --			rst => RESET,
 --			GBE_READY_IN => all_links_ready,
+
+--			DUMMY_EVENT_SIZE_IN      => dummy_event,
+--			DUMMY_TRIGGERED_MODE_IN  => dummy_mode,
+--			TRIGGER_IN => TRIGGER_IN,
 --			                    
 --			CTS_NUMBER_OUT		     => local_cts_number,
 --			CTS_CODE_OUT		     => local_cts_code,
@@ -950,6 +958,9 @@ begin
 			MONITOR_SELECT_DROP_IN_IN     => (others => '0'), --dbg_select_drop_in,
 			MONITOR_SELECT_DROP_OUT_IN    => (others => '0'), --dbg_select_drop_out,
 			MONITOR_SELECT_GEN_DBG_IN     => (others => '0'), --dbg_select_gen,
+			
+			DUMMY_EVENT_SIZE_OUT     => dummy_event,
+			DUMMY_TRIGGERED_MODE_OUT => dummy_mode,
 			
 			DATA_HIST_IN => dbg_hist,
 			SCTRL_HIST_IN => dbg_hist2

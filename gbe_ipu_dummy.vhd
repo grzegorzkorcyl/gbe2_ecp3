@@ -28,6 +28,10 @@ entity gbe_ipu_dummy is
 		rst : in std_logic;
 		GBE_READY_IN : in std_logic;
 		
+		CFG_EVENT_SIZE_IN : in std_logic_vector(15 downto 0);
+		CFG_TRIGGERED_MODE_IN : in std_logic;
+		TRIGGER_IN : in std_logic;		
+		
 		CTS_NUMBER_OUT				: out	std_logic_vector (15 downto 0);
 		CTS_CODE_OUT					: out	std_logic_vector (7  downto 0);
 		CTS_INFORMATION_OUT			: out	std_logic_vector (7  downto 0);
@@ -85,7 +89,7 @@ begin
 	
 	
 	fixed_size_gen : if FIXED_SIZE_MODE = 1 generate
-		test_data_len <= std_logic_vector(to_unsigned(FIXED_SIZE, 16));
+		test_data_len <= CFG_EVENT_SIZE_IN; --std_logic_vector(to_unsigned(FIXED_SIZE, 16));
 	end generate fixed_size_gen;
 	
 	random_size_gen : if FIXED_SIZE_MODE = 0 and INCREMENTAL_MODE = 0 generate
@@ -172,7 +176,7 @@ begin
 	end process state_machine_proc;
 	
 	state_machine : process (current_state, GBE_READY_IN, ctr, timeout_stop, pause_dready, pause_cts_fee, FEE_READ_IN, pause_wait_6, pause_wait_5, 
-								pause_wait_4, pause_wait_3, pause_wait_2, pause_wait_1, send_word_pause, data_ctr, test_data_len, pause_wait_7, pause_wait_8, pause_wait_9
+								pause_wait_4, pause_wait_3, pause_wait_2, pause_wait_1, send_word_pause, TRIGGER_IN, data_ctr, test_data_len, pause_wait_7, pause_wait_8, pause_wait_9
 	) is
 	begin
 		case current_state is 
@@ -184,7 +188,8 @@ begin
 			end if;
 			
 		when TIMEOUT =>
-			if (ctr = timeout_stop) then
+			--if (ctr = timeout_stop) then
+			if (TRIGGER_IN = '1') then
 				next_state <= CTS_START;
 			else
 				next_state <= TIMEOUT;

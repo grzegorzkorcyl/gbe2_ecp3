@@ -61,6 +61,9 @@ port(
 	MONITOR_SELECT_DROP_OUT_IN	  : in	std_logic_vector(c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	MONITOR_SELECT_GEN_DBG_IN     : in	std_logic_vector(2*c_MAX_PROTOCOLS * 32 - 1 downto 0);
 	
+	DUMMY_EVENT_SIZE_OUT : out std_logic_vector(15 downto 0);
+	DUMMY_TRIGGERED_MODE_OUT : out std_logic;
+	
 	DATA_HIST_IN : in hist_array;
 	SCTRL_HIST_IN : in hist_array
 );
@@ -86,6 +89,8 @@ signal additional_hdr    : std_logic;
 signal insert_ttype      : std_logic;
 signal max_reply         : std_logic_vector(31 downto 0);
   signal max_sub, max_queue, max_subs_in_queue, max_single_sub : std_logic_vector(15 downto 0);
+  signal dummy_event : std_logic_vector(15 downto 0);
+  signal dummy_mode : std_logic;
 
 begin
 
@@ -112,6 +117,8 @@ begin
 		GBE_MAX_SUBS_IN_QUEUE_OUT <= max_subs_in_queue;
 		GBE_MAX_SINGLE_SUB_OUT    <= max_single_sub;
 		GBE_MAX_REPLY_OUT         <= max_reply;
+		DUMMY_EVENT_SIZE_OUT      <= dummy_event;
+		DUMMY_TRIGGERED_MODE_OUT  <= dummy_mode;
 	end if;
 end process OUT_PROC;
 
@@ -151,6 +158,8 @@ begin
 			max_subs_in_queue <= x"00c8";  -- 200     
 			max_single_sub    <= x"7d00";  -- 32000   
 			max_reply         <= x"0000_fa00";
+			dummy_event       <= x"0100";
+			dummy_mode        <= 0;
 
 		elsif (BUS_WRITE_EN_IN = '1') then
 		
@@ -219,6 +228,11 @@ begin
 				when x"11" =>
 					max_reply        <= BUS_DATA_IN;
 					
+				when x"12" =>
+					dummy_event      <= BUS_DATA_IN(15 downto 0);
+					
+				when x"13" =>
+					dummy_mode       <= BUS_DATA_IN(0);
 
 				when x"ff" =>
 					if (BUS_DATA_IN = x"ffff_ffff") then
@@ -247,7 +261,9 @@ begin
 					max_queue          <= max_queue;        
 					max_subs_in_queue  <= max_subs_in_queue;
 					max_single_sub     <= max_single_sub;	
-					max_reply          <= max_reply;		
+					max_reply          <= max_reply;	
+					dummy_event        <= dummy_event;
+					dummy_mode         <= dummy_mode;	
 			end case;
 		else
 			reset_values      <= '0';
