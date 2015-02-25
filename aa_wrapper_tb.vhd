@@ -783,11 +783,7 @@ begin
 	wait for 5 us;
 	
 	
-	wait until rising_edge(CLK);
-	trigger <= '1';
-	wait until rising_edge(CLK);
-	wait until rising_edge(CLK);
-	trigger <= '0';
+
 	
 --	
 --	wait until rising_edge(RX_MAC_CLK);
@@ -1058,6 +1054,14 @@ begin
 	wait for 2 us;
 	
 	gbe_ready <= '1';
+	
+	wait for 1 us;
+	
+	wait until rising_edge(CLK);
+	trigger <= '1';
+	wait until rising_edge(CLK);
+	wait until rising_edge(CLK);
+	trigger <= '0';
 	
 	
 --	for i in 0 to 100 loop
