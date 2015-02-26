@@ -476,11 +476,21 @@ begin
 			ic_dest_mac_shift <= ic_dest_mac;
 			ic_dest_ip_shift <= ic_dest_ip;
 			ic_dest_udp_shift <= ic_dest_udp;
+			
+			ic_src_mac_shift <= ic_src_mac;
+			ic_src_ip_shift <= ic_src_ip;
+			ic_src_udp_shift <= ic_src_udp;
+			
 			pc_trig_type_shift <= pc_trig_type;
 		else
 			ic_dest_mac_shift <= ic_dest_mac_shift;
 			ic_dest_ip_shift <= ic_dest_ip_shift;
 			ic_dest_udp_shift <= ic_dest_udp_shift;
+			
+			ic_src_mac_shift <= ic_src_mac_shift;
+			ic_src_ip_shift <= ic_src_ip_shift;
+			ic_src_udp_shift <= ic_src_udp_shift;
+			
 			pc_trig_type_shift <= pc_trig_type_shift;
 		end if; 		
 	end if;
@@ -495,13 +505,10 @@ end generate rx_enable_gen;
 
 rx_disable_gen : if (RX_PATH_ENABLE = 0) generate
 	TC_SRC_MAC_OUT        <= MY_MAC_IN;
-	TC_SRC_IP_OUT         <= ic_src_ip;
+	TC_SRC_IP_OUT         <= ic_src_ip_shift;
 end generate rx_disable_gen;
 
---TC_SRC_MAC_OUT <= x"99883c290c00";
---TC_SRC_IP_OUT <= x"0288a8c0";
-
-TC_SRC_UDP_OUT        <= ic_src_udp;
+TC_SRC_UDP_OUT        <= ic_src_udp_shift;
 TC_IP_PROTOCOL_OUT    <= x"11";
 TC_IDENT_OUT          <= x"4" & sent_packets(11 downto 0);
 
