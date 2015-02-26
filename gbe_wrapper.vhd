@@ -822,92 +822,92 @@ begin
 		);
 	end generate real_ipu_gen;
 	
---	dummy_ipu_gen : if (USE_EXTERNAL_TRBNET_DUMMY = 1) generate 	
---		ipu_mult : entity work.gbe_ipu_multiplexer
---		generic map(
---			DO_SIMULATION          => DO_SIMULATION,
---			INCLUDE_DEBUG          => INCLUDE_DEBUG,
---			NUMBER_OF_OUTPUT_LINKS => 1
---		)
---		port map(
---			CLK_SYS_IN                  => CLK_SYS_IN,
---			RESET                       => RESET,
---			CTS_NUMBER_IN               => local_cts_number,           
---			CTS_CODE_IN                 => local_cts_code,             
---			CTS_INFORMATION_IN          => local_cts_information,      
---			CTS_READOUT_TYPE_IN         => local_cts_readout_type,     
---			CTS_START_READOUT_IN        => local_cts_start_readout,    
---			CTS_DATA_OUT                => open,            
---			CTS_DATAREADY_OUT           => open,                        
---			CTS_READOUT_FINISHED_OUT    => local_cts_readout_finished, 
---			CTS_READ_IN                 => '1',                       
---			CTS_LENGTH_OUT              => open,            
---			CTS_ERROR_PATTERN_OUT       => local_cts_status_bits,      
---			FEE_DATA_IN                 => local_fee_data,              
---			FEE_DATAREADY_IN            => local_fee_dataready,  
---			FEE_READ_OUT                => local_fee_read,       
---			FEE_STATUS_BITS_IN          => local_fee_status_bits,
---			FEE_BUSY_IN                 => local_fee_busy,
---			 
---			MLT_CTS_NUMBER_OUT          => mlt_cts_number,
---			MLT_CTS_CODE_OUT            => mlt_cts_code,
---			MLT_CTS_INFORMATION_OUT     => mlt_cts_information,
---			MLT_CTS_READOUT_TYPE_OUT    => mlt_cts_readout_type,
---			MLT_CTS_START_READOUT_OUT   => mlt_cts_start_readout,
---			MLT_CTS_DATA_IN             => mlt_cts_data,
---			MLT_CTS_DATAREADY_IN        => mlt_cts_dataready,
---			MLT_CTS_READOUT_FINISHED_IN => mlt_cts_readout_finished,
---			MLT_CTS_READ_OUT            => mlt_cts_read,
---			MLT_CTS_LENGTH_IN           => mlt_cts_length,
---			MLT_CTS_ERROR_PATTERN_IN    => mlt_cts_error_pattern,
---			MLT_FEE_DATA_OUT            => mlt_fee_data,		        
---			MLT_FEE_DATAREADY_OUT       => mlt_fee_dataready,	    
---			MLT_FEE_READ_IN             => mlt_fee_read,			    
---			MLT_FEE_STATUS_BITS_OUT     => mlt_fee_status,	        
---			MLT_FEE_BUSY_OUT            => mlt_fee_busy,		        
---			 
---			DEBUG_OUT                   => open
---		);
---		
---		dummy : entity work.gbe_ipu_dummy
---		generic map(
---			DO_SIMULATION => DO_SIMULATION,
---			FIXED_SIZE_MODE => FIXED_SIZE_MODE,
---			INCREMENTAL_MODE => INCREMENTAL_MODE,
---			FIXED_SIZE => FIXED_SIZE,
---			UP_DOWN_MODE => UP_DOWN_MODE,
---			UP_DOWN_LIMIT => UP_DOWN_LIMIT,
---			FIXED_DELAY_MODE => FIXED_DELAY_MODE,
---			FIXED_DELAY => FIXED_DELAY
---		)
---		port map(
---			clk => CLK_SYS_IN,
---			rst => RESET,
---			GBE_READY_IN => all_links_ready,
+	dummy_ipu_gen : if (USE_EXTERNAL_TRBNET_DUMMY = 1) generate 	
+		ipu_mult : entity work.gbe_ipu_multiplexer
+		generic map(
+			DO_SIMULATION          => DO_SIMULATION,
+			INCLUDE_DEBUG          => INCLUDE_DEBUG,
+			NUMBER_OF_OUTPUT_LINKS => 1
+		)
+		port map(
+			CLK_SYS_IN                  => CLK_SYS_IN,
+			RESET                       => RESET,
+			CTS_NUMBER_IN               => local_cts_number,           
+			CTS_CODE_IN                 => local_cts_code,             
+			CTS_INFORMATION_IN          => local_cts_information,      
+			CTS_READOUT_TYPE_IN         => local_cts_readout_type,     
+			CTS_START_READOUT_IN        => local_cts_start_readout,    
+			CTS_DATA_OUT                => open,            
+			CTS_DATAREADY_OUT           => open,                        
+			CTS_READOUT_FINISHED_OUT    => local_cts_readout_finished, 
+			CTS_READ_IN                 => '1',                       
+			CTS_LENGTH_OUT              => open,            
+			CTS_ERROR_PATTERN_OUT       => local_cts_status_bits,      
+			FEE_DATA_IN                 => local_fee_data,              
+			FEE_DATAREADY_IN            => local_fee_dataready,  
+			FEE_READ_OUT                => local_fee_read,       
+			FEE_STATUS_BITS_IN          => local_fee_status_bits,
+			FEE_BUSY_IN                 => local_fee_busy,
+			 
+			MLT_CTS_NUMBER_OUT          => mlt_cts_number,
+			MLT_CTS_CODE_OUT            => mlt_cts_code,
+			MLT_CTS_INFORMATION_OUT     => mlt_cts_information,
+			MLT_CTS_READOUT_TYPE_OUT    => mlt_cts_readout_type,
+			MLT_CTS_START_READOUT_OUT   => mlt_cts_start_readout,
+			MLT_CTS_DATA_IN             => mlt_cts_data,
+			MLT_CTS_DATAREADY_IN        => mlt_cts_dataready,
+			MLT_CTS_READOUT_FINISHED_IN => mlt_cts_readout_finished,
+			MLT_CTS_READ_OUT            => mlt_cts_read,
+			MLT_CTS_LENGTH_IN           => mlt_cts_length,
+			MLT_CTS_ERROR_PATTERN_IN    => mlt_cts_error_pattern,
+			MLT_FEE_DATA_OUT            => mlt_fee_data,		        
+			MLT_FEE_DATAREADY_OUT       => mlt_fee_dataready,	    
+			MLT_FEE_READ_IN             => mlt_fee_read,			    
+			MLT_FEE_STATUS_BITS_OUT     => mlt_fee_status,	        
+			MLT_FEE_BUSY_OUT            => mlt_fee_busy,		        
+			 
+			DEBUG_OUT                   => open
+		);
+		
+		dummy : entity work.gbe_ipu_dummy
+		generic map(
+			DO_SIMULATION => DO_SIMULATION,
+			FIXED_SIZE_MODE => FIXED_SIZE_MODE,
+			INCREMENTAL_MODE => INCREMENTAL_MODE,
+			FIXED_SIZE => FIXED_SIZE,
+			UP_DOWN_MODE => UP_DOWN_MODE,
+			UP_DOWN_LIMIT => UP_DOWN_LIMIT,
+			FIXED_DELAY_MODE => FIXED_DELAY_MODE,
+			FIXED_DELAY => FIXED_DELAY
+		)
+		port map(
+			clk => CLK_SYS_IN,
+			rst => RESET,
+			GBE_READY_IN => all_links_ready,
 
---			DUMMY_EVENT_SIZE_IN      => dummy_event,
---			DUMMY_TRIGGERED_MODE_IN  => dummy_mode,
---			TRIGGER_IN => TRIGGER_IN,
---			                    
---			CTS_NUMBER_OUT		     => local_cts_number,
---			CTS_CODE_OUT		     => local_cts_code,
---			CTS_INFORMATION_OUT	     => local_cts_information,
---			CTS_READOUT_TYPE_OUT     => local_cts_readout_type,
---			CTS_START_READOUT_OUT    => local_cts_start_readout,
---			CTS_DATA_IN				 => (others => '0'),
---			CTS_DATAREADY_IN	     => '0',
---			CTS_READOUT_FINISHED_IN	 => local_cts_readout_finished,
---			CTS_READ_OUT		     => open,
---			CTS_LENGTH_IN		     => (others => '0'),
---			CTS_ERROR_PATTERN_IN     => local_cts_status_bits,
---			-- Data payload interface
---			FEE_DATA_OUT		     => local_fee_data,
---			FEE_DATAREADY_OUT	     => local_fee_dataready,
---			FEE_READ_IN				 => local_fee_read,
---			FEE_STATUS_BITS_OUT	     => local_fee_status_bits,
---			FEE_BUSY_OUT		     => local_fee_busy
---		);
---	end generate dummy_ipu_gen;
+			CFG_EVENT_SIZE_IN      => dummy_event,
+			CFG_TRIGGERED_MODE_IN  => dummy_mode,
+			TRIGGER_IN => TRIGGER_IN,
+			                    
+			CTS_NUMBER_OUT		     => local_cts_number,
+			CTS_CODE_OUT		     => local_cts_code,
+			CTS_INFORMATION_OUT	     => local_cts_information,
+			CTS_READOUT_TYPE_OUT     => local_cts_readout_type,
+			CTS_START_READOUT_OUT    => local_cts_start_readout,
+			CTS_DATA_IN				 => (others => '0'),
+			CTS_DATAREADY_IN	     => '0',
+			CTS_READOUT_FINISHED_IN	 => local_cts_readout_finished,
+			CTS_READ_OUT		     => open,
+			CTS_LENGTH_IN		     => (others => '0'),
+			CTS_ERROR_PATTERN_IN     => local_cts_status_bits,
+			-- Data payload interface
+			FEE_DATA_OUT		     => local_fee_data,
+			FEE_DATAREADY_OUT	     => local_fee_dataready,
+			FEE_READ_IN				 => local_fee_read,
+			FEE_STATUS_BITS_OUT	     => local_fee_status_bits,
+			FEE_BUSY_OUT		     => local_fee_busy
+		);
+	end generate dummy_ipu_gen;
 		     
 	setup_imp_gen : if (DO_SIMULATION = 0) generate
 		SETUP : gbe_setup

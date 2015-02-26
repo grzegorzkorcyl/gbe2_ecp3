@@ -155,6 +155,10 @@ component gbe_ipu_dummy is
 		clk : in std_logic;
 		rst : in std_logic;
 		GBE_READY_IN : in std_logic;
+				
+		CFG_EVENT_SIZE_IN : in std_logic_vector(15 downto 0);
+		CFG_TRIGGERED_MODE_IN : in std_logic;
+		TRIGGER_IN : in std_logic;		
 		
 		CTS_NUMBER_OUT				: out	std_logic_vector (15 downto 0);
 		CTS_CODE_OUT					: out	std_logic_vector (7  downto 0);
