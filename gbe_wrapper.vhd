@@ -907,6 +907,59 @@ begin
 			FEE_STATUS_BITS_OUT	     => local_fee_status_bits,
 			FEE_BUSY_OUT		     => local_fee_busy
 		);
+		
+		-- handler for triggers
+		DUMMY_HANDLER: trb_net16_gbe_ipu_interface
+		port map( 
+			CLK_IPU 			     => CLK_SYS_IN,
+			CLK_GBE					 => CLK_125_IN,
+			RESET					 => RESET,
+			--Event information coming from CTS
+			CTS_NUMBER_IN			 => CTS_NUMBER_IN,
+			CTS_CODE_IN				 => CTS_CODE_IN,
+			CTS_INFORMATION_IN		 => CTS_INFORMATION_IN,
+			CTS_READOUT_TYPE_IN		 => CTS_READOUT_TYPE_IN,
+			CTS_START_READOUT_IN	 => CTS_START_READOUT_IN,
+			--Information sent to CTS
+			--status data, equipped with DHDR
+			CTS_DATA_OUT			 => CTS_DATA_OUT,
+			CTS_DATAREADY_OUT		 => CTS_DATAREADY_OUT,
+			CTS_READOUT_FINISHED_OUT => CTS_READOUT_FINISHED_OUT,
+			CTS_READ_IN				 => CTS_READ_IN,
+			CTS_LENGTH_OUT			 => CTS_LENGTH_OUT,
+			CTS_ERROR_PATTERN_OUT	 => CTS_ERROR_PATTERN_OUT,
+			-- Data from Frontends
+			FEE_DATA_IN				 => FEE_DATA_IN,
+			FEE_DATAREADY_IN		 => FEE_DATAREADY_IN,
+			FEE_READ_OUT			 => FEE_READ_OUT,
+			FEE_STATUS_BITS_IN		 => FEE_STATUS_BITS_IN,
+			FEE_BUSY_IN				 => FEE_BUSY_IN,
+			-- slow control interface
+			START_CONFIG_OUT		 => open,
+			BANK_SELECT_OUT			 => open,
+			CONFIG_DONE_IN			 => '1',
+			DATA_GBE_ENABLE_IN		 => '1',
+			DATA_IPU_ENABLE_IN		 => '1',
+			MULT_EVT_ENABLE_IN		 => '1',
+			MAX_SUBEVENT_SIZE_IN     => (others => '0'),
+			MAX_QUEUE_SIZE_IN        => (others => '0'),
+			MAX_SUBS_IN_QUEUE_IN     => (others => '0'),
+			MAX_SINGLE_SUB_SIZE_IN   => (others => '0'),
+			READOUT_CTR_IN			 => (others => '0'),
+			READOUT_CTR_VALID_IN	 => '0',
+			-- PacketConstructor interface
+			PC_WR_EN_OUT			 => open,
+			PC_DATA_OUT				 => open,
+			PC_READY_IN				 => '1',
+			PC_SOS_OUT				 => open,
+			PC_EOS_OUT				 => open,
+			PC_EOQ_OUT				 => open,
+			PC_SUB_SIZE_OUT			 => open,
+			PC_TRIG_NR_OUT			 => open,
+			PC_TRIGGER_TYPE_OUT      => open,
+			MONITOR_OUT              => open,
+			DEBUG_OUT                => open
+		);
 	end generate dummy_ipu_gen;
 		     
 	setup_imp_gen : if (DO_SIMULATION = 0) generate
