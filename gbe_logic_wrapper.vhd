@@ -16,15 +16,16 @@ entity gbe_logic_wrapper is
 		INCLUDE_DEBUG : integer range 0 to 1;
 		USE_INTERNAL_TRBNET_DUMMY : integer range 0 to 1;
 		RX_PATH_ENABLE : integer range 0 to 1;
+				
+		INCLUDE_READOUT  : std_logic := '0';
+		INCLUDE_SLOWCTRL : std_logic := '0';
+		INCLUDE_DHCP     : std_logic := '0';
+		INCLUDE_ARP      : std_logic := '0';
+		INCLUDE_PING     : std_logic := '0';
 		
 		FRAME_BUFFER_SIZE : integer range 1 to 4 := 1;
-		INCLUDE_READOUT : integer range 0 to 1 := 0;
 		READOUT_BUFFER_SIZE : integer range 1 to 4 := 1;
-		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
 		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 := 1; 
-		INCLUDE_DHCP : integer range 0 to 1 := 0;
-		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0;
 		
 		FIXED_SIZE_MODE : integer range 0 to 1 := 1;
 		INCREMENTAL_MODE : integer range 0 to 1 := 0;

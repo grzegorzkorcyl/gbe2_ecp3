@@ -22,11 +22,11 @@ entity trb_net16_gbe_protocol_selector is
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
 		DO_SIMULATION  : integer range 0 to 1 := 0;
 		
-		INCLUDE_READOUT : integer range 0 to 1 := 0;
-		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
-		INCLUDE_DHCP : integer range 0 to 1 := 0;
-		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0;
+		INCLUDE_READOUT  : std_logic := '0';
+		INCLUDE_SLOWCTRL : std_logic := '0';
+		INCLUDE_DHCP     : std_logic := '0';
+		INCLUDE_ARP      : std_logic := '0';
+		INCLUDE_PING     : std_logic := '0';
 		
 		READOUT_BUFFER_SIZE : integer range 1 to 4;
 		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
@@ -212,7 +212,7 @@ zeros <= (others => '0');
 
 
 
-arp_gen : if INCLUDE_ARP = 1 generate
+arp_gen : if INCLUDE_ARP = '1' generate
 	-- protocol Nr. 1 ARP
 	ARP : trb_net16_gbe_response_constructor_ARP
 	generic map( STAT_ADDRESS_BASE => 6
@@ -264,13 +264,13 @@ arp_gen : if INCLUDE_ARP = 1 generate
 	);
 end generate arp_gen;
 
-no_arp_gen : if INCLUDE_ARP = 0 generate
+no_arp_gen : if INCLUDE_ARP = '0' generate
 	resp_ready(0) <= '0';
 	busy(0) <= '0';
 end generate no_arp_gen;
 
 
-dhcp_gen : if INCLUDE_DHCP = 1 generate
+dhcp_gen : if INCLUDE_DHCP = '1' generate
 	-- protocol No. 2 DHCP
 	DHCP : trb_net16_gbe_response_constructor_DHCP
 	generic map(
@@ -329,12 +329,12 @@ dhcp_gen : if INCLUDE_DHCP = 1 generate
 	 );
 end generate dhcp_gen;
 
-no_dhcp_gen : if INCLUDE_DHCP = 0 generate
+no_dhcp_gen : if INCLUDE_DHCP = '0' generate
 	resp_ready(1) <= '0';
 	busy(1) <= '0';
 end generate no_dhcp_gen;
 
-ping_gen : if INCLUDE_PING = 1 generate
+ping_gen : if INCLUDE_PING = '1' generate
 	 --protocol No. 3 Ping
 	Ping : trb_net16_gbe_response_constructor_Ping
 	generic map( STAT_ADDRESS_BASE => 3
@@ -386,12 +386,12 @@ ping_gen : if INCLUDE_PING = 1 generate
 	);
 end generate ping_gen;
 
-no_ping_gen : if INCLUDE_PING = 0 generate
+no_ping_gen : if INCLUDE_PING = '0' generate
 	resp_ready(4) <= '0';
 	busy(4) <= '0';
 end generate no_ping_gen;
 
-sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate 
+sctrl_gen : if INCLUDE_SLOWCTRL = '1' generate 
 	SCTRL : trb_net16_gbe_response_constructor_SCTRL
 	generic map( STAT_ADDRESS_BASE => 8,
 		SLOWCTRL_BUFFER_SIZE => SLOWCTRL_BUFFER_SIZE
@@ -463,12 +463,12 @@ sctrl_gen : if INCLUDE_SLOWCTRL = 1 generate
 	);
 end generate sctrl_gen;
 
-no_sctrl_gen : if INCLUDE_SLOWCTRL = 0 generate
+no_sctrl_gen : if INCLUDE_SLOWCTRL = '0' generate
 	resp_ready(2) <= '0';
 	busy(2) <= '0';
 end generate no_sctrl_gen;
 
-trbnet_gen : if INCLUDE_READOUT = 1 generate 
+trbnet_gen : if INCLUDE_READOUT = '1' generate 
 	TrbNetData : trb_net16_gbe_response_constructor_TrbNetData
 	generic map(
 			RX_PATH_ENABLE => RX_PATH_ENABLE,
@@ -572,7 +572,7 @@ trbnet_gen : if INCLUDE_READOUT = 1 generate
 	);
 end generate trbnet_gen;
 
-no_readout_gen : if INCLUDE_READOUT = 0 generate
+no_readout_gen : if INCLUDE_READOUT = '0' generate
 	resp_ready(3) <= '0';
 	busy(3) <= '0';
 end generate no_readout_gen;

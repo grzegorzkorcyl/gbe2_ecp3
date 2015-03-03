@@ -360,11 +360,11 @@ generic(
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
 		DO_SIMULATION  : integer range 0 to 1 := 0;
 		
-		INCLUDE_READOUT : integer range 0 to 1 := 0;
-		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
-		INCLUDE_DHCP : integer range 0 to 1 := 0;
-		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0;
+		INCLUDE_READOUT  : std_logic := '0';
+		INCLUDE_SLOWCTRL : std_logic := '0';
+		INCLUDE_DHCP     : std_logic := '0';
+		INCLUDE_ARP      : std_logic := '0';
+		INCLUDE_PING     : std_logic := '0';
 		
 		READOUT_BUFFER_SIZE : integer range 1 to 4;
 		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
@@ -518,11 +518,11 @@ generic(
 		RX_PATH_ENABLE : integer range 0 to 1 := 1;
 		DO_SIMULATION  : integer range 0 to 1 := 0;
 		
-		INCLUDE_READOUT : integer range 0 to 1 := 0;
-		INCLUDE_SLOWCTRL : integer range 0 to 1 := 0;
-		INCLUDE_DHCP : integer range 0 to 1 := 0;
-		INCLUDE_ARP : integer range 0 to 1 := 0;
-		INCLUDE_PING : integer range 0 to 1 := 0;
+		INCLUDE_READOUT  : std_logic := '0';
+		INCLUDE_SLOWCTRL : std_logic := '0';
+		INCLUDE_DHCP     : std_logic := '0';
+		INCLUDE_ARP      : std_logic := '0';
+		INCLUDE_PING     : std_logic := '0';
 		
 		READOUT_BUFFER_SIZE : integer range 1 to 4;
 		SLOWCTRL_BUFFER_SIZE : integer range 1 to 4 
