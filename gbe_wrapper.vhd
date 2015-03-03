@@ -252,11 +252,11 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> integer(LINK_HAS_READOUT(3)),
-				INCLUDE_SLOWCTRL	=> integer(LINK_HAS_SLOWCTRL(3)),
-				INCLUDE_DHCP		=> integer(LINK_HAS_DHCP(3)),
-				INCLUDE_ARP			=> integer(LINK_HAS_ARP(3)),
-				INCLUDE_PING		=> integer(LINK_HAS_PING(3)),
+		        INCLUDE_READOUT		=> to_integer(unsigned(LINK_HAS_READOUT(3))),
+				INCLUDE_SLOWCTRL	=> to_integer(unsigned(LINK_HAS_SLOWCTRL(3))),
+				INCLUDE_DHCP		=> to_integer(unsigned(LINK_HAS_DHCP(3))),
+				INCLUDE_ARP			=> to_integer(unsigned(LINK_HAS_ARP(3))),
+				INCLUDE_PING		=> to_integer(unsigned(LINK_HAS_PING(3))),
 				
 		        FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
