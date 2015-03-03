@@ -244,8 +244,9 @@ begin
 		     
 		     DEBUG_OUT           => open
      );
-		     
-	gbe_inst1 : entity work.gbe_logic_wrapper
+
+	GEN_LINK_3 : if (LINKS_ACTIVE(3) = '1') generate		     
+	gbe_inst3 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
 		        INCLUDE_DEBUG             => INCLUDE_DEBUG,
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
@@ -378,7 +379,9 @@ begin
 		     
 		     MAKE_RESET_OUT           => MAKE_RESET_OUT
 		);
-		
+	end generate GEN_LINK_3;
+	
+	GEN_LINK_2 : if (LINKS_ACTIVE(2) = '1') generate	
 	gbe_inst2 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
 		        INCLUDE_DEBUG             => INCLUDE_DEBUG,
@@ -512,8 +515,10 @@ begin
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
-		
-	gbe_inst3 : entity work.gbe_logic_wrapper
+	end generate GEN_LINK_2;
+	
+	GEN_LINK_1 : if (LINKS_ACTIVE(1) = '1') generate	
+	gbe_inst1 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
 		        INCLUDE_DEBUG             => INCLUDE_DEBUG,
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
@@ -657,8 +662,10 @@ begin
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
-		
-	gbe_inst4 : entity work.gbe_logic_wrapper
+	end generate GEN_LINK_1;
+	
+	GEN_LINK_0 : if (LINKS_ACTIVE(0) = '1') generate
+	gbe_inst0 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
 		        INCLUDE_DEBUG             => INCLUDE_DEBUG,
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
@@ -779,6 +786,7 @@ begin
 		     
 		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
 		);
+	end generate GEN_LINK_0;
 	
 	real_ipu_gen : if USE_EXTERNAL_TRBNET_DUMMY = 0 generate 	
 		ipu_mult : entity work.gbe_ipu_multiplexer
