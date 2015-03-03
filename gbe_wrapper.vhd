@@ -31,7 +31,12 @@ entity gbe_wrapper is
 		FIXED_DELAY : integer range 0 to 16777215 := 16777215;
 		
 		NUMBER_OF_GBE_LINKS : integer range 1 to 4 := 4;
-		LINKS_ACTIVE : std_logic_vector(3 downto 0) := "1111";
+		LINKS_ACTIVE      : std_logic_vector(3 downto 0) := "1111";
+		LINK_HAS_PING     : std_logic_vector(3 downto 0) := "1111";
+		LINK_HAS_ARP      : std_logic_vector(3 downto 0) := "1111";
+		LINK_HAS_DHCP     : std_logic_vector(3 downto 0) := "1111";
+		LINK_HAS_READOUT  : std_logic_vector(3 downto 0) := "1111";
+		LINK_HAS_SLOWCTRL : std_logic_vector(3 downto 0) := "1111"; 
 		
 		NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 0
 	);
@@ -148,7 +153,7 @@ architecture RTL of gbe_wrapper is
 	
 	signal dbg_hist, dbg_hist2 : hist_array;
 	
-	signal master_mac, mac_0, mac_1, mac_2 : std_logic_vector(47 downto 0);
+	signal master_mac, mac_0, mac_1, mac_2, mac_3 : std_logic_vector(47 downto 0);
 	signal cfg_max_reply : std_logic_vector(31 downto 0);
 	
 	signal mlt_cts_number		    : std_logic_vector (16 * NUMBER_OF_OUTPUT_LINKS - 1  downto 0);
@@ -189,9 +194,10 @@ architecture RTL of gbe_wrapper is
 	
 begin
 	
-	mac_0 <= master_mac(31 downto 8) & x"ce0002";
-	mac_1 <= master_mac(31 downto 8) & x"de0002";
-	mac_2 <= master_mac(31 downto 8) & x"ee0002";
+	mac_0 <= master_mac(31 downto 8) & x"f50002";
+	mac_1 <= master_mac(31 downto 8) & x"f60002";
+	mac_2 <= master_mac(31 downto 8) & x"f70002";
+	mac_3 <= master_mac(31 downto 8) & x"f80002";
 	
 	all_links_ready <= '1' when dhcp_done = x"f" else '0';	
 	
@@ -245,11 +251,11 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> 1,
-				INCLUDE_SLOWCTRL	=> 0,
-				INCLUDE_DHCP		=> 1,
-				INCLUDE_ARP			=> 1,
-				INCLUDE_PING		=> 1,
+		        INCLUDE_READOUT		=> integer(LINK_HAS_READOUT(3)),
+				INCLUDE_SLOWCTRL	=> integer(LINK_HAS_SLOWCTRL(3)),
+				INCLUDE_DHCP		=> integer(LINK_HAS_DHCP(3)),
+				INCLUDE_ARP			=> integer(LINK_HAS_ARP(3)),
+				INCLUDE_PING		=> integer(LINK_HAS_PING(3)),
 				
 		        FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
@@ -270,7 +276,7 @@ begin
 		     GSR_N                    => GSR_N,
 		     
 		     MY_MAC_OUT => master_mac,
-			 MY_MAC_IN  => master_mac,
+			 MY_MAC_IN  => mac_3,
 			 DHCP_DONE_OUT => dhcp_done(3),
 		     
 		     MAC_READY_CONF_IN        => mac_ready_conf(3),
@@ -379,11 +385,11 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 
-		        INCLUDE_READOUT		=> 0,
-				INCLUDE_SLOWCTRL	=> 1,
-				INCLUDE_DHCP		=> 1,
-				INCLUDE_ARP			=> 1,
-				INCLUDE_PING		=> 1,
+		        INCLUDE_READOUT		=> integer(LINK_HAS_READOUT(2)),
+				INCLUDE_SLOWCTRL	=> integer(LINK_HAS_SLOWCTRL(2)),
+				INCLUDE_DHCP		=> integer(LINK_HAS_DHCP(2)),
+				INCLUDE_ARP			=> integer(LINK_HAS_ARP(2)),
+				INCLUDE_PING		=> integer(LINK_HAS_PING(2)),
 				
 				FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
@@ -513,11 +519,11 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> 1,
-				INCLUDE_SLOWCTRL	=> 0,
-				INCLUDE_DHCP		=> 1,
-				INCLUDE_ARP			=> 1,
-				INCLUDE_PING		=> 1,
+		        INCLUDE_READOUT		=> integer(LINK_HAS_READOUT(1)),
+				INCLUDE_SLOWCTRL	=> integer(LINK_HAS_SLOWCTRL(1)),
+				INCLUDE_DHCP		=> integer(LINK_HAS_DHCP(1)),
+				INCLUDE_ARP			=> integer(LINK_HAS_ARP(1)),
+				INCLUDE_PING		=> integer(LINK_HAS_PING(1)),
 						        
 				FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
@@ -658,11 +664,11 @@ begin
 		        USE_INTERNAL_TRBNET_DUMMY => USE_INTERNAL_TRBNET_DUMMY,
 		        RX_PATH_ENABLE            => RX_PATH_ENABLE,
 		        
-		        INCLUDE_READOUT		=> 0,
-				INCLUDE_SLOWCTRL	=> 0,
-				INCLUDE_DHCP		=> 1,
-				INCLUDE_ARP			=> 1,
-				INCLUDE_PING		=> 1,
+		        INCLUDE_READOUT		=> integer(LINK_HAS_READOUT(0)),
+				INCLUDE_SLOWCTRL	=> integer(LINK_HAS_SLOWCTRL(0)),
+				INCLUDE_DHCP		=> integer(LINK_HAS_DHCP(0)),
+				INCLUDE_ARP			=> integer(LINK_HAS_ARP(0)),
+				INCLUDE_PING		=> integer(LINK_HAS_PING(0)),
 				
 		        FRAME_BUFFER_SIZE	 => 1,
 				READOUT_BUFFER_SIZE  => 4,
@@ -1027,20 +1033,19 @@ begin
 	sum_tx_packets <= monitor_tx_packets(4 * 32 - 1 downto 3 * 32) + monitor_tx_packets(3 * 32 - 1 downto 2 * 32) + monitor_tx_packets(2 * 32 - 1 downto 1 * 32) + monitor_tx_packets(1 * 32 - 1 downto 0 * 32);
 	sum_dropped    <= monitor_dropped(4 * 32 - 1 downto 3 * 32) + monitor_dropped(3 * 32 - 1 downto 2 * 32) + monitor_dropped(2 * 32 - 1 downto 1 * 32) + monitor_dropped(1 * 32 - 1 downto 0 * 32);                                                                                                                                                                          
 	
+	setup_sim_gen : if (DO_SIMULATION = 1) generate
+		cfg_gbe_enable <= '1';
+		cfg_allow_rx <= '1';
+	end generate;
 	
-		setup_sim_gen : if (DO_SIMULATION = 1) generate
-			cfg_gbe_enable <= '1';
-			cfg_allow_rx <= '1';
-		end generate;
+	
+	include_debug_gen : if (INCLUDE_DEBUG = 1) generate
+		DEBUG_OUT(0) <= mac_an_ready(3);
+		DEBUG_OUT(1) <= clk_125_rx_from_pcs(3);
+		DEBUG_OUT(2) <= RESET;
+		DEBUG_OUT(3) <= CLK_125_IN;
 		
-		
-		include_debug_gen : if (INCLUDE_DEBUG = 1) generate
-			DEBUG_OUT(0) <= mac_an_ready(3);
-			DEBUG_OUT(1) <= clk_125_rx_from_pcs(3);
-			DEBUG_OUT(2) <= RESET;
-			DEBUG_OUT(3) <= CLK_125_IN;
-			
-			DEBUG_OUT(127 downto 4) <= (others => '0');			
-		end generate;
+		DEBUG_OUT(127 downto 4) <= (others => '0');			
+	end generate;
 
 end architecture RTL;
