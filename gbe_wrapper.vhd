@@ -793,7 +793,7 @@ begin
 		generic map(
 			DO_SIMULATION          => DO_SIMULATION,
 			INCLUDE_DEBUG          => INCLUDE_DEBUG,
-			NUMBER_OF_OUTPUT_LINKS => 2
+			NUMBER_OF_OUTPUT_LINKS => NUMBER_OF_OUTPUT_LINKS
 		)
 		port map(
 			CLK_SYS_IN                  => CLK_SYS_IN,
@@ -841,7 +841,7 @@ begin
 		generic map(
 			DO_SIMULATION          => DO_SIMULATION,
 			INCLUDE_DEBUG          => INCLUDE_DEBUG,
-			NUMBER_OF_OUTPUT_LINKS => 2
+			NUMBER_OF_OUTPUT_LINKS => NUMBER_OF_OUTPUT_LINKS
 		)
 		port map(
 			CLK_SYS_IN                  => CLK_SYS_IN,

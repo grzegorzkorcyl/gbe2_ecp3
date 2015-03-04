@@ -150,7 +150,7 @@ bootp_hdr(23 downto 16) <= x"06";  -- hardware address length
 bootp_hdr(31 downto 24) <= x"00";  -- hops
 bootp_hdr(63 downto 32) <= transaction_id;  -- transaction id;
 bootp_hdr(95 downto 64) <= x"0000_0000";  -- seconds elapsed/flags
-transaction_id <= x"cefa" & MY_MAC_IN(47 downto 32);
+transaction_id <= x"cefa" & MY_MAC_IN(47 downto 40) & MY_MAC_IN(15 downto 8);
 vendor_values(31 downto 0)    <= x"63538263"; -- magic cookie (dhcp message)
 vendor_values(55 downto 32)   <= x"010135" when (main_current_state = BOOTING or main_current_state = SENDING_DISCOVER) else x"030135"; -- dhcp discover, then dhcp request
 vendor_values(79 downto 56)   <= x"01073d"; -- client identifier
