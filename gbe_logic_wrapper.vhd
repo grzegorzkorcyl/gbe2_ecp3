@@ -268,7 +268,7 @@ begin
 		end if;
 	end process reset_sync;
 	
-	global_reset <= RESET; --not rst_n;
+	global_reset <= not rst_n;
 	
 	fc_ihl_version      <= x"45";
 	fc_tos              <= x"10";
