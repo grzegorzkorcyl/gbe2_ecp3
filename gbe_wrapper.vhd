@@ -245,6 +245,7 @@ begin
 		     DEBUG_OUT           => open
      );
 
+	-- sfp8
 	GEN_LINK_3 : if (LINKS_ACTIVE(3) = '1') generate		     
 	gbe_inst3 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
@@ -381,6 +382,7 @@ begin
 		);
 	end generate GEN_LINK_3;
 	
+	-- sfp7
 	GEN_LINK_2 : if (LINKS_ACTIVE(2) = '1') generate	
 	gbe_inst2 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
@@ -517,6 +519,7 @@ begin
 		);
 	end generate GEN_LINK_2;
 	
+	-- sfp6
 	GEN_LINK_1 : if (LINKS_ACTIVE(1) = '1') generate	
 	gbe_inst1 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,
@@ -664,6 +667,7 @@ begin
 		);
 	end generate GEN_LINK_1;
 	
+	-- sfp5
 	GEN_LINK_0 : if (LINKS_ACTIVE(0) = '1') generate
 	gbe_inst0 : entity work.gbe_logic_wrapper
 	generic map(DO_SIMULATION             => DO_SIMULATION,

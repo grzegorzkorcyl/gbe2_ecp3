@@ -585,7 +585,7 @@ begin
 		)
 		port map(
 			clk => CLK_SYS_IN,
-			rst => global_reset,
+			rst => RESET,
 			GBE_READY_IN => dhcp_done,
 			                    
 			CTS_NUMBER_OUT		     => gbe_cts_number,
