@@ -378,7 +378,7 @@ begin
 			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(4 * 32 - 1 downto 3 * 32),
 			 MONITOR_DROPPED_OUT      => monitor_dropped(4 * 32 - 1 downto 3 * 32),
 		     
-		     MAKE_RESET_OUT           => MAKE_RESET_OUT
+		     MAKE_RESET_OUT           => open
 		);
 	end generate GEN_LINK_3;
 	
@@ -515,7 +515,7 @@ begin
 			 MONITOR_TX_PACKETS_OUT   => monitor_tx_packets(3 * 32 - 1 downto 2 * 32),
 			 MONITOR_DROPPED_OUT      => monitor_dropped(3 * 32 - 1 downto 2 * 32),
 		     
-		     MAKE_RESET_OUT           => open --MAKE_RESET_OUT
+		     MAKE_RESET_OUT           => MAKE_RESET_OUT
 		);
 	end generate GEN_LINK_2;
 	
