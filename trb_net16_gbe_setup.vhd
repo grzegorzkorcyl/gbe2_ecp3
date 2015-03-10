@@ -349,6 +349,15 @@ begin
 					
 				when 17 =>
 					data_out <= max_reply;
+					
+				when 18 =>
+					data_out(15 downto 0)  <= dummy_event;
+					data_out(31 downto 16) <= (others => '0');
+					
+				when 19 =>
+					data_out(0) <= dummy_mode;
+					data_out(31 downto 1) <= (others => '0');
+					
 										
 				-- Histogram of sctrl data sizes
 				when 96 to 127 =>
