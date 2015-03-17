@@ -1057,16 +1057,17 @@ begin
 	
 	wait for 1 us;
 	
+	trigger <= '1';
 	
-	for i in 0 to 100000 loop
-		wait until rising_edge(CLK);
-		trigger <= '1';
-		wait until rising_edge(CLK);
-		wait until rising_edge(CLK);
-		trigger <= '0';
-		
-		--wait for 17 us;
-	end loop;
+--	for i in 0 to 100000 loop
+--		wait until rising_edge(CLK);
+--		trigger <= '1';
+--		wait until rising_edge(CLK);
+--		wait until rising_edge(CLK);
+--		trigger <= '0';
+--		
+--		--wait for 17 us;
+--	end loop;
 	
 	
 --	for i in 0 to 100 loop
