@@ -13,7 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 ENTITY aa_wrapper_tb IS
-	generic(NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 2);
+	generic(NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 1);
 END aa_wrapper_tb;
 
 ARCHITECTURE behavior OF aa_wrapper_tb IS
