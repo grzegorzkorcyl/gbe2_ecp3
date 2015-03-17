@@ -338,7 +338,7 @@ begin
 	generic map(
 		DO_SIMULATION          => 1,
 		INCLUDE_DEBUG          => 1,
-		NUMBER_OF_OUTPUT_LINKS => 2
+		NUMBER_OF_OUTPUT_LINKS => 1
 	)
 	port map(
 		CLK_SYS_IN                  => CLK,
