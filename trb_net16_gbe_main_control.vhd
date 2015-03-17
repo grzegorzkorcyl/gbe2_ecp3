@@ -259,6 +259,7 @@ attribute syn_keep of unique_id, nothing_sent, link_state, state, redirect_state
 attribute syn_preserve of unique_id, nothing_sent, link_state, state, redirect_state, dhcp_done : signal is true;
 
 signal mc_busy                      : std_logic;
+signal incl_dhcp : std_logic;
 
 begin
 
@@ -650,7 +651,14 @@ lsm_sim_gen : if DO_SIMULATION = 1 generate
 	end process;
 end generate lsm_sim_gen;
 
-LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, 	MAC_READY_CONF_IN, INCLUDE_DHCP, link_ok_timeout_ctr)
+incl_dhcp_gen : if (INCLUDE_DHCP = '1') generate
+	incl_dhcp <= '1';
+end generate incl_dhcp_gen;
+noincl_dhcp_gen : if (INCLUDE_DHCP = '0') generate
+	incl_dhcp <= '0';
+end generate noincl_dhcp_gen;
+
+LINK_STATE_MACHINE : process(link_current_state, dhcp_done, wait_ctr, PCS_AN_COMPLETE_IN, incl_dhcp, MAC_READY_CONF_IN, link_ok_timeout_ctr)
 begin
 	case link_current_state is
 		
@@ -699,7 +707,7 @@ begin
 				link_next_state <= INACTIVE;
 			else
 				if (wait_ctr = x"0000_1000") then
-					if (INCLUDE_DHCP = '1') then
+					if (incl_dhcp = '1') then
 						link_next_state <= GET_ADDRESS;
 					else
 						link_next_state <= ACTIVE;
