@@ -439,20 +439,20 @@ begin
 	wait until rising_edge(rx_mac_clk);
 end process;
 
-process
-begin
-	mac_tx_done(1) <= '0';
-	wait until rising_edge(mac_fifoeof(1));
-	wait until rising_edge(rx_mac_clk);
-	mac_tx_done(1) <= '1';
-	wait until rising_edge(rx_mac_clk);
-end process;
+--process
+--begin
+--	mac_tx_done(1) <= '0';
+--	wait until rising_edge(mac_fifoeof(1));
+--	wait until rising_edge(rx_mac_clk);
+--	mac_tx_done(1) <= '1';
+--	wait until rising_edge(rx_mac_clk);
+--end process;
 
 process(rx_mac_clk)
 begin
 	if rising_edge(rx_mac_clk) then
 		mac_read(0) <= mac_fifoavail(0);
-		mac_read(1) <= mac_fifoavail(1);
+--		mac_read(1) <= mac_fifoavail(1);
 	end if;
 end process;
 	
