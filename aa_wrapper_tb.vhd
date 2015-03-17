@@ -109,11 +109,11 @@ begin
         USE_INTERNAL_TRBNET_DUMMY => 0,
         RX_PATH_ENABLE            => 1,
         
-        INCLUDE_READOUT		=> 1,
-		INCLUDE_SLOWCTRL	=> 0,
-		INCLUDE_DHCP		=> 1,
-		INCLUDE_ARP			=> 1,
-		INCLUDE_PING		=> 1,
+        INCLUDE_READOUT		=> '1',
+		INCLUDE_SLOWCTRL	=> '0',
+		INCLUDE_DHCP		=> '1',
+		INCLUDE_ARP			=> '1',
+		INCLUDE_PING		=> '1',
 		
         FRAME_BUFFER_SIZE	 => 1,
 		READOUT_BUFFER_SIZE  => 2,
@@ -225,11 +225,11 @@ begin
         USE_INTERNAL_TRBNET_DUMMY => 0,
         RX_PATH_ENABLE            => 1,
         
-        INCLUDE_READOUT		=> 1,
-		INCLUDE_SLOWCTRL	=> 0,
-		INCLUDE_DHCP		=> 1,
-		INCLUDE_ARP			=> 1,
-		INCLUDE_PING		=> 1,
+        INCLUDE_READOUT		=> '1',
+		INCLUDE_SLOWCTRL	=> '0',
+		INCLUDE_DHCP		=> '1',
+		INCLUDE_ARP			=> '1',
+		INCLUDE_PING		=> '1',
 		
         FRAME_BUFFER_SIZE	 => 1,
 		READOUT_BUFFER_SIZE  => 2,
