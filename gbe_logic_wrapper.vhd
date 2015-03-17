@@ -587,6 +587,10 @@ begin
 			clk => CLK_SYS_IN,
 			rst => RESET,
 			GBE_READY_IN => dhcp_done,
+			
+			CFG_EVENT_SIZE_IN      => (others => '0'),
+			CFG_TRIGGERED_MODE_IN  => '0',
+			TRIGGER_IN => '0',
 			                    
 			CTS_NUMBER_OUT		     => gbe_cts_number,
 			CTS_CODE_OUT		     => gbe_cts_code,
