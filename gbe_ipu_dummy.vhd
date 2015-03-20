@@ -297,7 +297,7 @@ begin
 			if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) + 2) then
 				next_state <= WAIT_A_SEC_7;
 			else
-				next_state <= SEND_ONE_WORD;
+				next_state <= LOOP_OVER_DATA; --SEND_ONE_WORD;
 			end if;
 		
 		when SEND_ONE_WORD => 
@@ -524,6 +524,8 @@ begin
 				fee_dready <= '1';
 			elsif (current_state = WAIT_FOR_READ_6) then
 				fee_dready <= '1';
+			elsif (current_state = LOOP_OVER_DATA) then
+				fee_dready <= '1';
 			elsif (current_state = SEND_ONE_WORD) then -- and ctr = send_word_pause) then
 				fee_dready <= '1'; 
 			else
@@ -548,6 +550,8 @@ begin
 					fee_data <= test_data_len;
 				when WAIT_FOR_READ_6 =>
 					fee_data <= x"ff22";
+				when LOOP_OVER_DATA =>
+					fee_data <= data_ctr(15 downto 0);
 				when SEND_ONE_WORD =>
 					fee_data <= data_ctr(15 downto 0);
 				when others =>
