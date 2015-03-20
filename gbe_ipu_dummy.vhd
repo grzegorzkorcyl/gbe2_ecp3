@@ -301,11 +301,12 @@ begin
 			end if;
 		
 		when SEND_ONE_WORD => 
-			if (ctr = send_word_pause) then
-				next_state <= LOOP_OVER_DATA;
-			else
-				next_state <= SEND_ONE_WORD;
-			end if;
+--			if (ctr = send_word_pause) then
+--				next_state <= LOOP_OVER_DATA;
+--			else
+--				next_state <= SEND_ONE_WORD;
+--			end if;
+			next_state <= LOOP_OVER_DATA;
 			
 		when WAIT_A_SEC_7 =>
 			if (ctr = pause_wait_7) then
