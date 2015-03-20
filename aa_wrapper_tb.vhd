@@ -13,7 +13,7 @@ use work.trb_net_gbe_components.all;
 use work.trb_net_gbe_protocols.all;
 
 ENTITY aa_wrapper_tb IS
-	generic(NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 2);
+	generic(NUMBER_OF_OUTPUT_LINKS : integer range 0 to 4 := 3);
 END aa_wrapper_tb;
 
 ARCHITECTURE behavior OF aa_wrapper_tb IS
@@ -334,11 +334,127 @@ begin
 		     MAKE_RESET_OUT           => open
 		);
 		
+	gbe_inst3 : entity work.gbe_logic_wrapper
+	generic map(
+		DO_SIMULATION             => 1,
+        INCLUDE_DEBUG             => 1,
+        USE_INTERNAL_TRBNET_DUMMY => 0,
+        RX_PATH_ENABLE            => 1,
+        
+        INCLUDE_READOUT		=> '1',
+		INCLUDE_SLOWCTRL	=> '0',
+		INCLUDE_DHCP		=> '1',
+		INCLUDE_ARP			=> '1',
+		INCLUDE_PING		=> '1',
+		
+        FRAME_BUFFER_SIZE	 => 1,
+		READOUT_BUFFER_SIZE  => 2,
+		SLOWCTRL_BUFFER_SIZE => 2,
+		
+        FIXED_SIZE_MODE           => 1,
+        INCREMENTAL_MODE          => 1,
+        FIXED_SIZE                => 100,
+        FIXED_DELAY_MODE          => 1,
+        UP_DOWN_MODE              => 1,
+        UP_DOWN_LIMIT             => 200,
+        FIXED_DELAY               => 1
+        )
+	port map(
+			 CLK_SYS_IN               => clk,
+		     CLK_125_IN               => RX_MAC_CLK,
+		     CLK_RX_125_IN            => RX_MAC_CLK,
+		     RESET                    => RESET,
+		     GSR_N                    => gsr,
+		     
+		     MY_MAC_OUT => open,
+			 MY_MAC_IN  => x"ffffffffffff",
+		     
+		     MAC_READY_CONF_IN        => '1',
+		     MAC_RECONF_OUT           => open,
+		     MAC_AN_READY_IN		  => '1',
+		     MAC_FIFOAVAIL_OUT        => mac_fifoavail(2),
+		     MAC_FIFOEOF_OUT          => mac_fifoeof(2),
+		     MAC_FIFOEMPTY_OUT        => open,
+		     MAC_RX_FIFOFULL_OUT      => open,
+		     MAC_TX_DATA_OUT          => open,
+		     MAC_TX_READ_IN           => mac_read(2),
+		     MAC_TX_DISCRFRM_IN       => '0',
+		     MAC_TX_STAT_EN_IN        => '0',
+		     MAC_TX_STATS_IN          => (others => '0'),
+		     MAC_TX_DONE_IN           => mac_tx_done(2),
+		     MAC_RX_FIFO_ERR_IN       => '0',
+		     MAC_RX_STATS_IN          => (others => '0'),
+		     MAC_RX_DATA_IN           => MAC_RXD_IN,
+		     MAC_RX_WRITE_IN          => MAC_RX_EN_IN,
+		     MAC_RX_STAT_EN_IN        => '0',
+		     MAC_RX_EOF_IN            => MAC_RX_EOF_IN,
+		     MAC_RX_ERROR_IN          => '0',
+		     
+		     CTS_NUMBER_IN            => mlt_cts_number(3 * 16 - 1 downto 2 * 16),		   
+		     CTS_CODE_IN              => mlt_cts_code(3 * 8 - 1 downto 2 * 8),	           
+		     CTS_INFORMATION_IN       => mlt_cts_information(3 * 8 - 1 downto 2 * 8),	   
+		     CTS_READOUT_TYPE_IN      => mlt_cts_readout_type(3 * 4 - 1 downto 2 * 4),     
+		     CTS_START_READOUT_IN     => mlt_cts_start_readout(2),                         
+		     CTS_DATA_OUT             => mlt_cts_data(3 * 32 - 1 downto 2 * 32),			
+		     CTS_DATAREADY_OUT        => mlt_cts_dataready(2),	                           
+		     CTS_READOUT_FINISHED_OUT => mlt_cts_readout_finished(2),                      
+		     CTS_READ_IN              => mlt_cts_read(2),		                           
+		     CTS_LENGTH_OUT           => mlt_cts_length(3 * 16 - 1 downto 2 * 16),		   
+		     CTS_ERROR_PATTERN_OUT    => mlt_cts_error_pattern(3 * 32 - 1 downto 2 * 32),  
+		     FEE_DATA_IN              => mlt_fee_data(3 * 16 - 1 downto 2 * 16),		   
+		     FEE_DATAREADY_IN         => mlt_fee_dataready(2),	                           
+		     FEE_READ_OUT             => mlt_fee_read(2),			                       
+		     FEE_STATUS_BITS_IN       => mlt_fee_status(3 * 32 - 1 downto 2 * 32),	       
+		     FEE_BUSY_IN              => mlt_fee_busy(2),                                  
+		     
+		     MC_UNIQUE_ID_IN          => (others => '0'),
+		     
+		     GSC_CLK_IN               => clk,
+		     GSC_INIT_DATAREADY_OUT   => open, --GSC_INIT_DATAREADY_OUT,
+		     GSC_INIT_DATA_OUT        => open, --GSC_INIT_DATA_OUT,
+		     GSC_INIT_PACKET_NUM_OUT  => open, --GSC_INIT_PACKET_NUM_OUT,
+		     GSC_INIT_READ_IN         => '0', --GSC_INIT_READ_IN,
+		     GSC_REPLY_DATAREADY_IN   => '0', --GSC_REPLY_DATAREADY_IN,
+		     GSC_REPLY_DATA_IN        => (others => '0'), --GSC_REPLY_DATA_IN,
+		     GSC_REPLY_PACKET_NUM_IN  => (others => '0'), --GSC_REPLY_PACKET_NUM_IN,
+		     GSC_REPLY_READ_OUT       => open, --GSC_REPLY_READ_OUT,
+		     GSC_BUSY_IN              => '0', --GSC_BUSY_IN,
+		     
+		     SLV_ADDR_IN              => (others => '0'), --SLV_ADDR_IN,
+		     SLV_READ_IN              => '0', --SLV_READ_IN,
+		     SLV_WRITE_IN             => '0', --SLV_WRITE_IN,
+		     SLV_BUSY_OUT             => open, --SLV_BUSY_OUT,
+		     SLV_ACK_OUT              => open, --SLV_ACK_OUT,
+		     SLV_DATA_IN              => (others => '0'), --SLV_DATA_IN,
+		     SLV_DATA_OUT             => open, --SLV_DATA_OUT,
+		     
+		     CFG_GBE_ENABLE_IN        => '1',
+		     CFG_IPU_ENABLE_IN        => '0',
+		     CFG_MULT_ENABLE_IN       => '0',
+		     CFG_MAX_FRAME_IN         => x"0578",
+		     CFG_ALLOW_RX_IN		  => '1',
+		     CFG_SOFT_RESET_IN		  => '0',
+		     CFG_SUBEVENT_ID_IN       => (others => '0'),
+		     CFG_SUBEVENT_DEC_IN      => (others => '0'),
+		     CFG_QUEUE_DEC_IN         => (others => '0'),
+		     CFG_READOUT_CTR_IN       => (others => '0'),
+		     CFG_READOUT_CTR_VALID_IN => '0',
+		     CFG_INSERT_TTYPE_IN      => '0',
+		     CFG_MAX_SUB_IN           => x"0578",
+		     CFG_MAX_QUEUE_IN         => x"1000",
+		     CFG_MAX_SUBS_IN_QUEUE_IN => x"0002",
+		     CFG_MAX_SINGLE_SUB_IN    => x"0578",
+		     CFG_ADDITIONAL_HDR_IN    => '0',
+		     CFG_MAX_REPLY_SIZE_IN    => x"0000_fa00",
+		     
+		     MAKE_RESET_OUT           => open
+		);
+		
 	ipu_mult : entity work.gbe_ipu_multiplexer
 	generic map(
 		DO_SIMULATION          => 1,
 		INCLUDE_DEBUG          => 1,
-		NUMBER_OF_OUTPUT_LINKS => 2
+		NUMBER_OF_OUTPUT_LINKS => 3
 	)
 	port map(
 		CLK_SYS_IN                  => CLK,
@@ -448,11 +564,21 @@ begin
 	wait until rising_edge(rx_mac_clk);
 end process;
 
+process
+begin
+	mac_tx_done(1) <= '0';
+	wait until rising_edge(mac_fifoeof(2));
+	wait until rising_edge(rx_mac_clk);
+	mac_tx_done(1) <= '1';
+	wait until rising_edge(rx_mac_clk);
+end process;
+
 process(rx_mac_clk)
 begin
 	if rising_edge(rx_mac_clk) then
 		mac_read(0) <= mac_fifoavail(0);
 		mac_read(1) <= mac_fifoavail(1);
+		mac_read(2) <= mac_fifoavail(2);
 	end if;
 end process;
 	
