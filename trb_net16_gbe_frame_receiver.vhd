@@ -145,11 +145,7 @@ begin
 	if RESET = '1' then
 		filter_current_state <= IDLE;
 	elsif rising_edge(RX_MAC_CLK) then
---		if (RESET = '1') then
---			filter_current_state <= IDLE;
---		else
-			filter_current_state <= filter_next_state;
---		end if;
+		filter_current_state <= filter_next_state;
 	end if;
 end process FILTER_MACHINE_PROC;
 
